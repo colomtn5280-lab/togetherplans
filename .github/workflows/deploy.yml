@@ -54,20 +54,39 @@ jobs:
 
       - name: Deploy to Cloud Run
         run: |
+          # Write env file (avoids shell-splitting commas in CORS_ORIGIN)
+          cat > /tmp/run.env.yaml <<EOF
+          NODE_ENV: production
+          DATABASE_URL: "${{ secrets.DATABASE_URL }}"
+          JWT_SECRET: "${{ secrets.JWT_SECRET }}"
+          CORS_ORIGIN: "${{ secrets.CORS_ORIGIN }}"
+          EOF
+
           gcloud run deploy datenight-api \
             --source ./backend \
             --region us-central1 \
             --platform managed \
             --allow-unauthenticated \
             --add-cloudsql-instances="${{ secrets.CLOUD_SQL_INSTANCE }}" \
-            --env-vars-file=<(echo "NODE_ENV: production
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          CORS_ORIGIN: ${{ secrets.CORS_ORIGIN }}") \
+            --env-vars-file=/tmp/run.env.yaml \
             --quiet
 
-      - name: Run DB migrations
-        working-directory: backend
+      - name: Run DB migrations via Cloud SQL Proxy
         run: |
+          # Download Cloud SQL proxy
+          curl -sL https://storage.googleapis.com/cloud-sql-connectors/cloud-sql-proxy/v2.14.1/cloud-sql-proxy.linux.amd64 \
+            -o /tmp/cloud-sql-proxy && chmod +x /tmp/cloud-sql-proxy
+
+          # Start proxy in background
+          /tmp/cloud-sql-proxy "${{ secrets.CLOUD_SQL_INSTANCE }}" \
+            --port 5433 --quiet &
+          PROXY_PID=$!
+          sleep 3
+
+          # Run migrations through proxy
+          cd backend
           npm ci --ignore-scripts
-          DATABASE_URL="${{ secrets.DATABASE_URL_DIRECT }}" npx prisma migrate deploy
+          DATABASE_URL="postgresql://datenight:${{ secrets.DB_PASS }}@127.0.0.1:5433/datenight" \
+            npx prisma migrate deploy
+
+          kill $PROXY_PID || true
