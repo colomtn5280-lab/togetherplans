@@ -1,0 +1,57 @@
+{
+  "expo": {
+    "name": "DateNight",
+    "slug": "datenight",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "scheme": "datenight",
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "app.togetherplans.datenight",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "DateNight uses your location to suggest nearby activities.",
+        "NSCameraUsageDescription": "DateNight uses your camera for QR code scanning.",
+        "NSPhotoLibraryUsageDescription": "DateNight may access your photos for profile pictures."
+      }
+    },
+    "android": {
+      "package": "app.togetherplans.datenight",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#FF4081"
+      },
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "CAMERA",
+        "RECEIVE_BOOT_COMPLETED",
+        "VIBRATE"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-secure-store",
+      "expo-location",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png",
+          "color": "#FF4081"
+        }
+      ]
+    ],
+    "extra": {
+      "apiBaseUrl": "https://api.togetherplans.app",
+      "privacyPolicyUrl": "https://api.togetherplans.app/privacy",
+      "termsUrl": "https://api.togetherplans.app/terms",
+      "eas": {
+        "projectId": "datenight-togetherplans"
+      }
+    }
+  }
+}
