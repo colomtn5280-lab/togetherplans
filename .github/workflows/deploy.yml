@@ -1,0 +1,65 @@
+name: Test & Deploy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - run: npm ci
+
+      - name: Audit (block on high/critical)
+        run: npm audit --audit-level=high
+
+      - run: npm run typecheck
+
+      - run: npm run lint
+
+      - run: npm test
+
+  deploy:
+    needs: test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: google-github-actions/auth@v2
+        with:
+          credentials_json: '${{ secrets.GCP_SA_KEY }}'
+
+      - uses: google-github-actions/setup-gcloud@v2
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy datenight-api \
+            --source ./backend \
+            --region us-central1 \
+            --platform managed \
+            --allow-unauthenticated \
+            --add-cloudsql-instances="${{ secrets.CLOUD_SQL_INSTANCE }}" \
+            --set-env-vars="NODE_ENV=production,DATABASE_URL=${{ secrets.DATABASE_URL }},JWT_SECRET=${{ secrets.JWT_SECRET }},CORS_ORIGIN=${{ secrets.CORS_ORIGIN }}" \
+            --quiet
+
+      - name: Run DB migrations
+        run: |
+          cd backend
+          npm ci
+          DATABASE_URL="${{ secrets.DATABASE_URL_DIRECT }}" npx prisma migrate deploy
