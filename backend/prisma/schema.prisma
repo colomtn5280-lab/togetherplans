@@ -1,0 +1,149 @@
+// DateNight — Prisma schema
+// Users, groups, invitations, date proposals, activity options, votes.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id           String    @id @default(uuid())
+  email        String    @unique
+  passwordHash String
+  displayName  String
+  // Optional home location for recommendations
+  latitude     Float?
+  longitude    Float?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  // GDPR: soft-delete marker; hard delete via scheduled job within 30 days
+  deletedAt    DateTime?
+
+  memberships     GroupMember[]
+  sentInvitations Invitation[]  @relation("Inviter")
+  proposals       Proposal[]
+  votes           Vote[]
+}
+
+model Group {
+  id        String   @id @default(uuid())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  members     GroupMember[]
+  invitations Invitation[]
+  proposals   Proposal[]
+}
+
+model GroupMember {
+  id       String   @id @default(uuid())
+  groupId  String
+  userId   String
+  role     Role     @default(MEMBER)
+  joinedAt DateTime @default(now())
+
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, userId])
+}
+
+enum Role {
+  OWNER
+  MEMBER
+}
+
+// Invitation methods: LINK, EMAIL, SMS, QR, USERNAME (5 methods per spec)
+enum InviteMethod {
+  LINK
+  EMAIL
+  SMS
+  QR
+  USERNAME
+}
+
+enum InviteStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  EXPIRED
+}
+
+model Invitation {
+  id        String       @id @default(uuid())
+  groupId   String
+  inviterId String
+  method    InviteMethod
+  // token used in invite links / QR codes
+  token     String       @unique @default(uuid())
+  // target contact for EMAIL/SMS/USERNAME methods
+  target    String?
+  status    InviteStatus @default(PENDING)
+  expiresAt DateTime
+  createdAt DateTime     @default(now())
+
+  group   Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  inviter User  @relation("Inviter", fields: [inviterId], references: [id], onDelete: Cascade)
+}
+
+enum ProposalStatus {
+  OPEN
+  COUNTERED
+  DECIDED
+  CANCELLED
+}
+
+model Proposal {
+  id         String         @id @default(uuid())
+  groupId    String
+  creatorId  String
+  title      String
+  // proposed date/time of the outing
+  dateTime   DateTime
+  status     ProposalStatus @default(OPEN)
+  // if this proposal is a counter-proposal, link to the original
+  parentId   String?
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+
+  group    Group      @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  creator  User       @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  parent   Proposal?  @relation("CounterProposals", fields: [parentId], references: [id])
+  counters Proposal[] @relation("CounterProposals")
+  options  Option[]
+}
+
+model Option {
+  id          String   @id @default(uuid())
+  proposalId  String
+  name        String
+  category    String // e.g. restaurant, movie, activity, outdoors
+  description String?
+  address     String?
+  latitude    Float?
+  longitude   Float?
+  // external reference (Yelp/TMDB/Google Place id) when sourced from an API
+  externalRef String?
+  createdAt   DateTime @default(now())
+
+  proposal Proposal @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+  votes    Vote[]
+}
+
+model Vote {
+  id        String   @id @default(uuid())
+  optionId  String
+  userId    String
+  // simple approval voting: a vote row = approval
+  createdAt DateTime @default(now())
+
+  option Option @relation(fields: [optionId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([optionId, userId])
+}

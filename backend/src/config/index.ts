@@ -1,0 +1,32 @@
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+const JWT_PLACEHOLDER = 'your-super-secret-jwt-key-change-in-production';
+
+export const config = {
+  node_env: process.env.NODE_ENV || 'development',
+  port: parseInt(process.env.PORT || '3000', 10),
+  host: process.env.HOST || '0.0.0.0',
+  log_level: process.env.LOG_LEVEL || 'info',
+  jwt_secret: process.env.JWT_SECRET || 'dev-secret',
+  jwt_expires_in: process.env.JWT_EXPIRES_IN || '7d',
+  cors_origin: process.env.CORS_ORIGIN
+    ? process.env.CORS_ORIGIN.split(',').map((o) => o.trim())
+    : ['http://localhost:5173', 'http://localhost:3000', 'http://localhost:8081'],
+  redis_url: process.env.REDIS_URL,
+};
+
+export const validateConfig = (): string[] => {
+  const errors: string[] = [];
+  const isProd = config.node_env === 'production' || config.node_env === 'staging';
+  if (isProd) {
+    if (!process.env.JWT_SECRET || process.env.JWT_SECRET === JWT_PLACEHOLDER) {
+      errors.push('JWT_SECRET must be set to a real secret in production (openssl rand -hex 64)');
+    }
+    if (!process.env.DATABASE_URL) {
+      errors.push('DATABASE_URL must be set in production');
+    }
+  }
+  return errors;
+};
