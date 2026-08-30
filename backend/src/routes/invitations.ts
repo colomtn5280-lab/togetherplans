@@ -1,6 +1,7 @@
 import { Router, Response } from 'express';
 import { prisma } from '@/services/db';
 import { requireAuth, AuthRequest } from '@/middleware/auth';
+import { sendInvitationEmail } from '@/services/email';
 
 export const invitationsRouter = Router();
 
@@ -36,6 +37,14 @@ invitationsRouter.post('/', async (req: AuthRequest, res: Response, next) => {
         expiresAt: new Date(Date.now() + INVITE_TTL_HOURS * 3600 * 1000),
       },
     });
+    // If method is EMAIL and target is provided, send the invitation email
+    if (method === 'EMAIL' && target) {
+      const inviter = await prisma.user.findUnique({ where: { id: req.userId as string } });
+      const group = await prisma.group.findUnique({ where: { id: groupId } });
+      if (inviter && group) {
+        sendInvitationEmail(target, inviter.displayName, group.name, invitation.token).catch(() => {});
+      }
+    }
     return res.status(201).json({
       ...invitation,
       inviteUrl: `/api/invitations/accept/${invitation.token}`,

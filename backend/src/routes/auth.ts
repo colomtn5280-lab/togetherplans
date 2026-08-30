@@ -2,6 +2,7 @@ import { Router, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import { prisma } from '@/services/db';
 import { signToken, requireAuth, AuthRequest } from '@/middleware/auth';
+import { sendWelcomeEmail } from '@/services/email';
 
 export const authRouter = Router();
 
@@ -29,6 +30,8 @@ authRouter.post('/register', async (req, res: Response, next) => {
       data: { email, passwordHash, displayName: displayName.trim() },
     });
     const token = signToken(user.id, user.email);
+    // Fire-and-forget — don't block registration on email delivery
+    sendWelcomeEmail(user.email, user.displayName).catch(() => {});
     return res.status(201).json({
       token,
       user: { id: user.id, email: user.email, displayName: user.displayName },

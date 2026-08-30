@@ -15,6 +15,8 @@ export const config = {
     ? process.env.CORS_ORIGIN.split(',').map((o) => o.trim())
     : ['http://localhost:5173', 'http://localhost:3000', 'http://localhost:8081'],
   redis_url: process.env.REDIS_URL,
+  resend_api_key: process.env.RESEND_API_KEY,
+  app_url: process.env.APP_URL || 'https://togetherplans.app',
 };
 
 export const validateConfig = (): string[] => {
