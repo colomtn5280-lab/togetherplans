@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: read
+  id-token: write   # required for Workload Identity Federation
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -43,7 +47,8 @@ jobs:
 
       - uses: google-github-actions/auth@v2
         with:
-          credentials_json: '${{ secrets.GCP_SA_KEY }}'
+          workload_identity_provider: '${{ secrets.WIF_PROVIDER }}'
+          service_account: '${{ secrets.WIF_SERVICE_ACCOUNT }}'
 
       - uses: google-github-actions/setup-gcloud@v2
 
@@ -55,11 +60,14 @@ jobs:
             --platform managed \
             --allow-unauthenticated \
             --add-cloudsql-instances="${{ secrets.CLOUD_SQL_INSTANCE }}" \
-            --set-env-vars="NODE_ENV=production,DATABASE_URL=${{ secrets.DATABASE_URL }},JWT_SECRET=${{ secrets.JWT_SECRET }},CORS_ORIGIN=${{ secrets.CORS_ORIGIN }}" \
+            --env-vars-file=<(echo "NODE_ENV: production
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          CORS_ORIGIN: ${{ secrets.CORS_ORIGIN }}") \
             --quiet
 
       - name: Run DB migrations
+        working-directory: backend
         run: |
-          cd backend
-          npm ci
+          npm ci --ignore-scripts
           DATABASE_URL="${{ secrets.DATABASE_URL_DIRECT }}" npx prisma migrate deploy
