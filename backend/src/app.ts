@@ -8,6 +8,7 @@ import { authRouter } from '@/routes/auth';
 import { groupsRouter } from '@/routes/groups';
 import { invitationsRouter } from '@/routes/invitations';
 import { proposalsRouter } from '@/routes/proposals';
+import { legalRouter } from '@/routes/legal';
 
 export function createApp(): express.Express {
   const app = express();
@@ -40,6 +41,7 @@ export function createApp(): express.Express {
   app.use('/api/groups', groupsRouter);
   app.use('/api/invitations', invitationsRouter);
   app.use('/api/proposals', proposalsRouter);
+  app.use('/', legalRouter);
 
   app.use((_req: Request, res: Response) => {
     res.status(404).json({ error: 'Not Found' });
