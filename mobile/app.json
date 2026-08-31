@@ -13,7 +13,8 @@
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "DateNight uses your location to suggest nearby activities.",
         "NSCameraUsageDescription": "DateNight uses your camera for QR code scanning.",
-        "NSPhotoLibraryUsageDescription": "DateNight may access your photos for profile pictures."
+        "NSPhotoLibraryUsageDescription": "DateNight may access your photos for profile pictures.",
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
