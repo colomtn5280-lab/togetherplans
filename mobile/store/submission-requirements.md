@@ -1,4 +1,5 @@
 # App Store Submission Requirements Checklist
+Updated: September 1, 2026
 
 ## Bundle Identifiers
 - iOS:     app.togetherplans.datenight
@@ -10,48 +11,28 @@
 - [x] Privacy Policy URL: https://api.togetherplans.app/privacy
 - [x] Terms of Service URL: https://api.togetherplans.app/terms
 - [x] Support email: hello@togetherplans.app
-- [ ] App icon (1024x1024 PNG, no alpha, no rounded corners — stores add rounding)
-- [ ] Screenshots (see sizes below)
+- [x] App icon — 1024x1024 PNG, no alpha (DONE: ~/DateNight/mobile/assets/icon.png)
+- [x] Android icon 512x512 (DONE: ~/DateNight/mobile/assets/icons/icon-512.png)
+- [x] All icon size variants generated (~/DateNight/mobile/assets/icons/)
+- [x] Splash screen (DONE: ~/DateNight/mobile/assets/splash.png — 1284x2778)
+- [ ] Screenshots (6 screens per size — see screenshot-guide.md)
 
 ### Google Play
 - [ ] Google Play Developer account approved ($25 one-time)
-- [ ] App signing keystore (EAS manages this — see EAS Build section)
-- [ ] Data safety form filled in Play Console
-  - Data collected: email, display name, location (optional)
-  - Data shared: none sold to third parties
-  - Data encrypted in transit: yes
-  - User can delete data: yes (30-day deletion)
+- [x] App signing — EAS manages keystore automatically
+- [ ] Data safety form filled in Play Console (pre-filled answers in play-console-upload-guide.md)
 - [ ] Content rating questionnaire completed (target: Everyone)
+- [ ] Feature graphic (1024x500 JPEG/PNG)
 
 ### Apple App Store
 - [ ] Apple Developer account active ($99/year)
-- [ ] App Store Connect app record created
-  - Bundle ID: app.togetherplans.datenight
-  - Name: DateNight: Plan Together
-- [ ] Apple Team ID (from developer.apple.com/account)
-- [ ] App Store Connect App ID (from App Store Connect)
-- [ ] Update eas.json with real ascAppId and appleTeamId
-
----
-
-## Screenshot Requirements
-
-### iOS (required sizes)
-- iPhone 6.7" (1290 x 2796): iPhone 15 Pro Max
-- iPhone 6.5" (1284 x 2778): iPhone 14 Plus / 13 Pro Max (also covers 6.3")
-- iPad 12.9" (2048 x 2732): required if supportsTablet is enabled
-
-### Android (required sizes)
-- Phone: 1080 x 1920 minimum (16:9 or 9:16)
-- At least 2, up to 8 screenshots
-
-### Recommended Screenshot Screens to Capture
-1. Login / landing screen (hero shot)
-2. Groups list (your plans)
-3. Create proposal with activity options
-4. Voting screen with options
-5. Consensus reached screen
-6. Discover / Suggestions screen
+- [ ] iOS distribution certificate completed on expo.dev credentials UI
+- [x] App Store Connect app record created (ASC App ID: 6806890578)
+- [x] Apple Team ID: 234UWRXT57
+- [x] eas.json updated with real Team ID and ASC App ID
+- [x] Bundle ID registered: app.togetherplans.datenight
+- [ ] Privacy nutrition labels completed in App Store Connect
+- [ ] 6 screenshots uploaded at 6.7" and 6.5" sizes
 
 ---
 
@@ -59,17 +40,17 @@
 
 ### Prerequisites
     npm install -g @expo/eas-cli
-    eas login        # Expo account required (free at expo.dev)
-    eas build:configure
+    eas login   # login: colomtn5280s-team
+    # eas.json is already configured
 
-### Build for Internal Testing (APK for Android, IPA for iOS)
+### Build for Internal Testing (APK for Android)
     cd ~/DateNight/mobile
-    eas build --platform android --profile preview   # Gets you an APK to test
-    eas build --platform ios --profile development   # Needs Apple account
+    eas build --platform android --profile preview   # APK for device testing
+    # Preview APK: https://expo.dev/artifacts/eas/mKLxZ01jzwkknmsCmQqRjR3OdJbGmbTzxf-lfB--Hi8.apk
 
 ### Build for Production (Store submission)
-    eas build --platform android --profile production
-    eas build --platform ios --profile production
+    eas build --platform android --profile production   # AAB for Play Store
+    eas build --platform ios --profile production       # IPA for App Store (requires Apple cert)
 
 ### Submit to Stores (after build)
     eas submit --platform android   # Uploads to Google Play internal track
@@ -92,26 +73,28 @@
 
 ## Data Safety (Google Play) & Privacy Details (Apple)
 
-Data type          | Collected | Shared | Purpose
--------------------|-----------|--------|---------------------------
-Email address      | Yes       | No     | Account creation, login
-Display name       | Yes       | No     | Profile, visible to group members
-Precise location   | Optional  | No     | Activity suggestions (user-controlled)
-Device identifiers | Yes       | No     | Push notifications
+Data type          | Collected | Shared              | Purpose
+-------------------|-----------|---------------------|----------------------------
+Email address      | Yes       | No                  | Account creation, login
+Display name       | Yes       | With group members  | Profile, visible in groups
+Approx location    | Optional  | No                  | Activity suggestions
+Device identifiers | Yes       | No                  | Push notifications
 
-Retention: Account data deleted within 30 days of account deletion request.
+Retention: Account data deleted within 30 days of deletion request.
 Encryption: All data encrypted in transit (TLS) and at rest (GCP Cloud SQL).
+User can request deletion: Yes — via account settings in the app.
 
 ---
 
-## Expo / EAS Account Setup (one-time)
-1. Create free account at expo.dev
-2. Run: npm install -g @expo/eas-cli
-3. Run: eas login
-4. Run: eas build:configure  (in ~/DateNight/mobile)
-5. This creates a project on Expo's servers and links app.json
+## Useful Links
+- EAS Builds: https://expo.dev/accounts/colomtn5280s-team/projects/togetherplans/builds
+- App Store Connect: https://appstoreconnect.apple.com
+- Play Console: https://play.google.com/console
+- Apple Developer: https://developer.apple.com/account
+- Resend Dashboard: https://resend.com
 
-## Notes
-- EAS handles signing keys for both platforms automatically
-- First Android build creates a keystore; EAS stores it securely
-- First iOS build requires Apple Developer account linked to EAS
+## See Also (in this folder)
+- listing-copy.md — App name, descriptions, keywords for both stores
+- screenshot-guide.md — How to capture and upload screenshots
+- play-console-upload-guide.md — Step-by-step Play Console walkthrough
+- resend-setup-guide.md — How to complete Resend email setup
