@@ -1,9 +1,11 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
+import { GoogleLogin } from "@react-oauth/google";
 import { authApi } from "../api/client";
+import { useAuthStore } from "../store/auth.store";
 import type { SignupResponse } from "../types";
 import type { AxiosError } from "axios";
 import type { ApiError } from "../types";
@@ -29,6 +31,9 @@ type FormData = z.infer<typeof schema>;
 
 export function SignupPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const setAuth = useAuthStore((s) => s.setAuth);
+  const from = (location.state as { from?: { pathname: string } })?.from?.pathname ?? "/dashboard";
 
   const {
     register,
@@ -117,6 +122,24 @@ export function SignupPage() {
           {mutation.isPending ? "Creating account…" : "Create account"}
         </button>
       </form>
+
+      <div style={{ margin: "16px 0", textAlign: "center", color: "#666" }}>or</div>
+      <GoogleLogin
+        onSuccess={(cred) => {
+          if (!cred.credential) return;
+          authApi.googleLogin(cred.credential).then(res => {
+            setAuth(
+              { userId: res.data.userId, email: res.data.email },
+              res.data.accessToken,
+              res.data.refreshToken,
+            );
+            navigate(from, { replace: true });
+          }).catch(() => alert("Google sign-in failed"));
+        }}
+        onError={() => alert("Google sign-in failed")}
+        width="100%"
+        text="signup_with"
+      />
 
       <p>
         Already have an account? <Link to="/login">Sign in</Link>

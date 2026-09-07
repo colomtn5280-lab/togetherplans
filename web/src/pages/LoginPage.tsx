@@ -3,6 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
+import { GoogleLogin } from "@react-oauth/google";
 import { authApi } from "../api/client";
 import { useAuthStore } from "../store/auth.store";
 import type { LoginResponse } from "../types";
@@ -81,6 +82,24 @@ export function LoginPage() {
           {mutation.isPending ? "Signing in…" : "Sign in"}
         </button>
       </form>
+
+      <div style={{ margin: "16px 0", textAlign: "center", color: "#666" }}>or</div>
+      <GoogleLogin
+        onSuccess={(cred) => {
+          if (!cred.credential) return;
+          authApi.googleLogin(cred.credential).then(res => {
+            setAuth(
+              { userId: res.data.userId, email: res.data.email },
+              res.data.accessToken,
+              res.data.refreshToken,
+            );
+            navigate(from, { replace: true });
+          }).catch(() => alert("Google sign-in failed"));
+        }}
+        onError={() => alert("Google sign-in failed")}
+        width="100%"
+        text="signin_with"
+      />
 
       <p>
         Don&apos;t have an account? <Link to="/signup">Sign up</Link>

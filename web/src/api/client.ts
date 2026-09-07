@@ -140,6 +140,9 @@ export const authApi = {
 
   logout: (): Promise<AxiosResponse<{ message: string }>> =>
     api.post("/auth/logout"),
+
+  googleLogin: (idToken: string): Promise<AxiosResponse<LoginResponse>> =>
+    api.post("/auth/google", { idToken }),
 };
 
 // ── Groups ────────────────────────────────────────────────────────────────────
