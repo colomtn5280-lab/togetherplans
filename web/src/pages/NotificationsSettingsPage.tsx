@@ -1,0 +1,270 @@
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { notificationsApi, usersApi } from "../api/client";
+import { useAuthStore } from "../store/auth.store";
+import { Link } from "react-router-dom";
+
+interface CategoryPref {
+  categoryId: string;
+  score: number;
+  interactions: number;
+}
+
+interface NotificationRecord {
+  id: string;
+  title: string;
+  message: string;
+  read: boolean;
+  created_at: string;
+}
+
+// ── NotificationsPage ─────────────────────────────────────────────────────────
+
+export function NotificationsPage() {
+  const queryClient = useQueryClient();
+
+  const { data: notifications = [], isLoading } = useQuery({
+    queryKey: ["notifications"],
+    queryFn: async () => {
+      const res = await notificationsApi.list();
+      return (res.data.notifications ?? []) as NotificationRecord[];
+    },
+    refetchInterval: 30_000,
+  });
+
+  const markRead = useMutation({
+    mutationFn: (id: string) => notificationsApi.markRead(id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["notifications"] }),
+  });
+
+  if (isLoading) return <div style={{ padding: 32 }}>Loading notifications…</div>;
+
+  return (
+    <div style={{ maxWidth: 640, margin: "0 auto", padding: 24 }}>
+      <h1>Notifications</h1>
+
+      {notifications.length === 0 ? (
+        <div style={{ textAlign: "center", padding: 48, color: "#666" }}>
+          <p style={{ fontSize: "2rem" }}>🔔</p>
+          <p>No notifications yet. When your group votes or locks in a date night, you'll see it here.</p>
+        </div>
+      ) : (
+        <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+          {notifications.map((notif) => (
+            <li
+              key={notif.id}
+              style={{
+                padding: "14px 16px",
+                marginBottom: 8,
+                borderRadius: 8,
+                background: notif.read ? "#f9f9f9" : "#fff8e1",
+                border: `1px solid ${notif.read ? "#eee" : "#ffe082"}`,
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "flex-start",
+                gap: 12,
+              }}
+            >
+              <div style={{ flex: 1 }}>
+                <div style={{ fontWeight: notif.read ? 400 : 600, marginBottom: 2 }}>
+                  {notif.title}
+                </div>
+                <div style={{ color: "#555", fontSize: "0.9em" }}>{notif.message}</div>
+                <div style={{ color: "#999", fontSize: "0.8em", marginTop: 4 }}>
+                  {new Date(notif.created_at).toLocaleString()}
+                </div>
+              </div>
+              {!notif.read && (
+                <button
+                  onClick={() => markRead.mutate(notif.id)}
+                  style={{
+                    padding: "4px 10px",
+                    fontSize: "0.8em",
+                    borderRadius: 6,
+                    border: "1px solid #ddd",
+                    cursor: "pointer",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  Mark read
+                </button>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+// ── SettingsPage ──────────────────────────────────────────────────────────────
+
+export function SettingsPage() {
+  const { user, clearAuth } = useAuthStore();
+
+  const { data: preferences } = useQuery({
+    queryKey: ["preferences"],
+    queryFn: async () => {
+      const res = await usersApi.getPreferences();
+      return res.data;
+    },
+  });
+
+  const requestExport = useMutation({
+    mutationFn: () => usersApi.requestExport(),
+    onSuccess: () => alert("Export requested. You'll receive a download link within 30 minutes."),
+  });
+
+  const requestDeletion = useMutation({
+    mutationFn: () => usersApi.requestDeletion(),
+    onSuccess: () => {
+      alert("Account scheduled for deletion in 30 days. You can cancel this from the same page.");
+      clearAuth();
+    },
+  });
+
+  const cats = (preferences?.categories ?? []) as CategoryPref[];
+
+  return (
+    <div style={{ maxWidth: 560, margin: "0 auto", padding: 24 }}>
+      <h1>Settings</h1>
+
+      {/* Account info */}
+      <section style={{ marginBottom: 32, padding: 20, background: "#f9f9f9", borderRadius: 8 }}>
+        <h2 style={{ marginTop: 0, fontSize: "1.1rem" }}>Account</h2>
+        <p style={{ margin: "4px 0", color: "#444" }}>
+          <strong>Email:</strong> {user?.email ?? "—"}
+        </p>
+        {user?.firstName && (
+          <p style={{ margin: "4px 0", color: "#444" }}>
+            <strong>Name:</strong> {user.firstName} {user.lastName ?? ""}
+          </p>
+        )}
+        <button
+          onClick={clearAuth}
+          style={{
+            marginTop: 12,
+            padding: "8px 16px",
+            borderRadius: 6,
+            border: "none",
+            background: "#6c757d",
+            color: "#fff",
+            cursor: "pointer",
+          }}
+        >
+          Sign out
+        </button>
+      </section>
+
+      {cats.length > 0 && (
+        <section style={{ marginBottom: 32 }}>
+          <h2 style={{ fontSize: "1.1rem" }}>Activity preferences</h2>
+          <p style={{ color: "#666", fontSize: "0.9em", marginTop: 0 }}>
+            Learned from your past accepts, rejects, and lock-ins. Updated automatically.
+          </p>
+          <ul style={{ listStyle: "none", padding: 0 }}>
+            {[...cats]
+              .sort((a, b) => b.score - a.score)
+              .slice(0, 6)
+              .map((cat) => (
+                <li
+                  key={cat.categoryId}
+                  style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}
+                >
+                  <span style={{ minWidth: 100, textTransform: "capitalize" }}>
+                    {cat.categoryId.replace(/-/g, " ")}
+                  </span>
+                  <div
+                    style={{
+                      flex: 1,
+                      height: 8,
+                      borderRadius: 4,
+                      background: "#eee",
+                      overflow: "hidden",
+                    }}
+                  >
+                    <div
+                      style={{
+                        height: "100%",
+                        width: `${Math.round(cat.score * 100)}%`,
+                        background: cat.score > 0.5 ? "#28a745" : "#dc3545",
+                        borderRadius: 4,
+                        transition: "width 0.3s",
+                      }}
+                    />
+                  </div>
+                  <span style={{ fontSize: "0.8em", color: "#666", minWidth: 32, textAlign: "right" }}>
+                    {Math.round(cat.score * 100)}%
+                  </span>
+                </li>
+              ))}
+          </ul>
+          <p style={{ fontSize: "0.8em", color: "#999" }}>
+            Based on {cats.reduce((sum, c) => sum + (c.interactions ?? 0), 0)} interactions
+          </p>
+        </section>
+      )}
+
+      {/* Navigation */}
+      <section style={{ marginBottom: 32 }}>
+        <h2 style={{ fontSize: "1.1rem" }}>Quick links</h2>
+        <nav style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <Link to="/groups" style={{ color: "#0066cc" }}>← Back to groups</Link>
+          <Link to="/notifications" style={{ color: "#0066cc" }}>🔔 Notifications</Link>
+          <Link to="/suggestions" style={{ color: "#0066cc" }}>✨ Browse activities</Link>
+        </nav>
+      </section>
+
+      {/* GDPR / Data rights */}
+      <section
+        style={{
+          padding: 20,
+          background: "#fff3cd",
+          borderRadius: 8,
+          border: "1px solid #ffc107",
+        }}
+      >
+        <h2 style={{ marginTop: 0, fontSize: "1.1rem" }}>Your data rights (GDPR / CCPA)</h2>
+        <p style={{ color: "#555", fontSize: "0.9em" }}>
+          You own your data. Export it as JSON or request permanent deletion (30-day grace period).
+        </p>
+        <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+          <button
+            onClick={() => requestExport.mutate()}
+            disabled={requestExport.isPending}
+            style={{
+              padding: "8px 16px",
+              borderRadius: 6,
+              border: "1px solid #ffc107",
+              background: "#fff",
+              cursor: "pointer",
+            }}
+          >
+            {requestExport.isPending ? "Requesting…" : "Export my data"}
+          </button>
+          <button
+            onClick={() => {
+              if (
+                window.confirm(
+                  "Schedule account deletion? You have 30 days to cancel. This cannot be undone after 30 days.",
+                )
+              ) {
+                requestDeletion.mutate();
+              }
+            }}
+            disabled={requestDeletion.isPending}
+            style={{
+              padding: "8px 16px",
+              borderRadius: 6,
+              border: "1px solid #dc3545",
+              background: "#fff",
+              color: "#dc3545",
+              cursor: "pointer",
+            }}
+          >
+            {requestDeletion.isPending ? "Scheduling…" : "Delete my account"}
+          </button>
+        </div>
+      </section>
+    </div>
+  );
+}
