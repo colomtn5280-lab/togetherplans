@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import { prisma } from '@/services/db';
 import { signToken, requireAuth, AuthRequest } from '@/middleware/auth';
 import { sendWelcomeEmail } from '@/services/email';
+import { verifyGoogleToken } from '@/services/oauth';
 
 export const authRouter = Router();
 
@@ -52,6 +53,10 @@ authRouter.post('/login', async (req, res: Response, next) => {
     if (!user || user.deletedAt) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
+    if (!user.passwordHash) {
+      // OAuth-only account — no password set
+      return res.status(401).json({ error: 'This account uses social sign-in. Please sign in with Google.' });
+    }
     const ok = await bcrypt.compare(password, user.passwordHash);
     if (!ok) {
       return res.status(401).json({ error: 'Invalid credentials' });
@@ -61,6 +66,39 @@ authRouter.post('/login', async (req, res: Response, next) => {
       token,
       user: { id: user.id, email: user.email, displayName: user.displayName },
     });
+  } catch (err) {
+    return next(err);
+  }
+});
+
+// POST /api/auth/google
+authRouter.post('/google', async (req, res: Response, next) => {
+  try {
+    const { idToken } = req.body || {};
+    if (!idToken) return res.status(400).json({ error: 'idToken is required' });
+
+    const { email, name, providerId, avatarUrl } = await verifyGoogleToken(idToken);
+
+    // Find existing user by provider or email
+    let user = await prisma.user.findFirst({
+      where: { OR: [{ provider: 'google', providerId }, { email }] },
+    });
+
+    if (!user) {
+      user = await prisma.user.create({
+        data: { email, displayName: name, provider: 'google', providerId, avatarUrl, passwordHash: null },
+      });
+      sendWelcomeEmail(user.email, user.displayName).catch(() => {});
+    } else if (!user.provider) {
+      // Link existing email account to Google
+      user = await prisma.user.update({
+        where: { id: user.id },
+        data: { provider: 'google', providerId, avatarUrl },
+      });
+    }
+
+    const token = signToken(user.id, user.email);
+    return res.json({ token, user: { id: user.id, email: user.email, displayName: user.displayName } });
   } catch (err) {
     return next(err);
   }

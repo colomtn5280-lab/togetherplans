@@ -495,10 +495,6 @@ export type EnumInviteMethodFieldUpdateOperationsInput = {
   set?: $Enums.InviteMethod
 }
 
-export type NullableStringFieldUpdateOperationsInput = {
-  set?: string | null
-}
-
 export type EnumInviteStatusFieldUpdateOperationsInput = {
   set?: $Enums.InviteStatus
 }

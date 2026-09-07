@@ -13,8 +13,12 @@ datasource db {
 model User {
   id           String    @id @default(uuid())
   email        String    @unique
-  passwordHash String
+  passwordHash String?
   displayName  String
+  // OAuth provider fields
+  provider     String?   // 'google' | 'apple' | 'facebook' | 'linkedin' | 'microsoft'
+  providerId   String?   // provider's user ID
+  avatarUrl    String?
   // Optional home location for recommendations
   latitude     Float?
   longitude    Float?
@@ -27,6 +31,8 @@ model User {
   sentInvitations Invitation[]  @relation("Inviter")
   proposals       Proposal[]
   votes           Vote[]
+
+  @@unique([provider, providerId])
 }
 
 model Group {
