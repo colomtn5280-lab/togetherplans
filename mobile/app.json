@@ -6,7 +6,7 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "scheme": "datenight",
+    "scheme": "togetherplans",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
@@ -51,7 +51,8 @@
           "icon": "./assets/icon.png",
           "color": "#FF4081"
         }
-      ]
+      ],
+      "expo-web-browser"
     ],
     "extra": {
       "apiBaseUrl": "https://api.togetherplans.app",

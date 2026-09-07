@@ -9,6 +9,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, displayName: string) => Promise<void>;
   logout: () => Promise<void>;
+  loginWithToken: (data: { token: string; user: User }) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -57,8 +58,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   };
 
+  const loginWithToken = async (data: { token: string; user: User }) => {
+    const { token: t, user: u } = data;
+    await saveToken(t);
+    setToken(t);
+    setUser(u);
+  };
+
   return (
-    <AuthContext.Provider value={{ user, token, isLoading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, token, isLoading, login, register, logout, loginWithToken }}>
       {children}
     </AuthContext.Provider>
   );

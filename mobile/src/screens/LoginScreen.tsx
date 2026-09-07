@@ -6,6 +6,7 @@ import {
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useAuth } from '@/hooks/useAuth';
+import { useGoogleAuth } from '@/hooks/useGoogleAuth';
 import { COLORS, SPACING } from '@/constants';
 import { RootStackParamList } from '@/types';
 
@@ -13,6 +14,7 @@ type Props = { navigation: NativeStackNavigationProp<RootStackParamList, 'Login'
 
 export default function LoginScreen({ navigation }: Props) {
   const { login } = useAuth();
+  const { promptAsync, request } = useGoogleAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -59,6 +61,14 @@ export default function LoginScreen({ navigation }: Props) {
           {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Sign In</Text>}
         </TouchableOpacity>
 
+        <TouchableOpacity
+          style={styles.googleButton}
+          onPress={() => promptAsync()}
+          disabled={!request}
+        >
+          <Text style={styles.googleButtonText}>Continue with Google</Text>
+        </TouchableOpacity>
+
         <TouchableOpacity onPress={() => navigation.navigate('Register')}>
           <Text style={styles.link}>Don't have an account? <Text style={styles.linkBold}>Sign up</Text></Text>
         </TouchableOpacity>
@@ -85,4 +95,14 @@ const styles = StyleSheet.create({
   buttonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
   link: { textAlign: 'center', color: COLORS.textSecondary, fontSize: 14 },
   linkBold: { color: COLORS.primary, fontWeight: '600' },
+  googleButton: {
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 12,
+    padding: SPACING.md,
+    alignItems: 'center' as const,
+    marginBottom: SPACING.md,
+  },
+  googleButtonText: { color: '#333', fontSize: 16, fontWeight: '600' as const },
 });

@@ -5,10 +5,12 @@ import {
   ActivityIndicator, Alert, ScrollView,
 } from 'react-native';
 import { useAuth } from '@/hooks/useAuth';
+import { useGoogleAuth } from '@/hooks/useGoogleAuth';
 import { COLORS, SPACING } from '@/constants';
 
 export default function RegisterScreen() {
   const { register } = useAuth();
+  const { promptAsync, request } = useGoogleAuth();
   const [displayName, setDisplayName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -49,6 +51,14 @@ export default function RegisterScreen() {
           {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Create Account</Text>}
         </TouchableOpacity>
 
+        <TouchableOpacity
+          style={styles.googleButton}
+          onPress={() => promptAsync()}
+          disabled={!request}
+        >
+          <Text style={styles.googleButtonText}>Continue with Google</Text>
+        </TouchableOpacity>
+
         <Text style={styles.legal}>
           By signing up, you agree to our{' '}
           <Text style={styles.legalLink}>Terms of Service</Text> and{' '}
@@ -76,4 +86,14 @@ const styles = StyleSheet.create({
   buttonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
   legal: { textAlign: 'center', fontSize: 12, color: COLORS.textSecondary, marginTop: SPACING.sm },
   legalLink: { color: COLORS.primary },
+  googleButton: {
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 12,
+    padding: SPACING.md,
+    alignItems: 'center' as const,
+    marginBottom: SPACING.md,
+  },
+  googleButtonText: { color: '#333', fontSize: 16, fontWeight: '600' as const },
 });
