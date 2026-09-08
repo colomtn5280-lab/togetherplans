@@ -1,0 +1,9 @@
+{
+  "name": "DateNight Design System Builder",
+  "id": "datenight-design-system",
+  "api": "1.0.0",
+  "main": "code.js",
+  "ui": "ui.html",
+  "editorType": ["figma"],
+  "documentAccess": "dynamic-page"
+}

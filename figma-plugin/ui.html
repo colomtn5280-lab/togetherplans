@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  body { font-family: Inter, sans-serif; margin: 0; padding: 24px; background: #fff; color: #1a1a1a; }
+  h2 { font-size: 18px; font-weight: 600; margin: 0 0 8px; color: #7c3aed; }
+  p  { font-size: 13px; color: #666; margin: 0 0 20px; }
+  button {
+    width: 100%; padding: 14px; background: #FF4081; color: white;
+    border: none; border-radius: 12px; font-size: 16px; font-weight: 600;
+    cursor: pointer; transition: background 0.2s;
+  }
+  button:hover { background: #C60055; }
+  button:disabled { background: #ccc; cursor: default; }
+  #status { margin-top: 20px; font-size: 13px; color: #666; min-height: 24px; }
+  #report { margin-top: 16px; }
+  .item { padding: 8px 0; border-bottom: 1px solid #eee; font-size: 13px; }
+  .done { font-weight: 600; color: #2E7D32; margin-top: 16px; font-size: 15px; }
+</style>
+</head>
+<body>
+  <h2>DateNight Design System</h2>
+  <p>Creates all screen frames, color styles, text styles, and spacing guides from your app's actual design tokens.</p>
+  <button id="buildBtn" onclick="build()">Build Design System ✨</button>
+  <div id="status"></div>
+  <div id="report"></div>
+
+  <script>
+    function build() {
+      document.getElementById('buildBtn').disabled = true;
+      document.getElementById('buildBtn').textContent = 'Building…';
+      document.getElementById('status').textContent = 'Starting…';
+      parent.postMessage({ pluginMessage: { type: 'build' } }, '*');
+    }
+
+    window.onmessage = (event) => {
+      const msg = event.data.pluginMessage;
+      if (!msg) return;
+
+      if (msg.type === 'status') {
+        document.getElementById('status').textContent = msg.text;
+      }
+      if (msg.type === 'done') {
+        document.getElementById('status').textContent = '';
+        const report = document.getElementById('report');
+        report.innerHTML = msg.report.map(r => `<div class="item">${r}</div>`).join('');
+        report.innerHTML += '<div class="done">🎉 Done! Your design system is ready.</div>';
+        document.getElementById('buildBtn').textContent = '✅ Complete';
+      }
+    };
+  </script>
+</body>
+</html>
