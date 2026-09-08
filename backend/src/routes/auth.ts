@@ -2,7 +2,7 @@ import { Router, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import { prisma } from '@/services/db';
 import { signToken, requireAuth, AuthRequest } from '@/middleware/auth';
-import { sendWelcomeEmail } from '@/services/email';
+import { sendWelcomeEmail, sendPasswordResetEmail } from '@/services/email';
 import { verifyGoogleToken } from '@/services/oauth';
 
 export const authRouter = Router();
@@ -116,6 +116,59 @@ authRouter.get('/me', requireAuth, async (req: AuthRequest, res: Response, next)
       latitude: user.latitude,
       longitude: user.longitude,
     });
+  } catch (err) {
+    return next(err);
+  }
+});
+
+// POST /api/auth/forgot-password
+authRouter.post('/forgot-password', async (req, res: Response, next) => {
+  try {
+    const { email } = req.body || {};
+    if (!email || !EMAIL_RE.test(email)) {
+      return res.status(400).json({ error: 'Valid email is required' });
+    }
+    // Always respond OK to prevent email enumeration
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (user && !user.deletedAt) {
+      // Stateless JWT reset token — valid 1 hour, signed with JWT_SECRET
+      const jwt = await import('jsonwebtoken');
+      const secret = process.env.JWT_SECRET ?? 'changeme';
+      const resetToken = jwt.default.sign(
+        { sub: user.id, purpose: 'password-reset' },
+        secret,
+        { expiresIn: '1h' },
+      );
+      sendPasswordResetEmail(user.email, resetToken).catch(() => {});
+    }
+    return res.json({ message: 'If that email is registered, a reset link has been sent.' });
+  } catch (err) {
+    return next(err);
+  }
+});
+
+// POST /api/auth/reset-password
+authRouter.post('/reset-password', async (req, res: Response, next) => {
+  try {
+    const { token, password } = req.body || {};
+    if (!token) return res.status(400).json({ error: 'token is required' });
+    if (!password || password.length < 8) {
+      return res.status(400).json({ error: 'Password must be at least 8 characters' });
+    }
+    const jwt = await import('jsonwebtoken');
+    const secret = process.env.JWT_SECRET ?? 'changeme';
+    let payload: { sub?: string; purpose?: string };
+    try {
+      payload = jwt.default.verify(token, secret) as typeof payload;
+    } catch {
+      return res.status(400).json({ error: 'Invalid or expired reset token' });
+    }
+    if (payload.purpose !== 'password-reset' || !payload.sub) {
+      return res.status(400).json({ error: 'Invalid reset token' });
+    }
+    const passwordHash = await bcrypt.hash(password, 12);
+    await prisma.user.update({ where: { id: payload.sub }, data: { passwordHash } });
+    return res.json({ message: 'Password updated successfully' });
   } catch (err) {
     return next(err);
   }
