@@ -39,8 +39,10 @@ invitationsRouter.post('/', async (req: AuthRequest, res: Response, next) => {
     });
     // If method is EMAIL and target is provided, send the invitation email
     if (method === 'EMAIL' && target) {
-      const inviter = await prisma.user.findUnique({ where: { id: req.userId as string } });
-      const group = await prisma.group.findUnique({ where: { id: groupId } });
+      const [inviter, group] = await Promise.all([
+        prisma.user.findUnique({ where: { id: req.userId as string } }),
+        prisma.group.findUnique({ where: { id: groupId } }),
+      ]);
       if (inviter && group) {
         sendInvitationEmail(target, inviter.displayName, group.name, invitation.token).catch(() => {});
       }

@@ -29,6 +29,11 @@ export const validateConfig = (): string[] => {
     if (!process.env.DATABASE_URL) {
       errors.push('DATABASE_URL must be set in production');
     }
+    if (!process.env.CORS_ORIGIN) {
+      errors.push('CORS_ORIGIN must be explicitly set in production (e.g., https://togetherplans.app)');
+    } else if (process.env.CORS_ORIGIN.trim() === '*') {
+      errors.push('CORS_ORIGIN must not be wildcard (*) in production');
+    }
   }
   return errors;
 };

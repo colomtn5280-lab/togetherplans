@@ -1,0 +1,143 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <!-- Main background gradient: dark purple to medium purple -->
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3b0764;stop-opacity:1" />
+      <stop offset="45%" style="stop-color:#5b21b6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#7c3aed;stop-opacity:1" />
+    </linearGradient>
+    <!-- Radial glow overlay -->
+    <radialGradient id="glowGradient" cx="50%" cy="45%" r="55%">
+      <stop offset="0%" style="stop-color:#8b5cf6;stop-opacity:0.4" />
+      <stop offset="100%" style="stop-color:#3b0764;stop-opacity:0" />
+    </radialGradient>
+    <!-- Subtle noise texture via filter -->
+    <filter id="noise">
+      <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/>
+      <feColorMatrix type="saturate" values="0"/>
+      <feBlend in="SourceGraphic" mode="overlay" result="blend"/>
+      <feComposite in="blend" in2="SourceGraphic" operator="in"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bgGradient)" />
+  <!-- Radial glow overlay -->
+  <rect width="1200" height="630" fill="url(#glowGradient)" />
+
+  <!-- Decorative abstract circles (semi-transparent white) -->
+  <!-- Top-left large circle -->
+  <circle cx="-30" cy="80" r="220" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="2"/>
+  <circle cx="-30" cy="80" r="170" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1.5"/>
+
+  <!-- Bottom-right large circle -->
+  <circle cx="1230" cy="560" r="260" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="2"/>
+  <circle cx="1230" cy="560" r="200" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1.5"/>
+
+  <!-- Top-right small accent circle -->
+  <circle cx="1050" cy="90" r="80" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+
+  <!-- Bottom-left small accent circle -->
+  <circle cx="150" cy="540" r="60" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+
+  <!-- Calendar Icon (top-right area, semi-transparent) -->
+  <g transform="translate(980, 120)" opacity="0.15">
+    <!-- Calendar body -->
+    <rect x="0" y="20" width="120" height="110" rx="12" ry="12" fill="white" stroke="white" stroke-width="2"/>
+    <!-- Calendar header -->
+    <rect x="0" y="20" width="120" height="36" rx="12" ry="12" fill="white"/>
+    <rect x="0" y="40" width="120" height="16" fill="white"/>
+    <!-- Calendar rings -->
+    <rect x="30" y="8" width="10" height="30" rx="5" ry="5" fill="white"/>
+    <rect x="80" y="8" width="10" height="30" rx="5" ry="5" fill="white"/>
+    <!-- Calendar grid lines -->
+    <line x1="0" y1="72" x2="120" y2="72" stroke="#5b21b6" stroke-width="1" opacity="0.5"/>
+    <line x1="0" y1="95" x2="120" y2="95" stroke="#5b21b6" stroke-width="1" opacity="0.5"/>
+    <line x1="40" y1="56" x2="40" y2="130" stroke="#5b21b6" stroke-width="1" opacity="0.5"/>
+    <line x1="80" y1="56" x2="80" y2="130" stroke="#5b21b6" stroke-width="1" opacity="0.5"/>
+    <!-- Heart in center cell -->
+    <text x="60" y="112" font-family="Arial, sans-serif" font-size="28" text-anchor="middle" fill="#7c3aed">♥</text>
+  </g>
+
+  <!-- Small calendar icon (bottom-left, semi-transparent) -->
+  <g transform="translate(80, 380)" opacity="0.1">
+    <rect x="0" y="12" width="72" height="66" rx="8" ry="8" fill="white"/>
+    <rect x="0" y="12" width="72" height="22" rx="8" ry="8" fill="white"/>
+    <rect x="0" y="24" width="72" height="10" fill="white"/>
+    <rect x="18" y="4" width="7" height="18" rx="3.5" ry="3.5" fill="white"/>
+    <rect x="47" y="4" width="7" height="18" rx="3.5" ry="3.5" fill="white"/>
+  </g>
+
+  <!-- Decorative dot cluster (top-left) -->
+  <g opacity="0.2">
+    <circle cx="95" cy="155" r="3" fill="white"/>
+    <circle cx="115" cy="140" r="2" fill="white"/>
+    <circle cx="130" cy="160" r="3.5" fill="white"/>
+    <circle cx="108" cy="173" r="2.5" fill="white"/>
+    <circle cx="148" cy="148" r="2" fill="white"/>
+  </g>
+
+  <!-- Decorative dot cluster (bottom-right) -->
+  <g opacity="0.2">
+    <circle cx="1060" cy="480" r="3" fill="white"/>
+    <circle cx="1080" cy="465" r="2" fill="white"/>
+    <circle cx="1095" cy="485" r="3.5" fill="white"/>
+    <circle cx="1073" cy="498" r="2.5" fill="white"/>
+    <circle cx="1113" cy="473" r="2" fill="white"/>
+  </g>
+
+  <!-- Pink accent dot (brand color) -->
+  <circle cx="600" cy="215" r="5" fill="#FF4081" opacity="0.7"/>
+
+  <!-- Main Title: DateNight -->
+  <text
+    x="600"
+    y="320"
+    font-family="'Arial Black', 'Arial', 'Helvetica Neue', sans-serif"
+    font-size="128"
+    font-weight="900"
+    text-anchor="middle"
+    fill="white"
+    letter-spacing="-2"
+  >DateNight</text>
+
+  <!-- Subtle text shadow via duplicate layer -->
+  <text
+    x="602"
+    y="322"
+    font-family="'Arial Black', 'Arial', 'Helvetica Neue', sans-serif"
+    font-size="128"
+    font-weight="900"
+    text-anchor="middle"
+    fill="rgba(0,0,0,0.15)"
+    letter-spacing="-2"
+  >DateNight</text>
+
+  <!-- Tagline -->
+  <text
+    x="600"
+    y="390"
+    font-family="'Arial', 'Helvetica Neue', sans-serif"
+    font-size="46"
+    font-weight="300"
+    text-anchor="middle"
+    fill="rgba(216,180,254,0.95)"
+    letter-spacing="1"
+  >Plan Together. Go Together.</text>
+
+  <!-- Divider line -->
+  <line x1="420" y1="420" x2="780" y2="420" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+
+  <!-- Domain / URL -->
+  <text
+    x="600"
+    y="575"
+    font-family="'Arial', 'Helvetica Neue', sans-serif"
+    font-size="32"
+    font-weight="400"
+    text-anchor="middle"
+    fill="rgba(255,255,255,0.75)"
+    letter-spacing="2"
+  >togetherplans.app</text>
+
+</svg>

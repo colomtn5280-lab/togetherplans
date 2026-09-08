@@ -1,5 +1,6 @@
 import { Router, Response } from 'express';
 import bcrypt from 'bcryptjs';
+import rateLimit from 'express-rate-limit';
 import { prisma } from '@/services/db';
 import { signToken, requireAuth, AuthRequest } from '@/middleware/auth';
 import { sendWelcomeEmail, sendPasswordResetEmail } from '@/services/email';
@@ -9,8 +10,17 @@ export const authRouter = Router();
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+// Stricter rate limit for auth endpoints to prevent brute-force attacks
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many authentication attempts. Please try again later.' },
+});
+
 // POST /api/auth/register
-authRouter.post('/register', async (req, res: Response, next) => {
+authRouter.post('/register', authLimiter, async (req, res: Response, next) => {
   try {
     const { email, password, displayName } = req.body || {};
     if (!email || !EMAIL_RE.test(email)) {
@@ -43,7 +53,7 @@ authRouter.post('/register', async (req, res: Response, next) => {
 });
 
 // POST /api/auth/login
-authRouter.post('/login', async (req, res: Response, next) => {
+authRouter.post('/login', authLimiter, async (req, res: Response, next) => {
   try {
     const { email, password } = req.body || {};
     if (!email || !password) {
@@ -72,7 +82,7 @@ authRouter.post('/login', async (req, res: Response, next) => {
 });
 
 // POST /api/auth/google
-authRouter.post('/google', async (req, res: Response, next) => {
+authRouter.post('/google', authLimiter, async (req, res: Response, next) => {
   try {
     const { idToken } = req.body || {};
     if (!idToken) return res.status(400).json({ error: 'idToken is required' });

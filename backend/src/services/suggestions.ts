@@ -53,7 +53,10 @@ function shuffle<T>(arr: T[]): T[] {
 const CACHE_TTL_SECONDS = 300;
 
 export async function getSuggestions(query: SuggestionQuery): Promise<Suggestion[]> {
-  const cacheKey = `suggestions:${query.category || 'all'}:${query.lat ?? 'x'}:${query.lng ?? 'x'}`;
+  // Round coordinates to ~1km resolution to maximize cache hit rate
+  const lat = query.lat !== undefined ? Math.round(query.lat * 100) / 100 : 'x';
+  const lng = query.lng !== undefined ? Math.round(query.lng * 100) / 100 : 'x';
+  const cacheKey = `suggestions:${query.category || 'all'}:${lat}:${lng}`;
 
   const cached = await cache.get(cacheKey);
   let pool: Suggestion[];

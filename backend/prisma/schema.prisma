@@ -57,6 +57,7 @@ model GroupMember {
   user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([groupId, userId])
+  @@index([userId])
 }
 
 enum Role {
@@ -122,6 +123,8 @@ model Proposal {
   parent   Proposal?  @relation("CounterProposals", fields: [parentId], references: [id])
   counters Proposal[] @relation("CounterProposals")
   options  Option[]
+
+  @@index([groupId])
 }
 
 model Option {
@@ -152,4 +155,5 @@ model Vote {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([optionId, userId])
+  @@index([optionId])
 }
