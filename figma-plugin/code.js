@@ -43,9 +43,18 @@ const TEXT_STYLES = [
 figma.ui.onmessage = async (msg) => {
   if (msg.type !== "build") return;
 
+  let report = [];
+
+  // Load all fonts ONCE upfront before doing anything else
+  figma.ui.postMessage({ type: "status", text: "Loading fonts..." });
+  await Promise.all([
+    figma.loadFontAsync({ family: "Inter", style: "Regular" }),
+    figma.loadFontAsync({ family: "Inter", style: "Semi Bold" }),
+    figma.loadFontAsync({ family: "Inter", style: "Bold" }),
+  ]);
+
   const page = figma.currentPage;
   page.name = "DateNight — Screens";
-  let report = [];
 
   // 1. Color styles
   figma.ui.postMessage({ type: "status", text: "Creating color styles..." });
@@ -86,9 +95,15 @@ figma.ui.onmessage = async (msg) => {
     bar.fills = [{ type: "SOLID", color: { r: 0.973, g: 0.973, b: 0.973 } }];
     frame.appendChild(bar);
 
+    // Pink accent bar at top (brand indicator)
+    const accent = figma.createRectangle();
+    accent.resize(390, 4);
+    accent.y = 44;
+    accent.fills = [{ type: "SOLID", color: COLORS["primary"] }];
+    frame.appendChild(accent);
+
     // Screen label
     const label = figma.createText();
-    await figma.loadFontAsync({ family: "Inter", style: "Semi Bold" });
     label.fontName = { family: "Inter", style: "Semi Bold" };
     label.characters = SCREENS[i];
     label.fontSize = 18;
@@ -96,13 +111,6 @@ figma.ui.onmessage = async (msg) => {
     label.x = 24;
     label.y = 60;
     frame.appendChild(label);
-
-    // Pink accent bar at top (brand indicator)
-    const accent = figma.createRectangle();
-    accent.resize(390, 4);
-    accent.y = 44;
-    accent.fills = [{ type: "SOLID", color: COLORS["primary"] }];
-    frame.appendChild(accent);
 
     page.appendChild(frame);
   }
@@ -128,7 +136,6 @@ figma.ui.onmessage = async (msg) => {
     spacingFrame.appendChild(box);
 
     const lbl = figma.createText();
-    await figma.loadFontAsync({ family: "Inter", style: "Regular" });
     lbl.fontName = { family: "Inter", style: "Regular" };
     lbl.characters = `${name}\n${val}px`;
     lbl.fontSize = 11;
