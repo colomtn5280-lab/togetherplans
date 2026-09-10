@@ -1,5 +1,5 @@
 # App Store Submission Requirements Checklist
-Updated: September 1, 2026
+Updated: September 10, 2026
 
 ## Bundle Identifiers
 - iOS:     app.togetherplans.datenight
@@ -20,9 +20,10 @@ Updated: September 1, 2026
 ### Google Play
 - [ ] Google Play Developer account approved ($25 one-time)
 - [x] App signing — EAS manages keystore automatically
-- [ ] Data safety form filled in Play Console (pre-filled answers in play-console-upload-guide.md)
+- [x] Data safety form pre-filled answers ready (see play-console-data-safety.md)
+- [ ] Data safety form submitted in Play Console
 - [ ] Content rating questionnaire completed (target: Everyone)
-- [ ] Feature graphic (1024x500 JPEG/PNG)
+- [ ] Feature graphic uploaded (1024x500 JPEG/PNG — see screenshot-guide.md)
 
 ### Apple App Store
 - [ ] Apple Developer account active ($99/year)
@@ -97,4 +98,5 @@ User can request deletion: Yes — via account settings in the app.
 - listing-copy.md — App name, descriptions, keywords for both stores
 - screenshot-guide.md — How to capture and upload screenshots
 - play-console-upload-guide.md — Step-by-step Play Console walkthrough
+- play-console-data-safety.md — Pre-filled Data Safety form answers
 - resend-setup-guide.md — How to complete Resend email setup

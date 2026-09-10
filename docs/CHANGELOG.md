@@ -10,12 +10,54 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## 2026-09-10
+
+### Added
+- **Activity suggestions endpoint** (`GET /api/suggestions`): live integration with Yelp Fusion, TMDB (now-playing movies), and Google Places. Falls back gracefully to a curated seed catalog of 15 activities when API keys are absent or calls fail. Results cached for 5 minutes (Redis/in-memory). Returns up to 10 shuffled results per query. Accepts `lat`, `lng`, and `category` query params. ([c59843e](https://github.com/))
+- **Profile update** (`PATCH /api/auth/me`): authenticated users can update `displayName`, `latitude`, `longitude`. ([537f0f2](https://github.com/))
+- **Push token registration** (`PATCH /api/auth/me/push-token`): stores Expo push notification token on the user record. Validates `ExponentPushToken[...]` format. ([537f0f2](https://github.com/))
+- **Proposal cancel** (`PATCH /api/proposals/:id/cancel`): creator or group OWNER can cancel an open proposal. Returns 409 if already DECIDED or CANCELLED. ([537f0f2](https://github.com/))
+- **Account deletion** (`DELETE /api/auth/me`): GDPR soft-delete — sets `deletedAt` timestamp; account data purged within 30 days. ([30c4d0c](https://github.com/))
+- **Web signup alias** (`POST /api/auth/signup`): web client sends `signup` rather than `register`. New endpoint handles `firstName`/`lastName` and returns both `token` and `accessToken` for cross-client compatibility. ([c59843e](https://github.com/))
+- **Prisma `pushToken` field**: added `pushToken String?` to the User model; migration applied to Cloud SQL. ([537f0f2](https://github.com/))
+
+### Fixed
+- **Suggestions route missing**: `GET /api/suggestions` was implemented as a service but never wired to an HTTP route — registered in `app.ts`. ([c59843e](https://github.com/))
+- **Mobile suggestions URL**: mobile client was calling the wrong path (`/api/proposals/suggestions/list`); corrected to `/api/suggestions`. ([c59843e](https://github.com/))
+- **Mobile suggestions response shape**: screen expected `{ suggestions: [] }` wrapper; API returns a plain array. Both `SuggestionsScreen` and `CreateProposalScreen` corrected. ([c59843e](https://github.com/))
+- **Mobile push token body key**: `usePushToken.ts` was sending `{ token: ... }` but backend expects `{ pushToken: ... }`. ([c59843e](https://github.com/))
+- **Jest/ESM conflict**: `jose` (used by Apple Sign In token verification) is ESM-only and incompatible with Jest CommonJS. Resolved with a module mock at `src/__mocks__/jose.ts`. All 9 tests pass. ([30c4d0c](https://github.com/))
+- **npm audit HIGH**: added `mysql2` resolution override to clear high-severity vulnerability surfaced by `npm audit`. ([2d4a2e2](https://github.com/))
+- **Password reset URL**: was `/reset-password/${token}` (path param); corrected to `/reset-password?token=${token}` (query param, matching the web router). ([537f0f2](https://github.com/))
+
+### Deployed
+- Revision `datenight-api-00028-5gk` deployed to Cloud Run with all 6 secrets (JWT_SECRET, RESEND_API_KEY, TMDB_API_KEY, YELP_API_KEY, DATABASE_URL, GOOGLE_MAPS_API_KEY) confirmed populated in Secret Manager.
+
+---
+
+## 2026-09-09
+
+### Added
+- **Apple Sign In** (`POST /api/auth/apple`): verifies Apple identity tokens via Apple's public JWKS, creates or links accounts. Returns JWT. ([fcac2b0](https://github.com/))
+- **Apple Sign In on mobile**: integrated into Login and Register screens using `expo-apple-authentication`. Falls back gracefully on non-iOS platforms. ([fcac2b0](https://github.com/))
+- **Auth guards on web**: all protected web routes now redirect to `/login` when unauthenticated. ([0b18284](https://github.com/))
+- **Forgot/reset password pages on web**: `ForgotPasswordPage` and `ResetPasswordPage` added; wired to `POST /api/auth/forgot-password` and `POST /api/auth/reset-password`. ([0b18284](https://github.com/))
+- **Deep linking for invitations**: `exp://` and `https://togetherplans.app/join/:token` deep links handled in mobile; `InviteAcceptPage` added to web. ([4f225c6](https://github.com/))
+- **Real location in suggestions**: mobile `SuggestionsScreen` requests foreground location permission and passes coords to the suggestions API. ([4f225c6](https://github.com/))
+- **Push token registration hook** (`usePushToken.ts`): requests notification permissions, gets Expo push token, registers with backend. Wired into `AppNavigator`. ([4f225c6](https://github.com/))
+
+---
+
 ## 2026-09-08
 
 ### Added
 - **Google OAuth backend endpoint** (`POST /api/auth/google`): verifies Google ID tokens, creates new users or links existing email accounts to Google provider. Includes Prisma schema fields: `provider`, `providerId`, `avatarUrl`. ([18b1c79](https://github.com/))
 - **Google Sign-In on mobile**: integrated Google authentication into the Expo React Native login and register screens. ([3a984f3](https://github.com/))
 - **Google Sign-In on web**: integrated Google authentication into the React/Vite web app login and signup pages. ([8f72966](https://github.com/))
+- **Figma plugin**: builds full DateNight design system (frames, color/text styles, spacing tokens) in one click from inside Figma. ([fbaf5ce](https://github.com/))
+- **Figma sync script**: reads design file via REST API, extracts screens, colors, and typography tokens. ([e488c3e](https://github.com/))
+- **Web preview pipeline**: Cloudflare Pages preview deploys on every PR branch; GitHub Actions wired. ([05dbcd1](https://github.com/))
+- **Production HTML email templates**: welcome email, invitation email, and password reset email — all responsive HTML with TogetherPlans branding. ([c51a8bd](https://github.com/))
 
 ---
 

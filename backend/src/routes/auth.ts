@@ -53,6 +53,44 @@ authRouter.post('/register', authLimiter, async (req, res: Response, next) => {
   }
 });
 
+// POST /api/auth/signup — alias for /register (used by web client)
+authRouter.post('/signup', authLimiter, async (req, res: Response, next) => {
+  try {
+    const { email, password, displayName, firstName, lastName } = req.body || {};
+    // Web client sends firstName/lastName; merge into displayName if needed
+    const name = displayName?.trim() ||
+      [firstName, lastName].filter(Boolean).map((s: string) => s.trim()).join(' ') ||
+      '';
+    if (!email || !EMAIL_RE.test(email)) {
+      return res.status(400).json({ error: 'Valid email is required' });
+    }
+    if (!password || password.length < 8) {
+      return res.status(400).json({ error: 'Password must be at least 8 characters' });
+    }
+    if (!name) {
+      return res.status(400).json({ error: 'displayName (or firstName) is required' });
+    }
+    const existing = await prisma.user.findUnique({ where: { email } });
+    if (existing) {
+      return res.status(409).json({ error: 'Email already registered' });
+    }
+    const passwordHash = await bcrypt.hash(password, 12);
+    const user = await prisma.user.create({
+      data: { email, passwordHash, displayName: name },
+    });
+    const token = signToken(user.id, user.email);
+    sendWelcomeEmail(user.email, user.displayName).catch(() => {});
+    // Return both old shape (token/user) and new shape (accessToken) for compatibility
+    return res.status(201).json({
+      token,
+      accessToken: token,
+      user: { id: user.id, email: user.email, displayName: user.displayName },
+    });
+  } catch (err) {
+    return next(err);
+  }
+});
+
 // POST /api/auth/login
 authRouter.post('/login', authLimiter, async (req, res: Response, next) => {
   try {

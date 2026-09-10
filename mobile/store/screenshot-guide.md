@@ -471,4 +471,4 @@ store/
 
 ---
 
-*Last updated: September 2026 · App: DateNight (app.togetherplans.datenight) · Platform: Expo React Native*
+*Last updated: September 10, 2026 · App: DateNight (app.togetherplans.datenight) · Platform: Expo React Native*
