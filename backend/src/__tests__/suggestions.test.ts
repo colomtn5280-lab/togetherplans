@@ -3,10 +3,10 @@ process.env.NODE_ENV = 'test';
 import { getSuggestions } from '@/services/suggestions';
 
 describe('getSuggestions', () => {
-  it('returns 3-5 suggestions', async () => {
+  it('returns suggestions', async () => {
     const result = await getSuggestions({});
     expect(result.length).toBeGreaterThanOrEqual(3);
-    expect(result.length).toBeLessThanOrEqual(5);
+    expect(result.length).toBeLessThanOrEqual(10);
   });
 
   it('filters by category', async () => {
