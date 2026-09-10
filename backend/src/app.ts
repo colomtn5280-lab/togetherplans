@@ -9,6 +9,7 @@ import { groupsRouter } from '@/routes/groups';
 import { invitationsRouter } from '@/routes/invitations';
 import { proposalsRouter } from '@/routes/proposals';
 import { legalRouter } from '@/routes/legal';
+import { suggestionsRouter } from '@/routes/suggestions';
 
 export function createApp(): express.Express {
   const app = express();
@@ -41,6 +42,7 @@ export function createApp(): express.Express {
   app.use('/api/groups', groupsRouter);
   app.use('/api/invitations', invitationsRouter);
   app.use('/api/proposals', proposalsRouter);
+  app.use('/api/suggestions', suggestionsRouter);
   app.use('/', legalRouter);
 
   app.use((_req: Request, res: Response) => {
