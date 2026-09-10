@@ -41,7 +41,7 @@ async function registerPushToken() {
   });
 
   // Register with our backend
-  await api.post('/api/auth/me/push-token', { token: tokenData.data });
+  await api.post('/api/auth/me/push-token', { pushToken: tokenData.data });
 
   // Mark as registered so we skip on subsequent launches
   await SecureStore.setItemAsync(PUSH_TOKEN_REGISTERED_KEY, tokenData.data);

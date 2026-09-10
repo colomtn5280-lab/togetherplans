@@ -74,14 +74,14 @@ export interface ConsensusResult {
   votes: { optionId: string; count: number; percentage: number }[];
 }
 
+// Shape returned by GET /api/suggestions
 export interface Suggestion {
-  id: string;
-  title: string;
+  name: string;        // API returns 'name', not 'title'
   description: string;
   category: string;
-  estimatedCost: string;
-  estimatedDuration: string;
-  location?: string;
+  address?: string;
+  latitude?: number;
+  longitude?: number;
 }
 
 export type RootStackParamList = {

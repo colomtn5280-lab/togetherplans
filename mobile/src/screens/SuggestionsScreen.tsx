@@ -8,7 +8,15 @@ import { proposalsAPI } from '@/services/api';
 import { Suggestion } from '@/types';
 import { COLORS, SPACING } from '@/constants';
 
-const CATEGORIES = ['All', 'Dining', 'Entertainment', 'Outdoors', 'Arts', 'Nightlife', 'Relaxation'];
+const CATEGORIES = ['All', 'restaurant', 'movie', 'activity', 'outdoors', 'culture'];
+const CATEGORY_LABELS: Record<string, string> = {
+  All: 'All',
+  restaurant: 'Dining',
+  movie: 'Movies',
+  activity: 'Activities',
+  outdoors: 'Outdoors',
+  culture: 'Culture',
+};
 
 export default function SuggestionsScreen() {
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
@@ -24,9 +32,11 @@ export default function SuggestionsScreen() {
       const res = await proposalsAPI.suggestions(
         lat,
         lng,
-        cat && cat !== 'All' ? cat.toLowerCase() : undefined,
+        cat !== 'All' ? cat : undefined,
       );
-      setSuggestions(res.data.suggestions || []);
+      // API returns a plain array (not { suggestions: [] })
+      const data = Array.isArray(res.data) ? res.data : [];
+      setSuggestions(data);
     } catch {
       Alert.alert('Error', 'Could not load suggestions');
     } finally {
@@ -34,13 +44,11 @@ export default function SuggestionsScreen() {
     }
   };
 
-  // Fetch suggestions immediately (no location) on category change
   useEffect(() => {
     fetchSuggestions(category, coords?.lat, coords?.lng);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [category]);
 
-  // Request location on mount; re-fetch suggestions once we have it
   useEffect(() => {
     (async () => {
       try {
@@ -55,18 +63,17 @@ export default function SuggestionsScreen() {
         const { latitude: lat, longitude: lng } = position.coords;
         setCoords({ lat, lng });
         setLocationAvailable(true);
-        // Re-fetch with actual location
         fetchSuggestions(category, lat, lng);
       } catch {
         setLocationAvailable(false);
       }
     })();
-    // Only run once on mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const filtered = suggestions.filter((s) =>
-    !search || s.title.toLowerCase().includes(search.toLowerCase()) ||
+    !search ||
+    s.name.toLowerCase().includes(search.toLowerCase()) ||
     s.description.toLowerCase().includes(search.toLowerCase())
   );
 
@@ -74,10 +81,14 @@ export default function SuggestionsScreen() {
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Discover</Text>
-        <TextInput style={styles.search} placeholder="Search activities..."
-          value={search} onChangeText={setSearch} placeholderTextColor={COLORS.textSecondary} />
+        <TextInput
+          style={styles.search}
+          placeholder="Search activities..."
+          value={search}
+          onChangeText={setSearch}
+          placeholderTextColor={COLORS.textSecondary}
+        />
 
-        {/* Location status indicator */}
         {locationAvailable === true && (
           <View style={styles.locationBanner}>
             <Text style={styles.locationText}>📍 Using your location</Text>
@@ -103,7 +114,9 @@ export default function SuggestionsScreen() {
             style={[styles.catBtn, category === item && styles.catBtnActive]}
             onPress={() => setCategory(item)}
           >
-            <Text style={[styles.catText, category === item && styles.catTextActive]}>{item}</Text>
+            <Text style={[styles.catText, category === item && styles.catTextActive]}>
+              {CATEGORY_LABELS[item] ?? item}
+            </Text>
           </TouchableOpacity>
         )}
       />
@@ -113,7 +126,7 @@ export default function SuggestionsScreen() {
       ) : (
         <FlatList
           data={filtered}
-          keyExtractor={(s) => s.id}
+          keyExtractor={(s, i) => `${s.name}-${i}`}
           numColumns={2}
           contentContainerStyle={styles.grid}
           ListEmptyComponent={() => (
@@ -124,12 +137,11 @@ export default function SuggestionsScreen() {
           renderItem={({ item }) => (
             <View style={styles.card}>
               <Text style={styles.cardCategory}>{item.category}</Text>
-              <Text style={styles.cardTitle}>{item.title}</Text>
+              <Text style={styles.cardTitle}>{item.name}</Text>
               <Text style={styles.cardDesc} numberOfLines={2}>{item.description}</Text>
-              <View style={styles.cardFooter}>
-                <Text style={styles.cardMeta}>{item.estimatedDuration}</Text>
-                <Text style={styles.cardCost}>{item.estimatedCost}</Text>
-              </View>
+              {item.address ? (
+                <Text style={styles.cardAddress} numberOfLines={1}>📍 {item.address}</Text>
+              ) : null}
             </View>
           )}
         />
@@ -157,10 +169,8 @@ const styles = StyleSheet.create({
   card: { flex: 1, backgroundColor: COLORS.surface, borderRadius: 12, padding: SPACING.md, margin: SPACING.xs, borderWidth: 1, borderColor: COLORS.border },
   cardCategory: { fontSize: 11, fontWeight: '700', color: COLORS.primary, textTransform: 'uppercase', marginBottom: 4 },
   cardTitle: { fontSize: 15, fontWeight: '600', color: COLORS.text, marginBottom: 4 },
-  cardDesc: { fontSize: 13, color: COLORS.textSecondary, marginBottom: SPACING.sm },
-  cardFooter: { flexDirection: 'row', justifyContent: 'space-between' },
-  cardMeta: { fontSize: 12, color: COLORS.textSecondary },
-  cardCost: { fontSize: 12, color: COLORS.success, fontWeight: '600' },
+  cardDesc: { fontSize: 13, color: COLORS.textSecondary, marginBottom: SPACING.xs },
+  cardAddress: { fontSize: 11, color: COLORS.textSecondary },
   empty: { padding: SPACING.xl, alignItems: 'center' },
   emptyText: { color: COLORS.textSecondary, fontSize: 15 },
 });

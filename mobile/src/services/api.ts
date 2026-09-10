@@ -57,5 +57,5 @@ export const proposalsAPI = {
   counter: (proposalId: string, title: string, description?: string) =>
     api.post(`/api/proposals/${proposalId}/counter`, { title, description }),
   suggestions: (lat?: number, lng?: number, category?: string) =>
-    api.get('/api/proposals/suggestions/list', { params: { lat, lng, category } }),
+    api.get('/api/suggestions', { params: { lat, lng, category } }),
 };

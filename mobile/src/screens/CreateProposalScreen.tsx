@@ -27,7 +27,8 @@ export default function CreateProposalScreen({ navigation, route }: Props) {
     setLoadingSuggestions(true);
     try {
       const res = await proposalsAPI.suggestions();
-      setSuggestions(res.data.suggestions || []);
+      // API returns a plain array
+      setSuggestions(Array.isArray(res.data) ? res.data : []);
     } catch {
       Alert.alert('Error', 'Could not load suggestions');
     } finally {
@@ -80,13 +81,13 @@ export default function CreateProposalScreen({ navigation, route }: Props) {
         </TouchableOpacity>
       </View>
 
-      {suggestions.map((s) => (
-        <TouchableOpacity key={s.id} style={styles.suggestionCard} onPress={() => {
-          setTitle(s.title);
+      {suggestions.map((s, i) => (
+        <TouchableOpacity key={`${s.name}-${i}`} style={styles.suggestionCard} onPress={() => {
+          setTitle(s.name);
           setDescription(s.description);
         }}>
-          <Text style={styles.suggestionTitle}>{s.title}</Text>
-          <Text style={styles.suggestionMeta}>{s.category} · {s.estimatedDuration} · {s.estimatedCost}</Text>
+          <Text style={styles.suggestionTitle}>{s.name}</Text>
+          <Text style={styles.suggestionMeta}>{s.category}{s.address ? ` · ${s.address}` : ''}</Text>
         </TouchableOpacity>
       ))}
     </ScrollView>
