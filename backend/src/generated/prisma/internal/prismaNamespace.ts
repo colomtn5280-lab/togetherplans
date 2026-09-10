@@ -988,6 +988,7 @@ export const UserScalarFieldEnum = {
   provider: 'provider',
   providerId: 'providerId',
   avatarUrl: 'avatarUrl',
+  pushToken: 'pushToken',
   latitude: 'latitude',
   longitude: 'longitude',
   createdAt: 'createdAt',
