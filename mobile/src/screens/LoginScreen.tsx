@@ -4,9 +4,11 @@ import {
   StyleSheet, KeyboardAvoidingView, Platform,
   ActivityIndicator, Alert, ScrollView,
 } from 'react-native';
+import * as AppleAuthentication from 'expo-apple-authentication';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useAuth } from '@/hooks/useAuth';
 import { useGoogleAuth } from '@/hooks/useGoogleAuth';
+import { useAppleAuth } from '@/hooks/useAppleAuth';
 import { COLORS, SPACING } from '@/constants';
 import { RootStackParamList } from '@/types';
 
@@ -15,6 +17,7 @@ type Props = { navigation: NativeStackNavigationProp<RootStackParamList, 'Login'
 export default function LoginScreen({ navigation }: Props) {
   const { login } = useAuth();
   const { promptAsync, request } = useGoogleAuth();
+  const { signIn: appleSignIn, isAvailable: appleAvailable } = useAppleAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -28,6 +31,16 @@ export default function LoginScreen({ navigation }: Props) {
       Alert.alert('Login Failed', err?.response?.data?.error || 'Invalid credentials');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleAppleSignIn = async () => {
+    try {
+      await appleSignIn();
+    } catch (err: any) {
+      if (err?.code !== 'ERR_REQUEST_CANCELED') {
+        Alert.alert('Apple Sign In Failed', err?.message || 'Something went wrong');
+      }
     }
   };
 
@@ -69,6 +82,16 @@ export default function LoginScreen({ navigation }: Props) {
           <Text style={styles.googleButtonText}>Continue with Google</Text>
         </TouchableOpacity>
 
+        {appleAvailable && (
+          <AppleAuthentication.AppleAuthenticationButton
+            buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
+            buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
+            cornerRadius={12}
+            style={styles.appleButton}
+            onPress={handleAppleSignIn}
+          />
+        )}
+
         <TouchableOpacity onPress={() => navigation.navigate('Register')}>
           <Text style={styles.link}>Don't have an account? <Text style={styles.linkBold}>Sign up</Text></Text>
         </TouchableOpacity>
@@ -105,4 +128,8 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.md,
   },
   googleButtonText: { color: '#333', fontSize: 16, fontWeight: '600' as const },
+  appleButton: {
+    height: 50,
+    marginBottom: SPACING.md,
+  },
 });

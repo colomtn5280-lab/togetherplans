@@ -4,13 +4,16 @@ import {
   StyleSheet, KeyboardAvoidingView, Platform,
   ActivityIndicator, Alert, ScrollView,
 } from 'react-native';
+import * as AppleAuthentication from 'expo-apple-authentication';
 import { useAuth } from '@/hooks/useAuth';
 import { useGoogleAuth } from '@/hooks/useGoogleAuth';
+import { useAppleAuth } from '@/hooks/useAppleAuth';
 import { COLORS, SPACING } from '@/constants';
 
 export default function RegisterScreen() {
   const { register } = useAuth();
   const { promptAsync, request } = useGoogleAuth();
+  const { signIn: appleSignIn, isAvailable: appleAvailable } = useAppleAuth();
   const [displayName, setDisplayName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -28,6 +31,16 @@ export default function RegisterScreen() {
       Alert.alert('Registration Failed', err?.response?.data?.error || 'Something went wrong');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleAppleSignIn = async () => {
+    try {
+      await appleSignIn();
+    } catch (err: any) {
+      if (err?.code !== 'ERR_REQUEST_CANCELED') {
+        Alert.alert('Apple Sign In Failed', err?.message || 'Something went wrong');
+      }
     }
   };
 
@@ -58,6 +71,16 @@ export default function RegisterScreen() {
         >
           <Text style={styles.googleButtonText}>Continue with Google</Text>
         </TouchableOpacity>
+
+        {appleAvailable && (
+          <AppleAuthentication.AppleAuthenticationButton
+            buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_UP}
+            buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
+            cornerRadius={12}
+            style={styles.appleButton}
+            onPress={handleAppleSignIn}
+          />
+        )}
 
         <Text style={styles.legal}>
           By signing up, you agree to our{' '}
@@ -96,4 +119,8 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.md,
   },
   googleButtonText: { color: '#333', fontSize: 16, fontWeight: '600' as const },
+  appleButton: {
+    height: 50,
+    marginBottom: SPACING.md,
+  },
 });

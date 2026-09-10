@@ -5,6 +5,7 @@ import { prisma } from '@/services/db';
 import { signToken, requireAuth, AuthRequest } from '@/middleware/auth';
 import { sendWelcomeEmail, sendPasswordResetEmail } from '@/services/email';
 import { verifyGoogleToken } from '@/services/oauth';
+import { verifyAppleToken } from '@/services/apple';
 
 export const authRouter = Router();
 
@@ -104,6 +105,50 @@ authRouter.post('/google', authLimiter, async (req, res: Response, next) => {
       user = await prisma.user.update({
         where: { id: user.id },
         data: { provider: 'google', providerId, avatarUrl },
+      });
+    }
+
+    const token = signToken(user.id, user.email);
+    return res.json({ token, user: { id: user.id, email: user.email, displayName: user.displayName } });
+  } catch (err) {
+    return next(err);
+  }
+});
+
+// POST /api/auth/apple
+// identityToken  — JWT from Apple (required)
+// displayName    — user's full name (only present on first sign-in from device)
+// email          — user's email (only present on first sign-in; Apple hides it after)
+authRouter.post('/apple', authLimiter, async (req, res: Response, next) => {
+  try {
+    const { identityToken, displayName, email: bodyEmail } = req.body || {};
+    if (!identityToken) return res.status(400).json({ error: 'identityToken is required' });
+
+    const { email: tokenEmail, providerId } = await verifyAppleToken(identityToken);
+
+    // Apple only sends email in token on first sign-in; fall back to body (client sends it first time)
+    const email = tokenEmail ?? bodyEmail ?? null;
+
+    // Find by Apple provider first, then by email (to link existing account)
+    let user = await prisma.user.findFirst({
+      where: { OR: [{ provider: 'apple', providerId }, ...(email ? [{ email }] : [])] },
+    });
+
+    if (!user) {
+      if (!email) {
+        // Apple hides email on subsequent sign-ins for new-to-us users — should not happen
+        return res.status(400).json({ error: 'Email is required on first Apple sign-in' });
+      }
+      const name = displayName?.trim() || email.split('@')[0];
+      user = await prisma.user.create({
+        data: { email, displayName: name, provider: 'apple', providerId, passwordHash: null },
+      });
+      sendWelcomeEmail(user.email, user.displayName).catch(() => {});
+    } else if (!user.provider) {
+      // Link existing email/password account to Apple
+      user = await prisma.user.update({
+        where: { id: user.id },
+        data: { provider: 'apple', providerId },
       });
     }
 

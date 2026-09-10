@@ -54,7 +54,8 @@
           "color": "#FF4081"
         }
       ],
-      "expo-web-browser"
+      "expo-web-browser",
+      "expo-apple-authentication"
     ],
     "extra": {
       "apiBaseUrl": "https://api.togetherplans.app",

@@ -1,0 +1,239 @@
+{
+  "name": "DateNight Design Tokens",
+  "variableCollections": [
+    {
+      "name": "Colors/Brand",
+      "modes": ["Light"],
+      "variables": [
+        {
+          "name": "brand/primary",
+          "resolvedType": "COLOR",
+          "description": "Primary pink — CTAs, active tabs, links, logo",
+          "value": { "r": 1.0, "g": 0.251, "b": 0.506, "a": 1 }
+        },
+        {
+          "name": "brand/primaryDark",
+          "resolvedType": "COLOR",
+          "description": "Dark primary — hover/pressed state",
+          "value": { "r": 0.776, "g": 0.0, "b": 0.333, "a": 1 }
+        }
+      ]
+    },
+    {
+      "name": "Colors/Background",
+      "modes": ["Light"],
+      "variables": [
+        {
+          "name": "background/default",
+          "resolvedType": "COLOR",
+          "description": "Screen background — #FFFFFF",
+          "value": { "r": 1.0, "g": 1.0, "b": 1.0, "a": 1 }
+        },
+        {
+          "name": "background/surface",
+          "resolvedType": "COLOR",
+          "description": "Card and input background — #F8F8F8",
+          "value": { "r": 0.973, "g": 0.973, "b": 0.973, "a": 1 }
+        }
+      ]
+    },
+    {
+      "name": "Colors/Text",
+      "modes": ["Light"],
+      "variables": [
+        {
+          "name": "text/primary",
+          "resolvedType": "COLOR",
+          "description": "Primary body and heading text — #1A1A1A",
+          "value": { "r": 0.102, "g": 0.102, "b": 0.102, "a": 1 }
+        },
+        {
+          "name": "text/secondary",
+          "resolvedType": "COLOR",
+          "description": "Secondary / meta text, placeholders — #666666",
+          "value": { "r": 0.4, "g": 0.4, "b": 0.4, "a": 1 }
+        },
+        {
+          "name": "text/onPrimary",
+          "resolvedType": "COLOR",
+          "description": "Text on primary-colored backgrounds — #FFFFFF",
+          "value": { "r": 1.0, "g": 1.0, "b": 1.0, "a": 1 }
+        },
+        {
+          "name": "text/googleButton",
+          "resolvedType": "COLOR",
+          "description": "Google OAuth button label — #333333",
+          "value": { "r": 0.2, "g": 0.2, "b": 0.2, "a": 1 }
+        }
+      ]
+    },
+    {
+      "name": "Colors/Border",
+      "modes": ["Light"],
+      "variables": [
+        {
+          "name": "border/default",
+          "resolvedType": "COLOR",
+          "description": "Card and input borders — #E0E0E0",
+          "value": { "r": 0.878, "g": 0.878, "b": 0.878, "a": 1 }
+        },
+        {
+          "name": "border/googleButton",
+          "resolvedType": "COLOR",
+          "description": "Google OAuth button border — #DDDDDD",
+          "value": { "r": 0.867, "g": 0.867, "b": 0.867, "a": 1 }
+        }
+      ]
+    },
+    {
+      "name": "Colors/Semantic",
+      "modes": ["Light"],
+      "variables": [
+        {
+          "name": "semantic/success",
+          "resolvedType": "COLOR",
+          "description": "Accepted status, winners, cost labels — #4CAF50",
+          "value": { "r": 0.298, "g": 0.686, "b": 0.314, "a": 1 }
+        },
+        {
+          "name": "semantic/error",
+          "resolvedType": "COLOR",
+          "description": "Rejected status, error alerts, delete — #F44336",
+          "value": { "r": 0.957, "g": 0.263, "b": 0.212, "a": 1 }
+        },
+        {
+          "name": "semantic/warning",
+          "resolvedType": "COLOR",
+          "description": "Countered/pending status — #FF9800",
+          "value": { "r": 1.0, "g": 0.596, "b": 0.0, "a": 1 }
+        }
+      ]
+    },
+    {
+      "name": "Colors/Feedback",
+      "modes": ["Light"],
+      "variables": [
+        {
+          "name": "feedback/infoBoxBg",
+          "resolvedType": "COLOR",
+          "description": "Invite info callout background — #FFF3E0",
+          "value": { "r": 1.0, "g": 0.953, "b": 0.878, "a": 1 }
+        },
+        {
+          "name": "feedback/infoBoxText",
+          "resolvedType": "COLOR",
+          "description": "Invite info callout text — #E65100",
+          "value": { "r": 0.902, "g": 0.318, "b": 0.0, "a": 1 }
+        },
+        {
+          "name": "feedback/consensusBannerBg",
+          "resolvedType": "COLOR",
+          "description": "Consensus reached banner background — #E8F5E9",
+          "value": { "r": 0.91, "g": 0.961, "b": 0.914, "a": 1 }
+        },
+        {
+          "name": "feedback/consensusText",
+          "resolvedType": "COLOR",
+          "description": "Consensus banner body — #2E7D32",
+          "value": { "r": 0.18, "g": 0.49, "b": 0.196, "a": 1 }
+        },
+        {
+          "name": "feedback/consensusWinner",
+          "resolvedType": "COLOR",
+          "description": "Consensus winning option title — #1B5E20",
+          "value": { "r": 0.106, "g": 0.369, "b": 0.125, "a": 1 }
+        },
+        {
+          "name": "feedback/winnerCardBg",
+          "resolvedType": "COLOR",
+          "description": "Winning option card background — #F1F8E9",
+          "value": { "r": 0.945, "g": 0.973, "b": 0.914, "a": 1 }
+        },
+        {
+          "name": "feedback/voteBarFill",
+          "resolvedType": "COLOR",
+          "description": "Vote progress bar fill — #FF4081 at 25% alpha",
+          "value": { "r": 1.0, "g": 0.251, "b": 0.506, "a": 0.25 }
+        }
+      ]
+    },
+    {
+      "name": "Spacing",
+      "modes": ["Default"],
+      "variables": [
+        {
+          "name": "spacing/xs",
+          "resolvedType": "FLOAT",
+          "description": "4px — tight gaps",
+          "value": 4
+        },
+        {
+          "name": "spacing/sm",
+          "resolvedType": "FLOAT",
+          "description": "8px — small gaps",
+          "value": 8
+        },
+        {
+          "name": "spacing/md",
+          "resolvedType": "FLOAT",
+          "description": "16px — standard padding/margin",
+          "value": 16
+        },
+        {
+          "name": "spacing/lg",
+          "resolvedType": "FLOAT",
+          "description": "24px — section padding",
+          "value": 24
+        },
+        {
+          "name": "spacing/xl",
+          "resolvedType": "FLOAT",
+          "description": "32px — screen padding, CTA margin",
+          "value": 32
+        },
+        {
+          "name": "spacing/xxl",
+          "resolvedType": "FLOAT",
+          "description": "48px — reserved",
+          "value": 48
+        }
+      ]
+    },
+    {
+      "name": "Border Radius",
+      "modes": ["Default"],
+      "variables": [
+        {
+          "name": "radius/badge",
+          "resolvedType": "FLOAT",
+          "description": "8px — status badges",
+          "value": 8
+        },
+        {
+          "name": "radius/chip",
+          "resolvedType": "FLOAT",
+          "description": "10px — chips, suggestion cards, info boxes",
+          "value": 10
+        },
+        {
+          "name": "radius/card",
+          "resolvedType": "FLOAT",
+          "description": "12px — primary radius for cards, inputs, buttons",
+          "value": 12
+        },
+        {
+          "name": "radius/pill",
+          "resolvedType": "FLOAT",
+          "description": "20px — pill-shaped category filters and Add button",
+          "value": 20
+        },
+        {
+          "name": "radius/avatar",
+          "resolvedType": "FLOAT",
+          "description": "40px — avatar circle (80×80 container)",
+          "value": 40
+        }
+      ]
+    }
+  ]
+}
