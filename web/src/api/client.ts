@@ -143,6 +143,12 @@ export const authApi = {
 
   googleLogin: (idToken: string): Promise<AxiosResponse<LoginResponse>> =>
     api.post("/auth/google", { idToken }),
+
+  forgotPassword: (email: string): Promise<AxiosResponse<{ message: string }>> =>
+    api.post("/auth/forgot-password", { email }),
+
+  resetPassword: (token: string, password: string): Promise<AxiosResponse<{ message: string }>> =>
+    api.post("/auth/reset-password", { token, password }),
 };
 
 // ── Groups ────────────────────────────────────────────────────────────────────

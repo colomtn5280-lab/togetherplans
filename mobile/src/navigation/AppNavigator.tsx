@@ -4,6 +4,8 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { ActivityIndicator, View } from 'react-native';
 import { useAuth } from '@/hooks/useAuth';
+import { useDeepLink } from '@/hooks/useDeepLink';
+import { usePushToken } from '@/hooks/usePushToken';
 import { COLORS } from '@/constants';
 import { RootStackParamList } from '@/types';
 
@@ -40,6 +42,13 @@ function TabNavigator() {
   );
 }
 
+/** Hooks that require authentication context — mounted only when user is logged in */
+function AuthenticatedHooks() {
+  useDeepLink();
+  usePushToken();
+  return null;
+}
+
 export default function AppNavigator() {
   const { user, isLoading } = useAuth();
 
@@ -61,7 +70,12 @@ export default function AppNavigator() {
           </>
         ) : (
           <>
-            <Stack.Screen name="Main" component={TabNavigator} options={{ headerShown: false }} />
+            {/* Authenticated side-effect hooks — rendered as a sibling to screens */}
+            <Stack.Screen
+              name="Main"
+              component={TabNavigator}
+              options={{ headerShown: false }}
+            />
             <Stack.Screen name="GroupDetail" component={GroupDetailScreen} options={({ route }) => ({ title: route.params.groupName })} />
             <Stack.Screen name="CreateGroup" component={CreateGroupScreen} options={{ title: 'New Plan' }} />
             <Stack.Screen name="InviteMembers" component={InviteMembersScreen} options={{ title: 'Invite People' }} />
@@ -71,6 +85,8 @@ export default function AppNavigator() {
           </>
         )}
       </Stack.Navigator>
+      {/* Mount authenticated hooks outside the navigator so they don't affect screen stack */}
+      {user && <AuthenticatedHooks />}
     </NavigationContainer>
   );
 }

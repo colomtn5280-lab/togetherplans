@@ -137,6 +137,38 @@ proposalsRouter.get('/:id', async (req: AuthRequest, res: Response, next) => {
   }
 });
 
+// PATCH /api/proposals/:id/cancel — cancel a proposal (creator or group OWNER)
+proposalsRouter.patch('/:id/cancel', async (req: AuthRequest, res: Response, next) => {
+  try {
+    const proposal = await prisma.proposal.findUnique({ where: { id: req.params.id } });
+    if (!proposal) return res.status(404).json({ error: 'Proposal not found' });
+
+    if (proposal.status === 'DECIDED' || proposal.status === 'CANCELLED') {
+      return res.status(409).json({ error: `Proposal is already ${proposal.status.toLowerCase()}` });
+    }
+
+    const membership = await prisma.groupMember.findFirst({
+      where: { groupId: proposal.groupId, userId: req.userId },
+    });
+    if (!membership) return res.status(403).json({ error: 'Not a member of this group' });
+
+    const isCreator = proposal.creatorId === req.userId;
+    const isOwner = membership.role === 'OWNER';
+    if (!isCreator && !isOwner) {
+      return res.status(403).json({ error: 'Only the proposal creator or a group owner can cancel this proposal' });
+    }
+
+    const updated = await prisma.proposal.update({
+      where: { id: req.params.id },
+      data: { status: 'CANCELLED' },
+      include: { options: true },
+    });
+    return res.json(updated);
+  } catch (err) {
+    return next(err);
+  }
+});
+
 // POST /api/proposals/:id/vote — approval-vote for an option
 proposalsRouter.post('/:id/vote', async (req: AuthRequest, res: Response, next) => {
   try {

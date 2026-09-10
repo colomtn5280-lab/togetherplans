@@ -19,6 +19,8 @@ import { SuggestionsPage } from "./pages/SuggestionsPage";
 import { NotificationsPage, SettingsPage } from "./pages/NotificationsSettingsPage";
 import { LandingPage } from "./pages/LandingPage";
 import { PrivacyPolicyPage, TermsPage, SupportPage } from "./pages/LegalPages";
+import { ForgotPasswordPage } from "./pages/ForgotPasswordPage";
+import { ResetPasswordPage } from "./pages/ResetPasswordPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -82,6 +84,10 @@ export default function App() {
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/verify-email" element={<VerifyEmailPage />} />
           </Route>
+
+          {/* ── Password reset — public but not public-only ── */}
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
 
           {/* ── Protected routes (redirect unauthenticated users to login) ── */}
           <Route element={<ProtectedRoute />}>

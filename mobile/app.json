@@ -37,6 +37,14 @@
         "CAMERA",
         "RECEIVE_BOOT_COMPLETED",
         "VIBRATE"
+      ],
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [{"scheme": "https", "host": "togetherplans.app", "pathPrefix": "/join"}],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
       ]
     },
     "web": {

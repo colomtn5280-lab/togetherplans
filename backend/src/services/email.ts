@@ -270,7 +270,7 @@ export async function sendPasswordResetEmail(to: string, resetToken: string): Pr
   const client = getClient();
   if (!client) return;
 
-  const resetUrl = `${APP_URL}/reset-password/${resetToken}`;
+  const resetUrl = `${APP_URL}/reset-password?token=${resetToken}`;
   const safePreheader = preheader('Click the link to reset your password. Expires in 1 hour.');
 
   const body = `

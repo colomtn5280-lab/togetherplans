@@ -176,6 +176,74 @@ authRouter.get('/me', requireAuth, async (req: AuthRequest, res: Response, next)
   }
 });
 
+// PATCH /api/auth/me — update own profile
+authRouter.patch('/me', requireAuth, async (req: AuthRequest, res: Response, next) => {
+  try {
+    const { displayName, latitude, longitude } = req.body || {};
+    const update: Record<string, unknown> = {};
+
+    if (displayName !== undefined) {
+      if (typeof displayName !== 'string' || displayName.trim().length === 0) {
+        return res.status(400).json({ error: 'displayName must be a non-empty string' });
+      }
+      update.displayName = displayName.trim();
+    }
+
+    if (latitude !== undefined) {
+      const lat = Number(latitude);
+      if (isNaN(lat) || lat < -90 || lat > 90) {
+        return res.status(400).json({ error: 'latitude must be a number between -90 and 90' });
+      }
+      update.latitude = lat;
+    }
+
+    if (longitude !== undefined) {
+      const lng = Number(longitude);
+      if (isNaN(lng) || lng < -180 || lng > 180) {
+        return res.status(400).json({ error: 'longitude must be a number between -180 and 180' });
+      }
+      update.longitude = lng;
+    }
+
+    const user = await prisma.user.update({
+      where: { id: req.userId },
+      data: update,
+    });
+    return res.json({
+      id: user.id,
+      email: user.email,
+      displayName: user.displayName,
+      latitude: user.latitude,
+      longitude: user.longitude,
+    });
+  } catch (err) {
+    return next(err);
+  }
+});
+
+// PATCH /api/auth/me/push-token — store Expo push notification token
+authRouter.patch('/me/push-token', requireAuth, async (req: AuthRequest, res: Response, next) => {
+  try {
+    const { pushToken } = req.body || {};
+    if (!pushToken || typeof pushToken !== 'string') {
+      return res.status(400).json({ error: 'pushToken is required' });
+    }
+    // Validate Expo push token format
+    const isExpoPushToken = pushToken.startsWith('ExponentPushToken[') && pushToken.endsWith(']');
+    const isExpoPushTokenShort = /^[a-zA-Z0-9_-]{20,}$/.test(pushToken);
+    if (!isExpoPushToken && !isExpoPushTokenShort) {
+      return res.status(400).json({ error: 'Invalid push token format. Expected ExponentPushToken[...] or a valid token string.' });
+    }
+    await prisma.user.update({
+      where: { id: req.userId },
+      data: { pushToken },
+    });
+    return res.json({ ok: true });
+  } catch (err) {
+    return next(err);
+  }
+});
+
 // POST /api/auth/forgot-password
 authRouter.post('/forgot-password', async (req, res: Response, next) => {
   try {

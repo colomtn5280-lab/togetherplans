@@ -19,6 +19,7 @@ model User {
   provider     String?   // 'google' | 'apple' | 'facebook' | 'linkedin' | 'microsoft'
   providerId   String?   // provider's user ID
   avatarUrl    String?
+  pushToken    String?   // Expo push notification token
   // Optional home location for recommendations
   latitude     Float?
   longitude    Float?
