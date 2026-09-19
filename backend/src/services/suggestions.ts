@@ -4,10 +4,11 @@
  * Sources (in priority order):
  *   1. Ticketmaster  — live events: concerts, comedy, theater, sports (TICKETMASTER_API_KEY)
  *   2. Foursquare    — places: restaurants, bars, wineries, venues (FOURSQUARE_API_KEY)
- *   3. NPS           — national parks + park events (NPS_API_KEY)
- *   4. TMDB          — now-playing movies + trending streaming shows (TMDB_API_KEY)
- *   5. Overpass/OSM  — restaurants, parks, trails, museums (no key required)
- *   6. Seed catalog  — 80+ hand-curated entries, always available as fallback
+ *   3. Eventbrite    — classes, workshops, festivals, community events (EVENTBRITE_PRIVATE_TOKEN)
+ *   4. NPS           — national parks + park events (NPS_API_KEY)
+ *   5. TMDB          — now-playing movies + trending streaming shows (TMDB_API_KEY)
+ *   6. Overpass/OSM  — restaurants, parks, trails, museums (no key required)
+ *   7. Seed catalog  — 80+ hand-curated entries, always available as fallback
  *
  * All sources run in parallel. Results are normalized, deduplicated, sorted by distance,
  * and cached per (zip/lat+lng + category + radius).
@@ -22,6 +23,7 @@ import { fetchTmdb } from './sources/tmdb.source';
 import { fetchTicketmaster } from './sources/ticketmaster.source';
 import { fetchFoursquare } from './sources/foursquare.source';
 import { fetchNpsParks, fetchNpsEvents } from './sources/nps.source';
+import { fetchEventbrite } from './sources/eventbrite.source';
 
 export type { Suggestion, SuggestionCategory, SuggestionQuery };
 
@@ -155,6 +157,7 @@ export async function getSuggestions(query: SuggestionQuery): Promise<Suggestion
     ...(hasLocation ? [
       fetchTicketmaster(lat!, lng!, radiusMiles, category),
       fetchFoursquare(lat!, lng!, radiusMiles, category),
+      fetchEventbrite(lat!, lng!, radiusMiles, category),
       fetchNpsParks(lat!, lng!, radiusMiles),
       fetchNpsEvents(lat!, lng!, radiusMiles),
       fetchOverpass(lat!, lng!, Math.min(radiusMiles, 30), category),
