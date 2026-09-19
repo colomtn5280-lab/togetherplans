@@ -52,9 +52,8 @@ const GENRE_MAP: Record<number, string> = {
 
 async function tmdbFetch<T>(path: string, key: string): Promise<T | null> {
   try {
-    const resp = await fetch(`${TMDB_BASE}${path}`, {
-      headers: { Authorization: `Bearer ${key}` },
-    });
+    const sep = path.includes('?') ? '&' : '?';
+    const resp = await fetch(`${TMDB_BASE}${path}${sep}api_key=${key}`);
     if (!resp.ok) return null;
     return (await resp.json()) as T;
   } catch {
