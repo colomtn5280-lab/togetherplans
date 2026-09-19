@@ -24,6 +24,7 @@ export type SourceName =
   | 'nps'
   | 'tmdb'
   | 'eventbrite'
+  | 'predicthq'
   | 'overpass'
   | 'seed'
   | 'scraped';
