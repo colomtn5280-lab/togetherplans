@@ -1,23 +1,79 @@
 import { Router, Request, Response, NextFunction } from 'express';
-import { getSuggestions } from '@/services/suggestions';
+import { getSuggestions, SuggestionCategory } from '@/services/suggestions';
 
 export const suggestionsRouter = Router();
 
-// GET /api/suggestions?lat=39.7&lng=-104.9&category=restaurant
+const VALID_CATEGORIES = new Set<string>([
+  'All', 'Dining', 'Live Music', 'Comedy', 'Theater & Plays', 'Movies',
+  'Streaming Night', 'Outdoors', 'Day Trip', 'Wine & Drinks',
+  'Arts & Culture', 'Active', 'Local Experience', 'Unique & Quirky',
+]);
+
+const VALID_DATE_FILTERS = new Set(['tonight', 'this-weekend', 'this-week', 'anytime']);
+
+/**
+ * GET /api/suggestions
+ *
+ * Query params:
+ *   lat        float   User latitude
+ *   lng        float   User longitude
+ *   zip        string  US zip code (alternative to lat/lng)
+ *   category   string  One of the 14 categories above, or 'All'
+ *   radius     number  Search radius in miles (default 25, max 60)
+ *   dateFilter string  'tonight' | 'this-weekend' | 'this-week' | 'anytime'
+ *
+ * Returns: Suggestion[]
+ */
 suggestionsRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const lat = req.query.lat !== undefined ? Number(req.query.lat) : undefined;
     const lng = req.query.lng !== undefined ? Number(req.query.lng) : undefined;
-    const category = typeof req.query.category === 'string' ? req.query.category : undefined;
+    const zip = typeof req.query.zip === 'string' ? req.query.zip.trim() : undefined;
+    const rawCategory = typeof req.query.category === 'string' ? req.query.category : undefined;
+    const rawRadius = req.query.radius !== undefined ? Number(req.query.radius) : undefined;
+    const rawDateFilter = typeof req.query.dateFilter === 'string' ? req.query.dateFilter : undefined;
 
+    // Validate lat/lng
     if (lat !== undefined && (isNaN(lat) || lat < -90 || lat > 90)) {
-      return res.status(400).json({ error: 'lat must be a valid latitude (-90 to 90)' });
+      return res.status(400).json({ error: 'lat must be between -90 and 90' });
     }
     if (lng !== undefined && (isNaN(lng) || lng < -180 || lng > 180)) {
-      return res.status(400).json({ error: 'lng must be a valid longitude (-180 to 180)' });
+      return res.status(400).json({ error: 'lng must be between -180 and 180' });
     }
 
-    const suggestions = await getSuggestions({ lat, lng, category });
+    // Validate zip
+    if (zip && !/^\d{5}$/.test(zip)) {
+      return res.status(400).json({ error: 'zip must be a 5-digit US zip code' });
+    }
+
+    // Validate category
+    if (rawCategory && !VALID_CATEGORIES.has(rawCategory)) {
+      return res.status(400).json({
+        error: `Invalid category. Valid values: ${[...VALID_CATEGORIES].join(', ')}`,
+      });
+    }
+
+    // Validate radius
+    const radiusMiles = rawRadius
+      ? Math.min(Math.max(rawRadius, 1), 60)
+      : 25;
+
+    // Validate dateFilter
+    if (rawDateFilter && !VALID_DATE_FILTERS.has(rawDateFilter)) {
+      return res.status(400).json({
+        error: `Invalid dateFilter. Valid values: ${[...VALID_DATE_FILTERS].join(', ')}`,
+      });
+    }
+
+    const suggestions = await getSuggestions({
+      lat: lat !== undefined && !isNaN(lat) ? lat : undefined,
+      lng: lng !== undefined && !isNaN(lng) ? lng : undefined,
+      zip,
+      category: rawCategory as SuggestionCategory | 'All' | undefined,
+      radiusMiles,
+      dateFilter: rawDateFilter as 'tonight' | 'this-weekend' | 'this-week' | 'anytime' | undefined,
+    });
+
     return res.json(suggestions);
   } catch (err) {
     return next(err);

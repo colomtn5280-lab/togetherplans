@@ -1,7 +1,7 @@
 import { Router, Response } from 'express';
 import { prisma } from '@/services/db';
 import { requireAuth, AuthRequest } from '@/middleware/auth';
-import { getSuggestions } from '@/services/suggestions';
+import { getSuggestions, SuggestionCategory } from '@/services/suggestions';
 
 export const proposalsRouter = Router();
 
@@ -224,7 +224,7 @@ proposalsRouter.get('/suggestions/list', async (req: AuthRequest, res: Response,
   try {
     const lat = req.query.lat ? parseFloat(req.query.lat as string) : undefined;
     const lng = req.query.lng ? parseFloat(req.query.lng as string) : undefined;
-    const category = (req.query.category as string) || undefined;
+    const category = (req.query.category as SuggestionCategory | undefined) || undefined;
     const suggestions = await getSuggestions({ lat, lng, category });
     return res.json({ suggestions });
   } catch (err) {
