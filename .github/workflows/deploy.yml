@@ -57,6 +57,7 @@ jobs:
           gcloud run deploy datenight-api \
             --source ./backend \
             --region us-central1 \
+            --project project-1af074d7-228e-4a43-bc9 \
             --platform managed \
             --allow-unauthenticated \
             --quiet
