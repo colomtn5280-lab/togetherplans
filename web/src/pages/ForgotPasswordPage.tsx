@@ -34,17 +34,19 @@ export function ForgotPasswordPage() {
             If that email is registered, a reset link has been sent.
           </p>
           <p>
-            <Link to="/login">Back to sign in</Link>
+            <Link to="/login" className="dn-btn dn-btn--secondary dn-btn--sm">Back to sign in</Link>
           </p>
         </div>
       ) : (
         <>
-          <p style={{ color: "#666", marginBottom: "16px" }}>
+          <p style={{ color: "var(--ink2, #666)", marginBottom: "16px" }}>
             Enter your email and we'll send you a link to reset your password.
           </p>
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             <div>
-              <label htmlFor="email">Email</label>
+              <label htmlFor="email" style={{ display: "block", marginBottom: 6, fontWeight: 600, fontSize: 14 }}>
+                Email
+              </label>
               <input
                 id="email"
                 type="email"
@@ -52,18 +54,20 @@ export function ForgotPasswordPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 autoComplete="email"
+                className="dn-input"
+                style={{ width: "100%", boxSizing: "border-box" }}
               />
             </div>
 
-            {error && <p role="alert">{error}</p>}
+            {error && <p role="alert" style={{ color: "var(--error, #dc3545)", margin: 0 }}>{error}</p>}
 
-            <button type="submit" disabled={loading}>
+            <button type="submit" disabled={loading} className="dn-btn">
               {loading ? "Sending…" : "Send reset link"}
             </button>
           </form>
 
-          <p>
-            <Link to="/login">Back to sign in</Link>
+          <p style={{ marginTop: 16 }}>
+            <Link to="/login" className="dn-btn dn-btn--secondary dn-btn--sm">Back to sign in</Link>
           </p>
         </>
       )}

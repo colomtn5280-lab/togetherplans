@@ -148,6 +148,7 @@ export function AppNav() {
                 fontSize: 18,
                 textDecoration: "none",
                 boxShadow: "var(--shadow-card)",
+                color: "var(--primary)",
               }}
             >
               🔔

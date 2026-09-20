@@ -295,15 +295,6 @@ export function ShareCardPage() {
                     ? "📤 Share"
                     : copied ? "✓ Copied!" : "📋 Copy link"}
                 </button>
-                {!("share" in navigator) && (
-                  <button
-                    className="dn-btn dn-btn--secondary"
-                    onClick={handleCopy}
-                    style={{ flex: 1 }}
-                  >
-                    {copied ? "✓ Copied!" : "📋 Copy link"}
-                  </button>
-                )}
               </div>
             </div>
 

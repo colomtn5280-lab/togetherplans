@@ -52,7 +52,9 @@ export function ResetPasswordPage() {
         <h2>Reset password</h2>
         <p role="alert">Invalid or expired reset link.</p>
         <p>
-          <Link to="/forgot-password">Request a new reset link</Link>
+          <Link to="/forgot-password" className="dn-btn dn-btn--secondary dn-btn--sm">
+            Request a new reset link
+          </Link>
         </p>
       </main>
     );
@@ -63,9 +65,11 @@ export function ResetPasswordPage() {
       <h1>DateNight</h1>
       <h2>Reset your password</h2>
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
         <div>
-          <label htmlFor="password">New password</label>
+          <label htmlFor="password" style={{ display: "block", marginBottom: 6, fontWeight: 600, fontSize: 14 }}>
+            New password
+          </label>
           <input
             id="password"
             type="password"
@@ -73,11 +77,15 @@ export function ResetPasswordPage() {
             onChange={(e) => setPassword(e.target.value)}
             required
             autoComplete="new-password"
+            className="dn-input"
+            style={{ width: "100%", boxSizing: "border-box" }}
           />
         </div>
 
         <div>
-          <label htmlFor="confirmPassword">Confirm new password</label>
+          <label htmlFor="confirmPassword" style={{ display: "block", marginBottom: 6, fontWeight: 600, fontSize: 14 }}>
+            Confirm new password
+          </label>
           <input
             id="confirmPassword"
             type="password"
@@ -85,12 +93,14 @@ export function ResetPasswordPage() {
             onChange={(e) => setConfirmPassword(e.target.value)}
             required
             autoComplete="new-password"
+            className="dn-input"
+            style={{ width: "100%", boxSizing: "border-box" }}
           />
         </div>
 
-        {error && <p role="alert">{error}</p>}
+        {error && <p role="alert" style={{ color: "var(--error, #dc3545)", margin: 0 }}>{error}</p>}
 
-        <button type="submit" disabled={loading}>
+        <button type="submit" disabled={loading} className="dn-btn">
           {loading ? "Resetting…" : "Reset password"}
         </button>
       </form>

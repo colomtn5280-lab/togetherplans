@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { notificationsApi, usersApi } from "../api/client";
+import { notificationsApi, usersApi, authApi, groupsApi } from "../api/client";
 import { useAuthStore } from "../store/auth.store";
 import { Link } from "react-router-dom";
 
@@ -100,6 +101,7 @@ export function NotificationsPage() {
 
 export function SettingsPage() {
   const { user, clearAuth } = useAuthStore();
+  const [exportStatus, setExportStatus] = useState<"idle" | "loading" | "done">("idle");
 
   const { data: preferences } = useQuery({
     queryKey: ["preferences"],
@@ -109,10 +111,39 @@ export function SettingsPage() {
     },
   });
 
-  const requestExport = useMutation({
-    mutationFn: () => usersApi.requestExport(),
-    onSuccess: () => alert("Export requested. You'll receive a download link within 30 minutes."),
-  });
+  const handleExport = async () => {
+    setExportStatus("loading");
+    try {
+      const [meRes, groupsRes] = await Promise.all([
+        authApi.me(),
+        groupsApi.list(),
+      ]);
+
+      const exportData = {
+        exportedAt: new Date().toISOString(),
+        user: meRes.data,
+        groups: groupsRes.data,
+      };
+
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], {
+        type: "application/json",
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `datenight-export-${new Date().toISOString().split("T")[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      setExportStatus("done");
+      setTimeout(() => setExportStatus("idle"), 3000);
+    } catch {
+      setExportStatus("idle");
+      alert("Export failed. Please try again.");
+    }
+  };
 
   const requestDeletion = useMutation({
     mutationFn: () => usersApi.requestDeletion(),
@@ -141,15 +172,8 @@ export function SettingsPage() {
         )}
         <button
           onClick={clearAuth}
-          style={{
-            marginTop: 12,
-            padding: "8px 16px",
-            borderRadius: 6,
-            border: "none",
-            background: "#6c757d",
-            color: "#fff",
-            cursor: "pointer",
-          }}
+          className="dn-btn dn-btn--secondary"
+          style={{ marginTop: 12 }}
         >
           Sign out
         </button>
@@ -218,9 +242,9 @@ export function SettingsPage() {
       <section
         style={{
           padding: 20,
-          background: "#fff3cd",
+          background: "var(--primary-soft, #e8f5f5)",
           borderRadius: 8,
-          border: "1px solid #ffc107",
+          border: "1px solid var(--primary, #0E8C8C)",
         }}
       >
         <h2 style={{ marginTop: 0, fontSize: "1.1rem" }}>Your data rights (GDPR / CCPA)</h2>
@@ -229,17 +253,15 @@ export function SettingsPage() {
         </p>
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
           <button
-            onClick={() => requestExport.mutate()}
-            disabled={requestExport.isPending}
-            style={{
-              padding: "8px 16px",
-              borderRadius: 6,
-              border: "1px solid #ffc107",
-              background: "#fff",
-              cursor: "pointer",
-            }}
+            onClick={handleExport}
+            disabled={exportStatus === "loading"}
+            className="dn-btn dn-btn--secondary"
           >
-            {requestExport.isPending ? "Requesting…" : "Export my data"}
+            {exportStatus === "loading"
+              ? "Exporting…"
+              : exportStatus === "done"
+                ? "✓ Export downloaded!"
+                : "Export my data"}
           </button>
           <button
             onClick={() => {
@@ -252,13 +274,10 @@ export function SettingsPage() {
               }
             }}
             disabled={requestDeletion.isPending}
+            className="dn-btn"
             style={{
-              padding: "8px 16px",
-              borderRadius: 6,
-              border: "1px solid #dc3545",
-              background: "#fff",
-              color: "#dc3545",
-              cursor: "pointer",
+              background: "#dc3545",
+              borderColor: "#dc3545",
             }}
           >
             {requestDeletion.isPending ? "Scheduling…" : "Delete my account"}

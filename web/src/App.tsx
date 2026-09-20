@@ -56,8 +56,8 @@ function NotFoundPage() {
       }}>
         404
       </div>
-      <span className="dn-sticker">No Votes</span>
-      <h2 style={{ margin: 0, fontSize: 26 }}>This plan doesn&rsquo;t exist</h2>
+      <span className="dn-sticker">Lost?</span>
+      <h2 style={{ margin: 0, fontSize: 26 }}>Page not found</h2>
       <p style={{ color: "var(--ink2)", maxWidth: "360px" }}>
         The page you&rsquo;re looking for doesn&rsquo;t exist or has been moved.
       </p>
