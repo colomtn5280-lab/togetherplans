@@ -56,6 +56,36 @@ invitationsRouter.post('/', async (req: AuthRequest, res: Response, next) => {
   }
 });
 
+// GET /api/invitations/:token — look up invitation details (preview before accepting)
+invitationsRouter.get('/:token', async (req: AuthRequest, res: Response, next) => {
+  try {
+    const invitation = await prisma.invitation.findUnique({
+      where: { token: req.params.token },
+      include: {
+        group: { select: { id: true, name: true, groupType: true } },
+        inviter: { select: { id: true, displayName: true } },
+      },
+    });
+    if (!invitation) return res.status(404).json({ error: 'Invitation not found' });
+    if (invitation.expiresAt < new Date()) {
+      return res.status(410).json({ error: 'Invitation expired' });
+    }
+    return res.json({
+      id: invitation.id,
+      token: invitation.token,
+      groupId: invitation.groupId,
+      group: invitation.group,
+      inviter: invitation.inviter,
+      method: invitation.method,
+      status: invitation.status,
+      expiresAt: invitation.expiresAt,
+      createdAt: invitation.createdAt,
+    });
+  } catch (err) {
+    return next(err);
+  }
+});
+
 // POST /api/invitations/accept/:token — accept an invitation
 invitationsRouter.post('/accept/:token', async (req: AuthRequest, res: Response, next) => {
   try {
