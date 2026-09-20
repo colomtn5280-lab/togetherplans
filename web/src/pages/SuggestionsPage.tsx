@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { suggestionsApi, categoriesApi } from "../api/client";
+import { suggestionsApi, categoriesApi, groupsApi } from "../api/client";
 import { AppNav } from "../components/AppNav";
-import type { Suggestion } from "../types";
+import type { Suggestion, Group } from "../types";
 
 function useGeolocation() {
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
@@ -35,6 +35,96 @@ function useGeolocation() {
   return { coords, geoError, geoLoading, retry: request };
 }
 
+// ── Add-to-Group Modal ────────────────────────────────────────────────────────
+
+function AddToGroupModal({
+  suggestion,
+  onClose,
+}: {
+  suggestion: Suggestion;
+  onClose: () => void;
+}) {
+  const navigate = useNavigate();
+  const [groups, setGroups] = useState<Group[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    groupsApi.list()
+      .then((res) => setGroups(res.data))
+      .catch(() => setError("Failed to load groups"))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const handleGroupSelect = (group: Group) => {
+    navigate(`/groups/${group.id}/proposals/new`, {
+      state: { suggestion },
+    });
+    onClose();
+  };
+
+  return (
+    <div
+      style={{
+        position: "fixed", inset: 0, background: "rgba(0,0,0,.55)",
+        display: "flex", alignItems: "flex-end", justifyContent: "center",
+        zIndex: 300,
+      }}
+      onClick={onClose}
+    >
+      <div
+        className="dn-card"
+        style={{
+          width: "100%", maxWidth: 520,
+          borderRadius: "32px 32px 0 0",
+          padding: "36px 28px 48px",
+          boxShadow: "var(--shadow-dock)",
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h2 style={{ marginBottom: 6, fontSize: 20 }}>Add to group</h2>
+        <p style={{ color: "var(--ink2)", marginBottom: 24, fontSize: 14 }}>
+          Adding: <strong style={{ color: "var(--primary)" }}>{suggestion.name}</strong>
+        </p>
+
+        {loading && (
+          <p style={{ color: "var(--ink2)", textAlign: "center", padding: "24px 0" }}>Loading groups…</p>
+        )}
+        {error && (
+          <p role="alert" style={{ color: "var(--error)", textAlign: "center" }}>{error}</p>
+        )}
+        {!loading && !error && groups.length === 0 && (
+          <p style={{ color: "var(--ink2)", textAlign: "center", padding: "24px 0" }}>
+            No groups yet. <Link to="/groups" onClick={onClose}>Create one first.</Link>
+          </p>
+        )}
+        {!loading && groups.length > 0 && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {groups.map((g) => (
+              <button
+                key={g.id}
+                className="dn-btn dn-btn--secondary"
+                style={{ textAlign: "left", justifyContent: "flex-start", padding: "12px 18px" }}
+                onClick={() => handleGroupSelect(g)}
+              >
+                <span style={{ fontFamily: "var(--font-display)", fontWeight: 700 }}>{g.name}</span>
+              </button>
+            ))}
+          </div>
+        )}
+
+        <button
+          className="dn-btn dn-btn--secondary"
+          style={{ marginTop: 20, width: "100%" }}
+          onClick={onClose}
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export function SuggestionsPage() {
   const [categoryId, setCategoryId] = useState("");
   const [radiusKm, setRadiusKm] = useState(10);
@@ -44,6 +134,8 @@ export function SuggestionsPage() {
   const proposalName = searchParams.get("proposalName");
   const addedCount = parseInt(searchParams.get("added") ?? "0", 10);
   const maxCount = parseInt(searchParams.get("max") ?? "5", 10);
+
+  const [addingSuggestion, setAddingSuggestion] = useState<Suggestion | null>(null);
 
   const { data: categories } = useQuery({
     queryKey: ["categories"],
@@ -187,7 +279,7 @@ export function SuggestionsPage() {
                     height: 140,
                     borderRadius: 16,
                     marginBottom: 14,
-                    background: `repeating-linear-gradient(
+                    background: s.imageUrl ? "var(--bg)" : `repeating-linear-gradient(
                       45deg,
                       var(--bg),
                       var(--bg) 8px,
@@ -199,9 +291,33 @@ export function SuggestionsPage() {
                     justifyContent: "center",
                     color: "var(--ink2)",
                     fontSize: 32,
+                    overflow: "hidden",
                   }}
                 >
-                  🍽️
+                  {s.imageUrl ? (
+                    <img
+                      src={s.imageUrl}
+                      alt={s.name}
+                      style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: 16 }}
+                      onError={(e) => {
+                        const target = e.currentTarget;
+                        target.style.display = "none";
+                        const parent = target.parentElement;
+                        if (parent) {
+                          parent.style.background = `repeating-linear-gradient(
+                            45deg,
+                            var(--bg),
+                            var(--bg) 8px,
+                            var(--line) 8px,
+                            var(--line) 16px
+                          )`;
+                          parent.textContent = "🍽️";
+                        }
+                      }}
+                    />
+                  ) : (
+                    "🍽️"
+                  )}
                 </div>
 
                 {/* Category sticker */}
@@ -226,6 +342,7 @@ export function SuggestionsPage() {
                 <button
                   className="dn-btn dn-btn--sm dn-btn--tonal"
                   style={{ marginTop: "auto", width: "100%" }}
+                  onClick={() => setAddingSuggestion(s)}
                 >
                   + Add
                 </button>
@@ -247,6 +364,14 @@ export function SuggestionsPage() {
           }
         `}</style>
       </main>
+
+      {/* Add to group modal */}
+      {addingSuggestion && (
+        <AddToGroupModal
+          suggestion={addingSuggestion}
+          onClose={() => setAddingSuggestion(null)}
+        />
+      )}
     </>
   );
 }

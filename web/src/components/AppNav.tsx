@@ -1,6 +1,25 @@
 import { Link, useLocation } from "react-router-dom";
 import { useAuthStore } from "../store/auth.store";
 
+// Minimalist teal calendar SVG — no date shown, works on all platforms
+function CalendarSvg({ size = 22, color = "white" }: { size?: number; color?: string }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      <rect x="3" y="4" width="18" height="17" rx="2.5" stroke={color} strokeWidth="2" />
+      <line x1="3" y1="9" x2="21" y2="9" stroke={color} strokeWidth="2" />
+      <line x1="8" y1="2" x2="8" y2="7" stroke={color} strokeWidth="2" strokeLinecap="round" />
+      <line x1="16" y1="2" x2="16" y2="7" stroke={color} strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 export function AppNav() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const user = useAuthStore((s) => s.user);
@@ -11,9 +30,15 @@ export function AppNav() {
     : user?.email?.charAt(0).toUpperCase() ?? "?";
 
   const navLinks = [
-    { to: "/dashboard", label: "Home", icon: "⌂" },
-    { to: "/groups", label: "Plans", icon: "📅" },
-    { to: "/suggestions", label: "Discover", icon: "🧭" },
+    { to: "/dashboard", label: "Home", icon: "⌂" as React.ReactNode },
+    {
+      to: "/groups",
+      label: "Plans",
+      icon: (
+        <CalendarSvg size={16} color="currentColor" />
+      ) as React.ReactNode,
+    },
+    { to: "/suggestions", label: "Discover", icon: "🧭" as React.ReactNode },
   ];
 
   return (
@@ -43,13 +68,12 @@ export function AppNav() {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            fontSize: 22,
             transform: "rotate(-6deg)",
             flexShrink: 0,
           }}
           aria-hidden="true"
         >
-          📅
+          <CalendarSvg size={22} color="white" />
         </div>
         <span
           style={{

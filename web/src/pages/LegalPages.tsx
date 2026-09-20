@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useState } from "react";
 import "./LegalPages.css";
 
 /* ─────────────────────────────────────────────────────────────
@@ -306,6 +307,8 @@ export function SupportPage() {
     },
   ];
 
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+
   return (
     <div className="legal-page">
       <div className="legal-page__inner">
@@ -334,10 +337,22 @@ export function SupportPage() {
         <h2>Frequently asked questions</h2>
         <div className="support-faq">
           {faqs.map((faq, i) => (
-            <details key={i} className="support-faq__item">
-              <summary className="support-faq__q">{faq.q}</summary>
-              <p className="support-faq__a">{faq.a}</p>
-            </details>
+            <div key={i} className="support-faq__item">
+              <button
+                type="button"
+                className="support-faq__q"
+                aria-expanded={openIndex === i}
+                onClick={() => setOpenIndex(openIndex === i ? null : i)}
+              >
+                {faq.q}
+                <span aria-hidden="true" style={{ fontSize: 20, color: "var(--accent)", fontWeight: 400, flexShrink: 0 }}>
+                  {openIndex === i ? "−" : "+"}
+                </span>
+              </button>
+              {openIndex === i && (
+                <p className="support-faq__a">{faq.a}</p>
+              )}
+            </div>
           ))}
         </div>
 

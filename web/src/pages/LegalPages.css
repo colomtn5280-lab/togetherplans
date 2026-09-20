@@ -173,16 +173,14 @@
   user-select: none;
   background: var(--bg);
   transition: background 0.15s;
+  width: 100%;
+  border: none;
+  text-align: left;
+  font-family: inherit;
 }
 .support-faq__q:hover { background: var(--code-bg); }
-.support-faq__q::after {
-  content: '+';
-  font-size: 20px;
-  color: var(--accent);
-  font-weight: 400;
-  flex-shrink: 0;
-}
-details[open] .support-faq__q::after { content: '−'; }
+.support-faq__q::after { content: none; }
+details[open] .support-faq__q::after { content: none; }
 
 .support-faq__a {
   padding: 0 20px 16px;

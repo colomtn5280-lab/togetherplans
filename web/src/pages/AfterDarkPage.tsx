@@ -45,10 +45,12 @@ function Countdown({ minutes }: { minutes: number }) {
 function MoodChip({
   mood,
   isSelected,
+  isSaving,
   onClick,
 }: {
   mood: typeof MOODS[number];
   isSelected: boolean;
+  isSaving: boolean;
   onClick: () => void;
 }) {
   return (
@@ -76,10 +78,16 @@ function MoodChip({
         fontWeight: 700,
         fontSize: 13,
         color: isSelected ? "var(--primary)" : "var(--ink)",
+        display: "flex",
+        alignItems: "center",
+        gap: 4,
       }}>
+        {isSelected && !isSaving && <span style={{ fontSize: 11 }}>✓</span>}
         {mood.label}
       </span>
-      <span style={{ fontSize: 11, color: "var(--ink2)" }}>{mood.tagline}</span>
+      <span style={{ fontSize: 11, color: isSelected ? "var(--primary)" : "var(--ink2)" }}>
+        {isSaving && isSelected ? "Saving…" : mood.tagline}
+      </span>
     </button>
   );
 }
@@ -145,7 +153,7 @@ function SuggestionCard({
         )}
         {item.timeStart && (
           <span style={{ fontSize: 12, color: "var(--on-warning-soft)", background: "var(--warning-soft)", padding: "3px 10px", borderRadius: 999 }}>
-            📅 {item.timeStart}
+            🕐 {item.timeStart}
           </span>
         )}
       </div>
@@ -257,6 +265,7 @@ export function AfterDarkPage() {
   const navigate = useNavigate();
 
   const [selectedMood, setSelectedMood] = useState<AfterDarkMood | null>(null);
+  const [savingMood, setSavingMood] = useState(false);
   const [suggestions, setSuggestions] = useState<AfterDarkSuggestion[]>([]);
   const [loadingSugg, setLoadingSugg] = useState(false);
   const [impulseItem, setImpulseItem] = useState<AfterDarkSuggestion | null>(null);
@@ -279,7 +288,7 @@ export function AfterDarkPage() {
     if (status?.currentMood && !selectedMood) {
       setSelectedMood(status.currentMood);
     }
-  }, [status]);
+  }, [status]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Load suggestions
   const loadSuggestions = useCallback(async (mood?: AfterDarkMood | null) => {
@@ -296,7 +305,7 @@ export function AfterDarkPage() {
 
   useEffect(() => {
     if (isActive) loadSuggestions(selectedMood);
-  }, [isActive]);
+  }, [isActive]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Set mood mutation
   const moodMutation = useMutation({
@@ -309,6 +318,8 @@ export function AfterDarkPage() {
   const handleMoodSelect = (mood: AfterDarkMood) => {
     const prev = selectedMood;
     setSelectedMood(mood);
+    setSavingMood(true);
+    setTimeout(() => setSavingMood(false), 2000);
     moodMutation.mutate(mood, {
       onError: () => setSelectedMood(prev),
     });
@@ -380,10 +391,22 @@ export function AfterDarkPage() {
                 key={m.key}
                 mood={m}
                 isSelected={selectedMood === m.key}
+                isSaving={savingMood}
                 onClick={() => handleMoodSelect(m.key)}
               />
             ))}
           </div>
+          {savingMood && (
+            <p style={{
+              marginTop: 12,
+              fontSize: 13,
+              color: isActive ? "rgba(255,255,255,0.5)" : "var(--ink2)",
+              fontFamily: "var(--font-display)",
+              fontWeight: 600,
+            }}>
+              Saving mood…
+            </p>
+          )}
         </div>
 
         {/* Suggestions */}

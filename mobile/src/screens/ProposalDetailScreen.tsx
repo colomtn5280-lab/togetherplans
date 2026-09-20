@@ -23,8 +23,9 @@ import {
   DNSticker,
   DNText,
 } from '@/components/ui';
-import { proposalsAPI } from '@/services/api';
+import { proposalsAPI, groupsAPI } from '@/services/api';
 import { useAuth } from '@/hooks/useAuth';
+import * as Calendar from 'expo-calendar';
 import type { ActivityOption, Proposal, RootStackParamList } from '@/types';
 
 type RouteT = RouteProp<RootStackParamList, 'ProposalDetail'>;
@@ -190,6 +191,7 @@ export default function ProposalDetailScreen() {
   const [myVotedOptionId, setMyVotedOptionId] = useState<string | null>(null);
   const [showDecision, setShowDecision] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [partnerName, setPartnerName] = useState('Partner');
 
   // Load proposal
   const loadProposal = useCallback(async () => {
@@ -208,6 +210,21 @@ export default function ProposalDetailScreen() {
         // Fallback: flat votes array
         const myVote = p.votes.find((v) => v.userId === user.id);
         setMyVotedOptionId(myVote?.optionId ?? null);
+      }
+
+      // M5: fetch group members to get real partner name
+      if (p.groupId && user) {
+        try {
+          const groupRes = await groupsAPI.get(p.groupId);
+          const members: Array<{ userId: string; user?: { id: string; displayName: string } }> =
+            groupRes.data?.group?.members ?? groupRes.data?.members ?? [];
+          const others = members.filter((m) => m.userId !== user.id);
+          if (others.length === 1) {
+            setPartnerName(others[0].user?.displayName ?? 'Someone');
+          } else if (others.length > 1) {
+            setPartnerName('A member');
+          }
+        } catch {}
       }
 
       // Check DECIDED state
@@ -232,6 +249,36 @@ export default function ProposalDetailScreen() {
       await AsyncStorage.setItem(`seenDecision_${proposal.id}`, '1');
     }
     setShowDecision(false);
+  };
+
+  // M4: Add to calendar handler
+  const handleAddToCalendar = async () => {
+    if (!proposal) { await dismissDecision(); return; }
+    try {
+      const { status } = await Calendar.requestCalendarPermissionsAsync();
+      if (status !== 'granted') {
+        await dismissDecision();
+        return;
+      }
+      const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
+      const defaultCalendar = calendars.find((c) => c.allowsModifications) ?? calendars[0];
+      if (defaultCalendar) {
+        const eventDate = new Date(proposal.scheduledFor ?? proposal.dateTime ?? Date.now());
+        const endDate = new Date(eventDate.getTime() + 2 * 60 * 60 * 1000); // +2h
+        const winningOpt = proposal.options.find(
+          (o) => proposal.tally?.find((t) => t.optionId === o.id && t.consensus)
+        ) ?? proposal.consensus?.winningOption;
+        const location = (winningOpt as any)?.address ?? (winningOpt as any)?.location ?? '';
+        await Calendar.createEventAsync(defaultCalendar.id, {
+          title: proposal.title,
+          startDate: eventDate,
+          endDate,
+          location,
+          notes: `DateNight plan`,
+        });
+      }
+    } catch {}
+    await dismissDecision();
   };
 
   const handleVote = async (optionId: string) => {
@@ -304,7 +351,6 @@ export default function ProposalDetailScreen() {
     }
   }
 
-  const partnerName = 'Partner'; // Would come from group members in real app
   const partnerVoted = !!partnerVotedOptionId;
   const iVoted = !!myVotedOptionId;
   const mismatch = partnerVoted && iVoted && partnerVotedOptionId !== myVotedOptionId;
@@ -416,7 +462,7 @@ export default function ProposalDetailScreen() {
                   label="Counter-propose"
                   variant="ink"
                   size="compact"
-                  onPress={() => {}}
+                  onPress={() => navigation.navigate('CreateProposal', { groupId: proposal.groupId })}
                   style={{ flex: 1 }}
                 />
                 <DNButton
@@ -543,7 +589,7 @@ export default function ProposalDetailScreen() {
               <DNButton
                 label="Add to calendar"
                 variant="primary"
-                onPress={dismissDecision}
+                onPress={handleAddToCalendar}
                 style={{ width: '100%', marginBottom: SPACING.sm }}
               />
               <DNButton

@@ -191,8 +191,8 @@ export function JoinPage() {
                 <div style={{ fontSize: 40, marginBottom: 16 }}>✉️</div>
                 <h2 style={{ marginBottom: 8 }}>You're invited!</h2>
                 {invite.groupName && (
-                  <p style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 18, color: "var(--primary)", marginBottom: 8 }}>
-                    {invite.groupName}
+                  <p style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 20, color: "var(--primary)", marginBottom: 8 }}>
+                    You've been invited to join {invite.groupName}
                   </p>
                 )}
                 {invite.inviterName && (

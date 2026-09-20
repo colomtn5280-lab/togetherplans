@@ -97,7 +97,7 @@ export function NewProposalPage() {
         <div style={{ maxWidth: 600 }}>
           <form
             onSubmit={handleSubmit((d) => mutation.mutate(d))}
-            style={{ display: "flex", flexDirection: "column", gap: 20 }}
+            style={{ display: "flex", flexDirection: "column", gap: 20, scrollMarginTop: 80, paddingTop: 4 }}
           >
             {/* Title */}
             <div>
@@ -194,11 +194,16 @@ export function NewProposalPage() {
                           </label>
                           <input
                             type="text"
-                            className="dn-input"
-                            {...register(`options.${i}.name` as const, { required: true })}
+                            className={`dn-input${errors.options?.[i]?.name ? " error" : ""}`}
+                            {...register(`options.${i}.name` as const, { required: "Name required" })}
                             placeholder="e.g. Sushi Palace"
                             style={{ height: 38 }}
                           />
+                          {errors.options?.[i]?.name && (
+                            <p role="alert" style={{ color: "var(--error)", fontSize: 12, marginTop: 2 }}>
+                              {errors.options[i]?.name?.message}
+                            </p>
+                          )}
                         </div>
                         <div>
                           <label style={{ display: "block", fontSize: 11, color: "var(--ink2)", fontFamily: "var(--font-display)", fontWeight: 700, marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.05em" }}>
