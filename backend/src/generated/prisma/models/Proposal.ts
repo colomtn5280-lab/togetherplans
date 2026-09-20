@@ -34,6 +34,7 @@ export type ProposalMinAggregateOutputType = {
   parentId: string | null
   createdAt: Date | null
   updatedAt: Date | null
+  remindedAt: Date | null
 }
 
 export type ProposalMaxAggregateOutputType = {
@@ -46,6 +47,7 @@ export type ProposalMaxAggregateOutputType = {
   parentId: string | null
   createdAt: Date | null
   updatedAt: Date | null
+  remindedAt: Date | null
 }
 
 export type ProposalCountAggregateOutputType = {
@@ -58,6 +60,7 @@ export type ProposalCountAggregateOutputType = {
   parentId: number
   createdAt: number
   updatedAt: number
+  remindedAt: number
   _all: number
 }
 
@@ -72,6 +75,7 @@ export type ProposalMinAggregateInputType = {
   parentId?: true
   createdAt?: true
   updatedAt?: true
+  remindedAt?: true
 }
 
 export type ProposalMaxAggregateInputType = {
@@ -84,6 +88,7 @@ export type ProposalMaxAggregateInputType = {
   parentId?: true
   createdAt?: true
   updatedAt?: true
+  remindedAt?: true
 }
 
 export type ProposalCountAggregateInputType = {
@@ -96,6 +101,7 @@ export type ProposalCountAggregateInputType = {
   parentId?: true
   createdAt?: true
   updatedAt?: true
+  remindedAt?: true
   _all?: true
 }
 
@@ -181,6 +187,7 @@ export type ProposalGroupByOutputType = {
   parentId: string | null
   createdAt: Date
   updatedAt: Date
+  remindedAt: Date | null
   _count: ProposalCountAggregateOutputType | null
   _min: ProposalMinAggregateOutputType | null
   _max: ProposalMaxAggregateOutputType | null
@@ -214,6 +221,7 @@ export type ProposalWhereInput = {
   parentId?: Prisma.StringNullableFilter<"Proposal"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Proposal"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Proposal"> | Date | string
+  remindedAt?: Prisma.DateTimeNullableFilter<"Proposal"> | Date | string | null
   group?: Prisma.XOR<Prisma.GroupScalarRelationFilter, Prisma.GroupWhereInput>
   creator?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   parent?: Prisma.XOR<Prisma.ProposalNullableScalarRelationFilter, Prisma.ProposalWhereInput> | null
@@ -231,6 +239,7 @@ export type ProposalOrderByWithRelationInput = {
   parentId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  remindedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   group?: Prisma.GroupOrderByWithRelationInput
   creator?: Prisma.UserOrderByWithRelationInput
   parent?: Prisma.ProposalOrderByWithRelationInput
@@ -251,6 +260,7 @@ export type ProposalWhereUniqueInput = Prisma.AtLeast<{
   parentId?: Prisma.StringNullableFilter<"Proposal"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Proposal"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Proposal"> | Date | string
+  remindedAt?: Prisma.DateTimeNullableFilter<"Proposal"> | Date | string | null
   group?: Prisma.XOR<Prisma.GroupScalarRelationFilter, Prisma.GroupWhereInput>
   creator?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   parent?: Prisma.XOR<Prisma.ProposalNullableScalarRelationFilter, Prisma.ProposalWhereInput> | null
@@ -268,6 +278,7 @@ export type ProposalOrderByWithAggregationInput = {
   parentId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  remindedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.ProposalCountOrderByAggregateInput
   _max?: Prisma.ProposalMaxOrderByAggregateInput
   _min?: Prisma.ProposalMinOrderByAggregateInput
@@ -286,6 +297,7 @@ export type ProposalScalarWhereWithAggregatesInput = {
   parentId?: Prisma.StringNullableWithAggregatesFilter<"Proposal"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Proposal"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Proposal"> | Date | string
+  remindedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Proposal"> | Date | string | null
 }
 
 export type ProposalCreateInput = {
@@ -295,6 +307,7 @@ export type ProposalCreateInput = {
   status?: $Enums.ProposalStatus
   createdAt?: Date | string
   updatedAt?: Date | string
+  remindedAt?: Date | string | null
   group: Prisma.GroupCreateNestedOneWithoutProposalsInput
   creator: Prisma.UserCreateNestedOneWithoutProposalsInput
   parent?: Prisma.ProposalCreateNestedOneWithoutCountersInput
@@ -312,6 +325,7 @@ export type ProposalUncheckedCreateInput = {
   parentId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  remindedAt?: Date | string | null
   counters?: Prisma.ProposalUncheckedCreateNestedManyWithoutParentInput
   options?: Prisma.OptionUncheckedCreateNestedManyWithoutProposalInput
 }
@@ -323,6 +337,7 @@ export type ProposalUpdateInput = {
   status?: Prisma.EnumProposalStatusFieldUpdateOperationsInput | $Enums.ProposalStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  remindedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   group?: Prisma.GroupUpdateOneRequiredWithoutProposalsNestedInput
   creator?: Prisma.UserUpdateOneRequiredWithoutProposalsNestedInput
   parent?: Prisma.ProposalUpdateOneWithoutCountersNestedInput
@@ -340,6 +355,7 @@ export type ProposalUncheckedUpdateInput = {
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  remindedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   counters?: Prisma.ProposalUncheckedUpdateManyWithoutParentNestedInput
   options?: Prisma.OptionUncheckedUpdateManyWithoutProposalNestedInput
 }
@@ -354,6 +370,7 @@ export type ProposalCreateManyInput = {
   parentId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  remindedAt?: Date | string | null
 }
 
 export type ProposalUpdateManyMutationInput = {
@@ -363,6 +380,7 @@ export type ProposalUpdateManyMutationInput = {
   status?: Prisma.EnumProposalStatusFieldUpdateOperationsInput | $Enums.ProposalStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  remindedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type ProposalUncheckedUpdateManyInput = {
@@ -375,6 +393,7 @@ export type ProposalUncheckedUpdateManyInput = {
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  remindedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type ProposalListRelationFilter = {
@@ -402,6 +421,7 @@ export type ProposalCountOrderByAggregateInput = {
   parentId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  remindedAt?: Prisma.SortOrder
 }
 
 export type ProposalMaxOrderByAggregateInput = {
@@ -414,6 +434,7 @@ export type ProposalMaxOrderByAggregateInput = {
   parentId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  remindedAt?: Prisma.SortOrder
 }
 
 export type ProposalMinOrderByAggregateInput = {
@@ -426,6 +447,7 @@ export type ProposalMinOrderByAggregateInput = {
   parentId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  remindedAt?: Prisma.SortOrder
 }
 
 export type ProposalScalarRelationFilter = {
@@ -600,6 +622,7 @@ export type ProposalCreateWithoutCreatorInput = {
   status?: $Enums.ProposalStatus
   createdAt?: Date | string
   updatedAt?: Date | string
+  remindedAt?: Date | string | null
   group: Prisma.GroupCreateNestedOneWithoutProposalsInput
   parent?: Prisma.ProposalCreateNestedOneWithoutCountersInput
   counters?: Prisma.ProposalCreateNestedManyWithoutParentInput
@@ -615,6 +638,7 @@ export type ProposalUncheckedCreateWithoutCreatorInput = {
   parentId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  remindedAt?: Date | string | null
   counters?: Prisma.ProposalUncheckedCreateNestedManyWithoutParentInput
   options?: Prisma.OptionUncheckedCreateNestedManyWithoutProposalInput
 }
@@ -658,6 +682,7 @@ export type ProposalScalarWhereInput = {
   parentId?: Prisma.StringNullableFilter<"Proposal"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Proposal"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Proposal"> | Date | string
+  remindedAt?: Prisma.DateTimeNullableFilter<"Proposal"> | Date | string | null
 }
 
 export type ProposalCreateWithoutGroupInput = {
@@ -667,6 +692,7 @@ export type ProposalCreateWithoutGroupInput = {
   status?: $Enums.ProposalStatus
   createdAt?: Date | string
   updatedAt?: Date | string
+  remindedAt?: Date | string | null
   creator: Prisma.UserCreateNestedOneWithoutProposalsInput
   parent?: Prisma.ProposalCreateNestedOneWithoutCountersInput
   counters?: Prisma.ProposalCreateNestedManyWithoutParentInput
@@ -682,6 +708,7 @@ export type ProposalUncheckedCreateWithoutGroupInput = {
   parentId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  remindedAt?: Date | string | null
   counters?: Prisma.ProposalUncheckedCreateNestedManyWithoutParentInput
   options?: Prisma.OptionUncheckedCreateNestedManyWithoutProposalInput
 }
@@ -719,6 +746,7 @@ export type ProposalCreateWithoutCountersInput = {
   status?: $Enums.ProposalStatus
   createdAt?: Date | string
   updatedAt?: Date | string
+  remindedAt?: Date | string | null
   group: Prisma.GroupCreateNestedOneWithoutProposalsInput
   creator: Prisma.UserCreateNestedOneWithoutProposalsInput
   parent?: Prisma.ProposalCreateNestedOneWithoutCountersInput
@@ -735,6 +763,7 @@ export type ProposalUncheckedCreateWithoutCountersInput = {
   parentId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  remindedAt?: Date | string | null
   options?: Prisma.OptionUncheckedCreateNestedManyWithoutProposalInput
 }
 
@@ -750,6 +779,7 @@ export type ProposalCreateWithoutParentInput = {
   status?: $Enums.ProposalStatus
   createdAt?: Date | string
   updatedAt?: Date | string
+  remindedAt?: Date | string | null
   group: Prisma.GroupCreateNestedOneWithoutProposalsInput
   creator: Prisma.UserCreateNestedOneWithoutProposalsInput
   counters?: Prisma.ProposalCreateNestedManyWithoutParentInput
@@ -765,6 +795,7 @@ export type ProposalUncheckedCreateWithoutParentInput = {
   status?: $Enums.ProposalStatus
   createdAt?: Date | string
   updatedAt?: Date | string
+  remindedAt?: Date | string | null
   counters?: Prisma.ProposalUncheckedCreateNestedManyWithoutParentInput
   options?: Prisma.OptionUncheckedCreateNestedManyWithoutProposalInput
 }
@@ -797,6 +828,7 @@ export type ProposalUpdateWithoutCountersInput = {
   status?: Prisma.EnumProposalStatusFieldUpdateOperationsInput | $Enums.ProposalStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  remindedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   group?: Prisma.GroupUpdateOneRequiredWithoutProposalsNestedInput
   creator?: Prisma.UserUpdateOneRequiredWithoutProposalsNestedInput
   parent?: Prisma.ProposalUpdateOneWithoutCountersNestedInput
@@ -813,6 +845,7 @@ export type ProposalUncheckedUpdateWithoutCountersInput = {
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  remindedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   options?: Prisma.OptionUncheckedUpdateManyWithoutProposalNestedInput
 }
 
@@ -839,6 +872,7 @@ export type ProposalCreateWithoutOptionsInput = {
   status?: $Enums.ProposalStatus
   createdAt?: Date | string
   updatedAt?: Date | string
+  remindedAt?: Date | string | null
   group: Prisma.GroupCreateNestedOneWithoutProposalsInput
   creator: Prisma.UserCreateNestedOneWithoutProposalsInput
   parent?: Prisma.ProposalCreateNestedOneWithoutCountersInput
@@ -855,6 +889,7 @@ export type ProposalUncheckedCreateWithoutOptionsInput = {
   parentId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  remindedAt?: Date | string | null
   counters?: Prisma.ProposalUncheckedCreateNestedManyWithoutParentInput
 }
 
@@ -881,6 +916,7 @@ export type ProposalUpdateWithoutOptionsInput = {
   status?: Prisma.EnumProposalStatusFieldUpdateOperationsInput | $Enums.ProposalStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  remindedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   group?: Prisma.GroupUpdateOneRequiredWithoutProposalsNestedInput
   creator?: Prisma.UserUpdateOneRequiredWithoutProposalsNestedInput
   parent?: Prisma.ProposalUpdateOneWithoutCountersNestedInput
@@ -897,6 +933,7 @@ export type ProposalUncheckedUpdateWithoutOptionsInput = {
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  remindedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   counters?: Prisma.ProposalUncheckedUpdateManyWithoutParentNestedInput
 }
 
@@ -909,6 +946,7 @@ export type ProposalCreateManyCreatorInput = {
   parentId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  remindedAt?: Date | string | null
 }
 
 export type ProposalUpdateWithoutCreatorInput = {
@@ -918,6 +956,7 @@ export type ProposalUpdateWithoutCreatorInput = {
   status?: Prisma.EnumProposalStatusFieldUpdateOperationsInput | $Enums.ProposalStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  remindedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   group?: Prisma.GroupUpdateOneRequiredWithoutProposalsNestedInput
   parent?: Prisma.ProposalUpdateOneWithoutCountersNestedInput
   counters?: Prisma.ProposalUpdateManyWithoutParentNestedInput
@@ -933,6 +972,7 @@ export type ProposalUncheckedUpdateWithoutCreatorInput = {
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  remindedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   counters?: Prisma.ProposalUncheckedUpdateManyWithoutParentNestedInput
   options?: Prisma.OptionUncheckedUpdateManyWithoutProposalNestedInput
 }
@@ -946,6 +986,7 @@ export type ProposalUncheckedUpdateManyWithoutCreatorInput = {
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  remindedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type ProposalCreateManyGroupInput = {
@@ -957,6 +998,7 @@ export type ProposalCreateManyGroupInput = {
   parentId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  remindedAt?: Date | string | null
 }
 
 export type ProposalUpdateWithoutGroupInput = {
@@ -966,6 +1008,7 @@ export type ProposalUpdateWithoutGroupInput = {
   status?: Prisma.EnumProposalStatusFieldUpdateOperationsInput | $Enums.ProposalStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  remindedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   creator?: Prisma.UserUpdateOneRequiredWithoutProposalsNestedInput
   parent?: Prisma.ProposalUpdateOneWithoutCountersNestedInput
   counters?: Prisma.ProposalUpdateManyWithoutParentNestedInput
@@ -981,6 +1024,7 @@ export type ProposalUncheckedUpdateWithoutGroupInput = {
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  remindedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   counters?: Prisma.ProposalUncheckedUpdateManyWithoutParentNestedInput
   options?: Prisma.OptionUncheckedUpdateManyWithoutProposalNestedInput
 }
@@ -994,6 +1038,7 @@ export type ProposalUncheckedUpdateManyWithoutGroupInput = {
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  remindedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type ProposalCreateManyParentInput = {
@@ -1005,6 +1050,7 @@ export type ProposalCreateManyParentInput = {
   status?: $Enums.ProposalStatus
   createdAt?: Date | string
   updatedAt?: Date | string
+  remindedAt?: Date | string | null
 }
 
 export type ProposalUpdateWithoutParentInput = {
@@ -1014,6 +1060,7 @@ export type ProposalUpdateWithoutParentInput = {
   status?: Prisma.EnumProposalStatusFieldUpdateOperationsInput | $Enums.ProposalStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  remindedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   group?: Prisma.GroupUpdateOneRequiredWithoutProposalsNestedInput
   creator?: Prisma.UserUpdateOneRequiredWithoutProposalsNestedInput
   counters?: Prisma.ProposalUpdateManyWithoutParentNestedInput
@@ -1029,6 +1076,7 @@ export type ProposalUncheckedUpdateWithoutParentInput = {
   status?: Prisma.EnumProposalStatusFieldUpdateOperationsInput | $Enums.ProposalStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  remindedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   counters?: Prisma.ProposalUncheckedUpdateManyWithoutParentNestedInput
   options?: Prisma.OptionUncheckedUpdateManyWithoutProposalNestedInput
 }
@@ -1042,6 +1090,7 @@ export type ProposalUncheckedUpdateManyWithoutParentInput = {
   status?: Prisma.EnumProposalStatusFieldUpdateOperationsInput | $Enums.ProposalStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  remindedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 
@@ -1094,6 +1143,7 @@ export type ProposalSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   parentId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  remindedAt?: boolean
   group?: boolean | Prisma.GroupDefaultArgs<ExtArgs>
   creator?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   parent?: boolean | Prisma.Proposal$parentArgs<ExtArgs>
@@ -1112,6 +1162,7 @@ export type ProposalSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   parentId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  remindedAt?: boolean
   group?: boolean | Prisma.GroupDefaultArgs<ExtArgs>
   creator?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   parent?: boolean | Prisma.Proposal$parentArgs<ExtArgs>
@@ -1127,6 +1178,7 @@ export type ProposalSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   parentId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  remindedAt?: boolean
   group?: boolean | Prisma.GroupDefaultArgs<ExtArgs>
   creator?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   parent?: boolean | Prisma.Proposal$parentArgs<ExtArgs>
@@ -1142,9 +1194,10 @@ export type ProposalSelectScalar = {
   parentId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  remindedAt?: boolean
 }
 
-export type ProposalOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "groupId" | "creatorId" | "title" | "dateTime" | "status" | "parentId" | "createdAt" | "updatedAt", ExtArgs["result"]["proposal"]>
+export type ProposalOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "groupId" | "creatorId" | "title" | "dateTime" | "status" | "parentId" | "createdAt" | "updatedAt" | "remindedAt", ExtArgs["result"]["proposal"]>
 export type ProposalInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   group?: boolean | Prisma.GroupDefaultArgs<ExtArgs>
   creator?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1183,6 +1236,7 @@ export type $ProposalPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     parentId: string | null
     createdAt: Date
     updatedAt: Date
+    remindedAt: Date | null
   }, ExtArgs["result"]["proposal"]>
   composites: {}
 }
@@ -1620,6 +1674,7 @@ export interface ProposalFieldRefs {
   readonly parentId: Prisma.FieldRef<"Proposal", 'String'>
   readonly createdAt: Prisma.FieldRef<"Proposal", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Proposal", 'DateTime'>
+  readonly remindedAt: Prisma.FieldRef<"Proposal", 'DateTime'>
 }
     
 

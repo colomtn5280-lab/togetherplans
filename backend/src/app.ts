@@ -12,6 +12,7 @@ import { legalRouter } from '@/routes/legal';
 import { suggestionsRouter } from '@/routes/suggestions';
 import { notificationsRouter } from '@/routes/notifications';
 import { usersRouter } from '@/routes/users';
+import { internalRouter } from '@/routes/internal';
 
 export function createApp(): express.Express {
   const app = express();
@@ -47,6 +48,7 @@ export function createApp(): express.Express {
   app.use('/api/suggestions', suggestionsRouter);
   app.use('/api/notifications', notificationsRouter);
   app.use('/api/users', usersRouter);
+  app.use('/api/internal', internalRouter);
   app.use('/', legalRouter);
 
   app.use((_req: Request, res: Response) => {

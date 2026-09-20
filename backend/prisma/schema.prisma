@@ -120,6 +120,7 @@ model Proposal {
   parentId   String?
   createdAt  DateTime       @default(now())
   updatedAt  DateTime       @updatedAt
+  remindedAt DateTime?
 
   group    Group      @relation(fields: [groupId], references: [id], onDelete: Cascade)
   creator  User       @relation(fields: [creatorId], references: [id], onDelete: Cascade)

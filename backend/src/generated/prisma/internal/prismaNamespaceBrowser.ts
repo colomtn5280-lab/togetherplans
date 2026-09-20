@@ -142,7 +142,8 @@ export const ProposalScalarFieldEnum = {
   status: 'status',
   parentId: 'parentId',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  remindedAt: 'remindedAt'
 } as const
 
 export type ProposalScalarFieldEnum = (typeof ProposalScalarFieldEnum)[keyof typeof ProposalScalarFieldEnum]

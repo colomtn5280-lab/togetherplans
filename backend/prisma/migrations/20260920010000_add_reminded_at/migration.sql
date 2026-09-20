@@ -1,0 +1,1 @@
+ALTER TABLE "Proposal" ADD COLUMN IF NOT EXISTS "remindedAt" TIMESTAMP(3);
