@@ -274,7 +274,7 @@ export default function ProposalDetailScreen() {
           startDate: eventDate,
           endDate,
           location,
-          notes: `DateNight plan`,
+          notes: `TogetherPlans plan`,
         });
       }
     } catch {}

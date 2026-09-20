@@ -396,7 +396,7 @@ export function PublicSharePage() {
       <div style={{ fontSize: 64 }}>🔍</div>
       <h2>Share card not found</h2>
       <p style={{ color: "var(--ink2)" }}>This link may have expired or been removed.</p>
-      <a href="/" className="dn-btn">Go to DateNight</a>
+      <a href="/" className="dn-btn">Go to TogetherPlans</a>
     </main>
   );
 
@@ -450,7 +450,7 @@ export function PublicSharePage() {
       {/* CTA */}
       <div style={{ textAlign: "center" }}>
         <p style={{ color: "var(--ink2)", fontSize: 14, marginBottom: 16 }}>
-          Planned with DateNight — the app for couples & friends
+          Planned with TogetherPlans — the app for couples & friends
         </p>
         <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
           <a href="https://togetherplans.app" className="dn-btn">Get DateNight →</a>

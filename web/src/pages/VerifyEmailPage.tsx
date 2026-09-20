@@ -36,7 +36,7 @@ export function VerifyEmailPage() {
 
   return (
     <main style={{ maxWidth: 400, margin: "80px auto", padding: "0 16px" }}>
-      <h1>DateNight</h1>
+      <h1>TogetherPlans</h1>
       <h2>Verify your email</h2>
 
       {email && (

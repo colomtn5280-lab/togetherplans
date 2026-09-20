@@ -161,7 +161,7 @@ export function JoinPage() {
               color: "var(--ink)",
             }}
           >
-            DateNight
+            TogetherPlans
           </div>
         </div>
 

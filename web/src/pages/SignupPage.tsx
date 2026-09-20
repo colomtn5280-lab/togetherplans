@@ -156,7 +156,7 @@ export function SignupPage() {
               color: "var(--ink)",
             }}
           >
-            DateNight
+            TogetherPlans
           </div>
         </div>
 

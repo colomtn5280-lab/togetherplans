@@ -48,7 +48,7 @@ export function ResetPasswordPage() {
   if (!token) {
     return (
       <main style={{ maxWidth: 400, margin: "80px auto", padding: "0 16px" }}>
-        <h1>DateNight</h1>
+        <h1>TogetherPlans</h1>
         <h2>Reset password</h2>
         <p role="alert">Invalid or expired reset link.</p>
         <p>
@@ -62,7 +62,7 @@ export function ResetPasswordPage() {
 
   return (
     <main style={{ maxWidth: 400, margin: "80px auto", padding: "0 16px" }}>
-      <h1>DateNight</h1>
+      <h1>TogetherPlans</h1>
       <h2>Reset your password</h2>
 
       <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>

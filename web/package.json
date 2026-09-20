@@ -1,7 +1,7 @@
 {
   "name": "datenight-web",
   "version": "1.0.0",
-  "description": "DateNight Web App — collaborative date planning",
+  "description": "TogetherPlans Web App — collaborative date planning",
   "private": true,
   "type": "module",
   "scripts": {

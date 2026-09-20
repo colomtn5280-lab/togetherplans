@@ -124,7 +124,7 @@ export function LoginPage() {
               color: "var(--ink)",
             }}
           >
-            DateNight
+            TogetherPlans
           </div>
         </div>
 
