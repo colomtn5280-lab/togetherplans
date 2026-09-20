@@ -48,6 +48,25 @@ export const invitationsAPI = {
   accept: (token: string) => api.post(`/api/invitations/${token}/accept`),
 };
 
+// Share Cards
+export const shareCardsAPI = {
+  get: (proposalId: string) => api.get(`/api/share-cards/${proposalId}`),
+  generate: (proposalId: string) => api.post(`/api/share-cards/${proposalId}/generate`),
+  byToken: (shareToken: string) => api.get(`/api/share-cards/by-token/${shareToken}`),
+};
+
+// After Dark
+export const afterDarkAPI = {
+  status: (utcOffset?: number) =>
+    api.get('/api/after-dark/status', { params: utcOffset !== undefined ? { utcOffset } : {} }),
+  suggestions: (params?: { mood?: string; lat?: number; lng?: number; zip?: string; radius?: number }) =>
+    api.get('/api/after-dark/suggestions', { params }),
+  getMood: () => api.get('/api/after-dark/mood'),
+  setMood: (mood: string) => api.post('/api/after-dark/mood', { mood }),
+  impulse: (groupId: string, optionName: string, optionCategory: string, optionAddress?: string) =>
+    api.post('/api/after-dark/impulse', { groupId, optionName, optionCategory, optionAddress }),
+};
+
 // Option shape for proposal creation
 export interface ProposalOption {
   name: string;

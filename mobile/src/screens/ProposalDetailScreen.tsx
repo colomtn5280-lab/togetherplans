@@ -182,11 +182,10 @@ function Confetti() {
 // ── Main Screen ───────────────────────────────────────────────────────────────
 export default function ProposalDetailScreen() {
   const { colors } = useTheme();
-  const navigation = useNavigation();
+  const navigation = useNavigation<any>();
   const route = useRoute<RouteT>();
   const { user } = useAuth();
   const { proposalId } = route.params;
-
   const [proposal, setProposal] = useState<Proposal | null>(null);
   const [myVotedOptionId, setMyVotedOptionId] = useState<string | null>(null);
   const [seenDecision, setSeenDecision] = useState(false);
@@ -337,12 +336,21 @@ export default function ProposalDetailScreen() {
           subtitle="Group"
           onBack={() => navigation.goBack()}
           rightElement={
+            isDecided ? (
+              <DNButton
+                label="Share 📤"
+                variant="tonal"
+                size="compact"
+                onPress={() => navigation.navigate('ShareCard', { proposalId: proposal.id })}
+              />
+            ) : (
             <DNSticker
               label={statusInfo.label}
               color={statusInfo.color}
               textColor={statusInfo.textColor}
               rotationIndex={1}
             />
+            )
           }
         />
 

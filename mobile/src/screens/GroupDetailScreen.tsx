@@ -319,12 +319,20 @@ export default function GroupDetailScreen() {
         title={groupName}
         onBack={() => navigation.goBack()}
         rightElement={
-          <DNButton
-            label="Invite"
-            onPress={handleShare}
-            variant="tonal"
-            size="compact"
-          />
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            <DNButton
+              label="🌙"
+              onPress={() => navigation.navigate('AfterDark', { groupId })}
+              variant="tonal"
+              size="compact"
+            />
+            <DNButton
+              label="Invite"
+              onPress={handleShare}
+              variant="tonal"
+              size="compact"
+            />
+          </View>
         }
       />
 

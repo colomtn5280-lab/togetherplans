@@ -43,6 +43,8 @@ import ProposalDetailScreen from '@/screens/ProposalDetailScreen';
 import CreateProposalScreen from '@/screens/CreateProposalScreen';
 import SuggestionsScreen from '@/screens/SuggestionsScreen';
 import ProfileScreen from '@/screens/ProfileScreen';
+import ShareCardScreen from '@/screens/ShareCardScreen';
+import AfterDarkScreen from '@/screens/AfterDarkScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator();
@@ -286,6 +288,16 @@ export default function AppNavigator() {
               name="Suggestions"
               component={SuggestionsScreen}
               options={{ title: 'Discover Activities' }}
+            />
+            <Stack.Screen
+              name="ShareCard"
+              component={ShareCardScreen}
+              options={{ title: 'Share', headerShown: false }}
+            />
+            <Stack.Screen
+              name="AfterDark"
+              component={AfterDarkScreen}
+              options={{ title: 'After Dark 🌙', headerShown: false }}
             />
           </>
         )}
