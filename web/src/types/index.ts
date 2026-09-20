@@ -47,11 +47,19 @@ export interface Group {
 }
 
 export interface GroupMember {
+  id?: string;
   userId: string;
-  email: string;
+  groupId?: string;
+  email?: string;
   firstName?: string;
   lastName?: string;
   role: "owner" | "member";
+  joinedAt?: string;
+  /** Nested user object returned by the backend */
+  user?: {
+    id?: string;
+    displayName?: string;
+  };
 }
 
 export interface Invitation {

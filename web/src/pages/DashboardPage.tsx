@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { groupsApi } from "../api/client";
 import { useAuthStore } from "../store/auth.store";
 import { AppNav } from "../components/AppNav";
-import type { Group } from "../types";
+import type { Group, Proposal } from "../types";
 
 export function DashboardPage() {
   const user = useAuthStore((s) => s.user);
@@ -17,6 +17,22 @@ export function DashboardPage() {
       return res.data;
     },
   });
+
+  // Fetch proposals for the first group (if any) to show real pending items
+  const firstGroupId = groups && groups.length > 0 ? groups[0].id : undefined;
+  const { data: firstGroupProposals } = useQuery<Proposal[]>({
+    queryKey: ["proposals", firstGroupId],
+    queryFn: async () => {
+      const res = await groupsApi.proposals(firstGroupId!);
+      return res.data;
+    },
+    enabled: !!firstGroupId,
+  });
+
+  // Find the first open proposal needing a vote
+  const openProposal = firstGroupProposals?.find(
+    (p) => p.status === "OPEN" || p.status === "pending"
+  ) ?? null;
 
   const handleLogout = () => {
     clearAuth();
@@ -53,8 +69,8 @@ export function DashboardPage() {
               )}
             </div>
 
-            {/* YOUR TURN card */}
-            {hasGroups && (
+            {/* YOUR TURN card — shows real open proposal or placeholder */}
+            {hasGroups && openProposal && (
               <div
                 className="dn-card dn-card--alt1"
                 style={{
@@ -66,16 +82,32 @@ export function DashboardPage() {
                   <span className="dn-sticker">Your Turn</span>
                   <span style={{ color: "var(--ink2)", fontSize: 13 }}>tap to vote</span>
                 </div>
-                <h3 style={{ marginBottom: 14 }}>Friday Night Plans</h3>
-                <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 16 }}>
-                  <button className="dn-chip selected">Italian Restaurant</button>
-                  <button className="dn-chip" style={{ background: "var(--lime-soft)", color: "var(--lime)" }}>
-                    Movie Night
-                  </button>
-                  <button className="dn-chip">Bowling</button>
-                </div>
-                <Link to={`/groups/${groups[0].id}`} className="dn-btn">
+                <h3 style={{ marginBottom: 14 }}>{openProposal.title ?? "Open proposal"}</h3>
+                {openProposal.options && openProposal.options.length > 0 && (
+                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 16 }}>
+                    {openProposal.options.slice(0, 3).map((opt, i) => (
+                      <button key={opt.id} className={`dn-chip${i === 0 ? " selected" : ""}`}>
+                        {opt.name}
+                      </button>
+                    ))}
+                  </div>
+                )}
+                <Link to={`/groups/${openProposal.groupId}/proposals/${openProposal.id}`} className="dn-btn">
                   Vote now ♥
+                </Link>
+              </div>
+            )}
+            {hasGroups && !openProposal && (
+              <div
+                className="dn-card dn-card--alt1"
+                style={{ border: "2px solid var(--primary)" }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
+                  <span className="dn-sticker dn-sticker--lime">All caught up</span>
+                </div>
+                <h3 style={{ marginBottom: 14 }}>No open proposals</h3>
+                <Link to={`/groups/${groups![0].id}/proposals/new`} className="dn-btn">
+                  Start a new plan +
                 </Link>
               </div>
             )}

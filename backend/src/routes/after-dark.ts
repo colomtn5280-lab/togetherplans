@@ -18,6 +18,7 @@ import { prisma } from '@/services/db';
 import { requireAuth, AuthRequest } from '@/middleware/auth';
 import { getSuggestions } from '@/services/suggestions';
 import { logger } from '@/services/logger';
+import { cache } from '@/services/cache';
 
 export const afterDarkRouter = Router();
 afterDarkRouter.use(requireAuth);
@@ -83,34 +84,24 @@ function minutesUntilAfterDark(utcOffsetMinutes?: number): number {
   return 0;
 }
 
-/**
- * Read mood from User.pushToken metadata prefix "afterdark:mood:<value>"
- * This avoids a schema migration for MVP. A dedicated column can be added later.
- * Format: "afterdark:mood:romantic|<actualPushToken>"
- */
-function decodeMood(pushToken: string | null): AfterDarkMood | null {
-  if (!pushToken) return null;
-  const match = pushToken.match(/^afterdark:mood:([a-z]+)\|/);
-  if (match && VALID_MOODS.includes(match[1] as AfterDarkMood)) {
-    return match[1] as AfterDarkMood;
+/** Cache key for user mood — TTL 24 hours */
+function moodCacheKey(userId: string): string {
+  return `afterdark:mood:${userId}`;
+}
+
+/** Get user's mood from cache */
+async function getMoodFromCache(userId: string): Promise<AfterDarkMood | null> {
+  const val = await cache.get(moodCacheKey(userId));
+  if (val && VALID_MOODS.includes(val as AfterDarkMood)) {
+    return val as AfterDarkMood;
   }
   return null;
 }
 
-function encodeMood(mood: AfterDarkMood, existingPushToken: string | null): string {
-  // Strip any existing mood prefix
-  const bare = existingPushToken
-    ? existingPushToken.replace(/^afterdark:mood:[a-z]+\|/, '')
-    : '';
-  return `afterdark:mood:${mood}|${bare}`;
+/** Set user's mood in cache (TTL 24 hours) */
+async function setMoodInCache(userId: string, mood: AfterDarkMood): Promise<void> {
+  await cache.set(moodCacheKey(userId), mood, 24 * 60 * 60);
 }
-
-// _realPushToken: strips the mood prefix to get the real Expo push token.
-// Reserved for future use when push notifications need the bare token.
-// function _realPushToken(pushToken: string | null): string | null {
-//   if (!pushToken) return null;
-//   return pushToken.replace(/^afterdark:mood:[a-z]+\|/, '') || null;
-// }
 
 // ─── Routes ──────────────────────────────────────────────────────────────────
 
@@ -127,11 +118,7 @@ afterDarkRouter.get('/status', async (req: AuthRequest, res: Response) => {
   const active = isAfterDarkActive(utcOffset);
   const minutesUntil = minutesUntilAfterDark(utcOffset);
 
-  const user = await prisma.user.findUnique({
-    where: { id: req.userId as string },
-    select: { pushToken: true },
-  });
-  const currentMood = user ? decodeMood(user.pushToken) : null;
+  const currentMood = await getMoodFromCache(req.userId as string);
 
   return res.json({
     active,
@@ -164,11 +151,7 @@ afterDarkRouter.get('/suggestions', async (req: AuthRequest, res: Response, next
     // Resolve stored mood if not passed as query param
     let mood: AfterDarkMood | null = moodParam ?? null;
     if (!mood) {
-      const user = await prisma.user.findUnique({
-        where: { id: req.userId as string },
-        select: { pushToken: true },
-      });
-      mood = user ? decodeMood(user.pushToken) : null;
+      mood = await getMoodFromCache(req.userId as string);
     }
 
     // Fetch from all after-dark-friendly categories in parallel
@@ -233,17 +216,7 @@ afterDarkRouter.post('/mood', async (req: AuthRequest, res: Response, next) => {
       });
     }
 
-    const user = await prisma.user.findUnique({
-      where: { id: req.userId as string },
-      select: { pushToken: true },
-    });
-    if (!user) return res.status(404).json({ error: 'User not found' });
-
-    const encoded = encodeMood(mood as AfterDarkMood, user.pushToken);
-    await prisma.user.update({
-      where: { id: req.userId as string },
-      data: { pushToken: encoded },
-    });
+    await setMoodInCache(req.userId as string, mood as AfterDarkMood);
 
     return res.json({
       mood,
@@ -261,13 +234,7 @@ afterDarkRouter.post('/mood', async (req: AuthRequest, res: Response, next) => {
  */
 afterDarkRouter.get('/mood', async (req: AuthRequest, res: Response, next) => {
   try {
-    const user = await prisma.user.findUnique({
-      where: { id: req.userId as string },
-      select: { pushToken: true },
-    });
-    if (!user) return res.status(404).json({ error: 'User not found' });
-
-    const mood = decodeMood(user.pushToken);
+    const mood = await getMoodFromCache(req.userId as string);
     return res.json({
       mood,
       availableMoods: VALID_MOODS,
@@ -304,11 +271,7 @@ afterDarkRouter.post('/impulse', async (req: AuthRequest, res: Response, next) =
     const impulseDateTime = new Date(Date.now() + 2 * 60 * 60 * 1000);
 
     // Get user's mood for the title
-    const user = await prisma.user.findUnique({
-      where: { id: req.userId as string },
-      select: { displayName: true, pushToken: true },
-    });
-    const mood = user ? decodeMood(user.pushToken) : null;
+    const mood = await getMoodFromCache(req.userId as string);
     const moodTag = mood ? ` [${mood}]` : '';
 
     const proposal = await prisma.proposal.create({

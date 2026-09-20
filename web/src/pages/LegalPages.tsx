@@ -16,8 +16,7 @@ export function PrivacyPolicyPage() {
         <h1>Privacy Policy</h1>
         <p className="legal-page__effective">Effective date: August 1, 2026</p>
         <p>
-          {/* TODO_LEGAL_ENTITY: Replace with full legal entity name, e.g. "DateNight Inc." */}
-          This Privacy Policy explains how <strong>[TODO_LEGAL_ENTITY]</strong>{" "}
+          This Privacy Policy explains how <strong>TogetherPlans LLC</strong>{" "}
           (&ldquo;DateNight&rdquo;, &ldquo;we&rdquo;, &ldquo;our&rdquo;, or &ldquo;us&rdquo;)
           collects, uses, and protects your personal information when you use the
           /DateNight application and related services.
@@ -98,7 +97,7 @@ export function PrivacyPolicyPage() {
         </ul>
         <p>
           To exercise any of these rights, email us at{" "}
-          <a href="mailto:privacy@datenight.io">privacy@datenight.io</a> or use
+          <a href="mailto:privacy@togetherplans.app">privacy@togetherplans.app</a> or use
           the in-app account settings.
         </p>
 
@@ -133,9 +132,9 @@ export function PrivacyPolicyPage() {
         <h2>10. Contact Us</h2>
         <p>
           {/* TODO_REGISTERED_ADDRESS: Replace with full registered business address */}
-          <strong>[TODO_LEGAL_ENTITY]</strong><br />
+          <strong>TogetherPlans LLC</strong><br />
           [TODO_REGISTERED_ADDRESS]<br />
-          Email: <a href="mailto:privacy@datenight.io">privacy@datenight.io</a>
+          Email: <a href="mailto:privacy@togetherplans.app">privacy@togetherplans.app</a>
         </p>
 
         <div className="legal-page__footer-links">
@@ -182,7 +181,7 @@ export function TermsPage() {
           <li>You are responsible for maintaining the confidentiality of your account credentials.</li>
           <li>You are responsible for all activity that occurs under your account.</li>
           <li>You agree to provide accurate and current information when creating your account.</li>
-          <li>You must notify us immediately at <a href="mailto:legal@datenight.io">legal@datenight.io</a> if you suspect unauthorised access to your account.</li>
+          <li>You must notify us immediately at <a href="mailto:legal@togetherplans.app">legal@togetherplans.app</a> if you suspect unauthorised access to your account.</li>
           <li>We reserve the right to suspend or terminate accounts that violate these Terms.</li>
         </ul>
 
@@ -264,7 +263,7 @@ export function TermsPage() {
         <h2>11. Contact</h2>
         <p>
           For questions about these Terms, please contact us at{" "}
-          <a href="mailto:legal@datenight.io">legal@datenight.io</a>.
+          <a href="mailto:legal@togetherplans.app">legal@togetherplans.app</a>.
         </p>
 
         <div className="legal-page__footer-links">
@@ -303,7 +302,7 @@ export function SupportPage() {
     },
     {
       q: "What platforms does /DateNight support?",
-      a: "The /DateNight app is available on iOS (iPhone and iPad) and Android. There is also a full-featured web app at datenight.io that works on any modern browser — Chrome, Firefox, Safari, and Edge are all supported. Your groups and proposals sync across all your devices in real time.",
+      a: "The /DateNight app is available on iOS (iPhone and iPad) and Android. There is also a full-featured web app at togetherplans.app that works on any modern browser — Chrome, Firefox, Safari, and Edge are all supported. Your groups and proposals sync across all your devices in real time.",
     },
   ];
 
@@ -324,10 +323,10 @@ export function SupportPage() {
               Our support team typically responds within 1 business day.
             </p>
             <a
-              href="mailto:support@datenight.io"
+              href="mailto:support@togetherplans.app"
               className="support-contact__btn"
             >
-              support@datenight.io
+              support@togetherplans.app
             </a>
           </div>
         </div>

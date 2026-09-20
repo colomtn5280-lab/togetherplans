@@ -5,6 +5,7 @@ import { requireAuth, AuthRequest } from '@/middleware/auth';
 import { getSuggestions, SuggestionCategory } from '@/services/suggestions';
 import { sendVoteReminderEmail } from '@/services/email';
 import { logger } from '@/services/logger';
+import { cache } from '@/services/cache';
 
 export const proposalsRouter = Router();
 
@@ -29,6 +30,8 @@ function validateOptions(options: unknown): string | null {
   }
   for (const o of options as OptionInput[]) {
     if (!o.name || !o.category) return 'Each option needs a name and a category';
+    if (o.name.length > 200) return 'Option name must be 200 characters or fewer';
+    if (o.description && o.description.length > 500) return 'Option description must be 500 characters or fewer';
   }
   return null;
 }
@@ -39,6 +42,9 @@ proposalsRouter.post('/', async (req: AuthRequest, res: Response, next) => {
     const { groupId, title, dateTime, options } = req.body || {};
     if (!groupId || !title || !dateTime) {
       return res.status(400).json({ error: 'groupId, title and dateTime are required' });
+    }
+    if (title.length > 200) {
+      return res.status(400).json({ error: 'title must be 200 characters or fewer' });
     }
     const parsedDate = new Date(dateTime);
     if (isNaN(parsedDate.getTime())) {
@@ -82,6 +88,9 @@ proposalsRouter.post('/:id/counter', async (req: AuthRequest, res: Response, nex
     const { title, dateTime, options } = req.body || {};
     if (!title || !dateTime) {
       return res.status(400).json({ error: 'title and dateTime are required' });
+    }
+    if (title.length > 200) {
+      return res.status(400).json({ error: 'title must be 200 characters or fewer' });
     }
     const parsedDate = new Date(dateTime);
     if (isNaN(parsedDate.getTime())) {
@@ -266,6 +275,19 @@ proposalsRouter.post('/:id/nudge', async (req: AuthRequest, res: Response, next)
       where: { groupId: proposal.groupId, userId: req.userId },
     });
     if (!membership) return res.status(403).json({ error: 'Not a member of this group' });
+
+    // Rate limit: max 1 nudge per hour per proposal
+    const nudgeCacheKey = `nudge:${req.params.id}`;
+    const lastNudgedAt = await cache.get(nudgeCacheKey);
+    if (lastNudgedAt) {
+      const elapsed = Date.now() - Number(lastNudgedAt);
+      const remainingSeconds = Math.ceil((3600000 - elapsed) / 1000);
+      return res.status(429).json({
+        error: `Nudge rate limit: please wait ${Math.ceil(remainingSeconds / 60)} more minute(s) before nudging again`,
+      });
+    }
+    // Record nudge timestamp (TTL 1 hour)
+    await cache.set(nudgeCacheKey, String(Date.now()), 3600);
 
     // Collect userIds that have voted on any option
     const votedUserIds = new Set<string>();

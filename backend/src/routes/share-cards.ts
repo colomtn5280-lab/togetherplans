@@ -157,12 +157,14 @@ async function buildCard(proposalId: string) {
 /**
  * GET /api/share-cards/:proposalId
  * Public — no auth required (share links are meant to be opened by anyone).
- * Returns card data or 404.
+ * Returns card data or 404. Only DECIDED proposals are publicly visible.
  */
 shareCardsRouter.get('/:proposalId', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const card = await buildCard(req.params.proposalId);
     if (!card) return res.status(404).json({ error: 'Proposal not found' });
+    // Public endpoint must only expose DECIDED proposals to prevent data leaks
+    if (card.status !== 'DECIDED') return res.status(404).json({ error: 'Proposal not found' });
     return res.json(card);
   } catch (err) {
     return next(err);
@@ -253,6 +255,8 @@ shareCardsRouter.get('/:proposalId/og-image', async (req: Request, res: Response
   try {
     const card = await buildCard(req.params.proposalId);
     if (!card) return res.status(404).json({ error: 'Proposal not found' });
+    // OG image is also public — only serve for DECIDED proposals
+    if (card.status !== 'DECIDED') return res.status(404).json({ error: 'Proposal not found' });
 
     const winnerName = card.winningOption?.name ?? card.title;
     const emoji = card.winningOption?.emoji ?? '📅';

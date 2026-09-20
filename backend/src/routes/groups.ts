@@ -13,6 +13,15 @@ groupsRouter.post('/', async (req: AuthRequest, res: Response, next) => {
     if (!name || name.trim().length === 0) {
       return res.status(400).json({ error: 'name is required' });
     }
+    if (name.trim().length > 100) {
+      return res.status(400).json({ error: 'name must be 100 characters or fewer' });
+    }
+    if (description && description.trim().length > 500) {
+      return res.status(400).json({ error: 'description must be 500 characters or fewer' });
+    }
+    if (groupType && !['COUPLE', 'FRIENDS', 'FAMILY'].includes(groupType)) {
+      return res.status(400).json({ error: 'groupType must be COUPLE, FRIENDS, or FAMILY' });
+    }
     const group = await prisma.group.create({
       data: {
         name: name.trim(),
@@ -64,6 +73,9 @@ groupsRouter.patch('/:id', async (req: AuthRequest, res: Response, next) => {
     const { name } = req.body || {};
     if (!name || name.trim().length === 0) {
       return res.status(400).json({ error: 'name is required' });
+    }
+    if (name.trim().length > 100) {
+      return res.status(400).json({ error: 'name must be 100 characters or fewer' });
     }
     const membership = await prisma.groupMember.findFirst({
       where: { groupId: req.params.id, userId: req.userId },

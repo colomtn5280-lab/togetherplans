@@ -260,7 +260,7 @@ export function SignupPage() {
                 fontWeight: 700,
               }}
             >
-              {mutation.error.response?.data?.message ?? "Signup failed"}
+              {mutation.error.response?.data?.message ?? mutation.error.response?.data?.error ?? "Signup failed. Please try again."}
             </div>
           )}
 

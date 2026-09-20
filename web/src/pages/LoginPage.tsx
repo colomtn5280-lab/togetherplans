@@ -189,7 +189,7 @@ export function LoginPage() {
                 fontWeight: 700,
               }}
             >
-              {mutation.error.response?.data?.message ?? "Login failed"}
+              {mutation.error.response?.data?.message ?? mutation.error.response?.data?.error ?? "Invalid email or password"}
             </div>
           )}
 

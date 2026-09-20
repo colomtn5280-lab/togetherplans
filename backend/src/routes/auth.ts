@@ -329,7 +329,15 @@ authRouter.patch('/me/push-token', requireAuth, async (req: AuthRequest, res: Re
 });
 
 // POST /api/auth/forgot-password
-authRouter.post('/forgot-password', async (req, res: Response, next) => {
+const forgotPasswordLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many password reset requests. Please try again later.' },
+});
+
+authRouter.post('/forgot-password', forgotPasswordLimiter, async (req, res: Response, next) => {
   try {
     const { email } = req.body || {};
     if (!email || !EMAIL_RE.test(email)) {

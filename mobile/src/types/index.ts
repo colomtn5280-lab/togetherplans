@@ -65,8 +65,8 @@ export interface Proposal {
   description?: string;
   scheduledFor?: string;
   dateTime?: string;
-  /** Backend statuses: 'OPEN' | 'DECIDED'. Legacy: 'ACTIVE' | 'ACCEPTED' | 'REJECTED' | 'COUNTERED' */
-  status: 'OPEN' | 'DECIDED' | 'ACTIVE' | 'ACCEPTED' | 'REJECTED' | 'COUNTERED';
+  /** Backend statuses: 'OPEN' | 'DECIDED' | 'CANCELLED'. Legacy: 'ACTIVE' | 'ACCEPTED' | 'REJECTED' | 'COUNTERED' */
+  status: 'OPEN' | 'DECIDED' | 'CANCELLED' | 'ACTIVE' | 'ACCEPTED' | 'REJECTED' | 'COUNTERED';
   options: ActivityOption[];
   /** Flat votes list (legacy shape) */
   votes?: Vote[];

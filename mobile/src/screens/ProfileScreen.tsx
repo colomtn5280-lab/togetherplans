@@ -204,7 +204,7 @@ function DeleteAccountSheet({
 // ── Main Screen ───────────────────────────────────────────────────────────────
 export default function ProfileScreen() {
   const { colors, override, setOverride } = useTheme();
-  const { user, signOut } = useAuth() as any;
+  const { user, logout } = useAuth();
 
   const [notifNew, setNotifNew] = useState(true);
   const [notifVotes, setNotifVotes] = useState(true);
@@ -215,7 +215,7 @@ export default function ProfileScreen() {
     try {
       await authAPI.deleteAccount();
       setShowDeleteSheet(false);
-      if (signOut) signOut();
+      await logout();
     } catch (e) {
       console.warn('Delete account failed', e);
     }
@@ -317,9 +317,7 @@ export default function ProfileScreen() {
             <SettingRow
               label="Sign out"
               labelColor={colors.ink2}
-              onPress={() => {
-                if (signOut) signOut();
-              }}
+              onPress={() => { logout(); }}
             />
             <SettingRow
               label="Delete account"

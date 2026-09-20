@@ -275,11 +275,11 @@ export function GroupDetailPage() {
                           flexShrink: 0,
                         }}
                       >
-                        {(m.firstName ?? m.email).charAt(0).toUpperCase()}
+                        {(m.user?.displayName ?? m.firstName ?? m.email ?? m.userId ?? '?').charAt(0).toUpperCase()}
                       </div>
                       <div style={{ flex: 1 }}>
                         <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 13, color: "var(--ink)" }}>
-                          {m.firstName ?? m.email}
+                          {m.user?.displayName ?? m.firstName ?? m.email ?? m.userId}
                         </div>
                       </div>
                       {m.role === "owner" && (

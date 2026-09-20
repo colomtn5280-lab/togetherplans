@@ -5,6 +5,7 @@
 import React, { useState } from 'react';
 import {
   KeyboardAvoidingView,
+  Modal,
   Platform,
   ScrollView,
   Text,
@@ -61,6 +62,8 @@ export default function CreateProposalScreen() {
     d.setHours(19, 0, 0, 0);
     return d;
   });
+  const [showDateModal, setShowDateModal] = useState(false);
+  const [dateInput, setDateInput] = useState('');
   const [options, setOptions] = useState<OptionRow[]>([makeOption(), makeOption(), makeOption()]);
   const [titleError, setTitleError] = useState('');
   const [optionsError, setOptionsError] = useState('');

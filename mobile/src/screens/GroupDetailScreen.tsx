@@ -28,43 +28,6 @@ import { useAuth } from '@/hooks/useAuth';
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 type Route = NativeStackScreenProps<RootStackParamList, 'GroupDetail'>['route'];
 
-// ─── Mock proposals ───────────────────────────────────────────────────────────
-const MOCK_ACTIVE: Proposal[] = [
-  {
-    id: 'p1',
-    groupId: 'g1',
-    proposerId: 'u1',
-    title: 'Dinner at Nobu 🍣',
-    scheduledFor: 'Sat 24 May · 7 pm',
-    status: 'ACTIVE',
-    options: [],
-    votes: [],
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 'p2',
-    groupId: 'g1',
-    proposerId: 'u2',
-    title: 'Rooftop bar evening 🍹',
-    scheduledFor: 'Sun 25 May · 8 pm',
-    status: 'COUNTERED',
-    options: [],
-    votes: [],
-    createdAt: new Date().toISOString(),
-  },
-];
-
-const MOCK_PAST = [
-  { id: 'pp1', title: 'Movie night', status: 'DECIDED', counteredBy: null },
-  {
-    id: 'pp2',
-    title: 'Bowling night',
-    status: 'COUNTERED',
-    counteredBy: { id: 'pp2b', title: 'Laser tag instead ⚡' },
-  },
-  { id: 'pp3', title: 'Beach picnic', status: 'CANCELLED', counteredBy: null },
-];
-
 // ─── Active proposal card ─────────────────────────────────────────────────────
 function ActiveProposalCard({
   proposal,
@@ -129,7 +92,7 @@ function ActiveProposalCard({
 function PastProposalRow({
   item,
 }: {
-  item: typeof MOCK_PAST[number];
+  item: Proposal;
 }) {
   const { colors } = useTheme();
   const isCancelled = item.status === 'CANCELLED';
@@ -167,27 +130,6 @@ function PastProposalRow({
           {item.title}
         </Text>
       </View>
-
-      {/* Countered replacement */}
-      {isCountered && item.counteredBy && (
-        <View style={{ flexDirection: 'row', marginTop: 6, paddingLeft: 12 }}>
-          {/* Elbow connector */}
-          <View
-            style={{
-              position: 'absolute',
-              left: 0,
-              top: 0,
-              bottom: 0,
-              width: 4,
-              backgroundColor: colors.warning,
-              borderRadius: 2,
-            }}
-          />
-          <View style={{ paddingLeft: 12 }}>
-            <Text style={[TYPE.rowLabel, { color: colors.ink }]}>{item.counteredBy.title}</Text>
-          </View>
-        </View>
-      )}
     </View>
   );
 }
@@ -283,19 +225,35 @@ export default function GroupDetailScreen() {
 
   const [group, setGroup] = useState<Group | null>(null);
   const [loading, setLoading] = useState(true);
+  const [activeProposals, setActiveProposals] = useState<Proposal[]>([]);
+  const [pastProposals, setPastProposals] = useState<Proposal[]>([]);
 
   const loadGroup = useCallback(async () => {
     try {
       const res = await groupsAPI.get(groupId);
       setGroup(res.data?.group ?? res.data ?? null);
     } catch {
-      // silently fail — use mock
+      // silently fail
     } finally {
       setLoading(false);
     }
   }, [groupId]);
 
-  useEffect(() => { loadGroup(); }, [loadGroup]);
+  const loadProposals = useCallback(async () => {
+    try {
+      const res = await groupsAPI.proposals(groupId);
+      const proposals: Proposal[] = res.data?.proposals ?? res.data ?? [];
+      setActiveProposals(proposals.filter((p) => p.status === 'OPEN' || p.status === 'COUNTERED'));
+      setPastProposals(proposals.filter((p) => p.status === 'DECIDED' || p.status === 'CANCELLED'));
+    } catch {
+      // silently fail — leave empty
+    }
+  }, [groupId]);
+
+  useEffect(() => {
+    loadGroup();
+    loadProposals();
+  }, [loadGroup, loadProposals]);
 
   const members = group?.members ?? [];
   const isOwner = members.find((m) => m.userId === user?.id)?.role === 'OWNER';
@@ -391,7 +349,12 @@ export default function GroupDetailScreen() {
         <View style={{ paddingHorizontal: SPACING.gutter }}>
           {/* Active proposals */}
           <Text style={[TYPE.section, { color: colors.ink2, marginBottom: 8 }]}>Active</Text>
-          {MOCK_ACTIVE.map((p, i) => (
+          {activeProposals.length === 0 && (
+            <Text style={[TYPE.secondary, { color: colors.ink2, marginBottom: SPACING.md }]}>
+              No active proposals yet.
+            </Text>
+          )}
+          {activeProposals.map((p, i) => (
             <ActiveProposalCard
               key={p.id}
               proposal={p}
@@ -402,14 +365,18 @@ export default function GroupDetailScreen() {
           ))}
 
           {/* Past proposals */}
-          <Text
-            style={[TYPE.section, { color: colors.ink2, marginBottom: 12, marginTop: SPACING.md }]}
-          >
-            Past
-          </Text>
-          {MOCK_PAST.map((p) => (
-            <PastProposalRow key={p.id} item={p} />
-          ))}
+          {pastProposals.length > 0 && (
+            <>
+              <Text
+                style={[TYPE.section, { color: colors.ink2, marginBottom: 12, marginTop: SPACING.md }]}
+              >
+                Past
+              </Text>
+              {pastProposals.map((p) => (
+                <PastProposalRow key={p.id} item={p} />
+              ))}
+            </>
+          )}
         </View>
       )}
     </ScrollView>

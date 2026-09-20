@@ -2,13 +2,11 @@
  * GroupsScreen — Plans tab
  * HANDOFF_README §3c (populated) + §3d (empty)
  */
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
-  Animated,
   FlatList,
   RefreshControl,
   ScrollView,
-  StyleSheet,
   Text,
   TouchableOpacity,
   View,
@@ -21,7 +19,6 @@ import { SPACING, TYPE, SHADOWS } from '@/constants';
 import {
   DNText,
   DNButton,
-  DNCard,
   DNSticker,
   DNAvatar,
   DNSkeleton,
@@ -32,48 +29,6 @@ import type { Group, RootStackParamList } from '@/types';
 import { useAuth } from '@/hooks/useAuth';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
-
-// ─── Mock urgent proposal (would come from API) ───────────────────────────────
-const MOCK_URGENT = {
-  id: 'p1',
-  title: 'Friday night dinner 🍜',
-  date: 'Fri 23 May · 7 pm',
-  memberCount: 2,
-  groupId: 'g1',
-};
-
-// ─── Pulsing ring animation ───────────────────────────────────────────────────
-function PulsingRing({ color }: { color: string }) {
-  const anim = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(anim, { toValue: 1, duration: 1000, useNativeDriver: true }),
-        Animated.timing(anim, { toValue: 0, duration: 1000, useNativeDriver: true }),
-      ])
-    ).start();
-  }, [anim]);
-
-  const scale = anim.interpolate({ inputRange: [0, 1], outputRange: [1, 1.06] });
-  const opacity = anim.interpolate({ inputRange: [0, 1], outputRange: [0.4, 0] });
-
-  return (
-    <Animated.View
-      pointerEvents="none"
-      style={[
-        StyleSheet.absoluteFill,
-        {
-          borderRadius: 30,
-          borderWidth: 2,
-          borderColor: color,
-          opacity,
-          transform: [{ scale }],
-        },
-      ]}
-    />
-  );
-}
 
 // ─── Empty state illustration ─────────────────────────────────────────────────
 function EmptyIllustration() {
@@ -260,7 +215,6 @@ export default function GroupsScreen() {
   const [groups, setGroups] = useState<Group[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [hasUrgent] = useState(true); // mock
 
   const loadGroups = useCallback(async () => {
     try {
@@ -370,56 +324,6 @@ export default function GroupsScreen() {
       />
 
       <View style={{ paddingHorizontal: SPACING.gutter }}>
-        {/* ── NEEDS YOUR VOTE ─────────────────────────────────────────────────── */}
-        {hasUrgent && (
-          <>
-            <Text
-              style={[TYPE.section, { color: colors.ink2, marginBottom: 8, marginTop: SPACING.sm }]}
-            >
-              Needs your vote
-            </Text>
-
-            {/* YOUR TURN card */}
-            <View style={{ marginBottom: SPACING.lg, marginTop: 20 }}>
-              <DNCard index={0} selected style={{ overflow: 'visible' }}>
-                <PulsingRing color={colors.primary} />
-
-                {/* YOUR TURN sticker */}
-                <DNSticker
-                  label="Your Turn"
-                  color={colors.primarySoft}
-                  textColor={colors.primary}
-                  rotationIndex={3}
-                  style={{
-                    position: 'absolute',
-                    top: -12,
-                    left: 16,
-                    zIndex: 10,
-                  }}
-                />
-
-                <View style={{ height: 12 }} />
-
-                <Text style={[TYPE.heading, { color: colors.ink, marginBottom: 4 }]}>
-                  {MOCK_URGENT.title}
-                </Text>
-                <Text style={[TYPE.secondary, { color: colors.ink2, marginBottom: 14 }]}>
-                  {MOCK_URGENT.date} · {MOCK_URGENT.memberCount} members
-                </Text>
-
-                <DNButton
-                  label="Vote now ♥"
-                  onPress={() =>
-                    navigation.navigate('ProposalDetail', { proposalId: MOCK_URGENT.id })
-                  }
-                  variant="tonal"
-                  style={{ width: '100%' }}
-                />
-              </DNCard>
-            </View>
-          </>
-        )}
-
         {/* ── GROUPS ──────────────────────────────────────────────────────────── */}
         <Text style={[TYPE.section, { color: colors.ink2, marginBottom: 8 }]}>Groups</Text>
 
