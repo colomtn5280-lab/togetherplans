@@ -5,7 +5,6 @@
 import React, { useEffect, useState } from 'react';
 import {
   NavigationContainer,
-  NavigatorScreenParams,
 } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import {
@@ -173,8 +172,6 @@ const styles = StyleSheet.create({
 // ─── Tab Navigator ─────────────────────────────────────────────────────────────
 function TabNavigator() {
   const { colors } = useTheme();
-  const insets = useSafeAreaInsets();
-  const tabBarHeight = insets.bottom + 32 + 68 + 20; // dock bottom + dock height + clearance
 
   return (
     <Tab.Navigator
