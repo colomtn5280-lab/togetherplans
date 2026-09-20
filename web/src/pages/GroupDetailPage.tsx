@@ -88,6 +88,9 @@ export function GroupDetailPage() {
           <Link to={`/groups/${groupId}/proposals/new`} className="dn-btn">
             New proposal +
           </Link>
+          <Link to={`/groups/${groupId}/after-dark`} className="dn-btn dn-btn--secondary" style={{ textDecoration: "none" }}>
+            🌙 After Dark
+          </Link>
         </div>
 
         {/* 2-column layout */}

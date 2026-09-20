@@ -281,6 +281,45 @@ export const usersApi = {
     api.delete("/auth/me"),
 };
 
+// ── Share Cards ───────────────────────────────────────────────────────────────
+
+export const shareCardsApi = {
+  get: (proposalId: string): Promise<AxiosResponse<import("../types").ShareCard>> =>
+    api.get(`/share-cards/${proposalId}`),
+
+  generate: (proposalId: string): Promise<AxiosResponse<import("../types").ShareCard>> =>
+    api.post(`/share-cards/${proposalId}/generate`),
+
+  byToken: (shareToken: string): Promise<AxiosResponse<import("../types").ShareCard>> =>
+    api.get(`/share-cards/by-token/${shareToken}`),
+};
+
+// ── After Dark ────────────────────────────────────────────────────────────────
+
+export const afterDarkApi = {
+  status: (utcOffset?: number): Promise<AxiosResponse<import("../types").AfterDarkStatus>> =>
+    api.get("/after-dark/status", { params: utcOffset !== undefined ? { utcOffset } : {} }),
+
+  suggestions: (params?: {
+    mood?: string; lat?: number; lng?: number; zip?: string; radius?: number;
+  }): Promise<AxiosResponse<{ mood: string | null; count: number; suggestions: import("../types").AfterDarkSuggestion[] }>> =>
+    api.get("/after-dark/suggestions", { params }),
+
+  getMood: (): Promise<AxiosResponse<{ mood: import("../types").AfterDarkMood | null; availableMoods: string[]; preferredCategories: string[] | null }>> =>
+    api.get("/after-dark/mood"),
+
+  setMood: (mood: string): Promise<AxiosResponse<{ mood: string; message: string; preferredCategories: string[] }>> =>
+    api.post("/after-dark/mood", { mood }),
+
+  impulse: (
+    groupId: string,
+    optionName: string,
+    optionCategory: string,
+    optionAddress?: string,
+  ): Promise<AxiosResponse<{ proposal: import("../types").Proposal; message: string; impulseDateTime: string }>> =>
+    api.post("/after-dark/impulse", { groupId, optionName, optionCategory, optionAddress }),
+};
+
 // Legacy compat: categoriesApi returns empty list (no /categories endpoint)
 export const categoriesApi = {
   list: (): Promise<AxiosResponse<{ id: string; name: string }[]>> =>

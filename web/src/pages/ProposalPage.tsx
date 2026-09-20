@@ -105,6 +105,15 @@ export function ProposalPage() {
         <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 32 }}>
           {statusSticker()}
           <h1 style={{ margin: 0, fontSize: 24 }}>{proposal.title ?? "Proposal"}</h1>
+          {(proposal.status === "DECIDED" || proposal.status === "locked") && (
+            <Link
+              to={`/proposals/${proposalId}/share`}
+              className="dn-btn dn-btn--sm"
+              style={{ marginLeft: "auto", textDecoration: "none" }}
+            >
+              📤 Share
+            </Link>
+          )}
         </div>
 
         {/* 2-column layout */}

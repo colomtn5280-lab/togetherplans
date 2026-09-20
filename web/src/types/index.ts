@@ -167,3 +167,90 @@ export interface ApiError {
 
 // ProposalItem is an alias for ProposalOption for backward compat
 export type ProposalItem = ProposalOption;
+
+// ── Share Card types ──────────────────────────────────────────────────────────
+
+export interface ShareCardOption {
+  id: string;
+  name: string;
+  category: string;
+  voteCount: number;
+  isWinner: boolean;
+}
+
+export interface ShareCardWinningOption {
+  name: string;
+  category: string;
+  description?: string | null;
+  address?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  imageUrl?: string | null;
+  ticketUrl?: string | null;
+  voteCount: number;
+  emoji: string;
+}
+
+export interface ShareCard {
+  proposalId: string;
+  shareToken: string;
+  shareUrl: string;
+  status: string;
+  title: string;
+  dateTime: string;
+  dateFormatted: string;
+  timeFormatted: string;
+  groupName: string;
+  groupType?: string | null;
+  creatorName: string;
+  winningOption: ShareCardWinningOption | null;
+  allOptions: ShareCardOption[];
+  totalVotes: number;
+  og: {
+    title: string;
+    description: string;
+    image: string | null;
+    url: string;
+  };
+}
+
+// ── After Dark types ──────────────────────────────────────────────────────────
+
+export type AfterDarkMood =
+  | "adventurous"
+  | "romantic"
+  | "social"
+  | "chill"
+  | "spontaneous"
+  | "cultural";
+
+export interface AfterDarkStatus {
+  active: boolean;
+  minutesUntilActive: number;
+  activeHours: { start: number; end: number };
+  currentMood: AfterDarkMood | null;
+  availableMoods: AfterDarkMood[];
+}
+
+export interface AfterDarkSuggestion {
+  id: string;
+  name: string;
+  category: string;
+  shortDescription: string;
+  venue?: string;
+  address?: string;
+  latitude?: number;
+  longitude?: number;
+  distanceMiles?: number;
+  date?: string;
+  timeStart?: string;
+  price?: string;
+  costTier: "free" | "$" | "$$" | "$$$";
+  imageUrl?: string;
+  ticketUrl?: string;
+  dateFriendly: boolean;
+  groupFriendly: boolean;
+  durationMinutes?: number;
+  source: string;
+  externalId: string;
+}

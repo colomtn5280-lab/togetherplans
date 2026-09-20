@@ -22,6 +22,8 @@ import { PrivacyPolicyPage, TermsPage, SupportPage } from "./pages/LegalPages";
 import { ForgotPasswordPage } from "./pages/ForgotPasswordPage";
 import { ResetPasswordPage } from "./pages/ResetPasswordPage";
 import { JoinPage } from "./pages/JoinPage";
+import { ShareCardPage, PublicSharePage } from "./pages/ShareCardPage";
+import { AfterDarkPage } from "./pages/AfterDarkPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -91,6 +93,9 @@ export default function App() {
           {/* ── Join via invite link — public ── */}
           <Route path="/join/:token" element={<JoinPage />} />
 
+          {/* ── Public share card — no auth needed ── */}
+          <Route path="/share/:shareToken" element={<PublicSharePage />} />
+
           {/* ── Protected routes (redirect unauthenticated users to login) ── */}
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<DashboardPage />} />
@@ -107,6 +112,9 @@ export default function App() {
             <Route path="/suggestions" element={<SuggestionsPage />} />
             <Route path="/notifications" element={<NotificationsPage />} />
             <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/proposals/:proposalId/share" element={<ShareCardPage />} />
+            <Route path="/groups/:groupId/after-dark" element={<AfterDarkPage />} />
+            <Route path="/after-dark" element={<AfterDarkPage />} />
           </Route>
 
           {/* ── Catch-all 404 ── */}
