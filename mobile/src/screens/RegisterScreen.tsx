@@ -43,7 +43,10 @@ export default function RegisterScreen({ navigation }: Props) {
     const errs: typeof errors = {};
     if (!displayName.trim()) errs.displayName = 'Name is required.';
     if (!email.trim()) errs.email = 'Email is required.';
-    else if (!email.includes('@')) errs.email = 'Enter a valid email.';
+    else {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) errs.email = 'Enter a valid email.';
+    }
     if (!password) errs.password = 'Password is required.';
     else if (password.length < 8) errs.password = 'Password must be at least 8 characters.';
     setErrors(errs);

@@ -102,7 +102,10 @@ export default function CreateProposalScreen() {
   };
 
   const deleteOption = (id: string) => {
-    setOptions((prev) => prev.filter((o) => o.id !== id));
+    setOptions((prev) => {
+      if (prev.length <= 1) return prev;
+      return prev.filter((o) => o.id !== id);
+    });
   };
 
   const updateOption = (id: string, field: keyof OptionRow, value: string) => {
@@ -148,8 +151,8 @@ export default function CreateProposalScreen() {
           description: '',
           address: o.address.trim() || '',
         }));
-      await proposalsAPI.create(groupId, title.trim(), selectedDate.toISOString(), filledOptions);
-      navigation.goBack();
+      const res = await proposalsAPI.create(groupId, title.trim(), selectedDate.toISOString(), filledOptions);
+      navigation.navigate('ProposalDetail', { proposalId: res.data.id });
     } catch (e) {
       console.warn('Failed to create proposal', e);
     } finally {
@@ -348,8 +351,12 @@ export default function CreateProposalScreen() {
               />
 
               {/* Delete menu */}
-              <TouchableOpacity onPress={() => deleteOption(opt.id)} style={{ padding: 4 }}>
-                <Text style={[TYPE.secondary, { color: colors.ink2, fontSize: 20 }]}>⋯</Text>
+              <TouchableOpacity
+                onPress={() => deleteOption(opt.id)}
+                style={{ padding: 4 }}
+                disabled={options.length <= 1}
+              >
+                <Text style={[TYPE.secondary, { color: options.length <= 1 ? colors.line : colors.ink2, fontSize: 20 }]}>🗑️</Text>
               </TouchableOpacity>
             </View>
 

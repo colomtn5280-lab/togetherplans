@@ -2,7 +2,7 @@
  * Shared primitive components — DateNight design system v2.
  * All use HANDOFF_README token values via useTheme().
  */
-import React from 'react';
+import React, { useRef } from 'react';
 import {
   View, Text, TouchableOpacity, StyleSheet,
   ActivityIndicator, ViewStyle, TextStyle,
@@ -56,6 +56,7 @@ export function DNButton({
   loading, disabled, style, icon,
 }: DNButtonProps) {
   const { colors } = useTheme();
+  const lastPressTime = useRef<number>(0);
 
   const height = size === 'mini' ? 38 : size === 'compact' ? 44 : 54;
   const textVariant = size === 'mini' || size === 'compact' ? 'buttonSm' : 'button';
@@ -79,7 +80,12 @@ export function DNButton({
 
   return (
     <TouchableOpacity
-      onPress={onPress}
+      onPress={() => {
+        const now = Date.now();
+        if (now - lastPressTime.current < 500) return;
+        lastPressTime.current = now;
+        onPress();
+      }}
       disabled={disabled || loading}
       activeOpacity={0.82}
       style={[
@@ -343,7 +349,8 @@ export function DNInput({ label, error, style, ...props }: DNInputProps) {
       <TextInput
         placeholderTextColor={colors.ink2}
         style={{
-          height: 52,
+          height: props.multiline ? undefined : 52,
+          minHeight: props.multiline ? 52 : undefined,
           backgroundColor: colors.bg,
           borderRadius: RADII.input,
           paddingHorizontal: SPACING.md,

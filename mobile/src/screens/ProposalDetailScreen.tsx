@@ -188,7 +188,6 @@ export default function ProposalDetailScreen() {
   const { proposalId } = route.params;
   const [proposal, setProposal] = useState<Proposal | null>(null);
   const [myVotedOptionId, setMyVotedOptionId] = useState<string | null>(null);
-  const [seenDecision, setSeenDecision] = useState(false);
   const [showDecision, setShowDecision] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -217,8 +216,6 @@ export default function ProposalDetailScreen() {
         const seen = await AsyncStorage.getItem(seenKey);
         if (!seen) {
           setShowDecision(true);
-        } else {
-          setSeenDecision(true);
         }
       }
     } catch (e) {
@@ -235,7 +232,6 @@ export default function ProposalDetailScreen() {
       await AsyncStorage.setItem(`seenDecision_${proposal.id}`, '1');
     }
     setShowDecision(false);
-    setSeenDecision(true);
   };
 
   const handleVote = async (optionId: string) => {
