@@ -326,4 +326,12 @@ export const categoriesApi = {
     Promise.resolve({ data: [], status: 200, statusText: "OK", headers: {}, config: {} as never }),
 };
 
+// ── Safety ────────────────────────────────────────────────────────────────────
+
+export const safetyApi = {
+  blockUser: (userId: string) => api.post(`/safety/block/${userId}`),
+  reportUser: (data: { reportedUserId: string; reason: string; details?: string }) =>
+    api.post('/safety/report', data),
+};
+
 export default api;

@@ -3,6 +3,7 @@
  */
 import React, { useCallback, useEffect, useState } from 'react';
 import {
+  Alert,
   ScrollView,
   Text,
   TouchableOpacity,
@@ -21,7 +22,7 @@ import {
   DNAvatar,
   DNScreenHeader,
 } from '@/components/ui';
-import { groupsAPI, invitationsAPI } from '@/services/api';
+import { groupsAPI, invitationsAPI, safetyAPI } from '@/services/api';
 import type { Group, Proposal, RootStackParamList } from '@/types';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -267,6 +268,97 @@ export default function GroupDetailScreen() {
     navigation.navigate('InviteMembers', { groupId });
   }, [groupId, navigation]);
 
+  const handleMemberOptions = useCallback((memberId: string, memberName: string) => {
+    Alert.alert(
+      memberName,
+      'Choose an action',
+      [
+        {
+          text: 'Block User',
+          style: 'destructive',
+          onPress: () => {
+            Alert.alert(
+              'Block User',
+              `Are you sure you want to block ${memberName}?`,
+              [
+                { text: 'Cancel', style: 'cancel' },
+                {
+                  text: 'Block',
+                  style: 'destructive',
+                  onPress: async () => {
+                    try {
+                      await safetyAPI.blockUser(memberId);
+                      Alert.alert('User blocked', `${memberName} has been blocked.`);
+                    } catch {
+                      Alert.alert('Error', 'Could not block user. Please try again.');
+                    }
+                  },
+                },
+              ]
+            );
+          },
+        },
+        {
+          text: 'Report User',
+          onPress: () => {
+            Alert.alert(
+              'Report User',
+              'Select a reason',
+              [
+                {
+                  text: 'Spam',
+                  onPress: async () => {
+                    try {
+                      await safetyAPI.reportUser({ reportedUserId: memberId, reason: 'spam' });
+                      Alert.alert('Report submitted', 'Thank you for your report.');
+                    } catch {
+                      Alert.alert('Error', 'Could not submit report. Please try again.');
+                    }
+                  },
+                },
+                {
+                  text: 'Harassment',
+                  onPress: async () => {
+                    try {
+                      await safetyAPI.reportUser({ reportedUserId: memberId, reason: 'harassment' });
+                      Alert.alert('Report submitted', 'Thank you for your report.');
+                    } catch {
+                      Alert.alert('Error', 'Could not submit report. Please try again.');
+                    }
+                  },
+                },
+                {
+                  text: 'Inappropriate Content',
+                  onPress: async () => {
+                    try {
+                      await safetyAPI.reportUser({ reportedUserId: memberId, reason: 'inappropriate' });
+                      Alert.alert('Report submitted', 'Thank you for your report.');
+                    } catch {
+                      Alert.alert('Error', 'Could not submit report. Please try again.');
+                    }
+                  },
+                },
+                {
+                  text: 'Other',
+                  onPress: async () => {
+                    try {
+                      await safetyAPI.reportUser({ reportedUserId: memberId, reason: 'other' });
+                      Alert.alert('Report submitted', 'Thank you for your report.');
+                    } catch {
+                      Alert.alert('Error', 'Could not submit report. Please try again.');
+                    }
+                  },
+                },
+                { text: 'Cancel', style: 'cancel' },
+              ]
+            );
+          },
+        },
+        { text: 'Cancel', style: 'cancel' },
+      ]
+    );
+  }, []);
+
   return (
     <ScrollView
       style={{ flex: 1, backgroundColor: colors.bg }}
@@ -375,6 +467,42 @@ export default function GroupDetailScreen() {
               {pastProposals.map((p) => (
                 <PastProposalRow key={p.id} item={p} />
               ))}
+            </>
+          )}
+
+          {/* Members list */}
+          {otherMembers.length > 0 && (
+            <>
+              <Text style={[TYPE.section, { color: colors.ink2, marginBottom: 8, marginTop: SPACING.md }]}>
+                Members
+              </Text>
+              {otherMembers.map((m) => {
+                const memberName = (m as any).user?.displayName ?? m.userId ?? 'Member';
+                return (
+                  <View
+                    key={m.userId}
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      paddingVertical: 8,
+                      borderBottomWidth: 1,
+                      borderBottomColor: colors.line,
+                    }}
+                  >
+                    <DNAvatar name={memberName} size={42} colorIndex={1} />
+                    <Text style={[TYPE.rowLabel, { color: colors.ink, flex: 1, marginLeft: 10 }]}>
+                      {memberName}
+                    </Text>
+                    <TouchableOpacity
+                      onPress={() => handleMemberOptions(m.userId, memberName)}
+                      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                      style={{ paddingHorizontal: 8 }}
+                    >
+                      <Text style={{ fontSize: 20, color: colors.ink2 }}>⋯</Text>
+                    </TouchableOpacity>
+                  </View>
+                );
+              })}
             </>
           )}
         </View>

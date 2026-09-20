@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { groupsApi, invitationsApi } from "../api/client";
+import { groupsApi, invitationsApi, safetyApi } from "../api/client";
 import { AppNav } from "../components/AppNav";
 import type { InviteMethod, Invitation } from "../types";
 
@@ -15,6 +15,12 @@ export function GroupDetailPage() {
   const [invitePhone, setInvitePhone] = useState("");
   const [generatedInvite, setGeneratedInvite] = useState<Invitation | null>(null);
   const [copied, setCopied] = useState(false);
+
+  // Safety: block / report state
+  const [openMenuUserId, setOpenMenuUserId] = useState<string | null>(null);
+  const [reportingUserId, setReportingUserId] = useState<string | null>(null);
+  const [reportReason, setReportReason] = useState<string>("");
+  const [safetyMessage, setSafetyMessage] = useState<string | null>(null);
 
   const { data: group, isLoading, isError } = useQuery({
     queryKey: ["group", groupId],
@@ -255,10 +261,17 @@ export function GroupDetailPage() {
             {/* Members list */}
             <div style={{ borderTop: "1px solid var(--line)", paddingTop: 16 }}>
               <h3 style={{ marginBottom: 12, fontSize: 15 }}>Members ({group.members?.length ?? 0})</h3>
+
+              {safetyMessage && (
+                <div style={{ background: "var(--success-soft)", borderRadius: 10, padding: "8px 12px", marginBottom: 12, fontSize: 13, color: "var(--success)", fontFamily: "var(--font-display)", fontWeight: 700 }}>
+                  ✓ {safetyMessage}
+                </div>
+              )}
+
               {group.members && group.members.length > 0 ? (
                 <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: 8 }}>
                   {group.members.map((m) => (
-                    <li key={m.userId} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <li key={m.userId} style={{ display: "flex", alignItems: "center", gap: 10, position: "relative" }}>
                       <div
                         style={{
                           width: 32,
@@ -284,6 +297,157 @@ export function GroupDetailPage() {
                       </div>
                       {m.role === "owner" && (
                         <span className="dn-sticker dn-sticker--ink">Owner</span>
+                      )}
+
+                      {/* Three-dot menu — only show for non-owner members */}
+                      {m.role !== "owner" && (
+                        <div style={{ position: "relative" }}>
+                          <button
+                            onClick={() => {
+                              setOpenMenuUserId((prev) => prev === m.userId ? null : m.userId);
+                              setReportingUserId(null);
+                              setReportReason("");
+                            }}
+                            style={{
+                              background: "none",
+                              border: "none",
+                              cursor: "pointer",
+                              fontSize: 18,
+                              color: "var(--ink2)",
+                              padding: "2px 6px",
+                              borderRadius: 6,
+                              lineHeight: 1,
+                            }}
+                            title="Member options"
+                          >
+                            ⋯
+                          </button>
+
+                          {openMenuUserId === m.userId && (
+                            <div
+                              style={{
+                                position: "absolute",
+                                right: 0,
+                                top: "calc(100% + 4px)",
+                                background: "var(--surface)",
+                                border: "1px solid var(--line)",
+                                borderRadius: 12,
+                                boxShadow: "var(--shadow-card)",
+                                zIndex: 10,
+                                minWidth: 160,
+                                overflow: "hidden",
+                              }}
+                            >
+                              {reportingUserId === m.userId ? (
+                                /* Inline report reason selector */
+                                <div style={{ padding: 12 }}>
+                                  <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 12, color: "var(--ink2)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8 }}>
+                                    Report reason
+                                  </div>
+                                  {["spam", "harassment", "inappropriate", "other"].map((r) => (
+                                    <label
+                                      key={r}
+                                      style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6, cursor: "pointer", fontSize: 13, color: "var(--ink)" }}
+                                    >
+                                      <input
+                                        type="radio"
+                                        name={`report-reason-${m.userId}`}
+                                        value={r}
+                                        checked={reportReason === r}
+                                        onChange={() => setReportReason(r)}
+                                      />
+                                      {r === "spam" ? "Spam" : r === "harassment" ? "Harassment" : r === "inappropriate" ? "Inappropriate" : "Other"}
+                                    </label>
+                                  ))}
+                                  <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
+                                    <button
+                                      className="dn-btn dn-btn--sm"
+                                      disabled={!reportReason}
+                                      onClick={async () => {
+                                        if (!reportReason) return;
+                                        try {
+                                          await safetyApi.reportUser({ reportedUserId: m.userId, reason: reportReason });
+                                          setSafetyMessage("Report submitted");
+                                          setTimeout(() => setSafetyMessage(null), 3000);
+                                        } catch {
+                                          setSafetyMessage("Could not submit report");
+                                          setTimeout(() => setSafetyMessage(null), 3000);
+                                        } finally {
+                                          setOpenMenuUserId(null);
+                                          setReportingUserId(null);
+                                          setReportReason("");
+                                        }
+                                      }}
+                                    >
+                                      Submit report
+                                    </button>
+                                    <button
+                                      className="dn-btn dn-btn--sm dn-btn--tonal"
+                                      onClick={() => { setReportingUserId(null); setReportReason(""); }}
+                                    >
+                                      Cancel
+                                    </button>
+                                  </div>
+                                </div>
+                              ) : (
+                                /* Default dropdown options */
+                                <>
+                                  <button
+                                    onClick={async () => {
+                                      try {
+                                        await safetyApi.blockUser(m.userId);
+                                        setSafetyMessage("User blocked");
+                                        setTimeout(() => setSafetyMessage(null), 3000);
+                                      } catch {
+                                        setSafetyMessage("Could not block user");
+                                        setTimeout(() => setSafetyMessage(null), 3000);
+                                      } finally {
+                                        setOpenMenuUserId(null);
+                                      }
+                                    }}
+                                    style={{
+                                      display: "block",
+                                      width: "100%",
+                                      background: "none",
+                                      border: "none",
+                                      textAlign: "left",
+                                      padding: "10px 14px",
+                                      cursor: "pointer",
+                                      fontSize: 13,
+                                      color: "var(--error)",
+                                      fontFamily: "var(--font-display)",
+                                      fontWeight: 700,
+                                    }}
+                                  >
+                                    Block user
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      setReportingUserId(m.userId);
+                                      setReportReason("");
+                                    }}
+                                    style={{
+                                      display: "block",
+                                      width: "100%",
+                                      background: "none",
+                                      border: "none",
+                                      textAlign: "left",
+                                      padding: "10px 14px",
+                                      cursor: "pointer",
+                                      fontSize: 13,
+                                      color: "var(--ink)",
+                                      fontFamily: "var(--font-display)",
+                                      fontWeight: 700,
+                                      borderTop: "1px solid var(--line)",
+                                    }}
+                                  >
+                                    Report user
+                                  </button>
+                                </>
+                              )}
+                            </div>
+                          )}
+                        </div>
                       )}
                     </li>
                   ))}

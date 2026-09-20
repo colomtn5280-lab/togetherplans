@@ -9,6 +9,8 @@
  * 🟢 You can import this file directly.
  */
 export type * from './models/User'
+export type * from './models/BlockedUser'
+export type * from './models/Report'
 export type * from './models/Group'
 export type * from './models/GroupMember'
 export type * from './models/Invitation'

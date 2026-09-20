@@ -108,3 +108,11 @@ export const proposalsAPI = {
 export const usersApi = {
   search: (q: string) => api.get<{ id: string; displayName: string; avatarUrl?: string }[]>('/api/users/search', { params: { q } }),
 };
+
+// Safety
+export const safetyAPI = {
+  blockUser: (userId: string) => api.post(`/api/safety/block/${userId}`),
+  unblockUser: (userId: string) => api.delete(`/api/safety/block/${userId}`),
+  reportUser: (data: { reportedUserId: string; reason: string; details?: string }) =>
+    api.post('/api/safety/report', data),
+};
