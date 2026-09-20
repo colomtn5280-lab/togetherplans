@@ -182,8 +182,6 @@ function TabNavigator() {
       screenOptions={{
         headerTintColor: colors.primary,
         headerShown: false,
-        // Give screens enough bottom padding so content clears the dock
-        contentStyle: { paddingBottom: tabBarHeight },
       }}
     >
       <Tab.Screen name="Groups" component={GroupsScreen} options={{ title: 'Plans' }} />
