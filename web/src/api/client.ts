@@ -258,6 +258,9 @@ export const suggestionsApi = {
 export const notificationsApi = {
   list: (): Promise<AxiosResponse<{ count: number; notifications: unknown[] }>> =>
     api.get("/notifications"),
+
+  markRead: (id: string): Promise<AxiosResponse<unknown>> =>
+    api.patch(`/notifications/${id}/read`),
 };
 
 // ── Users (proxied via /auth/me) ──────────────────────────────────────────────
@@ -265,6 +268,14 @@ export const notificationsApi = {
 export const usersApi = {
   getMe: (): Promise<AxiosResponse<unknown>> =>
     api.get("/auth/me"),
+
+  getPreferences: (): Promise<AxiosResponse<{ userId: string; categories: unknown[] }>> =>
+    // No preferences endpoint on this backend; return empty stub
+    Promise.resolve({ data: { userId: "", categories: [] }, status: 200, statusText: "OK", headers: {}, config: {} as never }),
+
+  requestExport: (): Promise<AxiosResponse<{ message: string; downloadUrl?: string }>> =>
+    // No export endpoint; return informational message
+    Promise.resolve({ data: { message: "Export not available" }, status: 200, statusText: "OK", headers: {}, config: {} as never }),
 
   requestDeletion: (): Promise<AxiosResponse<{ message: string }>> =>
     api.delete("/auth/me"),

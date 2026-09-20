@@ -1,126 +1,248 @@
-import { useForm } from "react-hook-form";
+import { useState } from "react";
+import { useForm, useFieldArray } from "react-hook-form";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { proposalsApi, categoriesApi } from "../api/client";
+import { useMutation } from "@tanstack/react-query";
+import { proposalsApi } from "../api/client";
+import { AppNav } from "../components/AppNav";
 import type { Proposal } from "../types";
 import type { AxiosError } from "axios";
 import type { ApiError } from "../types";
 
-interface FormData {
-  categoryId: string;
-  proposedDate: string;
-  proposedTime: string;
-  radiusKm: string;
+interface OptionInput {
+  name: string;
+  category: string;
+  description?: string;
+  address?: string;
 }
+
+interface FormData {
+  title: string;
+  date: string;
+  time: string;
+  options: OptionInput[];
+}
+
+const CATEGORIES = ["Dining", "Movie", "Adventure", "Nightlife", "Culture", "Outdoors", "Sports", "Other"];
 
 export function NewProposalPage() {
   const { groupId } = useParams<{ groupId: string }>();
   const navigate = useNavigate();
-
-  const { data: categories } = useQuery({
-    queryKey: ["categories"],
-    queryFn: async () => {
-      const res = await categoriesApi.list();
-      return res.data;
-    },
-  });
+  const [submitError, setSubmitError] = useState("");
 
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
   } = useForm<FormData>({
-    defaultValues: { radiusKm: "10" },
+    defaultValues: {
+      title: "",
+      date: "",
+      time: "19:00",
+      options: [{ name: "", category: "Dining", description: "", address: "" }],
+    },
   });
+
+  const { fields, append, remove } = useFieldArray({ control, name: "options" });
 
   const mutation = useMutation<Proposal, AxiosError<ApiError>, FormData>({
     mutationFn: async (data) => {
+      const dateTime = data.time
+        ? `${data.date}T${data.time}:00`
+        : `${data.date}T19:00:00`;
       const res = await proposalsApi.create({
         groupId: groupId!,
-        categoryId: data.categoryId,
-        proposedDate: data.proposedDate,
-        proposedTime: data.proposedTime || undefined,
-        radiusKm: data.radiusKm ? parseInt(data.radiusKm, 10) : 10,
+        title: data.title,
+        dateTime,
+        options: data.options
+          .filter((o) => o.name.trim())
+          .map((o) => ({
+            name: o.name,
+            category: o.category || "Other",
+            description: o.description || undefined,
+            address: o.address || undefined,
+          })),
       });
       return res.data;
     },
     onSuccess: (data) => {
       navigate(`/proposals/${data.id}`);
     },
+    onError: (err) => {
+      setSubmitError(err.response?.data?.message ?? "Failed to create proposal");
+    },
   });
 
-  const onSubmit = (data: FormData) => {
-    if (!data.categoryId) return;
-    mutation.mutate(data);
-  };
-
   return (
-    <main style={{ maxWidth: 560, margin: "0 auto", padding: "24px 16px" }}>
-      <nav style={{ marginBottom: 24 }}>
-        <Link to={`/groups/${groupId}`}>← Back to group</Link>
-      </nav>
+    <>
+      <AppNav />
+      <main style={{ maxWidth: "var(--content-max)", margin: "0 auto", padding: "32px var(--gutter)" }}>
+        <div style={{ marginBottom: 24 }}>
+          <Link to={`/groups/${groupId}`} style={{ color: "var(--ink2)", fontSize: 13, fontFamily: "var(--font-display)", fontWeight: 700 }}>
+            ← Back to group
+          </Link>
+        </div>
 
-      <h1>New proposal</h1>
+        <h1 style={{ marginBottom: 8 }}>New proposal</h1>
+        <p style={{ color: "var(--ink2)", marginBottom: 32 }}>
+          Add options for everyone to vote on.
+        </p>
 
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <div>
-          <label htmlFor="categoryId">Activity category</label>
-          <select
-            id="categoryId"
-            {...register("categoryId", { required: "Category required" })}
+        <div style={{ maxWidth: 600 }}>
+          <form
+            onSubmit={handleSubmit((d) => mutation.mutate(d))}
+            style={{ display: "flex", flexDirection: "column", gap: 20 }}
           >
-            <option value="">Select a category…</option>
-            {categories?.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
-          {errors.categoryId && (
-            <p role="alert">{errors.categoryId.message}</p>
-          )}
+            {/* Title */}
+            <div>
+              <label
+                htmlFor="title"
+                style={{ display: "block", fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 12, marginBottom: 6, color: "var(--ink2)", textTransform: "uppercase", letterSpacing: "0.06em" }}
+              >
+                Proposal title
+              </label>
+              <input
+                id="title"
+                type="text"
+                className={`dn-input${errors.title ? " error" : ""}`}
+                {...register("title", { required: "Title required" })}
+                placeholder="e.g. Friday Night Plans"
+              />
+              {errors.title && <p role="alert" style={{ color: "var(--error)", fontSize: 13, marginTop: 4 }}>{errors.title.message}</p>}
+            </div>
+
+            {/* Date + Time row */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+              <div>
+                <label
+                  htmlFor="date"
+                  style={{ display: "block", fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 12, marginBottom: 6, color: "var(--ink2)", textTransform: "uppercase", letterSpacing: "0.06em" }}
+                >
+                  Date
+                </label>
+                <input
+                  id="date"
+                  type="date"
+                  className={`dn-input${errors.date ? " error" : ""}`}
+                  {...register("date", { required: "Date required" })}
+                  min={new Date().toISOString().split("T")[0]}
+                />
+                {errors.date && <p role="alert" style={{ color: "var(--error)", fontSize: 13, marginTop: 4 }}>{errors.date.message}</p>}
+              </div>
+              <div>
+                <label
+                  htmlFor="time"
+                  style={{ display: "block", fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 12, marginBottom: 6, color: "var(--ink2)", textTransform: "uppercase", letterSpacing: "0.06em" }}
+                >
+                  Time (optional)
+                </label>
+                <input
+                  id="time"
+                  type="time"
+                  className="dn-input"
+                  {...register("time")}
+                />
+              </div>
+            </div>
+
+            {/* Options */}
+            <div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+                <label
+                  style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 12, color: "var(--ink2)", textTransform: "uppercase", letterSpacing: "0.06em" }}
+                >
+                  Options
+                </label>
+                <button
+                  type="button"
+                  className="dn-btn dn-btn--sm dn-btn--tonal"
+                  onClick={() => append({ name: "", category: "Dining", description: "", address: "" })}
+                >
+                  + Add option
+                </button>
+              </div>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                {fields.map((field, i) => (
+                  <div key={field.id} className="dn-card dn-card--alt1" style={{ padding: "20px 20px 16px" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+                      <span style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 13 }}>Option {i + 1}</span>
+                      {fields.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => remove(i)}
+                          style={{ background: "none", border: "none", cursor: "pointer", color: "var(--error)", fontSize: 18, lineHeight: 1 }}
+                          aria-label="Remove option"
+                        >
+                          ×
+                        </button>
+                      )}
+                    </div>
+
+                    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                      <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 10 }}>
+                        <div>
+                          <label style={{ display: "block", fontSize: 11, color: "var(--ink2)", fontFamily: "var(--font-display)", fontWeight: 700, marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                            Name *
+                          </label>
+                          <input
+                            type="text"
+                            className="dn-input"
+                            {...register(`options.${i}.name` as const, { required: true })}
+                            placeholder="e.g. Sushi Palace"
+                            style={{ height: 38 }}
+                          />
+                        </div>
+                        <div>
+                          <label style={{ display: "block", fontSize: 11, color: "var(--ink2)", fontFamily: "var(--font-display)", fontWeight: 700, marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                            Category
+                          </label>
+                          <select
+                            className="dn-input"
+                            {...register(`options.${i}.category` as const)}
+                            style={{ height: 38 }}
+                          >
+                            {CATEGORIES.map((c) => (
+                              <option key={c} value={c}>{c}</option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+                      <div>
+                        <label style={{ display: "block", fontSize: 11, color: "var(--ink2)", fontFamily: "var(--font-display)", fontWeight: 700, marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                          Address (optional)
+                        </label>
+                        <input
+                          type="text"
+                          className="dn-input"
+                          {...register(`options.${i}.address` as const)}
+                          placeholder="123 Main St"
+                          style={{ height: 38 }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {submitError && (
+              <p role="alert" data-testid="proposal-error" style={{ color: "var(--error)", fontSize: 13 }}>
+                {submitError}
+              </p>
+            )}
+
+            <button
+              type="submit"
+              className="dn-btn"
+              disabled={mutation.isPending}
+              style={{ alignSelf: "flex-start" }}
+            >
+              {mutation.isPending ? "Creating…" : "Create proposal →"}
+            </button>
+          </form>
         </div>
-
-        <div>
-          <label htmlFor="proposedDate">Proposed date</label>
-          <input
-            id="proposedDate"
-            type="date"
-            {...register("proposedDate", { required: "Date required" })}
-            min={new Date().toISOString().split("T")[0]}
-          />
-          {errors.proposedDate && (
-            <p role="alert">{errors.proposedDate.message}</p>
-          )}
-        </div>
-
-        <div>
-          <label htmlFor="proposedTime">Preferred time (optional)</label>
-          <input id="proposedTime" type="time" {...register("proposedTime")} />
-        </div>
-
-        <div>
-          <label htmlFor="radiusKm">Search radius (km)</label>
-          <input
-            id="radiusKm"
-            type="number"
-            min={1}
-            max={100}
-            {...register("radiusKm")}
-          />
-        </div>
-
-        {mutation.isError && (
-          <p role="alert" data-testid="proposal-error">
-            {mutation.error.response?.data?.message ??
-              "Failed to create proposal"}
-          </p>
-        )}
-
-        <button type="submit" disabled={mutation.isPending}>
-          {mutation.isPending ? "Creating…" : "Create proposal"}
-        </button>
-      </form>
-    </main>
+      </main>
+    </>
   );
 }

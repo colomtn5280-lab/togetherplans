@@ -21,6 +21,7 @@ import { LandingPage } from "./pages/LandingPage";
 import { PrivacyPolicyPage, TermsPage, SupportPage } from "./pages/LegalPages";
 import { ForgotPasswordPage } from "./pages/ForgotPasswordPage";
 import { ResetPasswordPage } from "./pages/ResetPasswordPage";
+import { JoinPage } from "./pages/JoinPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -86,6 +87,9 @@ export default function App() {
           {/* ── Password reset — public but not public-only ── */}
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
+
+          {/* ── Join via invite link — public ── */}
+          <Route path="/join/:token" element={<JoinPage />} />
 
           {/* ── Protected routes (redirect unauthenticated users to login) ── */}
           <Route element={<ProtectedRoute />}>

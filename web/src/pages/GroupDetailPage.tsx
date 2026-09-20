@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { groupsApi } from "../api/client";
+import { groupsApi, invitationsApi } from "../api/client";
 import { AppNav } from "../components/AppNav";
 import type { InviteMethod, Invitation } from "../types";
 
@@ -27,10 +27,10 @@ export function GroupDetailPage() {
 
   const inviteMutation = useMutation<Invitation, Error>({
     mutationFn: async () => {
-      const res = await groupsApi.invite(groupId!, {
+      const res = await invitationsApi.create({
+        groupId: groupId!,
         method: inviteMethod,
-        email: inviteEmail || undefined,
-        phone: invitePhone || undefined,
+        target: inviteEmail || invitePhone || undefined,
       });
       return res.data;
     },
@@ -42,7 +42,8 @@ export function GroupDetailPage() {
 
   const handleCopy = () => {
     if (!generatedInvite) return;
-    const link = `${window.location.origin}/join?code=${generatedInvite.inviteCode}`;
+    const token = generatedInvite.token ?? generatedInvite.inviteCode ?? "";
+    const link = `${window.location.origin}/join/${token}`;
     navigator.clipboard.writeText(link).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
@@ -175,7 +176,7 @@ export function GroupDetailPage() {
                   <input
                     className="dn-input"
                     readOnly
-                    value={`${window.location.origin}/join?code=${generatedInvite.inviteCode}`}
+                    value={`${window.location.origin}/join/${generatedInvite.token ?? generatedInvite.inviteCode ?? ""}`}
                     style={{ fontSize: 12 }}
                   />
                   <button
@@ -240,7 +241,7 @@ export function GroupDetailPage() {
                   ✓ Invite created
                 </div>
                 <div style={{ fontSize: 12, color: "var(--ink2)" }}>
-                  Code: <strong>{generatedInvite.inviteCode}</strong>
+                  Code: <strong>{generatedInvite.token ?? generatedInvite.inviteCode}</strong>
                 </div>
                 <div style={{ fontSize: 12, color: "var(--ink2)" }}>
                   Expires: {new Date(generatedInvite.expiresAt).toLocaleString()}
