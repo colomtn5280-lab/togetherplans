@@ -18,20 +18,36 @@ function getClient(): Resend | null {
   return resend;
 }
 
-// ─── Load templates at module load ───────────────────────────────────────────
+// ─── Load templates ───────────────────────────────────────────────────────────
+// Try dist/emails first (production), then src/emails (dev/test fallback)
 
-const t01 = fs.readFileSync(path.join(__dirname, '../emails/01-verify-email.html'), 'utf-8');
-const t02 = fs.readFileSync(path.join(__dirname, '../emails/02-welcome.html'), 'utf-8');
-const t03 = fs.readFileSync(path.join(__dirname, '../emails/03-reset-password.html'), 'utf-8');
-const t04 = fs.readFileSync(path.join(__dirname, '../emails/04-group-invite.html'), 'utf-8');
-const t05 = fs.readFileSync(path.join(__dirname, '../emails/05-new-proposal.html'), 'utf-8');
-const t06 = fs.readFileSync(path.join(__dirname, '../emails/06-status-update.html'), 'utf-8');
-const t07 = fs.readFileSync(path.join(__dirname, '../emails/07-reminder-24h.html'), 'utf-8');
-const t08 = fs.readFileSync(path.join(__dirname, '../emails/08-its-a-match.html'), 'utf-8');
-const t09 = fs.readFileSync(path.join(__dirname, '../emails/09-take-2.html'), 'utf-8');
-const t10 = fs.readFileSync(path.join(__dirname, '../emails/10-plan-changed.html'), 'utf-8');
-const t11 = fs.readFileSync(path.join(__dirname, '../emails/11-share-card-received.html'), 'utf-8');
-const t12 = fs.readFileSync(path.join(__dirname, '../emails/12-account-deleted.html'), 'utf-8');
+function loadTemplate(filename: string): string {
+  const distPath = path.join(__dirname, '../emails', filename);
+  const srcPath = path.join(__dirname, '../../src/emails', filename);
+  try {
+    return fs.readFileSync(distPath, 'utf-8');
+  } catch {
+    try {
+      return fs.readFileSync(srcPath, 'utf-8');
+    } catch {
+      logger.warn(`Email template not found: ${filename}`);
+      return `<p>Email template unavailable: ${filename}</p>`;
+    }
+  }
+}
+
+const t01 = loadTemplate('01-verify-email.html');
+const t02 = loadTemplate('02-welcome.html');
+const t03 = loadTemplate('03-reset-password.html');
+const t04 = loadTemplate('04-group-invite.html');
+const t05 = loadTemplate('05-new-proposal.html');
+const t06 = loadTemplate('06-status-update.html');
+const t07 = loadTemplate('07-reminder-24h.html');
+const t08 = loadTemplate('08-its-a-match.html');
+const t09 = loadTemplate('09-take-2.html');
+const t10 = loadTemplate('10-plan-changed.html');
+const t11 = loadTemplate('11-share-card-received.html');
+const t12 = loadTemplate('12-account-deleted.html');
 
 // ─── Utilities ────────────────────────────────────────────────────────────────
 
