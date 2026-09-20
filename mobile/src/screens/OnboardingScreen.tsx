@@ -223,7 +223,12 @@ export default function OnboardingScreen({ navigation }: Props) {
     setGroupLoading(true);
     setGroupError('');
     try {
-      const res = await groupsAPI.create(groupName.trim(), selectedGroup);
+      const typeMap: Record<GroupType, string> = {
+        Couple: 'COUPLE',
+        Friends: 'FRIENDS',
+        Family: 'FAMILY',
+      };
+      const res = await groupsAPI.create(groupName.trim(), undefined, typeMap[selectedGroup]);
       const groupId: string = (res.data as { id: string }).id;
       await markOnboarded();
       navigation.replace('Main', { groupId });

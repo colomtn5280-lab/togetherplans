@@ -37,9 +37,11 @@ model User {
 }
 
 model Group {
-  id        String   @id @default(uuid())
-  name      String
-  createdAt DateTime @default(now())
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  groupType   String?  // 'COUPLE' | 'FRIENDS' | 'FAMILY'
+  createdAt   DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   members     GroupMember[]

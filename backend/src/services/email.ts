@@ -27,14 +27,14 @@ function preheader(text: string): string {
 
 const HEADER_HTML = `
   <table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation"
-    style="background:linear-gradient(135deg,#7c3aed 0%,#5b21b6 100%);">
+    style="background:linear-gradient(135deg,#0E8C8C 0%,#086B6B 100%);">
     <tr>
       <td align="center" style="padding:32px 24px 28px;">
         <div style="font-size:28px;font-weight:800;color:#ffffff;letter-spacing:-0.5px;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;">
-          🌙 DateNight
+          📅 DateNight
         </div>
-        <div style="font-size:13px;color:#ddd6fe;margin-top:4px;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;letter-spacing:0.3px;">
-          Plan together. Date better.
+        <div style="font-size:13px;color:#D9F1F0;margin-top:4px;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;letter-spacing:0.3px;">
+          Plan together. Go together.
         </div>
       </td>
     </tr>
@@ -49,9 +49,9 @@ const FOOTER_HTML = `
           &copy; ${new Date().getFullYear()} DateNight &mdash; togetherplans.app
         </p>
         <p style="font-size:12px;color:#9ca3af;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;margin:0 0 8px;line-height:1.6;">
-          <a href="https://togetherplans.app/privacy" style="color:#7c3aed;text-decoration:none;">Privacy Policy</a>
+          <a href="https://togetherplans.app/privacy" style="color:#0E8C8C;text-decoration:none;">Privacy Policy</a>
           &nbsp;&middot;&nbsp;
-          <a href="https://togetherplans.app/terms" style="color:#7c3aed;text-decoration:none;">Terms of Service</a>
+          <a href="https://togetherplans.app/terms" style="color:#0E8C8C;text-decoration:none;">Terms of Service</a>
         </p>
         <p style="font-size:11px;color:#d1d5db;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;margin:0;">
           You can <a href="https://togetherplans.app/unsubscribe" style="color:#d1d5db;">unsubscribe</a> from these emails at any time.
@@ -63,7 +63,7 @@ const FOOTER_HTML = `
 function ctaButton(label: string, href: string): string {
   return `<table cellpadding="0" cellspacing="0" border="0" role="presentation" style="margin:28px auto 0;">
     <tr>
-      <td align="center" style="border-radius:8px;background:#FF4081;">
+      <td align="center" style="border-radius:8px;background:#0E8C8C;">
         <a href="${href}" target="_blank"
           style="display:inline-block;padding:14px 28px;font-size:16px;font-weight:700;color:#ffffff;
             text-decoration:none;border-radius:8px;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;
@@ -109,7 +109,7 @@ function wrapEmail(preheaderHtml: string, bodyHtml: string): string {
         <!-- Mobile hint -->
         <p style="font-size:11px;color:#d1d5db;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;
           margin:16px 0 0;text-align:center;">
-          If this email looks odd, <a href="${APP_URL}" style="color:#7c3aed;">view it in your browser</a>.
+          If this email looks odd, <a href="${APP_URL}" style="color:#0E8C8C;">view it in your browser</a>.
         </p>
       </td>
     </tr>
@@ -131,7 +131,7 @@ export async function sendWelcomeEmail(to: string, name: string): Promise<void> 
       Welcome, ${escapeHtml(name)}! 🎉
     </h1>
     <p style="font-size:16px;color:#374151;line-height:1.7;margin:0 0 12px;">
-      You just joined <strong style="color:#7c3aed;">DateNight</strong> — the easiest way to
+      You just joined <strong style="color:#0E8C8C;">DateNight</strong> — the easiest way to
       propose, vote on, and lock in dates and group activities without the endless back-and-forth.
       No more "I don't know, what do you want to do?"
     </p>
@@ -143,7 +143,7 @@ export async function sendWelcomeEmail(to: string, name: string): Promise<void> 
     <table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation"
       style="margin-bottom:24px;">
       <tr>
-        <td style="padding:12px 16px;background:#faf5ff;border-radius:8px;margin-bottom:8px;border-left:3px solid #7c3aed;">
+        <td style="padding:12px 16px;background:#F4F6F8;border-radius:8px;margin-bottom:8px;border-left:3px solid #0E8C8C;">
           <span style="font-size:22px;vertical-align:middle;">📅</span>
           <span style="font-size:15px;color:#374151;font-weight:600;margin-left:10px;vertical-align:middle;">
             Propose activities together
@@ -155,7 +155,7 @@ export async function sendWelcomeEmail(to: string, name: string): Promise<void> 
       </tr>
       <tr><td style="height:8px;"></td></tr>
       <tr>
-        <td style="padding:12px 16px;background:#fff7f9;border-radius:8px;margin-bottom:8px;border-left:3px solid #FF4081;">
+        <td style="padding:12px 16px;background:#EAF6D3;border-radius:8px;margin-bottom:8px;border-left:3px solid #0E8C8C;">
           <span style="font-size:22px;vertical-align:middle;">🗳️</span>
           <span style="font-size:15px;color:#374151;font-weight:600;margin-left:10px;vertical-align:middle;">
             Everyone votes
@@ -167,7 +167,7 @@ export async function sendWelcomeEmail(to: string, name: string): Promise<void> 
       </tr>
       <tr><td style="height:8px;"></td></tr>
       <tr>
-        <td style="padding:12px 16px;background:#f0fdf4;border-radius:8px;border-left:3px solid #10b981;">
+        <td style="padding:12px 16px;background:#D9F1F0;border-radius:8px;border-left:3px solid #7CB518;">
           <span style="font-size:22px;vertical-align:middle;">🔒</span>
           <span style="font-size:15px;color:#374151;font-weight:600;margin-left:10px;vertical-align:middle;">
             Lock in the plan
@@ -221,7 +221,7 @@ export async function sendInvitationEmail(
       You're invited! 🗓️
     </h1>
     <p style="font-size:16px;color:#374151;line-height:1.7;margin:0 0 16px;">
-      <strong style="color:#7c3aed;">${safeInviter}</strong> has invited you to join
+      <strong style="color:#0E8C8C;">${safeInviter}</strong> has invited you to join
       <strong style="color:#1a1a2e;">${safeGroup}</strong> on DateNight.
     </p>
     <p style="font-size:15px;color:#6b7280;line-height:1.6;margin:0 0 8px;">
@@ -233,7 +233,7 @@ export async function sendInvitationEmail(
 
     <p style="font-size:13px;color:#9ca3af;line-height:1.6;margin:20px 0 0;text-align:center;">
       Or copy this link into your browser:<br>
-      <a href="${acceptUrl}" style="color:#7c3aed;word-break:break-all;font-size:12px;">${acceptUrl}</a>
+      <a href="${acceptUrl}" style="color:#0E8C8C;word-break:break-all;font-size:12px;">${acceptUrl}</a>
     </p>
 
     <table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation"
@@ -286,7 +286,7 @@ export async function sendPasswordResetEmail(to: string, resetToken: string): Pr
 
     <p style="font-size:13px;color:#9ca3af;line-height:1.6;margin:20px 0 0;text-align:center;">
       Or copy this link into your browser:<br>
-      <a href="${resetUrl}" style="color:#7c3aed;word-break:break-all;font-size:12px;">${resetUrl}</a>
+      <a href="${resetUrl}" style="color:#0E8C8C;word-break:break-all;font-size:12px;">${resetUrl}</a>
     </p>
 
     <table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation"
@@ -315,6 +315,52 @@ export async function sendPasswordResetEmail(to: string, resetToken: string): Pr
   } catch (err) {
     logger.error('Failed to send password reset email', { to, err });
     // Non-fatal — let the caller surface a generic error
+  }
+}
+
+// ─── Vote Reminder Email ──────────────────────────────────────────────────────
+
+export async function sendVoteReminderEmail(
+  to: string,
+  name: string,
+  proposalTitle: string,
+  groupName: string,
+  proposalId: string,
+): Promise<void> {
+  const client = getClient();
+  if (!client) return;
+
+  const voteUrl = `${APP_URL}/proposals/${proposalId}`;
+  const safePreheader = preheader(`${groupName}: your vote is needed on "${proposalTitle}".`);
+
+  const body = `
+    <h1 style="font-size:26px;font-weight:800;color:#1a1a2e;margin:0 0 16px;line-height:1.3;">
+      Your vote is needed 🗳️
+    </h1>
+    <p style="font-size:16px;color:#374151;line-height:1.7;margin:0 0 20px;">
+      ${escapeHtml(name)}, <strong style="color:#0E8C8C;">${escapeHtml(proposalTitle)}</strong>
+      in <strong style="color:#1a1a2e;">${escapeHtml(groupName)}</strong> is waiting for your vote.
+      Everyone else has voted — it is your turn.
+    </p>
+
+    ${ctaButton('Vote Now', voteUrl)}
+
+    <p style="font-size:13px;color:#9ca3af;line-height:1.6;margin:20px 0 0;text-align:center;">
+      Or copy this link into your browser:<br>
+      <a href="${voteUrl}" style="color:#0E8C8C;word-break:break-all;font-size:12px;">${voteUrl}</a>
+    </p>`;
+
+  try {
+    await client.emails.send({
+      from: FROM_ADDRESS,
+      to,
+      subject: `${groupName}: your vote is needed`,
+      html: wrapEmail(safePreheader, body),
+    });
+    logger.info('Vote reminder email sent', { to, proposalId });
+  } catch (err) {
+    logger.error('Failed to send vote reminder email', { to, err });
+    // Non-fatal
   }
 }
 

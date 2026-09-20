@@ -35,8 +35,8 @@ export const authAPI = {
 // Groups
 export const groupsAPI = {
   list: () => api.get('/api/groups'),
-  create: (name: string, description?: string) =>
-    api.post('/api/groups', { name, description }),
+  create: (name: string, description?: string, groupType?: string) =>
+    api.post('/api/groups', { name, description, groupType }),
   get: (id: string) => api.get(`/api/groups/${id}`),
   proposals: (id: string) => api.get(`/api/groups/${id}/proposals`),
 };

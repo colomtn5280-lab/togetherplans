@@ -52,8 +52,17 @@ export default function CreateGroupScreen() {
   const handleCreate = async () => {
     if (!validate()) return;
     setLoading(true);
+    const typeMap: Record<GroupType, string> = {
+      Couple: 'COUPLE',
+      Friends: 'FRIENDS',
+      Family: 'FAMILY',
+    };
     try {
-      const res = await groupsAPI.create(name.trim(), description.trim() || undefined);
+      const res = await groupsAPI.create(
+        name.trim(),
+        description.trim() || undefined,
+        typeMap[groupType],
+      );
       const newGroup = res.data?.group ?? res.data;
       navigation.replace('GroupDetail', {
         groupId: newGroup?.id ?? 'new',

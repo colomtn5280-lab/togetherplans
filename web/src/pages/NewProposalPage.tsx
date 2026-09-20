@@ -39,7 +39,11 @@ export function NewProposalPage() {
       title: "",
       date: "",
       time: "19:00",
-      options: [{ name: "", category: "Dining", description: "", address: "" }],
+      options: [
+        { name: "", category: "Dining", description: "", address: "" },
+        { name: "", category: "Dining", description: "", address: "" },
+        { name: "", category: "Dining", description: "", address: "" },
+      ],
     },
   });
 
@@ -50,26 +54,28 @@ export function NewProposalPage() {
       const dateTime = data.time
         ? `${data.date}T${data.time}:00`
         : `${data.date}T19:00:00`;
+      const filledOptions = data.options.filter((o) => o.name.trim());
+      if (filledOptions.length < 3) {
+        throw new Error("Please provide at least 3 options with names.");
+      }
       const res = await proposalsApi.create({
         groupId: groupId!,
         title: data.title,
         dateTime,
-        options: data.options
-          .filter((o) => o.name.trim())
-          .map((o) => ({
-            name: o.name,
-            category: o.category || "Other",
-            description: o.description || undefined,
-            address: o.address || undefined,
-          })),
+        options: filledOptions.map((o) => ({
+          name: o.name,
+          category: o.category || "Other",
+          description: o.description || undefined,
+          address: o.address || undefined,
+        })),
       });
       return res.data;
     },
-    onSuccess: (data) => {
-      navigate(`/proposals/${data.id}`);
+    onSuccess: () => {
+      navigate(`/groups/${groupId}`);
     },
     onError: (err) => {
-      setSubmitError(err.response?.data?.message ?? "Failed to create proposal");
+      setSubmitError((err as Error).message ?? err.response?.data?.message ?? "Failed to create proposal");
     },
   });
 
@@ -156,7 +162,8 @@ export function NewProposalPage() {
                 <button
                   type="button"
                   className="dn-btn dn-btn--sm dn-btn--tonal"
-                  onClick={() => append({ name: "", category: "Dining", description: "", address: "" })}
+                  onClick={() => fields.length < 5 && append({ name: "", category: "Dining", description: "", address: "" })}
+                  disabled={fields.length >= 5}
                 >
                   + Add option
                 </button>
@@ -167,7 +174,7 @@ export function NewProposalPage() {
                   <div key={field.id} className="dn-card dn-card--alt1" style={{ padding: "20px 20px 16px" }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
                       <span style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 13 }}>Option {i + 1}</span>
-                      {fields.length > 1 && (
+                      {fields.length > 3 && (
                         <button
                           type="button"
                           onClick={() => remove(i)}

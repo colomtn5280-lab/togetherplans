@@ -1,7 +1,10 @@
 import { Router, Response } from 'express';
+import { Expo } from 'expo-server-sdk';
 import { prisma } from '@/services/db';
 import { requireAuth, AuthRequest } from '@/middleware/auth';
 import { getSuggestions, SuggestionCategory } from '@/services/suggestions';
+import { sendVoteReminderEmail } from '@/services/email';
+import { logger } from '@/services/logger';
 
 export const proposalsRouter = Router();
 
@@ -238,6 +241,89 @@ proposalsRouter.delete('/:id/votes', async (req: AuthRequest, res: Response, nex
       where: { userId: req.userId as string, optionId: { in: optionIds } },
     });
     return res.json({ deleted: deleted.count });
+  } catch (err) {
+    return next(err);
+  }
+});
+
+// POST /api/proposals/:id/nudge — push + email unvoted members
+proposalsRouter.post('/:id/nudge', async (req: AuthRequest, res: Response, next) => {
+  try {
+    const proposal = await prisma.proposal.findUnique({
+      where: { id: req.params.id },
+      include: {
+        options: { include: { votes: true } },
+        group: {
+          include: {
+            members: { include: { user: true } },
+          },
+        },
+      },
+    });
+    if (!proposal) return res.status(404).json({ error: 'Proposal not found' });
+
+    const membership = await prisma.groupMember.findFirst({
+      where: { groupId: proposal.groupId, userId: req.userId },
+    });
+    if (!membership) return res.status(403).json({ error: 'Not a member of this group' });
+
+    // Collect userIds that have voted on any option
+    const votedUserIds = new Set<string>();
+    for (const option of proposal.options) {
+      for (const vote of option.votes) {
+        votedUserIds.add(vote.userId);
+      }
+    }
+
+    // Members who have NOT voted
+    const unvotedMembers = proposal.group.members.filter(
+      (m) => !votedUserIds.has(m.userId),
+    );
+
+    const expo = new Expo();
+    const pushMessages: Parameters<typeof expo.sendPushNotificationsAsync>[0] = [];
+
+    for (const member of unvotedMembers) {
+      const user = member.user as { id: string; name?: string | null; email?: string | null; pushToken?: string | null };
+
+      // Expo push notification
+      if (user.pushToken && Expo.isExpoPushToken(user.pushToken)) {
+        pushMessages.push({
+          to: user.pushToken,
+          sound: 'default',
+          title: `${proposal.group.name}: vote needed`,
+          body: `"${proposal.title}" is waiting for your vote.`,
+          data: { proposalId: proposal.id },
+        });
+      }
+
+      // Vote reminder email
+      if (user.email) {
+        void sendVoteReminderEmail(
+          user.email,
+          user.name ?? 'there',
+          proposal.title,
+          proposal.group.name,
+          proposal.id,
+        );
+      }
+    }
+
+    // Send push notifications in chunks
+    if (pushMessages.length > 0) {
+      try {
+        const chunks = expo.chunkPushNotifications(pushMessages);
+        for (const chunk of chunks) {
+          await expo.sendPushNotificationsAsync(chunk);
+        }
+      } catch (pushErr) {
+        logger.error('Failed to send push notifications for nudge', { proposalId: proposal.id, pushErr });
+        // Non-fatal
+      }
+    }
+
+    logger.info('Nudge sent', { proposalId: proposal.id, nudged: unvotedMembers.length });
+    return res.json({ nudged: unvotedMembers.length });
   } catch (err) {
     return next(err);
   }

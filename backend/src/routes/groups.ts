@@ -9,13 +9,15 @@ groupsRouter.use(requireAuth);
 // POST /api/groups — create a group (creator becomes OWNER)
 groupsRouter.post('/', async (req: AuthRequest, res: Response, next) => {
   try {
-    const { name } = req.body || {};
+    const { name, description, groupType } = req.body || {};
     if (!name || name.trim().length === 0) {
       return res.status(400).json({ error: 'name is required' });
     }
     const group = await prisma.group.create({
       data: {
         name: name.trim(),
+        ...(description ? { description: description.trim() } : {}),
+        ...(groupType ? { groupType } : {}),
         members: { create: { userId: req.userId as string, role: 'OWNER' } },
       },
       include: { members: true },
