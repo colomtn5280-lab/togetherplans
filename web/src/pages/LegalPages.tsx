@@ -18,9 +18,9 @@ export function PrivacyPolicyPage() {
         <p className="legal-page__effective">Effective date: August 1, 2026</p>
         <p>
           This Privacy Policy explains how <strong>TogetherPlans LLC</strong>{" "}
-          (&ldquo;DateNight&rdquo;, &ldquo;we&rdquo;, &ldquo;our&rdquo;, or &ldquo;us&rdquo;)
+          (&ldquo;TogetherPlans&rdquo;, &ldquo;we&rdquo;, &ldquo;our&rdquo;, or &ldquo;us&rdquo;)
           collects, uses, and protects your personal information when you use the
-          /DateNight application and related services.
+          TogetherPlans application and related services.
         </p>
 
         <h2>1. Information We Collect</h2>
@@ -46,7 +46,7 @@ export function PrivacyPolicyPage() {
 
         <h2>2. How We Use Your Information</h2>
         <ul>
-          <li>To provide, operate, and improve the /DateNight service.</li>
+          <li>To provide, operate, and improve the TogetherPlans service.</li>
           <li>To authenticate you and keep your account secure.</li>
           <li>To send transactional notifications (e.g. proposal locked, group invite) via email or SMS.</li>
           <li>To personalise activity suggestions using your stated preferences.</li>
@@ -104,7 +104,7 @@ export function PrivacyPolicyPage() {
 
         <h2>6. Cookies and Local Storage</h2>
         <p>
-          /DateNight uses browser <code>localStorage</code> to store authentication tokens (JWT
+          TogetherPlans uses browser <code>localStorage</code> to store authentication tokens (JWT
           access token and refresh token). We do not use advertising cookies or third-party tracking
           cookies.
         </p>
@@ -118,7 +118,7 @@ export function PrivacyPolicyPage() {
 
         <h2>8. Children&rsquo;s Privacy</h2>
         <p>
-          /DateNight is not directed at children under 13 (or 16 in the EEA). We do not knowingly
+          TogetherPlans is not directed at children under 13 (or 16 in the EEA). We do not knowingly
           collect personal data from children. If you believe a child has provided us data, contact
           us immediately.
         </p>
@@ -161,16 +161,16 @@ export function TermsPage() {
 
         <h2>1. Acceptance of Terms</h2>
         <p>
-          By accessing or using the /DateNight application and related services (the
+          By accessing or using the TogetherPlans application and related services (the
           &ldquo;Service&rdquo;), you agree to be bound by these Terms of Service
           (&ldquo;Terms&rdquo;). If you do not agree, do not use the Service. These Terms
-          constitute a binding agreement between you and DateNight
+          constitute a binding agreement between you and TogetherPlans
           (&ldquo;we&rdquo;, &ldquo;our&rdquo;, or &ldquo;us&rdquo;).
         </p>
 
         <h2>2. Service Description</h2>
         <p>
-          /DateNight is a collaborative activity-planning platform that allows couples and
+          TogetherPlans is a collaborative activity-planning platform that allows couples and
           groups to suggest, vote on, and agree upon activities including dining, entertainment,
           and outings. The Service integrates with third-party data providers (Google Maps, Yelp,
           TMDB) to surface activity suggestions.
@@ -203,7 +203,7 @@ export function TermsPage() {
         <p>
           You retain ownership of any content you submit to the Service (&ldquo;User Content&rdquo;),
           including activity suggestions, names, and comments. By submitting User Content, you
-          grant DateNight a non-exclusive, worldwide, royalty-free licence to use, display, and
+          grant TogetherPlans a non-exclusive, worldwide, royalty-free licence to use, display, and
           transmit that content solely for the purpose of providing the Service to you and your
           group members.
         </p>
@@ -232,7 +232,7 @@ export function TermsPage() {
 
         <h2>8. Limitation of Liability</h2>
         <p>
-          TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, DATENIGHT AND ITS OFFICERS,
+          TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, TOGETHERPLANS AND ITS OFFICERS,
           DIRECTORS, EMPLOYEES, AND AGENTS SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL,
           SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING LOSS OF PROFITS, DATA, OR
           GOODWILL, ARISING OUT OF OR RELATED TO YOUR USE OF THE SERVICE, EVEN IF WE HAVE
@@ -298,12 +298,12 @@ export function SupportPage() {
       a: "When all group members have voted and a proposal reaches consensus (everyone agrees on the same activity), the proposal is automatically locked in. All members receive a notification — via the app, email, or SMS depending on your settings — with the final plan details.",
     },
     {
-      q: "Is /DateNight free?",
-      a: "Yes! /DateNight is free to use for individuals and groups. We plan to offer optional premium features in the future (e.g. advanced activity filters, calendar integration) but the core collaborative planning experience will always be free.",
+      q: "Is TogetherPlans free?",
+      a: "Yes! TogetherPlans is free to use for individuals and groups. We plan to offer optional premium features in the future (e.g. advanced activity filters, calendar integration) but the core collaborative planning experience will always be free.",
     },
     {
-      q: "What platforms does /DateNight support?",
-      a: "The /DateNight app is available on iOS (iPhone and iPad) and Android. There is also a full-featured web app at togetherplans.app that works on any modern browser — Chrome, Firefox, Safari, and Edge are all supported. Your groups and proposals sync across all your devices in real time.",
+      q: "What platforms does TogetherPlans support?",
+      a: "The TogetherPlans app is available on iOS (iPhone and iPad) and Android. There is also a full-featured web app at togetherplans.app that works on any modern browser — Chrome, Firefox, Safari, and Edge are all supported. Your groups and proposals sync across all your devices in real time.",
     },
   ];
 

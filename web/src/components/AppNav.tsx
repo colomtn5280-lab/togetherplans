@@ -83,7 +83,7 @@ export function AppNav() {
             color: "var(--ink)",
           }}
         >
-          DateNight
+          TogetherPlans
         </span>
       </Link>
 

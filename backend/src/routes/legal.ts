@@ -4,7 +4,7 @@ export const legalRouter = Router();
 
 const EFFECTIVE_DATE = 'September 1, 2026';
 const CONTACT_EMAIL = 'hello@togetherplans.app';
-const APP_NAME = 'DateNight';
+const APP_NAME = 'TogetherPlans';
 const COMPANY = 'TogetherPlans';
 const DOMAIN = 'togetherplans.app';
 

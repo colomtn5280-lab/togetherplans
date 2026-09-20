@@ -282,7 +282,7 @@ shareCardsRouter.get('/:proposalId/og-image', async (req: Request, res: Response
   <circle cx="1050" cy="100" r="200" fill="#7CB518" fill-opacity="0.15"/>
   <circle cx="100" cy="550" r="150" fill="#ffffff" fill-opacity="0.05"/>
   <!-- Brand -->
-  <text x="60" y="80" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="28" font-weight="800" fill="#D9F1F0" letter-spacing="0.5">📅 DateNight</text>
+  <text x="60" y="80" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="28" font-weight="800" fill="#D9F1F0" letter-spacing="0.5">TogetherPlans</text>
   <!-- Emoji -->
   <text x="60" y="220" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="80">${emoji}</text>
   <!-- Winner name -->

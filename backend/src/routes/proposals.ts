@@ -3,7 +3,7 @@ import { Expo } from 'expo-server-sdk';
 import { prisma } from '@/services/db';
 import { requireAuth, AuthRequest } from '@/middleware/auth';
 import { getSuggestions, SuggestionCategory } from '@/services/suggestions';
-import { sendVoteReminderEmail } from '@/services/email';
+import { sendVoteReminderEmail, sendItsAMatchEmail, sendTake2Email } from '@/services/email';
 import { logger } from '@/services/logger';
 import { cache } from '@/services/cache';
 
@@ -113,6 +113,17 @@ proposalsRouter.post('/:id/counter', async (req: AuthRequest, res: Response, nex
         include: { options: true },
       }),
     ]);
+    // Notify all group members except the creator about the counter-proposal
+    const creator = await prisma.user.findUnique({ where: { id: req.userId as string }, select: { displayName: true } });
+    const counterMembers = await prisma.groupMember.findMany({
+      where: { groupId: original.groupId, userId: { not: req.userId as string } },
+      include: { user: { select: { email: true } } },
+    });
+    for (const m of counterMembers) {
+      if (m.user.email) {
+        void sendTake2Email(m.user.email, m.user.email, counter.id, title, creator?.displayName ?? 'Someone');
+      }
+    }
     return res.status(201).json(counter);
   } catch (err) {
     return next(err);
@@ -229,6 +240,16 @@ proposalsRouter.post('/:id/vote', async (req: AuthRequest, res: Response, next) 
     if (memberCount >= 2 && allVoted && winner) {
       await prisma.proposal.update({ where: { id: option.proposalId }, data: { status: 'DECIDED' } });
       decided = true;
+      // Notify all group members of the match
+      const matchMembers = await prisma.groupMember.findMany({
+        where: { groupId: option.proposal.groupId },
+        include: { user: { select: { email: true } } },
+      });
+      for (const m of matchMembers) {
+        if (m.user.email) {
+          void sendItsAMatchEmail(m.user.email, m.user.email, option.proposalId, option.proposal.title);
+        }
+      }
     }
     return res.status(201).json({ vote, decided, voteCount: winner ? winner.votes.length : 0, memberCount, winnerId: winner?.id });
   } catch (err) {
@@ -324,10 +345,9 @@ proposalsRouter.post('/:id/nudge', async (req: AuthRequest, res: Response, next)
       if (user.email) {
         void sendVoteReminderEmail(
           user.email,
-          user.name ?? 'there',
-          proposal.title,
-          proposal.group.name,
+          user.email,
           proposal.id,
+          proposal.title,
         );
       }
     }

@@ -1,7 +1,7 @@
 import { Router, Response } from 'express';
 import { prisma } from '@/services/db';
 import { requireAuth, AuthRequest } from '@/middleware/auth';
-import { sendInvitationEmail } from '@/services/email';
+import { sendGroupInviteEmail } from '@/services/email';
 
 export const invitationsRouter = Router();
 
@@ -44,7 +44,7 @@ invitationsRouter.post('/', async (req: AuthRequest, res: Response, next) => {
         prisma.group.findUnique({ where: { id: groupId } }),
       ]);
       if (inviter && group) {
-        sendInvitationEmail(target, inviter.displayName, group.name, invitation.token).catch(() => {});
+        sendGroupInviteEmail(target, inviter.displayName, group.name, invitation.token).catch(() => {});
       }
     }
     return res.status(201).json({

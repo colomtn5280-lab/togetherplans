@@ -1,6 +1,6 @@
 {
-  "name": "/DateNight",
-  "short_name": "DateNight",
+  "name": "TogetherPlans",
+  "short_name": "TogetherPlans",
   "description": "Plan Together. Go Together.",
   "start_url": "/",
   "display": "standalone",

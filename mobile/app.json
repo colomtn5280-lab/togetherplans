@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "DateNight",
+    "name": "TogetherPlans",
     "slug": "togetherplans",
     "version": "1.1.0",
     "orientation": "portrait",
@@ -16,9 +16,9 @@
       "supportsTablet": false,
       "bundleIdentifier": "app.togetherplans.datenight",
       "infoPlist": {
-        "NSLocationWhenInUseUsageDescription": "DateNight uses your location to suggest nearby activities.",
-        "NSCameraUsageDescription": "DateNight uses your camera for QR code scanning.",
-        "NSPhotoLibraryUsageDescription": "DateNight may access your photos for profile pictures.",
+        "NSLocationWhenInUseUsageDescription": "TogetherPlans uses your location to suggest nearby activities.",
+        "NSCameraUsageDescription": "TogetherPlans uses your camera for QR code scanning.",
+        "NSPhotoLibraryUsageDescription": "TogetherPlans may access your photos for profile pictures.",
         "ITSAppUsesNonExemptEncryption": false
       }
     },

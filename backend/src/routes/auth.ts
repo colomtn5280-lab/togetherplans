@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import rateLimit from 'express-rate-limit';
 import { prisma } from '@/services/db';
 import { signToken, requireAuth, AuthRequest } from '@/middleware/auth';
-import { sendWelcomeEmail, sendPasswordResetEmail } from '@/services/email';
+import { sendWelcomeEmail, sendPasswordResetEmail, sendAccountDeletedEmail } from '@/services/email';
 import { verifyGoogleToken } from '@/services/oauth';
 import { verifyAppleToken } from '@/services/apple';
 import { logger } from '@/services/logger';
@@ -64,7 +64,7 @@ authRouter.post('/register', authLimiter, async (req, res: Response, next) => {
     const token = signToken(user.id, user.email);
     const refreshToken = await issueRefreshToken(user.id);
     // Fire-and-forget — don't block registration on email delivery
-    sendWelcomeEmail(user.email, user.displayName).catch(() => {});
+    sendWelcomeEmail(user.email, user.email).catch(() => {});
     return res.status(201).json({
       token,
       accessToken: token,
@@ -103,7 +103,7 @@ authRouter.post('/signup', authLimiter, async (req, res: Response, next) => {
     });
     const token = signToken(user.id, user.email);
     const refreshToken = await issueRefreshToken(user.id);
-    sendWelcomeEmail(user.email, user.displayName).catch(() => {});
+    sendWelcomeEmail(user.email, user.email).catch(() => {});
     // Return both old shape (token/user) and new shape (accessToken) for compatibility
     return res.status(201).json({
       token,
@@ -187,7 +187,7 @@ authRouter.post('/google', authLimiter, async (req, res: Response, next) => {
       user = await prisma.user.create({
         data: { email, displayName: name, provider: 'google', providerId, avatarUrl, passwordHash: null },
       });
-      sendWelcomeEmail(user.email, user.displayName).catch(() => {});
+      sendWelcomeEmail(user.email, user.email).catch(() => {});
     } else if (!user.provider) {
       // Link existing email account to Google
       user = await prisma.user.update({
@@ -232,7 +232,7 @@ authRouter.post('/apple', authLimiter, async (req, res: Response, next) => {
       user = await prisma.user.create({
         data: { email, displayName: name, provider: 'apple', providerId, passwordHash: null },
       });
-      sendWelcomeEmail(user.email, user.displayName).catch(() => {});
+      sendWelcomeEmail(user.email, user.email).catch(() => {});
     } else if (!user.provider) {
       // Link existing email/password account to Apple
       user = await prisma.user.update({
@@ -422,7 +422,7 @@ authRouter.post('/forgot-password', forgotPasswordLimiter, async (req, res: Resp
         secret,
         { expiresIn: '1h' },
       );
-      sendPasswordResetEmail(user.email, resetToken).catch(() => {});
+      sendPasswordResetEmail(user.email, user.email, resetToken).catch(() => {});
     }
     return res.json({ message: 'If that email is registered, a reset link has been sent.' });
   } catch (err) {
@@ -459,10 +459,11 @@ authRouter.post('/reset-password', async (req, res: Response, next) => {
 // DELETE /api/auth/me — GDPR: soft delete now; hard delete within 30 days by job
 authRouter.delete('/me', requireAuth, async (req: AuthRequest, res: Response, next) => {
   try {
-    await prisma.user.update({
+    const user = await prisma.user.update({
       where: { id: req.userId },
       data: { deletedAt: new Date() },
     });
+    sendAccountDeletedEmail(user.email, user.email).catch(() => {});
     return res.status(204).send();
   } catch (err) {
     return next(err);

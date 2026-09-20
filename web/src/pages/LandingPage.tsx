@@ -23,7 +23,7 @@ export function LandingPage() {
           <span className="dn-sticker dn-sticker--lime landing-hero__badge">Plan Together</span>
           <h1 className="landing-hero__title">Plan together.<br />Go together.</h1>
           <p className="landing-hero__desc">
-            47 messages later, still no plan. DateNight ends it in three taps.
+            47 messages later, still no plan. TogetherPlans ends it in three taps.
           </p>
           <div className="landing-hero__actions">
             <Link to="/signup" className="dn-btn">Get started free →</Link>
@@ -96,7 +96,7 @@ export function LandingPage() {
 
       {/* ── Features ── */}
       <section className="landing-section">
-        <h2 className="landing-section__title">Why DateNight?</h2>
+        <h2 className="landing-section__title">Why TogetherPlans?</h2>
         <div className="landing-features">
           {[
             { icon: "🔄", title: "Stop the loop", desc: "No more 'what do you want to do?' — everyone submits ideas and the group decides fast." },
@@ -136,7 +136,7 @@ export function LandingPage() {
       <section className="landing-cta-band">
         <div className="landing-cta-band__blob" aria-hidden="true" />
         <h2>Ready for your next date night?</h2>
-        <p>Join thousands of couples already using DateNight.</p>
+        <p>Join thousands of couples already using TogetherPlans.</p>
         <Link to="/signup" className="dn-btn">Create free account →</Link>
       </section>
 
@@ -151,7 +151,7 @@ export function LandingPage() {
               <line x1="16" y1="2" x2="16" y2="7" stroke="var(--primary,#0E8C8C)" strokeWidth="2" strokeLinecap="round" />
             </svg>
           </div>
-          <span>DateNight</span>
+          <span>TogetherPlans</span>
         </div>
         <div className="landing-footer__links">
           <Link to="/privacy">Privacy</Link>

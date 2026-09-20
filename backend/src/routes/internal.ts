@@ -114,10 +114,9 @@ internalRouter.post('/reminders/run', async (_req: Request, res: Response, next:
         if (user.email) {
           void sendVoteReminderEmail(
             user.email,
-            user.name ?? 'there',
-            proposal.title,
-            proposal.group.name,
+            user.email,
             proposal.id,
+            proposal.title,
           );
         }
 
