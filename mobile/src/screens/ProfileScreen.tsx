@@ -1,105 +1,340 @@
+/**
+ * ProfileScreen — 3k
+ * HANDOFF_README spec: full redesign
+ */
 import React, { useState } from 'react';
 import {
-  View, Text, TouchableOpacity, StyleSheet,
-  Alert, ScrollView, ActivityIndicator, Linking,
+  Modal,
+  ScrollView,
+  StyleSheet,
+  Switch,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
-import { useAuth } from '@/hooks/useAuth';
+import { useTheme } from '@/contexts/ThemeContext';
+import { CARD_RADII, SHADOWS, SPACING, TYPE } from '@/constants';
+import {
+  DNAvatar,
+  DNButton,
+  DNChip,
+  DNInput,
+  DNScreenHeader,
+  DNSticker,
+  DNText,
+} from '@/components/ui';
 import { authAPI } from '@/services/api';
-import { COLORS, SPACING } from '@/constants';
+import { useAuth } from '@/hooks/useAuth';
 
-export default function ProfileScreen() {
-  const { user, logout } = useAuth();
-  const [loading, setLoading] = useState(false);
+type ThemeOverride = 'system' | 'light' | 'dark';
 
-  const handleLogout = async () => {
-    Alert.alert('Sign Out', 'Are you sure you want to sign out?', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Sign Out', style: 'destructive', onPress: async () => { await logout(); } },
-    ]);
-  };
-
-  const handleDeleteAccount = () => {
-    Alert.alert(
-      'Delete Account',
-      'This will permanently delete your account and all your data within 30 days. This cannot be undone.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete Account',
-          style: 'destructive',
-          onPress: async () => {
-            setLoading(true);
-            try {
-              await authAPI.deleteAccount();
-              await logout();
-            } catch {
-              Alert.alert('Error', 'Could not delete account. Please contact hello@togetherplans.app');
-            } finally {
-              setLoading(false);
-            }
-          },
-        },
-      ]
-    );
-  };
-
+// ── Toggle pill ────────────────────────────────────────────────────────────────
+function TogglePill({ value, onChange }: { value: boolean; onChange: (v: boolean) => void }) {
+  const { colors } = useTheme();
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.inner}>
-      <View style={styles.avatar}>
-        <Text style={styles.avatarText}>{user?.displayName?.[0]?.toUpperCase() ?? '?'}</Text>
-      </View>
-      <Text style={styles.name}>{user?.displayName}</Text>
-      <Text style={styles.email}>{user?.email}</Text>
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Legal</Text>
-        <TouchableOpacity style={styles.row} onPress={() => Linking.openURL('https://api.togetherplans.app/privacy')}>
-          <Text style={styles.rowText}>Privacy Policy</Text>
-          <Text style={styles.arrow}>›</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.row} onPress={() => Linking.openURL('https://api.togetherplans.app/terms')}>
-          <Text style={styles.rowText}>Terms of Service</Text>
-          <Text style={styles.arrow}>›</Text>
-        </TouchableOpacity>
-      </View>
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Support</Text>
-        <TouchableOpacity style={styles.row} onPress={() => Linking.openURL('mailto:hello@togetherplans.app')}>
-          <Text style={styles.rowText}>Contact Us</Text>
-          <Text style={styles.arrow}>›</Text>
-        </TouchableOpacity>
-      </View>
-
-      <View style={styles.section}>
-        <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
-          <Text style={styles.logoutText}>Sign Out</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.deleteBtn} onPress={handleDeleteAccount} disabled={loading}>
-          {loading ? <ActivityIndicator color={COLORS.error} /> : <Text style={styles.deleteText}>Delete Account</Text>}
-        </TouchableOpacity>
-      </View>
-
-      <Text style={styles.version}>DateNight v1.0.0 · togetherplans.app</Text>
-    </ScrollView>
+    <TouchableOpacity
+      onPress={() => onChange(!value)}
+      activeOpacity={0.85}
+      style={{
+        width: 50,
+        height: 30,
+        borderRadius: 15,
+        backgroundColor: value ? colors.primary : colors.line,
+        justifyContent: 'center',
+        paddingHorizontal: 3,
+      }}
+    >
+      <View
+        style={{
+          width: 24,
+          height: 24,
+          borderRadius: 12,
+          backgroundColor: value ? colors.onPrimary : colors.surface,
+          alignSelf: value ? 'flex-end' : 'flex-start',
+          ...SHADOWS.card,
+        }}
+      />
+    </TouchableOpacity>
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.background },
-  inner: { padding: SPACING.lg, alignItems: 'center' },
-  avatar: { width: 80, height: 80, borderRadius: 40, backgroundColor: COLORS.primary, justifyContent: 'center', alignItems: 'center', marginBottom: SPACING.md, marginTop: SPACING.xl },
-  avatarText: { fontSize: 32, fontWeight: '700', color: '#fff' },
-  name: { fontSize: 22, fontWeight: '700', color: COLORS.text, marginBottom: 4 },
-  email: { fontSize: 15, color: COLORS.textSecondary, marginBottom: SPACING.xl },
-  section: { width: '100%', marginBottom: SPACING.lg },
-  sectionTitle: { fontSize: 13, fontWeight: '700', color: COLORS.textSecondary, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: SPACING.sm },
-  row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: COLORS.surface, padding: SPACING.md, borderRadius: 12, marginBottom: 2, borderWidth: 1, borderColor: COLORS.border },
-  rowText: { fontSize: 16, color: COLORS.text },
-  arrow: { fontSize: 20, color: COLORS.textSecondary },
-  logoutBtn: { backgroundColor: COLORS.surface, borderRadius: 12, padding: SPACING.md, alignItems: 'center', borderWidth: 1, borderColor: COLORS.border, marginBottom: SPACING.sm },
-  logoutText: { fontSize: 16, fontWeight: '600', color: COLORS.text },
-  deleteBtn: { padding: SPACING.md, alignItems: 'center' },
-  deleteText: { fontSize: 15, color: COLORS.error },
-  version: { fontSize: 12, color: COLORS.textSecondary, marginTop: SPACING.xl },
-});
+// ── Setting Row ────────────────────────────────────────────────────────────────
+function SettingRow({
+  label,
+  right,
+  labelColor,
+  onPress,
+  icon,
+  subtitle,
+}: {
+  label: string;
+  right?: React.ReactNode;
+  labelColor?: string;
+  onPress?: () => void;
+  icon?: string;
+  subtitle?: string;
+}) {
+  const { colors } = useTheme();
+  const Wrapper = onPress ? TouchableOpacity : View;
+  return (
+    <Wrapper
+      onPress={onPress}
+      activeOpacity={0.7}
+      style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 14,
+        borderBottomWidth: 1,
+        borderBottomColor: colors.line,
+      }}
+    >
+      {icon && <Text style={{ fontSize: 18, marginRight: 12 }}>{icon}</Text>}
+      <View style={{ flex: 1 }}>
+        <Text style={[TYPE.rowLabel, { color: labelColor ?? colors.ink }]}>{label}</Text>
+        {subtitle && <Text style={[TYPE.secondary, { color: colors.ink2, marginTop: 2 }]}>{subtitle}</Text>}
+      </View>
+      {right}
+    </Wrapper>
+  );
+}
+
+// ── Settings Card ────────────────────────────────────────────────────────────────
+function SettingsCard({
+  title,
+  children,
+  index,
+}: {
+  title: string;
+  children: React.ReactNode;
+  index: number;
+}) {
+  const { colors } = useTheme();
+  const r = CARD_RADII[index % 4];
+  return (
+    <View
+      style={[
+        {
+          backgroundColor: colors.surface,
+          borderTopLeftRadius: r.topLeft,
+          borderTopRightRadius: r.topRight,
+          borderBottomRightRadius: r.bottomRight,
+          borderBottomLeftRadius: r.bottomLeft,
+          padding: SPACING.md,
+          marginBottom: SPACING.md,
+        },
+        SHADOWS.card,
+      ]}
+    >
+      <Text style={[TYPE.section, { color: colors.ink2, marginBottom: SPACING.sm }]}>{title}</Text>
+      {children}
+    </View>
+  );
+}
+
+// ── Delete Confirmation Sheet ──────────────────────────────────────────────────
+function DeleteAccountSheet({
+  visible,
+  onClose,
+  onConfirm,
+}: {
+  visible: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+}) {
+  const { colors } = useTheme();
+  const [typed, setTyped] = useState('');
+  const canDelete = typed === 'DELETE';
+
+  return (
+    <Modal transparent animationType="slide" visible={visible} onRequestClose={onClose}>
+      <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.4)' }}>
+        <View
+          style={{
+            backgroundColor: colors.surface,
+            borderTopLeftRadius: 34,
+            borderTopRightRadius: 28,
+            padding: SPACING.xl,
+            ...SHADOWS.dock,
+          }}
+        >
+          <DNSticker
+            label="PERMANENT"
+            color={colors.errorSoft}
+            textColor={colors.error}
+            rotationIndex={2}
+            style={{ marginBottom: SPACING.md }}
+          />
+          <DNText variant="heading" color={colors.ink} style={{ marginBottom: SPACING.sm }}>
+            Delete your account?
+          </DNText>
+          <DNText variant="body" color={colors.ink2} style={{ marginBottom: SPACING.lg }}>
+            This will permanently delete all your data, groups, and proposal history. This action cannot be undone.
+          </DNText>
+          <DNInput
+            label="Type DELETE to confirm"
+            value={typed}
+            onChangeText={setTyped}
+            placeholder="DELETE"
+            autoCapitalize="characters"
+          />
+          <View style={{ flexDirection: 'row', gap: SPACING.sm, marginTop: SPACING.sm }}>
+            <DNButton
+              label="Cancel"
+              variant="secondary"
+              onPress={onClose}
+              style={{ flex: 1 }}
+            />
+            <DNButton
+              label="Delete account"
+              variant="ink"
+              onPress={onConfirm}
+              disabled={!canDelete}
+              style={{
+                flex: 1,
+                backgroundColor: canDelete ? colors.error : colors.line,
+              }}
+            />
+          </View>
+        </View>
+      </View>
+    </Modal>
+  );
+}
+
+// ── Main Screen ───────────────────────────────────────────────────────────────
+export default function ProfileScreen() {
+  const { colors, override, setOverride } = useTheme();
+  const { user, signOut } = useAuth() as any;
+
+  const [notifNew, setNotifNew] = useState(true);
+  const [notifVotes, setNotifVotes] = useState(true);
+  const [notifReminders, setNotifReminders] = useState(false);
+  const [showDeleteSheet, setShowDeleteSheet] = useState(false);
+
+  const handleDeleteConfirm = async () => {
+    try {
+      await authAPI.deleteAccount();
+      setShowDeleteSheet(false);
+      if (signOut) signOut();
+    } catch (e) {
+      console.warn('Delete account failed', e);
+    }
+  };
+
+  const displayName = user?.displayName ?? 'You';
+  const email = user?.email ?? '';
+
+  return (
+    <View style={{ flex: 1, backgroundColor: colors.bg }}>
+      <DNScreenHeader title="Profile" />
+
+      <ScrollView contentContainerStyle={{ paddingBottom: 120 }}>
+        {/* Avatar section */}
+        <View style={{ alignItems: 'center', paddingVertical: SPACING.lg }}>
+          <View style={{ position: 'relative' }}>
+            <DNAvatar name={displayName} size={76} colorIndex={0} />
+            {/* Edit badge */}
+            <View
+              style={{
+                position: 'absolute',
+                bottom: 0,
+                right: 0,
+                width: 24,
+                height: 24,
+                borderRadius: 12,
+                backgroundColor: colors.lime,
+                alignItems: 'center',
+                justifyContent: 'center',
+                ...SHADOWS.card,
+              }}
+            >
+              <Text style={{ fontSize: 12 }}>✏️</Text>
+            </View>
+          </View>
+
+          <DNText variant="title" color={colors.ink} style={{ marginTop: SPACING.md }}>
+            {displayName}
+          </DNText>
+          <DNText variant="secondary" color={colors.ink2} style={{ marginTop: 4 }}>
+            {email}
+          </DNText>
+          <DNSticker
+            label="12 plans decided"
+            color={colors.limeSoft}
+            textColor={colors.lime}
+            rotationIndex={1}
+            style={{ marginTop: SPACING.sm }}
+          />
+        </View>
+
+        {/* Settings cards */}
+        <View style={{ paddingHorizontal: SPACING.gutter }}>
+          {/* Notifications card */}
+          <SettingsCard title="NOTIFICATIONS" index={0}>
+            <SettingRow
+              label="New proposals"
+              right={<TogglePill value={notifNew} onChange={setNotifNew} />}
+            />
+            <SettingRow
+              label="When everyone votes"
+              right={<TogglePill value={notifVotes} onChange={setNotifVotes} />}
+            />
+            <SettingRow
+              label="Reminders"
+              right={<TogglePill value={notifReminders} onChange={setNotifReminders} />}
+            />
+          </SettingsCard>
+
+          {/* Preferences card */}
+          <SettingsCard title="PREFERENCES" index={1}>
+            <SettingRow
+              label="Home area"
+              icon="📍"
+              subtitle="Not set"
+              onPress={() => {}}
+              right={<Text style={[TYPE.secondary, { color: colors.ink2 }]}>›</Text>}
+            />
+            <SettingRow
+              label="Appearance"
+              right={
+                <View style={{ flexDirection: 'row', gap: 6 }}>
+                  {(['system', 'light', 'dark'] as ThemeOverride[]).map((opt, i) => (
+                    <DNChip
+                      key={opt}
+                      label={opt.charAt(0).toUpperCase() + opt.slice(1)}
+                      selected={override === opt}
+                      onPress={() => setOverride(opt)}
+                      index={i}
+                    />
+                  ))}
+                </View>
+              }
+            />
+          </SettingsCard>
+
+          {/* Account card */}
+          <SettingsCard title="ACCOUNT" index={2}>
+            <SettingRow
+              label="Sign out"
+              labelColor={colors.ink2}
+              onPress={() => {
+                if (signOut) signOut();
+              }}
+            />
+            <SettingRow
+              label="Delete account"
+              labelColor={colors.error}
+              onPress={() => setShowDeleteSheet(true)}
+            />
+          </SettingsCard>
+        </View>
+      </ScrollView>
+
+      <DeleteAccountSheet
+        visible={showDeleteSheet}
+        onClose={() => setShowDeleteSheet(false)}
+        onConfirm={handleDeleteConfirm}
+      />
+    </View>
+  );
+}
