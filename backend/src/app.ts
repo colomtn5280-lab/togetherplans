@@ -13,6 +13,8 @@ import { suggestionsRouter } from '@/routes/suggestions';
 import { notificationsRouter } from '@/routes/notifications';
 import { usersRouter } from '@/routes/users';
 import { internalRouter } from '@/routes/internal';
+import { shareCardsRouter } from '@/routes/share-cards';
+import { afterDarkRouter } from '@/routes/after-dark';
 
 export function createApp(): express.Express {
   const app = express();
@@ -49,6 +51,8 @@ export function createApp(): express.Express {
   app.use('/api/notifications', notificationsRouter);
   app.use('/api/users', usersRouter);
   app.use('/api/internal', internalRouter);
+  app.use('/api/share-cards', shareCardsRouter);
+  app.use('/api/after-dark', afterDarkRouter);
   app.use('/', legalRouter);
 
   app.use((_req: Request, res: Response) => {
