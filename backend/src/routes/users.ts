@@ -37,3 +37,36 @@ usersRouter.delete('/me', requireAuth, async (req: AuthRequest, res: Response, n
     return next(err);
   }
 });
+
+/**
+ * GET /api/users/search?q=<displayName>
+ * Auth required. Search users by displayName (case-insensitive, prefix match).
+ * Returns up to 10 results. Excludes deleted users and the requesting user.
+ * Used by InviteMembersScreen USERNAME invite method.
+ */
+usersRouter.get('/search', requireAuth, async (req: AuthRequest, res: Response, next) => {
+  try {
+    const q = typeof req.query.q === 'string' ? req.query.q.trim() : '';
+    if (!q || q.length < 2) {
+      return res.status(400).json({ error: 'q must be at least 2 characters' });
+    }
+    if (q.length > 50) {
+      return res.status(400).json({ error: 'q must be 50 characters or fewer' });
+    }
+
+    const users = await prisma.user.findMany({
+      where: {
+        deletedAt: null,
+        id: { not: req.userId as string },
+        displayName: { contains: q, mode: 'insensitive' },
+      },
+      select: { id: true, displayName: true, avatarUrl: true },
+      take: 10,
+      orderBy: { displayName: 'asc' },
+    });
+
+    return res.json(users);
+  } catch (err) {
+    return next(err);
+  }
+});

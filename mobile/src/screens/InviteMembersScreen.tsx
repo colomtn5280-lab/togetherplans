@@ -32,7 +32,7 @@ import {
   DNInput,
   DNScreenHeader,
 } from '@/components/ui';
-import { invitationsAPI, groupsAPI } from '@/services/api';
+import { invitationsAPI, groupsAPI, usersApi } from '@/services/api';
 import type { Invitation, RootStackParamList } from '@/types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
@@ -230,8 +230,23 @@ function MethodCard({
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [username, setUsername] = useState('');
-  const [searchResults] = useState<{ id: string; name: string }[]>([]);
+  const [searchResults, setSearchResults] = useState<{ id: string; displayName: string }[]>([]);
+  const [searching, setSearching] = useState(false);
   const [sendLoading, setSendLoading] = useState(false);
+
+  // Debounced username search
+  useEffect(() => {
+    if (username.trim().length < 2) { setSearchResults([]); return; }
+    const timer = setTimeout(async () => {
+      setSearching(true);
+      try {
+        const res = await usersApi.search(username.trim());
+        setSearchResults(res.data);
+      } catch { setSearchResults([]); }
+      finally { setSearching(false); }
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [username]);
 
   const copyLink = useCallback(() => {
     Clipboard.setString(inviteUrl);
@@ -360,13 +375,26 @@ function MethodCard({
             onChangeText={setUsername}
             autoCapitalize="none"
           />
+          {searching && <Text style={[TYPE.secondary, { color: colors.ink2, marginBottom: 8 }]}>Searching…</Text>}
           {searchResults.map((u) => (
             <TouchableOpacity
               key={u.id}
-              style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 8 }}
+              onPress={async () => {
+                setSendLoading(true);
+                try {
+                  await invitationsAPI.create(groupId, 'USERNAME', u.id);
+                  Alert.alert('Invite sent!', `${u.displayName} has been invited.`);
+                  setUsername('');
+                  setSearchResults([]);
+                } catch {
+                  Alert.alert('Failed', 'Could not send the invite. Please try again.');
+                } finally { setSendLoading(false); }
+              }}
+              style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: colors.line }}
             >
-              <DNAvatar name={u.name} size={42} colorIndex={0} style={{ marginRight: 12 }} />
-              <Text style={[TYPE.rowLabel, { color: colors.ink }]}>{u.name}</Text>
+              <DNAvatar name={u.displayName} size={42} colorIndex={0} style={{ marginRight: 12 }} />
+              <Text style={[TYPE.rowLabel, { color: colors.ink, flex: 1 }]}>{u.displayName}</Text>
+              <Text style={[TYPE.secondary, { color: colors.primary }]}>Invite</Text>
             </TouchableOpacity>
           ))}
         </>

@@ -103,3 +103,8 @@ export const proposalsAPI = {
   suggestions: (lat?: number, lng?: number, category?: string) =>
     api.get('/api/suggestions', { params: { lat, lng, category } }),
 };
+
+// Users
+export const usersApi = {
+  search: (q: string) => api.get<{ id: string; displayName: string; avatarUrl?: string }[]>('/api/users/search', { params: { q } }),
+};
