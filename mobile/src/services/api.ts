@@ -38,22 +38,34 @@ export const groupsAPI = {
   create: (name: string, description?: string) =>
     api.post('/api/groups', { name, description }),
   get: (id: string) => api.get(`/api/groups/${id}`),
+  proposals: (id: string) => api.get(`/api/groups/${id}/proposals`),
 };
 
 // Invitations
 export const invitationsAPI = {
   create: (groupId: string, method: string, target?: string) =>
     api.post('/api/invitations', { groupId, method, target }),
-  accept: (token: string) => api.post(`/api/invitations/accept/${token}`),
+  accept: (token: string) => api.post(`/api/invitations/${token}/accept`),
 };
+
+// Option shape for proposal creation
+export interface ProposalOption {
+  name: string;
+  category: string;
+  description?: string;
+  address?: string;
+}
 
 // Proposals
 export const proposalsAPI = {
-  create: (groupId: string, title: string, description?: string, scheduledFor?: string) =>
-    api.post('/api/proposals', { groupId, title, description, scheduledFor }),
+  create: (groupId: string, title: string, dateTime: string, options: ProposalOption[]) =>
+    api.post('/api/proposals', { groupId, title, dateTime, options }),
   get: (id: string) => api.get(`/api/proposals/${id}`),
+  cancel: (id: string) => api.patch(`/api/proposals/${id}/cancel`),
   vote: (proposalId: string, optionId: string) =>
     api.post(`/api/proposals/${proposalId}/vote`, { optionId }),
+  retractVote: (proposalId: string) =>
+    api.delete(`/api/proposals/${proposalId}/votes`),
   counter: (proposalId: string, title: string, description?: string) =>
     api.post(`/api/proposals/${proposalId}/counter`, { title, description }),
   suggestions: (lat?: number, lng?: number, category?: string) =>

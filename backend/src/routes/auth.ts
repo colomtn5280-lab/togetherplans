@@ -1,5 +1,6 @@
 import { Router, Response } from 'express';
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 import rateLimit from 'express-rate-limit';
 import { prisma } from '@/services/db';
 import { signToken, requireAuth, AuthRequest } from '@/middleware/auth';
@@ -19,6 +20,11 @@ const authLimiter = rateLimit({
   legacyHeaders: false,
   message: { error: 'Too many authentication attempts. Please try again later.' },
 });
+
+function makeRefreshToken(userId: string): string {
+  const secret = process.env.JWT_SECRET || 'dev-secret';
+  return jwt.sign({ userId, type: 'refresh' }, secret, { expiresIn: '30d' });
+}
 
 // POST /api/auth/register
 authRouter.post('/register', authLimiter, async (req, res: Response, next) => {
@@ -42,10 +48,13 @@ authRouter.post('/register', authLimiter, async (req, res: Response, next) => {
       data: { email, passwordHash, displayName: displayName.trim() },
     });
     const token = signToken(user.id, user.email);
+    const refreshToken = makeRefreshToken(user.id);
     // Fire-and-forget — don't block registration on email delivery
     sendWelcomeEmail(user.email, user.displayName).catch(() => {});
     return res.status(201).json({
       token,
+      accessToken: token,
+      refreshToken,
       user: { id: user.id, email: user.email, displayName: user.displayName },
     });
   } catch (err) {
@@ -79,11 +88,13 @@ authRouter.post('/signup', authLimiter, async (req, res: Response, next) => {
       data: { email, passwordHash, displayName: name },
     });
     const token = signToken(user.id, user.email);
+    const refreshToken = makeRefreshToken(user.id);
     sendWelcomeEmail(user.email, user.displayName).catch(() => {});
     // Return both old shape (token/user) and new shape (accessToken) for compatibility
     return res.status(201).json({
       token,
       accessToken: token,
+      refreshToken,
       user: { id: user.id, email: user.email, displayName: user.displayName },
     });
   } catch (err) {
@@ -111,8 +122,11 @@ authRouter.post('/login', authLimiter, async (req, res: Response, next) => {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
     const token = signToken(user.id, user.email);
+    const refreshToken = makeRefreshToken(user.id);
     return res.json({
       token,
+      accessToken: token,
+      refreshToken,
       user: { id: user.id, email: user.email, displayName: user.displayName },
     });
   } catch (err) {
@@ -147,7 +161,8 @@ authRouter.post('/google', authLimiter, async (req, res: Response, next) => {
     }
 
     const token = signToken(user.id, user.email);
-    return res.json({ token, user: { id: user.id, email: user.email, displayName: user.displayName } });
+    const refreshToken = makeRefreshToken(user.id);
+    return res.json({ token, accessToken: token, refreshToken, user: { id: user.id, email: user.email, displayName: user.displayName } });
   } catch (err) {
     return next(err);
   }
@@ -191,10 +206,41 @@ authRouter.post('/apple', authLimiter, async (req, res: Response, next) => {
     }
 
     const token = signToken(user.id, user.email);
-    return res.json({ token, user: { id: user.id, email: user.email, displayName: user.displayName } });
+    const refreshToken = makeRefreshToken(user.id);
+    return res.json({ token, accessToken: token, refreshToken, user: { id: user.id, email: user.email, displayName: user.displayName } });
   } catch (err) {
     return next(err);
   }
+});
+
+// POST /api/auth/refresh — exchange refresh token for new access token
+authRouter.post('/refresh', async (req, res: Response, next) => {
+  try {
+    const { refreshToken } = req.body || {};
+    if (!refreshToken) return res.status(400).json({ error: 'refreshToken is required' });
+    const secret = process.env.JWT_SECRET || 'dev-secret';
+    let payload: { userId?: string; type?: string };
+    try {
+      payload = jwt.verify(refreshToken, secret) as typeof payload;
+    } catch {
+      return res.status(401).json({ error: 'Invalid or expired refresh token' });
+    }
+    if (payload.type !== 'refresh' || !payload.userId) {
+      return res.status(401).json({ error: 'Invalid refresh token' });
+    }
+    const user = await prisma.user.findUnique({ where: { id: payload.userId } });
+    if (!user || user.deletedAt) return res.status(401).json({ error: 'User not found' });
+    const accessToken = signToken(user.id, user.email);
+    const newRefresh = makeRefreshToken(user.id);
+    return res.json({ token: accessToken, accessToken, refreshToken: newRefresh });
+  } catch (err) {
+    return next(err);
+  }
+});
+
+// POST /api/auth/logout — stateless JWT; client clears tokens
+authRouter.post('/logout', (_req, res: Response) => {
+  return res.json({ message: 'Logged out' });
 });
 
 // GET /api/auth/me
@@ -293,9 +339,8 @@ authRouter.post('/forgot-password', async (req, res: Response, next) => {
     const user = await prisma.user.findUnique({ where: { email } });
     if (user && !user.deletedAt) {
       // Stateless JWT reset token — valid 1 hour, signed with JWT_SECRET
-      const jwt = await import('jsonwebtoken');
       const secret = process.env.JWT_SECRET ?? 'changeme';
-      const resetToken = jwt.default.sign(
+      const resetToken = jwt.sign(
         { sub: user.id, purpose: 'password-reset' },
         secret,
         { expiresIn: '1h' },
@@ -316,11 +361,10 @@ authRouter.post('/reset-password', async (req, res: Response, next) => {
     if (!password || password.length < 8) {
       return res.status(400).json({ error: 'Password must be at least 8 characters' });
     }
-    const jwt = await import('jsonwebtoken');
     const secret = process.env.JWT_SECRET ?? 'changeme';
     let payload: { sub?: string; purpose?: string };
     try {
-      payload = jwt.default.verify(token, secret) as typeof payload;
+      payload = jwt.verify(token, secret) as typeof payload;
     } catch {
       return res.status(400).json({ error: 'Invalid or expired reset token' });
     }

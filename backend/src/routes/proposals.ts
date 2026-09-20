@@ -199,20 +199,45 @@ proposalsRouter.post('/:id/vote', async (req: AuthRequest, res: Response, next) 
       data: { optionId, userId: req.userId as string },
     });
 
-    // Consensus check: majority of group members approving one option => DECIDED
-    const memberCount = await prisma.groupMember.count({
-      where: { groupId: option.proposal.groupId },
+    // Consensus: ALL members voted AND one option has strict majority
+    const memberCount = await prisma.groupMember.count({ where: { groupId: option.proposal.groupId } });
+    const allOptions = await prisma.option.findMany({
+      where: { proposalId: option.proposalId },
+      include: { votes: true },
     });
-    const voteCount = await prisma.vote.count({ where: { optionId } });
+    // Count distinct voters across all options on this proposal
+    const distinctVoters = await prisma.vote.groupBy({
+      by: ['userId'],
+      where: { option: { proposalId: option.proposalId } },
+    });
+    const allVoted = distinctVoters.length >= memberCount;
+    const winner = allOptions.find((o) => o.votes.length > memberCount / 2);
     let decided = false;
-    if (voteCount > memberCount / 2) {
-      await prisma.proposal.update({
-        where: { id: option.proposalId },
-        data: { status: 'DECIDED' },
-      });
+    if (allVoted && winner) {
+      await prisma.proposal.update({ where: { id: option.proposalId }, data: { status: 'DECIDED' } });
       decided = true;
     }
-    return res.status(201).json({ vote, decided, voteCount, memberCount });
+    return res.status(201).json({ vote, decided, voteCount: winner ? winner.votes.length : 0, memberCount, winnerId: winner?.id });
+  } catch (err) {
+    return next(err);
+  }
+});
+
+// DELETE /api/proposals/:id/votes — retract current user's vote on this proposal
+proposalsRouter.delete('/:id/votes', async (req: AuthRequest, res: Response, next) => {
+  try {
+    const proposal = await prisma.proposal.findUnique({
+      where: { id: req.params.id },
+      include: { options: true },
+    });
+    if (!proposal) return res.status(404).json({ error: 'Proposal not found' });
+    if (proposal.status !== 'OPEN') return res.status(409).json({ error: `Proposal is ${proposal.status.toLowerCase()}` });
+
+    const optionIds = proposal.options.map((o) => o.id);
+    const deleted = await prisma.vote.deleteMany({
+      where: { userId: req.userId as string, optionId: { in: optionIds } },
+    });
+    return res.json({ deleted: deleted.count });
   } catch (err) {
     return next(err);
   }

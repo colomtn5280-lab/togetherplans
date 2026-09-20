@@ -36,13 +36,25 @@ export interface Invitation {
 
 export interface ActivityOption {
   id: string;
-  title: string;
+  /** Backend returns 'name'; legacy UI may use 'title' */
+  name?: string;
+  title?: string;
   description?: string;
   category?: string;
+  /** Backend returns 'address'; legacy UI may use 'location' */
+  address?: string;
   location?: string;
   estimatedCost?: string;
   estimatedDuration?: string;
   imageUrl?: string;
+  /** Votes nested inside each option (backend response shape) */
+  votes?: { userId: string }[];
+}
+
+export interface TallyEntry {
+  optionId: string;
+  votes: number;
+  consensus: boolean;
 }
 
 export interface Proposal {
@@ -52,9 +64,16 @@ export interface Proposal {
   title: string;
   description?: string;
   scheduledFor?: string;
-  status: 'ACTIVE' | 'ACCEPTED' | 'REJECTED' | 'COUNTERED';
+  dateTime?: string;
+  /** Backend statuses: 'OPEN' | 'DECIDED'. Legacy: 'ACTIVE' | 'ACCEPTED' | 'REJECTED' | 'COUNTERED' */
+  status: 'OPEN' | 'DECIDED' | 'ACTIVE' | 'ACCEPTED' | 'REJECTED' | 'COUNTERED';
   options: ActivityOption[];
+  /** Flat votes list (legacy shape) */
   votes?: Vote[];
+  /** Per-option vote tally from backend */
+  tally?: TallyEntry[];
+  /** Total group member count from backend */
+  memberCount?: number;
   consensus?: ConsensusResult;
   createdAt: string;
 }

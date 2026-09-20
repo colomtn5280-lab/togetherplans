@@ -51,8 +51,16 @@ export function SignupPage() {
       });
       return res.data;
     },
-    onSuccess: (_data, variables) => {
-      navigate(`/verify-email?email=${encodeURIComponent(variables.email)}`);
+    onSuccess: (data) => {
+      const user = data.user ?? { userId: data.userId ?? "", email: data.email ?? "" };
+      const accessToken = data.accessToken || data.token || "";
+      const refreshToken = data.refreshToken || "";
+      if (accessToken) {
+        setAuth(user, accessToken, refreshToken);
+        navigate(from, { replace: true });
+      } else {
+        navigate(`/verify-email?email=${encodeURIComponent(user.email)}`);
+      }
     },
   });
 

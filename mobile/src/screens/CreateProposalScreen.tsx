@@ -94,10 +94,11 @@ export default function CreateProposalScreen() {
     } else {
       setTitleError('');
     }
-    if (options.length < 3) {
-      setOptionsError('Add at least 3 options');
+    const filledOptions = options.filter((o) => o.name.trim().length > 0);
+    if (filledOptions.length < 3) {
+      setOptionsError('Add at least 3 options with names');
       valid = false;
-    } else if (options.length > 5) {
+    } else if (filledOptions.length > 5) {
       setOptionsError('Maximum 5 options');
       valid = false;
     } else {
@@ -110,7 +111,15 @@ export default function CreateProposalScreen() {
     if (!validate()) return;
     setSubmitting(true);
     try {
-      await proposalsAPI.create(groupId, title.trim(), undefined, selectedDate.toISOString());
+      const filledOptions = options
+        .filter((o) => o.name.trim().length > 0)
+        .map((o) => ({
+          name: o.name.trim(),
+          category: 'Local Experience',
+          description: '',
+          address: o.address.trim() || '',
+        }));
+      await proposalsAPI.create(groupId, title.trim(), selectedDate.toISOString(), filledOptions);
       navigation.goBack();
     } catch (e) {
       console.warn('Failed to create proposal', e);

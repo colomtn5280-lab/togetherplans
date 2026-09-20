@@ -35,11 +35,10 @@ export function LoginPage() {
       return res.data;
     },
     onSuccess: (data) => {
-      setAuth(
-        { userId: data.userId, email: data.email },
-        data.accessToken,
-        data.refreshToken,
-      );
+      const user = data.user ?? { userId: data.userId ?? "", email: data.email ?? "" };
+      const accessToken = data.accessToken || data.token || "";
+      const refreshToken = data.refreshToken || "";
+      setAuth(user, accessToken, refreshToken);
       navigate(from, { replace: true });
     },
   });
@@ -215,11 +214,11 @@ export function LoginPage() {
             onSuccess={(cred) => {
               if (!cred.credential) return;
               authApi.googleLogin(cred.credential).then(res => {
-                setAuth(
-                  { userId: res.data.userId, email: res.data.email },
-                  res.data.accessToken,
-                  res.data.refreshToken,
-                );
+                const d = res.data;
+                const user = d.user ?? { userId: d.userId ?? "", email: d.email ?? "" };
+                const accessToken = d.accessToken || d.token || "";
+                const refreshToken = d.refreshToken || "";
+                setAuth(user, accessToken, refreshToken);
                 navigate(from, { replace: true });
               }).catch(() => alert("Google sign-in failed"));
             }}

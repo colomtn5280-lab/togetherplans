@@ -200,14 +200,20 @@ export default function ProposalDetailScreen() {
       const p: Proposal = res.data;
       setProposal(p);
 
-      // Detect my vote
-      if (user && p.votes) {
+      // Derive my voted option from nested votes in each option
+      if (user && p.options) {
+        const votedOption = p.options.find(
+          (o) => o.votes && o.votes.some((v) => v.userId === user.id)
+        );
+        setMyVotedOptionId(votedOption?.id ?? null);
+      } else if (user && p.votes) {
+        // Fallback: flat votes array
         const myVote = p.votes.find((v) => v.userId === user.id);
         setMyVotedOptionId(myVote?.optionId ?? null);
       }
 
       // Check DECIDED state
-      if (p.status === 'ACCEPTED' && p.consensus?.reached) {
+      if (p.status === 'DECIDED' || (p.status === 'ACCEPTED' && p.consensus?.reached)) {
         const seenKey = `seenDecision_${p.id}`;
         const seen = await AsyncStorage.getItem(seenKey);
         if (!seen) {
@@ -235,14 +241,24 @@ export default function ProposalDetailScreen() {
 
   const handleVote = async (optionId: string) => {
     if (!proposal) return;
-    // Optimistic toggle
     const prev = myVotedOptionId;
-    const next = myVotedOptionId === optionId ? null : optionId;
-    setMyVotedOptionId(next);
-    try {
-      await proposalsAPI.vote(proposal.id, optionId);
-    } catch {
-      setMyVotedOptionId(prev); // revert
+
+    if (myVotedOptionId === optionId) {
+      // Tapping the same option → retract vote
+      setMyVotedOptionId(null);
+      try {
+        await proposalsAPI.retractVote(proposal.id);
+      } catch {
+        setMyVotedOptionId(prev); // revert
+      }
+    } else {
+      // Vote for a different option
+      setMyVotedOptionId(optionId);
+      try {
+        await proposalsAPI.vote(proposal.id, optionId);
+      } catch {
+        setMyVotedOptionId(prev); // revert
+      }
     }
   };
 
@@ -254,29 +270,63 @@ export default function ProposalDetailScreen() {
     );
   }
 
-  // Status sticker
+  // Status sticker — support both old and new status strings
   const statusMap: Record<string, { label: string; color: string; textColor?: string }> = {
+    OPEN:      { label: 'OPEN',      color: colors.primarySoft, textColor: colors.primary },
     ACTIVE:    { label: 'OPEN',      color: colors.primarySoft, textColor: colors.primary },
+    DECIDED:   { label: 'DECIDED',   color: colors.limeSoft,    textColor: colors.lime },
     ACCEPTED:  { label: 'DECIDED',   color: colors.limeSoft,    textColor: colors.lime },
     COUNTERED: { label: 'COUNTERED', color: colors.warningSoft, textColor: colors.onWarningSoft },
   };
-  const statusInfo = statusMap[proposal.status] ?? statusMap.ACTIVE;
+  const statusInfo = statusMap[proposal.status] ?? statusMap.OPEN;
 
-  // Vote counts
-  const totalMembers = 2; // default to 2 (couples app)
-  const votedCount = new Set(proposal.votes?.map((v) => v.userId) ?? []).size;
+  // Distinct voter count from nested votes in options (backend shape)
+  const allVoterIds = new Set<string>();
+  proposal.options.forEach((o) => {
+    if (o.votes) o.votes.forEach((v) => allVoterIds.add(v.userId));
+  });
+  // Fallback to flat votes array
+  if (allVoterIds.size === 0 && proposal.votes) {
+    proposal.votes.forEach((v) => allVoterIds.add(v.userId));
+  }
+  const votedCount = allVoterIds.size;
+  const totalMembers = proposal.memberCount ?? 2;
 
-  // Partner's vote (first non-me voter)
-  const partnerVote = proposal.votes?.find((v) => v.userId !== user?.id);
+  // Partner's vote info (first non-me voter)
+  let partnerVotedOptionId: string | null = null;
+  if (user) {
+    for (const o of proposal.options) {
+      if (o.votes && o.votes.some((v) => v.userId !== user.id && allVoterIds.has(v.userId))) {
+        // Another user voted for this option
+        const partnerVote = o.votes.find((v) => v.userId !== user.id);
+        if (partnerVote) { partnerVotedOptionId = o.id; break; }
+      }
+    }
+    // Fallback flat votes
+    if (!partnerVotedOptionId && proposal.votes) {
+      const partnerVote = proposal.votes.find((v) => v.userId !== user.id);
+      partnerVotedOptionId = partnerVote?.optionId ?? null;
+    }
+  }
+
   const partnerName = 'Partner'; // Would come from group members in real app
-
-  // Banner state
-  const partnerVoted = !!partnerVote;
+  const partnerVoted = !!partnerVotedOptionId;
   const iVoted = !!myVotedOptionId;
-  const mismatch = partnerVoted && iVoted && partnerVote?.optionId !== myVotedOptionId;
+  const mismatch = partnerVoted && iVoted && partnerVotedOptionId !== myVotedOptionId;
   const waitingForMe = partnerVoted && !iVoted;
 
-  const isDecided = proposal.status === 'ACCEPTED' && proposal.consensus?.reached;
+  const isDecided = proposal.status === 'DECIDED' || (proposal.status === 'ACCEPTED' && proposal.consensus?.reached);
+
+  // Winning option name for the overlay
+  const winningOption = proposal.options.find(
+    (o) => proposal.tally?.find((t) => t.optionId === o.id && t.consensus)
+  );
+  const winningName =
+    winningOption?.name ??
+    winningOption?.title ??
+    proposal.consensus?.winningOption?.name ??
+    proposal.consensus?.winningOption?.title ??
+    'your pick';
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
@@ -298,7 +348,7 @@ export default function ProposalDetailScreen() {
 
         <View style={{ paddingHorizontal: SPACING.gutter }}>
           {/* Date pill */}
-          {proposal.scheduledFor && (
+          {(proposal.scheduledFor || proposal.dateTime) && (
             <View
               style={{
                 flexDirection: 'row',
@@ -314,7 +364,7 @@ export default function ProposalDetailScreen() {
             >
               <Text style={{ marginRight: 6, fontSize: 14 }}>🕐</Text>
               <DNText variant="secondary" color={colors.ink2}>
-                {new Date(proposal.scheduledFor).toLocaleDateString(undefined, {
+                {new Date(proposal.scheduledFor ?? proposal.dateTime!).toLocaleDateString(undefined, {
                   weekday: 'short', month: 'short', day: 'numeric',
                 })}
               </DNText>
@@ -380,7 +430,9 @@ export default function ProposalDetailScreen() {
           {proposal.options.map((option, idx) => {
             const radii = OPTION_RADII[idx % 4];
             const votedByMe = myVotedOptionId === option.id;
-            const votedByPartner = partnerVote?.optionId === option.id;
+            const votedByPartner = partnerVotedOptionId === option.id;
+            const displayName = option.name ?? option.title ?? '';
+            const displayLocation = option.address ?? option.location ?? '';
 
             return (
               <View
@@ -430,11 +482,11 @@ export default function ProposalDetailScreen() {
                 {/* Card body */}
                 <View style={{ padding: SPACING.md, paddingBottom: 20 }}>
                   <DNText variant="heading" color={colors.ink}>
-                    {option.title}
+                    {displayName}
                   </DNText>
-                  {(option.location || option.category) && (
+                  {(displayLocation || option.category) && (
                     <DNText variant="secondary" color={colors.ink2} style={{ marginTop: 4 }}>
-                      {[option.location, option.category].filter(Boolean).join(' · ')}
+                      {[displayLocation, option.category].filter(Boolean).join(' · ')}
                     </DNText>
                   )}
                 </View>
@@ -482,7 +534,7 @@ export default function ProposalDetailScreen() {
                 You both said yes to
               </DNText>
               <DNText variant="title" color={colors.ink} style={{ marginBottom: SPACING.lg, textAlign: 'center' }}>
-                {proposal.consensus?.winningOption?.title ?? 'your pick'}
+                {winningName}
               </DNText>
               <DNButton
                 label="Add to calendar"

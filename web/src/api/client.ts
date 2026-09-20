@@ -7,16 +7,14 @@ import type {
   Invitation,
   InviteMethod,
   Proposal,
-  ProposalItem,
+  NewProposalOptionInput,
   CounterProposal,
-  DialogueEntry,
   Suggestion,
-  Category,
   AuthTokens,
 } from "../types";
 
 const BASE_URL =
-  import.meta.env.VITE_API_URL ?? "/api/v1";
+  import.meta.env.VITE_API_URL ?? "https://api.togetherplans.app/api";
 
 // ── Axios instance ────────────────────────────────────────────────────────────
 
@@ -92,11 +90,14 @@ api.interceptors.response.use(
           `${BASE_URL}/auth/refresh`,
           { refreshToken },
         );
-        localStorage.setItem("accessToken", data.accessToken);
-        localStorage.setItem("refreshToken", data.refreshToken);
-        processQueue(null, data.accessToken);
+        const newAccessToken = data.accessToken || data.token || "";
+        localStorage.setItem("accessToken", newAccessToken);
+        if (data.refreshToken) {
+          localStorage.setItem("refreshToken", data.refreshToken);
+        }
+        processQueue(null, newAccessToken);
         if (original.headers) {
-          original.headers.Authorization = `Bearer ${data.accessToken}`;
+          original.headers.Authorization = `Bearer ${newAccessToken}`;
         }
         return api(original);
       } catch (refreshError) {
@@ -124,16 +125,13 @@ export const authApi = {
     lastName?: string;
   }): Promise<AxiosResponse<SignupResponse>> => api.post("/auth/signup", body),
 
-  verifyEmail: (body: {
-    email: string;
-    token: string;
-  }): Promise<AxiosResponse<{ message: string }>> =>
-    api.post("/auth/verify-email", body),
-
   login: (body: {
     email: string;
     password: string;
   }): Promise<AxiosResponse<LoginResponse>> => api.post("/auth/login", body),
+
+  me: (): Promise<AxiosResponse<{ user?: unknown } & Record<string, unknown>>> =>
+    api.get("/auth/me"),
 
   refresh: (refreshToken: string): Promise<AxiosResponse<AuthTokens>> =>
     api.post("/auth/refresh", { refreshToken }),
@@ -149,6 +147,15 @@ export const authApi = {
 
   resetPassword: (token: string, password: string): Promise<AxiosResponse<{ message: string }>> =>
     api.post("/auth/reset-password", { token, password }),
+
+  deleteAccount: (): Promise<AxiosResponse<{ message: string }>> =>
+    api.delete("/auth/me"),
+
+  verifyEmail: (body: {
+    email: string;
+    token: string;
+  }): Promise<AxiosResponse<{ message: string }>> =>
+    api.post("/auth/verify-email", body),
 };
 
 // ── Groups ────────────────────────────────────────────────────────────────────
@@ -164,23 +171,27 @@ export const groupsApi = {
     description?: string;
   }): Promise<AxiosResponse<Group>> => api.post("/groups", body),
 
-  invite: (
-    groupId: string,
-    body: { method: InviteMethod; email?: string; phone?: string },
-  ): Promise<AxiosResponse<Invitation>> =>
-    api.post(`/groups/${groupId}/invite`, body),
+  delete: (id: string): Promise<AxiosResponse<{ message: string }>> =>
+    api.delete(`/groups/${id}`),
 
-  acceptInvite: (
-    groupId: string,
-    inviteCode: string,
-  ): Promise<AxiosResponse<{ message: string }>> =>
-    api.post(`/groups/${groupId}/accept-invite`, { inviteCode }),
+  proposals: (groupId: string): Promise<AxiosResponse<Proposal[]>> =>
+    api.get(`/groups/${groupId}/proposals`),
+};
 
-  removeMember: (
-    groupId: string,
-    userId: string,
-  ): Promise<AxiosResponse<{ message: string }>> =>
-    api.delete(`/groups/${groupId}/members/${userId}`),
+// ── Invitations ───────────────────────────────────────────────────────────────
+
+export const invitationsApi = {
+  create: (body: {
+    groupId: string;
+    method: InviteMethod;
+    target?: string;
+  }): Promise<AxiosResponse<Invitation>> => api.post("/invitations", body),
+
+  get: (token: string): Promise<AxiosResponse<Invitation>> =>
+    api.get(`/invitations/${token}`),
+
+  accept: (token: string): Promise<AxiosResponse<{ message: string; group?: Group }>> =>
+    api.post(`/invitations/${token}/accept`),
 };
 
 // ── Proposals ─────────────────────────────────────────────────────────────────
@@ -188,106 +199,81 @@ export const groupsApi = {
 export const proposalsApi = {
   create: (body: {
     groupId: string;
-    categoryId: string;
-    proposedDate: string;
-    proposedTime?: string;
-    radiusKm?: number;
+    title: string;
+    dateTime: string;
+    options: NewProposalOptionInput[];
   }): Promise<AxiosResponse<Proposal>> => api.post("/proposals", body),
 
   get: (id: string): Promise<AxiosResponse<Proposal>> =>
     api.get(`/proposals/${id}`),
 
-  addItem: (
+  vote: (
     proposalId: string,
-    suggestionId: string,
-  ): Promise<AxiosResponse<ProposalItem>> =>
-    api.post(`/proposals/${proposalId}/items`, { suggestionId }),
+    optionId: string,
+  ): Promise<AxiosResponse<{ message: string }>> =>
+    api.post(`/proposals/${proposalId}/vote`, { optionId }),
 
-  acceptItem: (
+  retractVote: (
     proposalId: string,
-    itemId: string,
-  ): Promise<AxiosResponse<ProposalItem>> =>
-    api.post(`/proposals/${proposalId}/items/${itemId}/accept`),
-
-  rejectItem: (
-    proposalId: string,
-    itemId: string,
-  ): Promise<AxiosResponse<ProposalItem>> =>
-    api.post(`/proposals/${proposalId}/items/${itemId}/reject`),
+  ): Promise<AxiosResponse<{ message: string }>> =>
+    api.delete(`/proposals/${proposalId}/votes`),
 
   counter: (
     proposalId: string,
-    changes: Record<string, unknown>,
+    body: { title: string; dateTime: string; options: NewProposalOptionInput[] },
   ): Promise<AxiosResponse<CounterProposal>> =>
-    api.post(`/proposals/${proposalId}/counter`, { changes }),
+    api.post(`/proposals/${proposalId}/counter`, body),
 
-  dialogue: (proposalId: string): Promise<AxiosResponse<DialogueEntry[]>> =>
-    api.get(`/proposals/${proposalId}/dialogue`),
-
-  lock: (
+  cancel: (
     proposalId: string,
-    itemId: string,
-  ): Promise<AxiosResponse<{ message: string; proposalId: string; status: string }>> =>
-    api.post(`/proposals/${proposalId}/lock`, { itemId }),
-
-  consensus: (
-    proposalId: string,
-  ): Promise<AxiosResponse<Record<string, unknown>>> =>
-    api.get(`/proposals/${proposalId}/consensus`),
+  ): Promise<AxiosResponse<Proposal>> =>
+    api.patch(`/proposals/${proposalId}/cancel`),
 };
 
 // ── Suggestions ───────────────────────────────────────────────────────────────
 
 export const suggestionsApi = {
   list: (params: {
-    categoryId?: string;
+    category?: string;
     lat?: number;
     lng?: number;
+    radius?: number;
+    // legacy aliases accepted too
+    categoryId?: string;
     radiusKm?: number;
     limit?: number;
   }): Promise<AxiosResponse<Suggestion[]>> =>
-    api.get("/suggestions", { params }),
-
-  get: (id: string): Promise<AxiosResponse<Suggestion>> =>
-    api.get(`/suggestions/${id}`),
-};
-
-// ── Categories ────────────────────────────────────────────────────────────────
-
-export const categoriesApi = {
-  list: (): Promise<AxiosResponse<Category[]>> => api.get("/categories"),
+    api.get("/suggestions", {
+      params: {
+        lat: params.lat,
+        lng: params.lng,
+        category: params.category ?? params.categoryId,
+        radius: params.radius ?? params.radiusKm,
+      },
+    }),
 };
 
 // ── Notifications ─────────────────────────────────────────────────────────────
 
 export const notificationsApi = {
-  list: (unreadOnly = false): Promise<AxiosResponse<{ count: number; notifications: unknown[] }>> =>
-    api.get("/notifications", { params: { unreadOnly } }),
-
-  markRead: (id: string): Promise<AxiosResponse<unknown>> =>
-    api.patch(`/notifications/${id}/read`),
+  list: (): Promise<AxiosResponse<{ count: number; notifications: unknown[] }>> =>
+    api.get("/notifications"),
 };
 
-// ── Users ─────────────────────────────────────────────────────────────────────
+// ── Users (proxied via /auth/me) ──────────────────────────────────────────────
 
 export const usersApi = {
   getMe: (): Promise<AxiosResponse<unknown>> =>
-    api.get("/users/me"),
+    api.get("/auth/me"),
 
-  getPreferences: (): Promise<AxiosResponse<{ userId: string; categories: unknown[] }>> =>
-    api.get("/users/me/preferences"),
+  requestDeletion: (): Promise<AxiosResponse<{ message: string }>> =>
+    api.delete("/auth/me"),
+};
 
-  recordInteraction: (categoryId: string, interaction: string): Promise<AxiosResponse<unknown>> =>
-    api.post("/users/me/preferences/interaction", { categoryId, interaction }),
-
-  requestExport: (): Promise<AxiosResponse<{ message: string; downloadUrl?: string }>> =>
-    api.post("/users/me/export"),
-
-  requestDeletion: (): Promise<AxiosResponse<{ message: string; deletionDate: string }>> =>
-    api.delete("/users/me"),
-
-  cancelDeletion: (): Promise<AxiosResponse<{ message: string }>> =>
-    api.post("/users/me/cancel-deletion"),
+// Legacy compat: categoriesApi returns empty list (no /categories endpoint)
+export const categoriesApi = {
+  list: (): Promise<AxiosResponse<{ id: string; name: string }[]>> =>
+    Promise.resolve({ data: [], status: 200, statusText: "OK", headers: {}, config: {} as never }),
 };
 
 export default api;
