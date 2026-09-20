@@ -82,7 +82,7 @@ function deduplicate(suggestions: Suggestion[]): Suggestion[] {
 // ---------------------------------------------------------------------------
 // Sorting: events first (by date), then places by distance, then seed
 // ---------------------------------------------------------------------------
-function sortSuggestions(suggestions: Suggestion[], userLat?: number, userLng?: number): Suggestion[] {
+function sortSuggestions(suggestions: Suggestion[], _userLat?: number, _userLng?: number): Suggestion[] {
   return [...suggestions].sort((a, b) => {
     // Events with a date sort first, chronologically
     if (a.date && b.date) return a.date.localeCompare(b.date);

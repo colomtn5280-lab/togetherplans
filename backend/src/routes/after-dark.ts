@@ -105,10 +105,12 @@ function encodeMood(mood: AfterDarkMood, existingPushToken: string | null): stri
   return `afterdark:mood:${mood}|${bare}`;
 }
 
-function realPushToken(pushToken: string | null): string | null {
-  if (!pushToken) return null;
-  return pushToken.replace(/^afterdark:mood:[a-z]+\|/, '') || null;
-}
+// _realPushToken: strips the mood prefix to get the real Expo push token.
+// Reserved for future use when push notifications need the bare token.
+// function _realPushToken(pushToken: string | null): string | null {
+//   if (!pushToken) return null;
+//   return pushToken.replace(/^afterdark:mood:[a-z]+\|/, '') || null;
+// }
 
 // ─── Routes ──────────────────────────────────────────────────────────────────
 

@@ -127,8 +127,8 @@ async function buildCard(proposalId: string) {
           address: winningOption.address,
           latitude: winningOption.latitude,
           longitude: winningOption.longitude,
-          imageUrl: (winningOption as any).imageUrl ?? null,
-          ticketUrl: (winningOption as any).ticketUrl ?? null,
+          imageUrl: (winningOption as { imageUrl?: string | null }).imageUrl ?? null,
+          ticketUrl: (winningOption as { ticketUrl?: string | null }).ticketUrl ?? null,
           voteCount: winningOption.votes.length,
           emoji,
         }
