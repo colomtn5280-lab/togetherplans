@@ -2,6 +2,9 @@ process.env.NODE_ENV = 'test';
 
 import { getSuggestions } from '@/services/suggestions';
 
+// These tests call real external APIs — allow up to 20s per test
+jest.setTimeout(20_000);
+
 describe('getSuggestions', () => {
   it('returns suggestions from seed catalog when no location given', async () => {
     const result = await getSuggestions({});
@@ -52,5 +55,5 @@ describe('getSuggestions', () => {
     expect(firstNames.size).toBeGreaterThanOrEqual(1);
     // All runs should return results
     for (const r of runs) expect(r.length).toBeGreaterThan(0);
-  });
+  }, 30_000);
 });

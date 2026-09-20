@@ -7,6 +7,8 @@ module.exports = {
     '^@/(.*)$': '<rootDir>/src/$1',
     // jose is ESM-only; mock it in the Jest (CommonJS) environment
     '^jose$': '<rootDir>/src/__mocks__/jose.ts',
+    // expo-server-sdk is ESM-only; mock it in the Jest (CommonJS) environment
+    '^expo-server-sdk$': '<rootDir>/src/__mocks__/expo-server-sdk.ts',
   },
   collectCoverageFrom: ['src/**/*.ts', '!src/**/*.d.ts', '!src/main.ts'],
   coverageThreshold: {
