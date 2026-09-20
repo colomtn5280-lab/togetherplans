@@ -54,21 +54,11 @@ jobs:
 
       - name: Deploy to Cloud Run
         run: |
-          # Write env file (avoids shell-splitting commas in CORS_ORIGIN)
-          cat > /tmp/run.env.yaml <<EOF
-          NODE_ENV: production
-          DATABASE_URL: "${{ secrets.DATABASE_URL }}"
-          JWT_SECRET: "${{ secrets.JWT_SECRET }}"
-          CORS_ORIGIN: "${{ secrets.CORS_ORIGIN }}"
-          EOF
-
           gcloud run deploy datenight-api \
             --source ./backend \
             --region us-central1 \
             --platform managed \
             --allow-unauthenticated \
-            --add-cloudsql-instances="${{ secrets.CLOUD_SQL_INSTANCE }}" \
-            --env-vars-file=/tmp/run.env.yaml \
             --quiet
 
       - name: Run DB migrations via Cloud SQL Proxy
