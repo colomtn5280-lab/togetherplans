@@ -55,6 +55,10 @@ export default function CreateProposalScreen() {
   const route = useRoute<RouteT>();
   const { groupId } = route.params;
 
+  // If coming back from Suggestions with a selected suggestion, add it as an option
+  const incomingSuggestion = route.params?.addSuggestion;
+  const appliedSuggestionRef = React.useRef<string | null>(null);
+
   const [title, setTitle] = useState('');
   const [selectedDate, setSelectedDate] = useState(() => {
     const d = new Date();
@@ -68,6 +72,28 @@ export default function CreateProposalScreen() {
   const [titleError, setTitleError] = useState('');
   const [optionsError, setOptionsError] = useState('');
   const [submitting, setSubmitting] = useState(false);
+
+  // Apply incoming suggestion from Suggestions screen (idempotent via ref)
+  React.useEffect(() => {
+    if (incomingSuggestion && appliedSuggestionRef.current !== incomingSuggestion.name) {
+      appliedSuggestionRef.current = incomingSuggestion.name;
+      setOptions((prev) => {
+        // Fill the first empty slot, or append if all filled (max 5)
+        const emptyIdx = prev.findIndex((o) => !o.name.trim());
+        const newOpt: OptionRow = {
+          ...makeOption(),
+          name: incomingSuggestion.name,
+          address: incomingSuggestion.address,
+        };
+        if (emptyIdx >= 0) {
+          const updated = [...prev];
+          updated[emptyIdx] = newOpt;
+          return updated;
+        }
+        return prev.length < 5 ? [...prev, newOpt] : prev;
+      });
+    }
+  }, [incomingSuggestion]);
 
   const addOption = () => {
     if (options.length < 5) {
@@ -86,7 +112,7 @@ export default function CreateProposalScreen() {
   };
 
   const handleFromDiscover = () => {
-    navigation.navigate('Suggestions', { groupId });
+    navigation.navigate('Suggestions', { groupId, returnTo: 'CreateProposal' });
   };
 
   const validate = () => {
@@ -118,7 +144,7 @@ export default function CreateProposalScreen() {
         .filter((o) => o.name.trim().length > 0)
         .map((o) => ({
           name: o.name.trim(),
-          category: 'Local Experience',
+          category: o.category?.trim() || 'Local Experience',
           description: '',
           address: o.address.trim() || '',
         }));

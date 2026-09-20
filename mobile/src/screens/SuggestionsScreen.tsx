@@ -281,6 +281,13 @@ export default function SuggestionsScreen() {
   const handleAdd = (s: Suggestion) => {
     const key = s.name + (s.address ?? '');
     setAddedIds((prev) => new Set(prev).add(key));
+    // If opened from CreateProposal, navigate back with the selected suggestion
+    if (hasProposalContext && route.params?.returnTo === 'CreateProposal') {
+      navigation.navigate('CreateProposal', {
+        groupId: route.params.groupId,
+        addSuggestion: { name: s.name, category: s.category ?? 'Local Experience', address: s.address ?? '', description: s.description ?? '' },
+      });
+    }
   };
 
   const handleLoadMore = () => {

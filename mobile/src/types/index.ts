@@ -110,10 +110,10 @@ export type RootStackParamList = {
   Main: { groupId?: string } | undefined;
   GroupDetail: { groupId: string; groupName: string };
   ProposalDetail: { proposalId: string };
-  CreateProposal: { groupId: string };
+  CreateProposal: { groupId: string; addSuggestion?: { name: string; category: string; address: string; description: string } };
   CreateGroup: undefined;
   InviteMembers: { groupId: string };
-  Suggestions: { groupId?: string };
+  Suggestions: { groupId?: string; returnTo?: 'CreateProposal' };
   ShareCard: { proposalId: string };
   AfterDark: { groupId?: string };
 };

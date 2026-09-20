@@ -218,10 +218,12 @@ function QRModal({
 function MethodCard({
   method,
   inviteUrl,
+  groupId,
   onShowQR,
 }: {
   method: InviteMethod;
   inviteUrl: string;
+  groupId: string;
   onShowQR: () => void;
 }) {
   const { colors } = useTheme();
@@ -291,9 +293,14 @@ function MethodCard({
           <DNButton
             label="Send invite"
             onPress={async () => {
+              if (!email.trim()) return;
               setSendLoading(true);
               try {
-                // await invitationsAPI.create(groupId, 'EMAIL', email);
+                await invitationsAPI.create(groupId, 'EMAIL', email.trim());
+                setEmail('');
+                Alert.alert('Invite sent!', `An invite was sent to ${email.trim()}.`);
+              } catch {
+                Alert.alert('Failed to send', 'Could not send the invite. Please try again.');
               } finally {
                 setSendLoading(false);
               }
@@ -321,9 +328,14 @@ function MethodCard({
           <DNButton
             label="Send text"
             onPress={async () => {
+              if (!phone.trim()) return;
               setSendLoading(true);
               try {
-                // await invitationsAPI.create(groupId, 'SMS', phone);
+                await invitationsAPI.create(groupId, 'SMS', phone.trim());
+                setPhone('');
+                Alert.alert('Invite sent!', `A text invite was sent to ${phone.trim()}.`);
+              } catch {
+                Alert.alert('Failed to send', 'Could not send the invite. Please try again.');
               } finally {
                 setSendLoading(false);
               }
@@ -433,6 +445,7 @@ export default function InviteMembersScreen() {
           <MethodCard
             method={method}
             inviteUrl={inviteUrl}
+            groupId={groupId}
             onShowQR={() => setQrVisible(true)}
           />
 
