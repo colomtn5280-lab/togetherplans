@@ -52,3 +52,8 @@ export type Option = Prisma.OptionModel
  * 
  */
 export type Vote = Prisma.VoteModel
+/**
+ * Model RefreshToken
+ * 
+ */
+export type RefreshToken = Prisma.RefreshTokenModel
