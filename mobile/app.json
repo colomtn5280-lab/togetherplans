@@ -23,8 +23,8 @@
       }
     },
     "android": {
-      "package": "app.togetherplans.datenight",
-      "versionCode": 2,
+      "package": "togetherplans.app",
+      "versionCode": 1,
       "adaptiveIcon": {
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
