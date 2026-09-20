@@ -1,5 +1,6 @@
 import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_BASE_URL } from '@/constants';
 
 const TOKEN_KEY = 'datenight_token';
@@ -16,6 +17,18 @@ api.interceptors.request.use(async (config) => {
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
+
+// 401 response interceptor — clear token and set flag for AuthProvider to re-auth
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    if (error.response?.status === 401) {
+      await clearToken();
+      await AsyncStorage.setItem('auth_expired', '1');
+    }
+    return Promise.reject(error);
+  }
+);
 
 // Token helpers
 export const saveToken = (token: string) => SecureStore.setItemAsync(TOKEN_KEY, token);

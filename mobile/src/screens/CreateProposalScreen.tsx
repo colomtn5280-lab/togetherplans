@@ -176,27 +176,94 @@ export default function CreateProposalScreen() {
         <TouchableOpacity
           style={rowStyle}
           onPress={() => {
-            // On a real device, you'd open a native date picker here.
-            // Using a basic increment for demo purposes.
+            setDateInput(selectedDate.toISOString().slice(0, 16));
+            setShowDateModal(true);
           }}
         >
           <Text style={{ fontSize: 18, marginRight: 12 }}>📅</Text>
           <View style={{ flex: 1 }}>
-            <DNText variant="rowLabel" color={colors.ink}>Date</DNText>
-            <DNText variant="secondary" color={colors.ink2}>{dateLabel}</DNText>
+            <DNText variant="rowLabel" color={colors.ink}>Date &amp; Time</DNText>
+            <DNText variant="secondary" color={colors.ink2}>{dateLabel} · {timeLabel}</DNText>
           </View>
           <Text style={[TYPE.secondary, { color: colors.ink2 }]}>›</Text>
         </TouchableOpacity>
 
-        {/* Time row */}
-        <View style={[rowStyle, { marginBottom: SPACING.lg }]}>
-          <Text style={{ fontSize: 18, marginRight: 12 }}>🕐</Text>
-          <View style={{ flex: 1 }}>
-            <DNText variant="rowLabel" color={colors.ink}>Time</DNText>
-            <DNText variant="secondary" color={colors.ink2}>{timeLabel}</DNText>
+        {/* Date/time picker modal */}
+        <Modal
+          transparent
+          animationType="slide"
+          visible={showDateModal}
+          onRequestClose={() => setShowDateModal(false)}
+        >
+          <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.4)' }}>
+            <View
+              style={{
+                backgroundColor: colors.surface,
+                borderTopLeftRadius: 28,
+                borderTopRightRadius: 28,
+                padding: SPACING.xl,
+              }}
+            >
+              <DNText variant="heading" color={colors.ink} style={{ marginBottom: SPACING.md }}>
+                Set date &amp; time
+              </DNText>
+              <DNText variant="secondary" color={colors.ink2} style={{ marginBottom: SPACING.sm }}>
+                Enter in ISO format: YYYY-MM-DDTHH:MM
+              </DNText>
+              <TextInput
+                value={dateInput}
+                onChangeText={setDateInput}
+                placeholder="2025-06-01T19:00"
+                placeholderTextColor={colors.ink2}
+                style={[
+                  TYPE.body,
+                  {
+                    color: colors.ink,
+                    borderWidth: 1,
+                    borderColor: colors.line,
+                    borderRadius: 12,
+                    padding: SPACING.md,
+                    marginBottom: SPACING.lg,
+                  },
+                ]}
+                autoCapitalize="none"
+                keyboardType="ascii-capable"
+              />
+              <View style={{ flexDirection: 'row', gap: SPACING.sm }}>
+                <TouchableOpacity
+                  onPress={() => setShowDateModal(false)}
+                  style={{
+                    flex: 1,
+                    padding: SPACING.md,
+                    borderRadius: 12,
+                    backgroundColor: colors.line,
+                    alignItems: 'center',
+                  }}
+                >
+                  <Text style={[TYPE.body, { color: colors.ink }]}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => {
+                    const parsed = new Date(dateInput);
+                    if (!isNaN(parsed.getTime())) {
+                      setSelectedDate(parsed);
+                    }
+                    setShowDateModal(false);
+                  }}
+                  style={{
+                    flex: 1,
+                    padding: SPACING.md,
+                    borderRadius: 12,
+                    backgroundColor: colors.primary,
+                    alignItems: 'center',
+                  }}
+                >
+                  <Text style={[TYPE.body, { color: colors.onPrimary }]}>Set</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
           </View>
-          <Text style={[TYPE.secondary, { color: colors.ink2 }]}>›</Text>
-        </View>
+        </Modal>
 
         {/* Options header */}
         <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: SPACING.sm }}>
