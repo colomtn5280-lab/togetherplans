@@ -181,6 +181,7 @@ export async function fetchTicketmaster(
         source: 'ticketmaster',
         externalId: ev.id,
         expiresAt: dateStr ? `${dateStr}T23:59:59` : undefined,
+        attribution: 'Event data © Ticketmaster',
       };
     });
   } catch {

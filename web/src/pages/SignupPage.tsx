@@ -285,11 +285,11 @@ export function SignupPage() {
             onSuccess={(cred) => {
               if (!cred.credential) return;
               authApi.googleLogin(cred.credential).then(res => {
-                setAuth(
-                  { userId: res.data.userId, email: res.data.email },
-                  res.data.accessToken,
-                  res.data.refreshToken,
-                );
+                const d = res.data;
+                const user = d.user ?? { userId: d.userId ?? "", email: d.email ?? "" };
+                const accessToken = d.accessToken || d.token || "";
+                const refreshToken = d.refreshToken || "";
+                setAuth(user, accessToken, refreshToken);
                 navigate(from, { replace: true });
               }).catch(() => alert("Google sign-in failed"));
             }}

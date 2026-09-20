@@ -195,6 +195,7 @@ export async function fetchFoursquare(
       durationMinutes: match.durationMinutes,
       source: 'foursquare',
       externalId: venue.id,
+      attribution: 'Venue data © Foursquare',
     });
   }
 

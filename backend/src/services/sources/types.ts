@@ -51,6 +51,7 @@ export interface Suggestion {
   source: SourceName;
   externalId: string;
   expiresAt?: string;              // ISO — drives cache TTL for events
+  attribution?: string;            // e.g. 'Photo via Yelp' | 'Poster via TMDB'
 }
 
 export interface SuggestionQuery {

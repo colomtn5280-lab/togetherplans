@@ -1,58 +1,18 @@
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { proposalsApi } from "../api/client";
 import { AppNav } from "../components/AppNav";
 import { useAuthStore } from "../store/auth.store";
-import type { CounterProposal } from "../types";
 import type { AxiosError } from "axios";
 import type { ApiError } from "../types";
-
-/** Hook: subscribes to SSE consensus stream for a proposal */
-function useConsensusStream(proposalId: string | undefined) {
-  const [consensus, setConsensus] = useState<Record<string, unknown> | null>(null);
-  const [connected, setConnected] = useState(false);
-  const esRef = useRef<EventSource | null>(null);
-
-  useEffect(() => {
-    if (!proposalId) return;
-
-    const token = localStorage.getItem("accessToken") ?? "";
-    const url = `/api/v1/proposals/${proposalId}/consensus/stream?token=${encodeURIComponent(token)}`;
-    const es = new EventSource(url);
-    esRef.current = es;
-
-    es.onopen = () => setConnected(true);
-    es.onerror = () => setConnected(false);
-
-    es.onmessage = (e) => {
-      try {
-        const msg = JSON.parse(e.data) as { type: string; data?: Record<string, unknown> };
-        if (msg.type === "connected" || msg.type === "consensus_update") {
-          setConsensus(msg.data ?? null);
-        }
-      } catch { /* ignore parse errors */ }
-    };
-
-    return () => {
-      es.close();
-      esRef.current = null;
-      setConnected(false);
-    };
-  }, [proposalId]);
-
-  return { consensus, connected };
-}
 
 export function ProposalPage() {
   const { proposalId } = useParams<{ proposalId: string }>();
   const queryClient = useQueryClient();
   const user = useAuthStore((s) => s.user);
   const [showCounter, setShowCounter] = useState(false);
-  const [counterNote, setCounterNote] = useState("");
   const [showConsensusModal, setShowConsensusModal] = useState(false);
-
-  const { consensus, connected: sseConnected } = useConsensusStream(proposalId);
 
   const { data: proposal, isLoading, isError } = useQuery({
     queryKey: ["proposal", proposalId],
@@ -63,29 +23,9 @@ export function ProposalPage() {
     enabled: !!proposalId,
   });
 
-  const { data: dialogue } = useQuery({
-    queryKey: ["proposal-dialogue", proposalId],
-    queryFn: async () => {
-      const res = await proposalsApi.dialogue(proposalId!);
-      return res.data;
-    },
-    enabled: !!proposalId,
-  });
-
-  const acceptMutation = useMutation<unknown, AxiosError<ApiError>, { itemId: string }>({
-    mutationFn: async ({ itemId }) => {
-      const res = await proposalsApi.acceptItem(proposalId!, itemId);
-      return res.data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["proposal", proposalId] });
-      queryClient.invalidateQueries({ queryKey: ["proposal-dialogue", proposalId] });
-    },
-  });
-
-  const rejectMutation = useMutation<unknown, AxiosError<ApiError>, { itemId: string }>({
-    mutationFn: async ({ itemId }) => {
-      const res = await proposalsApi.rejectItem(proposalId!, itemId);
+  const voteMutation = useMutation<unknown, AxiosError<ApiError>, { optionId: string }>({
+    mutationFn: async ({ optionId }) => {
+      const res = await proposalsApi.vote(proposalId!, optionId);
       return res.data;
     },
     onSuccess: () => {
@@ -93,33 +33,25 @@ export function ProposalPage() {
     },
   });
 
-  const counterMutation = useMutation<CounterProposal, AxiosError<ApiError>, Record<string, unknown>>({
-    mutationFn: async (changes) => {
-      const res = await proposalsApi.counter(proposalId!, changes);
+  const retractMutation = useMutation<unknown, AxiosError<ApiError>>({
+    mutationFn: async () => {
+      const res = await proposalsApi.retractVote(proposalId!);
       return res.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["proposal", proposalId] });
-      queryClient.invalidateQueries({ queryKey: ["proposal-dialogue", proposalId] });
-      setShowCounter(false);
-      setCounterNote("");
     },
   });
 
-  const lockMutation = useMutation<unknown, AxiosError<ApiError>, { itemId: string }>({
-    mutationFn: async ({ itemId }) => {
-      const res = await proposalsApi.lock(proposalId!, itemId);
+  const cancelMutation = useMutation<unknown, AxiosError<ApiError>>({
+    mutationFn: async () => {
+      const res = await proposalsApi.cancel(proposalId!);
       return res.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["proposal", proposalId] });
-      setShowConsensusModal(true);
     },
   });
-
-  // Check for consensus reached
-  const consensusReached = consensus &&
-    (consensus.items as Array<Record<string, unknown>>)?.some((item) => item.consensusReached);
 
   if (isLoading) return (
     <>
@@ -139,9 +71,22 @@ export function ProposalPage() {
     </>
   );
 
+  // Normalize: backend returns options[], legacy may return items[]
+  const options = proposal.options ?? proposal.items ?? [];
+  const tally = proposal.tally ?? [];
+  const memberCount = proposal.memberCount ?? 0;
+
+  const myUserId = user?.userId ?? user?.id ?? "";
+
+  // Which option has the current user voted for?
+  const myVotedOptionId = options.find((opt) =>
+    opt.votes?.some((v) => v.userId === myUserId)
+  )?.id;
+
   const statusSticker = () => {
-    if (proposal.status === "locked") return <span className="dn-sticker dn-sticker--lime">Locked In 🎉</span>;
-    if (proposal.status === "accepted") return <span className="dn-sticker dn-sticker--success">Accepted</span>;
+    const s = proposal.status;
+    if (s === "DECIDED" || s === "locked") return <span className="dn-sticker dn-sticker--lime">Decided 🎉</span>;
+    if (s === "CANCELLED" || s === "rejected") return <span className="dn-sticker dn-sticker--ink">Cancelled</span>;
     return <span className="dn-sticker">Open</span>;
   };
 
@@ -154,6 +99,12 @@ export function ProposalPage() {
           <Link to={`/groups/${proposal.groupId}`} style={{ color: "var(--ink2)", fontSize: 13, fontFamily: "var(--font-display)", fontWeight: 700 }}>
             ← Back to group
           </Link>
+        </div>
+
+        {/* Title + status */}
+        <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 32 }}>
+          {statusSticker()}
+          <h1 style={{ margin: 0, fontSize: 24 }}>{proposal.title ?? "Proposal"}</h1>
         </div>
 
         {/* 2-column layout */}
@@ -170,15 +121,18 @@ export function ProposalPage() {
               style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}
               data-testid="proposal-items"
             >
-              {proposal.items.map((item, i) => {
-                const accepted = item.status === "accepted";
-                const rejected = item.status === "rejected";
+              {options.map((option, i) => {
+                const hasMyVote = myVotedOptionId === option.id;
+                const tallyEntry = tally.find((t) => t.optionId === option.id);
+                const voteCount = tallyEntry?.votes ?? option.votes?.length ?? 0;
+                const consensus = tallyEntry?.consensus ?? false;
+
                 return (
                   <div
-                    key={item.id}
+                    key={option.id}
                     className={`dn-card${i % 2 === 1 ? " dn-card--alt1" : ""}`}
                     style={{
-                      background: accepted ? "var(--lime-soft)" : rejected ? "var(--error-soft)" : "var(--surface)",
+                      background: consensus ? "var(--lime-soft)" : "var(--surface)",
                       position: "relative",
                     }}
                   >
@@ -198,16 +152,16 @@ export function ProposalPage() {
                       }}
                     />
 
-                    {/* Heart stamp */}
+                    {/* Heart vote button */}
                     <button
                       onClick={() => {
-                        if (item.status === "pending") {
-                          acceptMutation.mutate({ itemId: item.id });
-                        } else if (item.status === "accepted") {
-                          rejectMutation.mutate({ itemId: item.id });
+                        if (hasMyVote) {
+                          retractMutation.mutate(undefined as never);
+                        } else {
+                          voteMutation.mutate({ optionId: option.id });
                         }
                       }}
-                      disabled={acceptMutation.isPending || rejectMutation.isPending}
+                      disabled={voteMutation.isPending || retractMutation.isPending}
                       style={{
                         position: "absolute",
                         top: 96,
@@ -217,8 +171,8 @@ export function ProposalPage() {
                         borderRadius: "50%",
                         border: "none",
                         cursor: "pointer",
-                        background: accepted ? "var(--lime)" : "var(--surface)",
-                        color: accepted ? "var(--on-lime)" : "var(--ink2)",
+                        background: hasMyVote ? "var(--lime)" : "var(--surface)",
+                        color: hasMyVote ? "var(--on-lime)" : "var(--ink2)",
                         fontSize: 22,
                         display: "flex",
                         alignItems: "center",
@@ -226,88 +180,81 @@ export function ProposalPage() {
                         boxShadow: "var(--shadow-dock)",
                         transition: "transform 150ms, background 150ms",
                       }}
-                      aria-label={accepted ? "Remove vote" : "Vote for this option"}
+                      aria-label={hasMyVote ? "Remove vote" : "Vote for this option"}
                     >
-                      {accepted ? "♥" : "♡"}
+                      {hasMyVote ? "♥" : "♡"}
                     </button>
 
                     <h3 style={{ fontSize: 15, marginBottom: 4 }}>
-                      {item.suggestion?.name ?? `Option ${i + 1}`}
+                      {option.name ?? `Option ${i + 1}`}
                     </h3>
-                    {item.suggestion?.address && (
+                    {option.address && (
                       <p style={{ color: "var(--ink2)", fontSize: 12 }}>
-                        📍 {item.suggestion.address}
+                        📍 {option.address}
                       </p>
                     )}
-                    {item.suggestion?.rating && (
-                      <p style={{ color: "var(--ink2)", fontSize: 12 }}>★ {item.suggestion.rating}</p>
+                    {option.category && (
+                      <span className="dn-sticker dn-sticker--lime" style={{ fontSize: 11 }}>
+                        {option.category}
+                      </span>
                     )}
+                    <p style={{ color: "var(--ink2)", fontSize: 12, marginTop: 8 }}>
+                      {voteCount}{memberCount > 0 ? `/${memberCount}` : ""} vote{voteCount !== 1 ? "s" : ""}
+                      {consensus && " ✓"}
+                    </p>
                   </div>
                 );
               })}
             </div>
 
-            {proposal.items.length === 0 && (
+            {options.length === 0 && (
               <div className="dn-card" style={{ textAlign: "center", padding: 40 }}>
-                <p style={{ color: "var(--ink2)" }}>No suggestions attached yet.</p>
-              </div>
-            )}
-
-            {/* Lock-in button */}
-            {proposal.status === "pending" && proposal.items.length > 0 && (
-              <div style={{ marginTop: 20 }}>
-                <button
-                  onClick={() => lockMutation.mutate({ itemId: proposal.items[0].id })}
-                  disabled={lockMutation.isPending}
-                  className="dn-btn dn-btn--ink"
-                  style={{ width: "100%" }}
-                >
-                  {lockMutation.isPending ? "Locking in…" : "Lock in date night 🔒"}
-                </button>
-                {lockMutation.isError && (
-                  <p role="alert" style={{ color: "var(--error)", fontSize: 13, marginTop: 8 }}>
-                    {(lockMutation.error as AxiosError<ApiError>).response?.data?.message}
-                  </p>
-                )}
+                <p style={{ color: "var(--ink2)" }}>No options yet.</p>
               </div>
             )}
           </div>
 
-          {/* Right: Status + Votes + Counter */}
+          {/* Right: Status + Votes */}
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-            {/* Status + title */}
+            {/* Status card */}
             <div className="dn-card dn-card--alt2">
               <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
                 {statusSticker()}
-                <span style={{ fontSize: 12, color: sseConnected ? "var(--success)" : "var(--ink2)", fontFamily: "var(--font-display)", fontWeight: 700 }}>
-                  {sseConnected ? "● Live" : "○ Polling"}
-                </span>
               </div>
-              <p style={{ color: "var(--ink2)", fontSize: 13, marginBottom: 4 }}>
-                Date: <strong style={{ color: "var(--ink)" }}>{proposal.proposedDate}</strong>
-                {proposal.proposedTime && ` at ${proposal.proposedTime}`}
-              </p>
+              {(proposal.dateTime || proposal.proposedDate) && (
+                <p style={{ color: "var(--ink2)", fontSize: 13, marginBottom: 4 }}>
+                  Date: <strong style={{ color: "var(--ink)" }}>
+                    {proposal.dateTime
+                      ? new Date(proposal.dateTime).toLocaleDateString()
+                      : proposal.proposedDate}
+                  </strong>
+                </p>
+              )}
               <p style={{ color: "var(--ink2)", fontSize: 13 }} data-testid="proposal-status">
                 Status: <strong style={{ color: "var(--ink)" }}>{proposal.status}</strong>
               </p>
+              {memberCount > 0 && (
+                <p style={{ color: "var(--ink2)", fontSize: 13 }}>
+                  Members: <strong>{memberCount}</strong>
+                </p>
+              )}
             </div>
 
-            {/* Consensus / Votes */}
-            {consensus && (
+            {/* Tally */}
+            {tally.length > 0 && (
               <div className="dn-card dn-card--alt3">
-                <h3 style={{ marginBottom: 14, fontSize: 15 }}>Votes</h3>
-                {(consensus.items as Array<Record<string, unknown>>)?.map((item) => {
-                  const total = item.totalMembers as number;
-                  const accepted = item.acceptedCount as number;
-                  const pct = total > 0 ? Math.round((accepted / total) * 100) : 0;
+                <h3 style={{ marginBottom: 14, fontSize: 15 }}>Vote tally</h3>
+                {tally.map((t) => {
+                  const opt = options.find((o) => o.id === t.optionId);
+                  const pct = memberCount > 0 ? Math.round((t.votes / memberCount) * 100) : 0;
                   return (
-                    <div key={item.itemId as string} style={{ marginBottom: 14 }}>
+                    <div key={t.optionId} style={{ marginBottom: 14 }}>
                       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
                         <span style={{ fontSize: 13, fontFamily: "var(--font-display)", fontWeight: 700, color: "var(--ink)" }}>
-                          {(item.suggestionName as string) || (item.itemId as string)}
+                          {opt?.name ?? t.optionId}
                         </span>
-                        <span style={{ fontSize: 12, color: item.consensusReached ? "var(--success)" : "var(--ink2)" }}>
-                          {accepted}/{total} {item.consensusReached ? "✓" : ""}
+                        <span style={{ fontSize: 12, color: t.consensus ? "var(--success)" : "var(--ink2)" }}>
+                          {t.votes}{memberCount > 0 ? `/${memberCount}` : ""} {t.consensus ? "✓" : ""}
                         </span>
                       </div>
                       <div style={{ height: 6, background: "var(--line)", borderRadius: 3 }}>
@@ -315,7 +262,7 @@ export function ProposalPage() {
                           style={{
                             height: "100%",
                             width: `${pct}%`,
-                            background: item.consensusReached ? "var(--lime)" : "var(--primary)",
+                            background: t.consensus ? "var(--lime)" : "var(--primary)",
                             borderRadius: 3,
                             transition: "width 0.4s ease",
                           }}
@@ -327,8 +274,8 @@ export function ProposalPage() {
               </div>
             )}
 
-            {/* Mismatch banner */}
-            {proposal.status === "pending" && (
+            {/* Mismatch / counter banner */}
+            {(proposal.status === "OPEN" || proposal.status === "pending") && (
               <div
                 style={{
                   background: "var(--warning-soft)",
@@ -341,7 +288,7 @@ export function ProposalPage() {
                 }}
               >
                 <p style={{ color: "var(--on-warning-soft)", fontSize: 13, margin: 0 }}>
-                  ⚠️ Not all members have voted
+                  ⚠️ Voting is open
                 </p>
                 <button
                   className="dn-btn dn-btn--sm dn-btn--ink"
@@ -356,60 +303,33 @@ export function ProposalPage() {
             {showCounter && (
               <div className="dn-card dn-card--alt1" style={{ border: "1.5px solid var(--warning)" }}>
                 <h3 style={{ marginBottom: 12, fontSize: 15 }}>Counter-proposal</h3>
-                <textarea
-                  id="counterNote"
-                  value={counterNote}
-                  onChange={(e) => setCounterNote(e.target.value)}
-                  rows={3}
-                  className="dn-input"
-                  placeholder="Describe what you'd like to change…"
-                  style={{ height: "auto", padding: "12px 16px", resize: "vertical" }}
-                />
-                {counterMutation.isError && (
-                  <p role="alert" style={{ color: "var(--error)", fontSize: 13, marginTop: 8 }}>
-                    {counterMutation.error.response?.data?.message}
-                  </p>
-                )}
-                <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
-                  <button
-                    className="dn-btn"
-                    onClick={() => counterMutation.mutate({ note: counterNote })}
-                    disabled={counterMutation.isPending || !counterNote.trim()}
-                  >
-                    {counterMutation.isPending ? "Submitting…" : "Submit →"}
-                  </button>
-                  <button
-                    className="dn-btn dn-btn--secondary"
-                    onClick={() => setShowCounter(false)}
-                  >
-                    Cancel
-                  </button>
-                </div>
+                <p style={{ color: "var(--ink2)", fontSize: 13, marginBottom: 8 }}>
+                  Counter-proposals require a new plan. Use the group page to create a new proposal.
+                </p>
+                <button
+                  className="dn-btn dn-btn--secondary"
+                  onClick={() => setShowCounter(false)}
+                >
+                  Close
+                </button>
               </div>
             )}
 
-            {/* Dialogue history */}
-            {dialogue && dialogue.length > 0 && (
-              <div className="dn-card dn-card--alt3">
-                <h3 style={{ marginBottom: 12, fontSize: 15 }}>History</h3>
-                <ul data-testid="dialogue-history" style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: 8 }}>
-                  {dialogue.map((entry) => (
-                    <li key={entry.id} style={{ padding: "8px 0", borderBottom: "1px solid var(--line)" }}>
-                      <span style={{ color: "var(--ink2)", fontSize: 11 }}>
-                        {new Date(entry.timestamp).toLocaleString()}
-                      </span>{" "}
-                      <strong style={{ fontFamily: "var(--font-display)", fontSize: 12 }}>{entry.type}</strong>
-                      <span style={{ color: "var(--ink2)", fontSize: 12 }}> by {entry.userId === user?.userId ? "you" : entry.userId}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+            {/* Cancel button */}
+            {(proposal.status === "OPEN" || proposal.status === "pending") && (
+              <button
+                className="dn-btn dn-btn--secondary"
+                onClick={() => cancelMutation.mutate(undefined as never)}
+                disabled={cancelMutation.isPending}
+              >
+                {cancelMutation.isPending ? "Cancelling…" : "Cancel proposal"}
+              </button>
             )}
           </div>
         </div>
 
         {/* Consensus modal */}
-        {(showConsensusModal || consensusReached) && (
+        {showConsensusModal && (
           <div
             style={{
               position: "fixed",
@@ -433,25 +353,6 @@ export function ProposalPage() {
               }}
               onClick={e => e.stopPropagation()}
             >
-              {/* Confetti dots */}
-              <div style={{ position: "relative", marginBottom: 24 }}>
-                {["var(--primary)", "var(--lime)", "var(--warning)", "var(--error)"].map((c, i) => (
-                  <div
-                    key={i}
-                    style={{
-                      position: "absolute",
-                      width: 10,
-                      height: 10,
-                      background: c,
-                      borderRadius: "50%",
-                      top: -20,
-                      left: `${20 + i * 20}%`,
-                      animation: `dn-confetti-fall ${0.8 + i * 0.2}s ease-out forwards`,
-                    }}
-                    aria-hidden="true"
-                  />
-                ))}
-              </div>
               <div style={{ fontSize: 56, marginBottom: 16 }}>🎉</div>
               <h2 style={{ marginBottom: 8 }}>You're locked in!</h2>
               <p style={{ color: "var(--ink2)", marginBottom: 24 }}>
@@ -463,6 +364,17 @@ export function ProposalPage() {
             </div>
           </div>
         )}
+
+        {/* error display */}
+        {(voteMutation.isError || retractMutation.isError) && (
+          <p role="alert" style={{ color: "var(--error)", fontSize: 13, marginTop: 16 }}>
+            {(voteMutation.error as AxiosError<ApiError>)?.response?.data?.message ??
+             (retractMutation.error as AxiosError<ApiError>)?.response?.data?.message ??
+             "Vote action failed"}
+          </p>
+        )}
+
+        {/* suppress unused refs */ null}
 
         <style>{`
           @media (max-width: 768px) {

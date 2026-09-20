@@ -10,6 +10,8 @@ import { invitationsRouter } from '@/routes/invitations';
 import { proposalsRouter } from '@/routes/proposals';
 import { legalRouter } from '@/routes/legal';
 import { suggestionsRouter } from '@/routes/suggestions';
+import { notificationsRouter } from '@/routes/notifications';
+import { usersRouter } from '@/routes/users';
 
 export function createApp(): express.Express {
   const app = express();
@@ -43,6 +45,8 @@ export function createApp(): express.Express {
   app.use('/api/invitations', invitationsRouter);
   app.use('/api/proposals', proposalsRouter);
   app.use('/api/suggestions', suggestionsRouter);
+  app.use('/api/notifications', notificationsRouter);
+  app.use('/api/users', usersRouter);
   app.use('/', legalRouter);
 
   app.use((_req: Request, res: Response) => {

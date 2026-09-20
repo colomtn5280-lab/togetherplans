@@ -85,6 +85,7 @@ async function fetchNowPlaying(key: string): Promise<Suggestion[]> {
       ticketUrl: `https://www.themoviedb.org/movie/${m.id}`,
       source: 'tmdb',
       externalId: `movie:${m.id}`,
+      attribution: 'Movie data © TMDB',
     };
   });
 }
@@ -132,6 +133,7 @@ async function fetchStreamingShows(key: string): Promise<Suggestion[]> {
         ticketUrl: `https://www.themoviedb.org/tv/${show.id}`,
         source: 'tmdb',
         externalId: `tv:${show.id}`,
+        attribution: 'TV data © TMDB',
       };
     });
 }
