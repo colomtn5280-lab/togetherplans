@@ -38,30 +38,28 @@ function NotFoundPage() {
       flexDirection: "column",
       alignItems: "center",
       justifyContent: "center",
-      minHeight: "60vh",
+      minHeight: "80vh",
       textAlign: "center",
       padding: "40px 20px",
-      gap: "16px",
+      gap: "20px",
     }}>
-      <div style={{ fontSize: "80px" }}>🗓️</div>
-      <h1 style={{ fontSize: "80px", margin: 0, color: "var(--accent)", fontFamily: "var(--mono)" }}>404</h1>
-      <h2 style={{ margin: 0 }}>Page not found</h2>
-      <p style={{ color: "var(--text)", maxWidth: "360px" }}>
+      <div style={{
+        fontFamily: "var(--font-display)",
+        fontWeight: 800,
+        fontSize: 140,
+        color: "var(--primary)",
+        lineHeight: 1,
+        letterSpacing: "-0.04em",
+      }}>
+        404
+      </div>
+      <span className="dn-sticker">No Votes</span>
+      <h2 style={{ margin: 0, fontSize: 26 }}>This plan doesn&rsquo;t exist</h2>
+      <p style={{ color: "var(--ink2)", maxWidth: "360px" }}>
         The page you&rsquo;re looking for doesn&rsquo;t exist or has been moved.
       </p>
-      <Link
-        to="/"
-        style={{
-          display: "inline-block",
-          padding: "12px 24px",
-          background: "var(--accent)",
-          color: "#fff",
-          borderRadius: "8px",
-          textDecoration: "none",
-          fontWeight: 600,
-        }}
-      >
-        ← Back to home
+      <Link to="/dashboard" className="dn-btn">
+        Go to my plans →
       </Link>
     </div>
   );

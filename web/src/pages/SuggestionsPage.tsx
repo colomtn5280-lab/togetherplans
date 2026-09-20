@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { suggestionsApi, categoriesApi } from "../api/client";
+import { AppNav } from "../components/AppNav";
 import type { Suggestion } from "../types";
 
 function useGeolocation() {
@@ -29,7 +30,6 @@ function useGeolocation() {
     );
   };
 
-  // Request on mount
   useEffect(() => { request(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return { coords, geoError, geoLoading, retry: request };
@@ -39,7 +39,11 @@ export function SuggestionsPage() {
   const [categoryId, setCategoryId] = useState("");
   const [radiusKm, setRadiusKm] = useState(10);
   const { coords, geoError, geoLoading, retry: retryGeo } = useGeolocation();
-  const [randomized, setRandomized] = useState<Suggestion | null>(null);
+  const [searchParams] = useSearchParams();
+  const proposalContext = searchParams.get("proposalId");
+  const proposalName = searchParams.get("proposalName");
+  const addedCount = parseInt(searchParams.get("added") ?? "0", 10);
+  const maxCount = parseInt(searchParams.get("max") ?? "5", 10);
 
   const { data: categories } = useQuery({
     queryKey: ["categories"],
@@ -62,206 +66,187 @@ export function SuggestionsPage() {
         lat: coords?.lat,
         lng: coords?.lng,
         radiusKm,
-        limit: 5,
+        limit: 12,
       });
       return res.data;
     },
   });
 
-  const handleRandomize = () => {
-    if (!suggestions || suggestions.length === 0) return;
-    const idx = Math.floor(Math.random() * suggestions.length);
-    setRandomized(suggestions[idx]);
-  };
-
-  const handleRefresh = () => {
-    setRandomized(null);
-    refetch();
-  };
+  const filterCategories = [
+    { id: "", name: "All" },
+    ...(categories ?? []),
+  ];
 
   return (
-    <main style={{ maxWidth: 800, margin: "0 auto", padding: "24px 16px" }}>
-      <nav style={{ marginBottom: 24 }}>
-        <Link to="/dashboard">← Dashboard</Link>
-      </nav>
+    <>
+      <AppNav />
+      <main style={{ maxWidth: "var(--content-max)", margin: "0 auto", padding: "32px var(--gutter)" }}>
+        {/* Header */}
+        <div style={{ marginBottom: 24 }}>
+          <h1 style={{ marginBottom: 8 }}>Discover</h1>
+          <p style={{ color: "var(--ink2)" }}>Find the perfect activity for your next date night.</p>
+        </div>
 
-      <h1>Browse activities</h1>
-
-      {/* Geolocation status */}
-      <div style={{ marginBottom: 12, fontSize: "0.9em", color: "#666" }}>
-        {geoLoading && <span>📍 Getting your location…</span>}
-        {coords && (
-          <span>
-            📍 Location: {coords.lat.toFixed(3)}, {coords.lng.toFixed(3)}
-          </span>
-        )}
-        {geoError && (
-          <span>
-            📍 Location unavailable ({geoError}){" "}
-            <button onClick={retryGeo} style={{ fontSize: "0.85em" }}>
-              Retry
-            </button>
-          </span>
-        )}
-      </div>
-
-      {/* Filters */}
-      <section
-        style={{
-          display: "flex",
-          gap: 16,
-          marginBottom: 24,
-          flexWrap: "wrap",
-          alignItems: "flex-end",
-        }}
-      >
-        <div>
-          <label htmlFor="cat-filter">Category</label>
-          <br />
-          <select
-            id="cat-filter"
-            value={categoryId}
-            onChange={(e) => {
-              setCategoryId(e.target.value);
-              setRandomized(null);
+        {/* Context pill */}
+        {proposalContext && (
+          <div
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 10,
+              background: "var(--primary-soft)",
+              borderRadius: 20,
+              padding: "8px 14px",
+              marginBottom: 20,
             }}
           >
-            <option value="">All categories</option>
-            {categories?.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
-        </div>
+            <span style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 13, color: "var(--primary)" }}>
+              Adding to: {proposalName ?? "proposal"} · {addedCount}/{maxCount}
+            </span>
+            <Link to="/suggestions" style={{ color: "var(--ink2)", fontSize: 12, fontFamily: "var(--font-display)", fontWeight: 700 }}>
+              Change
+            </Link>
+          </div>
+        )}
 
-        <div>
-          <label htmlFor="radius-filter">Radius (km)</label>
-          <br />
-          <input
-            id="radius-filter"
-            type="number"
-            min={1}
-            max={100}
-            value={radiusKm}
-            onChange={(e) => {
-              setRadiusKm(parseInt(e.target.value, 10) || 10);
-              setRandomized(null);
-            }}
-            style={{ width: 80 }}
-          />
-        </div>
-
-        <button onClick={handleRefresh}>Refresh</button>
-
-        <button
-          onClick={handleRandomize}
-          disabled={!suggestions || suggestions.length === 0}
-          style={{ background: "#7c3aed", color: "white", border: "none", borderRadius: 6, padding: "8px 16px" }}
-        >
-          🎲 Randomize
-        </button>
-      </section>
-
-      {/* Randomized pick */}
-      {randomized && (
-        <section
-          data-testid="random-pick"
-          style={{
-            border: "2px solid #7c3aed",
-            borderRadius: 12,
-            padding: 20,
-            marginBottom: 24,
-            background: "#faf5ff",
-          }}
-        >
-          <h2>🎲 Tonight&apos;s pick</h2>
-          <h3>{randomized.name}</h3>
-          {randomized.description && <p>{randomized.description}</p>}
-          {randomized.address && (
-            <p style={{ color: "#666" }}>{randomized.address}</p>
-          )}
-          {randomized.rating && (
-            <p>
-              ★ {randomized.rating}{" "}
-              {randomized.priceLevel &&
-                "•  " + "$".repeat(randomized.priceLevel)}
-            </p>
-          )}
-        </section>
-      )}
-
-      {/* Suggestions list — spec: 3-5 */}
-      {isLoading && <p>Loading suggestions…</p>}
-      {isError && <p role="alert">Failed to load suggestions.</p>}
-
-      {!isLoading && suggestions && suggestions.length === 0 && (
-        <p data-testid="no-suggestions">
-          No suggestions found. Try a different category or wider radius.
-        </p>
-      )}
-
-      {suggestions && suggestions.length > 0 && (
-        <ul
-          data-testid="suggestions-list"
-          style={{ listStyle: "none", padding: 0 }}
-        >
-          {suggestions.map((s) => (
-            <li
-              key={s.id}
-              style={{
-                border: "1px solid #ddd",
-                borderRadius: 8,
-                padding: 16,
-                marginBottom: 12,
-                background:
-                  randomized?.id === s.id ? "#faf5ff" : "white",
+        {/* Filter chips row */}
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 24, alignItems: "center" }}>
+          {filterCategories.map((c) => (
+            <button
+              key={c.id}
+              className={`dn-chip${categoryId === c.id ? " selected" : ""}`}
+              onClick={() => {
+                setCategoryId(c.id);
               }}
             >
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                }}
-              >
-                <div>
-                  <strong style={{ fontSize: "1.1em" }}>{s.name}</strong>
-                  <span
-                    style={{
-                      marginLeft: 8,
-                      fontSize: "0.8em",
-                      background: "#eee",
-                      padding: "2px 6px",
-                      borderRadius: 4,
-                    }}
-                  >
-                    {s.category}
-                  </span>
-                  {s.description && (
-                    <p style={{ margin: "4px 0", color: "#555" }}>
-                      {s.description}
-                    </p>
-                  )}
-                  {s.address && (
-                    <p style={{ margin: "4px 0", color: "#888", fontSize: "0.9em" }}>
-                      📍 {s.address}
-                    </p>
-                  )}
-                </div>
-                <div style={{ textAlign: "right", minWidth: 80 }}>
-                  {s.rating && <div>★ {s.rating}</div>}
-                  {s.priceLevel && <div>{"$".repeat(s.priceLevel)}</div>}
-                  {s.distance && (
-                    <div style={{ color: "#888", fontSize: "0.85em" }}>
-                      {s.distance.toFixed(1)} km
-                    </div>
-                  )}
-                </div>
-              </div>
-            </li>
+              {c.name}
+            </button>
           ))}
-        </ul>
-      )}
-    </main>
+
+          <div style={{ marginLeft: "auto", display: "flex", gap: 8, alignItems: "center" }}>
+            <span style={{ fontSize: 13, color: "var(--ink2)" }}>
+              {geoLoading && "📍 Getting location…"}
+              {coords && `📍 ${coords.lat.toFixed(2)}, ${coords.lng.toFixed(2)}`}
+              {geoError && "📍 Location unavailable"}
+            </span>
+            {geoError && (
+              <button className="dn-btn dn-btn--sm dn-btn--tonal" onClick={retryGeo}>
+                Retry
+              </button>
+            )}
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <span style={{ fontSize: 12, color: "var(--ink2)" }}>Radius</span>
+              <input
+                type="number"
+                min={1}
+                max={100}
+                value={radiusKm}
+                onChange={(e) => setRadiusKm(parseInt(e.target.value, 10) || 10)}
+                className="dn-input"
+                style={{ width: 72, height: 38, fontSize: 13 }}
+              />
+              <span style={{ fontSize: 12, color: "var(--ink2)" }}>km</span>
+            </div>
+            <button className="dn-btn dn-btn--sm dn-btn--tonal" onClick={() => refetch()}>
+              Refresh
+            </button>
+          </div>
+        </div>
+
+        {/* Loading / error states */}
+        {isLoading && (
+          <div style={{ textAlign: "center", padding: "60px 0" }}>
+            <p style={{ color: "var(--ink2)" }}>Finding activities near you…</p>
+          </div>
+        )}
+
+        {isError && (
+          <p role="alert" style={{ color: "var(--error)", marginBottom: 20 }}>Failed to load suggestions.</p>
+        )}
+
+        {!isLoading && suggestions && suggestions.length === 0 && (
+          <div data-testid="no-suggestions" style={{ textAlign: "center", padding: "60px 0" }}>
+            <div style={{ fontSize: 56, marginBottom: 16 }}>🧭</div>
+            <h2 style={{ marginBottom: 8 }}>Nothing here yet</h2>
+            <p style={{ color: "var(--ink2)" }}>Try a different category or wider radius.</p>
+          </div>
+        )}
+
+        {/* Suggestions 4-up grid */}
+        {suggestions && suggestions.length > 0 && (
+          <div
+            style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 20 }}
+            data-testid="suggestions-list"
+            className="suggestions-grid"
+          >
+            {suggestions.map((s: Suggestion, i: number) => (
+              <div key={s.id} className={`dn-card${i % 2 === 1 ? " dn-card--alt1" : ""}`} style={{ display: "flex", flexDirection: "column" }}>
+                {/* Image slot */}
+                <div
+                  style={{
+                    height: 140,
+                    borderRadius: 16,
+                    marginBottom: 14,
+                    background: `repeating-linear-gradient(
+                      45deg,
+                      var(--bg),
+                      var(--bg) 8px,
+                      var(--line) 8px,
+                      var(--line) 16px
+                    )`,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "var(--ink2)",
+                    fontSize: 32,
+                  }}
+                >
+                  🍽️
+                </div>
+
+                {/* Category sticker */}
+                <span className="dn-sticker dn-sticker--lime" style={{ marginBottom: 10, alignSelf: "flex-start" }}>
+                  {s.category ?? "Activity"}
+                </span>
+
+                <h3 style={{ fontSize: 15, marginBottom: 4 }}>{s.name}</h3>
+
+                {s.address && (
+                  <p style={{ color: "var(--ink2)", fontSize: 12, marginBottom: 8 }}>📍 {s.address}</p>
+                )}
+
+                {(s.rating || s.priceLevel) && (
+                  <div style={{ display: "flex", gap: 10, marginBottom: 8 }}>
+                    {s.rating && <span style={{ fontSize: 12, color: "var(--ink2)" }}>★ {s.rating}</span>}
+                    {s.priceLevel && <span style={{ fontSize: 12, color: "var(--ink2)" }}>{"$".repeat(s.priceLevel)}</span>}
+                    {s.distance && <span style={{ fontSize: 12, color: "var(--ink2)" }}>{s.distance.toFixed(1)} km</span>}
+                  </div>
+                )}
+
+                <button
+                  className="dn-btn dn-btn--sm dn-btn--tonal"
+                  style={{ marginTop: "auto", width: "100%" }}
+                >
+                  + Add
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <style>{`
+          @media (max-width: 768px) {
+            .suggestions-grid {
+              grid-template-columns: 1fr !important;
+            }
+          }
+          @media (max-width: 1024px) and (min-width: 769px) {
+            .suggestions-grid {
+              grid-template-columns: repeat(2, 1fr) !important;
+            }
+          }
+        `}</style>
+      </main>
+    </>
   );
 }
