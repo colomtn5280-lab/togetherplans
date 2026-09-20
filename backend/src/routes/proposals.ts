@@ -225,7 +225,8 @@ proposalsRouter.post('/:id/vote', async (req: AuthRequest, res: Response, next) 
     const allVoted = distinctVoters.length >= memberCount;
     const winner = allOptions.find((o) => o.votes.length > memberCount / 2);
     let decided = false;
-    if (allVoted && winner) {
+    // Require at least 2 members to trigger consensus — single-member groups stay OPEN
+    if (memberCount >= 2 && allVoted && winner) {
       await prisma.proposal.update({ where: { id: option.proposalId }, data: { status: 'DECIDED' } });
       decided = true;
     }

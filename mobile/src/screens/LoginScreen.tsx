@@ -134,6 +134,8 @@ export default function LoginScreen({ navigation }: Props) {
           keyboardType="email-address"
           autoCapitalize="none"
           autoCorrect={false}
+          textContentType="emailAddress"
+          autoComplete="email"
         />
         <DNInput
           label="Password"
@@ -141,6 +143,8 @@ export default function LoginScreen({ navigation }: Props) {
           value={password}
           onChangeText={(t) => { setPassword(t); setError(''); }}
           secureTextEntry
+          textContentType="password"
+          autoComplete="password"
         />
 
         {/* Inline error */}

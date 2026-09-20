@@ -25,7 +25,7 @@ import {
   DNScreenHeader,
 } from '@/components/ui';
 import { groupsAPI } from '@/services/api';
-import type { Group, RootStackParamList } from '@/types';
+import type { Group, Proposal, RootStackParamList } from '@/types';
 import { useAuth } from '@/hooks/useAuth';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
@@ -134,16 +134,18 @@ function GroupRow({
   group,
   onPress,
   actionNeeded,
+  openCount,
+  decidedCount,
 }: {
   group: Group;
   onPress: () => void;
   actionNeeded?: boolean;
+  openCount: number;
+  decidedCount: number;
 }) {
   const { colors } = useTheme();
   const members = group.members ?? [];
   const visibleMembers = members.slice(0, 3);
-  const openCount = 1; // placeholder
-  const decidedCount = 0; // placeholder
 
   return (
     <TouchableOpacity
@@ -165,7 +167,7 @@ function GroupRow({
           visibleMembers.map((m, i) => (
             <DNAvatar
               key={m.id}
-              name={m.userId}
+              name={m.user?.displayName ?? m.userId}
               size={42}
               colorIndex={i}
               style={{
@@ -215,18 +217,48 @@ export default function GroupsScreen() {
   const [groups, setGroups] = useState<Group[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  // Map from groupId -> { openCount, decidedCount, actionNeeded }
+  const [proposalStats, setProposalStats] = useState<
+    Record<string, { openCount: number; decidedCount: number; actionNeeded: boolean }>
+  >({});
 
   const loadGroups = useCallback(async () => {
     try {
       const res = await groupsAPI.list();
-      setGroups(res.data?.groups ?? res.data ?? []);
+      const loaded: Group[] = res.data?.groups ?? res.data ?? [];
+      setGroups(loaded);
+
+      // Batch-fetch proposals for all groups
+      const results = await Promise.all(
+        loaded.map((g) =>
+          groupsAPI.proposals(g.id).then((r) => ({ groupId: g.id, proposals: (r.data?.proposals ?? r.data ?? []) as Proposal[] })).catch(() => ({ groupId: g.id, proposals: [] as Proposal[] }))
+        )
+      );
+
+      const stats: Record<string, { openCount: number; decidedCount: number; actionNeeded: boolean }> = {};
+      for (const { groupId, proposals } of results) {
+        const openProposals = proposals.filter((p) => p.status === 'OPEN' || p.status === 'ACTIVE');
+        const decidedProposals = proposals.filter((p) => p.status === 'DECIDED' || p.status === 'ACCEPTED');
+        // actionNeeded: an OPEN proposal where current user hasn't voted
+        let actionNeeded = false;
+        if (user) {
+          for (const p of openProposals) {
+            const allVoterIds = new Set<string>();
+            if (p.options) p.options.forEach((o) => { if (o.votes) o.votes.forEach((v) => allVoterIds.add(v.userId)); });
+            if (p.votes) p.votes.forEach((v) => allVoterIds.add(v.userId));
+            if (!allVoterIds.has(user.id)) { actionNeeded = true; break; }
+          }
+        }
+        stats[groupId] = { openCount: openProposals.length, decidedCount: decidedProposals.length, actionNeeded };
+      }
+      setProposalStats(stats);
     } catch {
       // silently fail — show empty state
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
-  }, []);
+  }, [user]);
 
   useEffect(() => { loadGroups(); }, [loadGroups]);
 
@@ -331,7 +363,9 @@ export default function GroupsScreen() {
           <GroupRow
             key={g.id}
             group={g}
-            actionNeeded
+            actionNeeded={proposalStats[g.id]?.actionNeeded ?? false}
+            openCount={proposalStats[g.id]?.openCount ?? 0}
+            decidedCount={proposalStats[g.id]?.decidedCount ?? 0}
             onPress={() =>
               navigation.navigate('GroupDetail', { groupId: g.id, groupName: g.name })
             }

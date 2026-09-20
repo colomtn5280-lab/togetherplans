@@ -32,7 +32,7 @@ import {
   DNInput,
   DNScreenHeader,
 } from '@/components/ui';
-import { invitationsAPI } from '@/services/api';
+import { invitationsAPI, groupsAPI } from '@/services/api';
 import type { Invitation, RootStackParamList } from '@/types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
@@ -402,8 +402,23 @@ export default function InviteMembersScreen() {
   const [groupName, setGroupName] = useState('your group');
   const [pendingInvites] = useState<Invitation[]>([]);
   const [qrVisible, setQrVisible] = useState(false);
+  const linkGeneratedRef = useRef(false);
 
+  // M7: fetch real group name
   useEffect(() => {
+    (async () => {
+      try {
+        const res = await groupsAPI.get(groupId);
+        const g = res.data?.group ?? res.data;
+        if (g?.name) setGroupName(g.name);
+      } catch {}
+    })();
+  }, [groupId]);
+
+  // M6: only create link invitation when user switches to LINK tab, once per session
+  useEffect(() => {
+    if (method !== 'LINK' || linkGeneratedRef.current) return;
+    linkGeneratedRef.current = true;
     (async () => {
       try {
         const res = await invitationsAPI.create(groupId, 'LINK');
@@ -411,7 +426,7 @@ export default function InviteMembersScreen() {
         if (inv?.inviteUrl) setInviteUrl(inv.inviteUrl);
       } catch {}
     })();
-  }, [groupId]);
+  }, [method, groupId]);
 
   return (
     <>

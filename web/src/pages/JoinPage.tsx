@@ -4,16 +4,24 @@ import { invitationsApi } from "../api/client";
 import { useAuthStore } from "../store/auth.store";
 import type { Invitation } from "../types";
 
+interface InviteDetails {
+  groupName?: string;
+  groupId?: string;
+  inviterName?: string;
+  expiresAt: string;
+}
+
 export function JoinPage() {
   const { token } = useParams<{ token: string }>();
   const navigate = useNavigate();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
-  const [invite, setInvite] = useState<Invitation | null>(null);
+  const [invite, setInvite] = useState<InviteDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [joining, setJoining] = useState(false);
   const [joined, setJoined] = useState(false);
+  const [groupId, setGroupId] = useState<string | undefined>();
 
   useEffect(() => {
     if (!token) {
@@ -24,7 +32,18 @@ export function JoinPage() {
     invitationsApi
       .get(token)
       .then((res) => {
-        setInvite(res.data);
+        const raw = res.data as Invitation & {
+          group?: { id?: string; name?: string };
+          inviter?: { displayName?: string };
+        };
+        const details: InviteDetails = {
+          groupName: raw.groupName ?? raw.group?.name,
+          groupId: raw.groupId ?? raw.group?.id,
+          inviterName: raw.inviterName ?? raw.inviter?.displayName,
+          expiresAt: raw.expiresAt,
+        };
+        setInvite(details);
+        setGroupId(details.groupId);
         setLoading(false);
       })
       .catch(() => {
@@ -39,16 +58,22 @@ export function JoinPage() {
     try {
       const res = await invitationsApi.accept(token);
       setJoined(true);
-      const groupId = invite?.groupId ?? (res.data.group as { id?: string } | undefined)?.id;
+      const resolvedGroupId = groupId ?? (res.data.group as { id?: string } | undefined)?.id;
       setTimeout(() => {
-        if (groupId) {
-          navigate(`/groups/${groupId}`, { replace: true });
+        if (resolvedGroupId) {
+          navigate(`/groups/${resolvedGroupId}`, { replace: true });
         } else {
           navigate("/groups", { replace: true });
         }
       }, 1500);
-    } catch {
-      setError("Failed to join group. The invite may have expired or already been used.");
+    } catch (err: unknown) {
+      const msg = (err instanceof Error ? err.message : "") ||
+        ((err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? "");
+      if (msg.toLowerCase().includes("already a member")) {
+        setError("You're already a member of this group.");
+      } else {
+        setError("Failed to join group. The invite may have expired or already been used.");
+      }
     } finally {
       setJoining(false);
     }

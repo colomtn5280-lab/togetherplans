@@ -115,6 +115,10 @@ afterDarkRouter.get('/status', async (req: AuthRequest, res: Response) => {
     ? Number(req.query.utcOffset)
     : undefined;
 
+  if (utcOffset !== undefined && !isNaN(utcOffset) && (utcOffset < -840 || utcOffset > 840)) {
+    return res.status(400).json({ error: 'utcOffset must be between -840 and 840 minutes' });
+  }
+
   const active = isAfterDarkActive(utcOffset);
   const minutesUntil = minutesUntilAfterDark(utcOffset);
 
@@ -141,6 +145,11 @@ afterDarkRouter.get('/suggestions', async (req: AuthRequest, res: Response, next
     const zip = typeof req.query.zip === 'string' ? req.query.zip.trim() : undefined;
     const radius = req.query.radius !== undefined ? Math.min(Number(req.query.radius), 60) : 25;
     const moodParam = typeof req.query.mood === 'string' ? req.query.mood as AfterDarkMood : undefined;
+    const utcOffset = req.query.utcOffset !== undefined ? Number(req.query.utcOffset) : undefined;
+
+    if (utcOffset !== undefined && !isNaN(utcOffset) && (utcOffset < -840 || utcOffset > 840)) {
+      return res.status(400).json({ error: 'utcOffset must be between -840 and 840 minutes' });
+    }
 
     if (moodParam && !VALID_MOODS.includes(moodParam)) {
       return res.status(400).json({

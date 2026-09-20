@@ -8,6 +8,7 @@ import { sendWelcomeEmail, sendPasswordResetEmail } from '@/services/email';
 import { verifyGoogleToken } from '@/services/oauth';
 import { verifyAppleToken } from '@/services/apple';
 import { logger } from '@/services/logger';
+import { cache } from '@/services/cache';
 
 export const authRouter = Router();
 
@@ -115,6 +116,13 @@ authRouter.post('/signup', authLimiter, async (req, res: Response, next) => {
   }
 });
 
+const LOGIN_LOCKOUT_MAX = 10;
+const LOGIN_LOCKOUT_TTL = 15 * 60; // 15 minutes in seconds
+
+function loginAttemptsKey(email: string): string {
+  return `login_attempts:${email.toLowerCase()}`;
+}
+
 // POST /api/auth/login
 authRouter.post('/login', authLimiter, async (req, res: Response, next) => {
   try {
@@ -122,18 +130,33 @@ authRouter.post('/login', authLimiter, async (req, res: Response, next) => {
     if (!email || !password) {
       return res.status(400).json({ error: 'email and password are required' });
     }
+
+    // Email-based lockout check (effective behind proxies/CDNs where IP is shared)
+    const attemptsKey = loginAttemptsKey(email);
+    const attemptsRaw = await cache.get(attemptsKey);
+    const attempts = attemptsRaw ? parseInt(attemptsRaw, 10) : 0;
+    if (attempts >= LOGIN_LOCKOUT_MAX) {
+      return res.status(429).json({ error: 'Too many login attempts. Try again in 15 minutes.' });
+    }
+
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user || user.deletedAt) {
+      // Increment failed attempt counter
+      await cache.set(attemptsKey, String(attempts + 1), LOGIN_LOCKOUT_TTL);
       return res.status(401).json({ error: 'Invalid credentials' });
     }
     if (!user.passwordHash) {
       // OAuth-only account — no password set
+      await cache.set(attemptsKey, String(attempts + 1), LOGIN_LOCKOUT_TTL);
       return res.status(401).json({ error: 'This account uses social sign-in. Please sign in with Google.' });
     }
     const ok = await bcrypt.compare(password, user.passwordHash);
     if (!ok) {
+      await cache.set(attemptsKey, String(attempts + 1), LOGIN_LOCKOUT_TTL);
       return res.status(401).json({ error: 'Invalid credentials' });
     }
+    // Successful login — clear the lockout counter
+    await cache.set(attemptsKey, '0', LOGIN_LOCKOUT_TTL);
     const token = signToken(user.id, user.email);
     const refreshToken = await issueRefreshToken(user.id);
     return res.json({

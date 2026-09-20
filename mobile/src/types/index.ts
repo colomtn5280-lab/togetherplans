@@ -20,6 +20,7 @@ export interface GroupMember {
   groupId: string;
   role: string;
   joinedAt: string;
+  user?: { id: string; displayName: string };
 }
 
 export interface Invitation {
