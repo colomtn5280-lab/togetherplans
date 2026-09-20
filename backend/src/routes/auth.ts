@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Response, NextFunction } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import rateLimit from 'express-rate-limit';
@@ -7,6 +7,7 @@ import { signToken, requireAuth, AuthRequest } from '@/middleware/auth';
 import { sendWelcomeEmail, sendPasswordResetEmail } from '@/services/email';
 import { verifyGoogleToken } from '@/services/oauth';
 import { verifyAppleToken } from '@/services/apple';
+import { logger } from '@/services/logger';
 
 export const authRouter = Router();
 
@@ -24,6 +25,18 @@ const authLimiter = rateLimit({
 function makeRefreshToken(userId: string): string {
   const secret = process.env.JWT_SECRET || 'dev-secret';
   return jwt.sign({ userId, type: 'refresh' }, secret, { expiresIn: '30d' });
+}
+
+/** Persist a refresh token to the DB and return it */
+async function issueRefreshToken(userId: string): Promise<string> {
+  const token = makeRefreshToken(userId);
+  const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
+  await prisma.refreshToken.create({ data: { userId, token, expiresAt } });
+  // Clean up expired/revoked tokens for this user (housekeeping)
+  await prisma.refreshToken.deleteMany({
+    where: { userId, OR: [{ isRevoked: true }, { expiresAt: { lt: new Date() } }] },
+  });
+  return token;
 }
 
 // POST /api/auth/register
@@ -48,7 +61,7 @@ authRouter.post('/register', authLimiter, async (req, res: Response, next) => {
       data: { email, passwordHash, displayName: displayName.trim() },
     });
     const token = signToken(user.id, user.email);
-    const refreshToken = makeRefreshToken(user.id);
+    const refreshToken = await issueRefreshToken(user.id);
     // Fire-and-forget — don't block registration on email delivery
     sendWelcomeEmail(user.email, user.displayName).catch(() => {});
     return res.status(201).json({
@@ -88,7 +101,7 @@ authRouter.post('/signup', authLimiter, async (req, res: Response, next) => {
       data: { email, passwordHash, displayName: name },
     });
     const token = signToken(user.id, user.email);
-    const refreshToken = makeRefreshToken(user.id);
+    const refreshToken = await issueRefreshToken(user.id);
     sendWelcomeEmail(user.email, user.displayName).catch(() => {});
     // Return both old shape (token/user) and new shape (accessToken) for compatibility
     return res.status(201).json({
@@ -122,7 +135,7 @@ authRouter.post('/login', authLimiter, async (req, res: Response, next) => {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
     const token = signToken(user.id, user.email);
-    const refreshToken = makeRefreshToken(user.id);
+    const refreshToken = await issueRefreshToken(user.id);
     return res.json({
       token,
       accessToken: token,
@@ -161,7 +174,7 @@ authRouter.post('/google', authLimiter, async (req, res: Response, next) => {
     }
 
     const token = signToken(user.id, user.email);
-    const refreshToken = makeRefreshToken(user.id);
+    const refreshToken = await issueRefreshToken(user.id);
     return res.json({ token, accessToken: token, refreshToken, user: { id: user.id, email: user.email, displayName: user.displayName } });
   } catch (err) {
     return next(err);
@@ -206,18 +219,20 @@ authRouter.post('/apple', authLimiter, async (req, res: Response, next) => {
     }
 
     const token = signToken(user.id, user.email);
-    const refreshToken = makeRefreshToken(user.id);
+    const refreshToken = await issueRefreshToken(user.id);
     return res.json({ token, accessToken: token, refreshToken, user: { id: user.id, email: user.email, displayName: user.displayName } });
   } catch (err) {
     return next(err);
   }
 });
 
-// POST /api/auth/refresh — exchange refresh token for new access token
+// POST /api/auth/refresh — exchange refresh token for new access token (true rotation)
 authRouter.post('/refresh', async (req, res: Response, next) => {
   try {
     const { refreshToken } = req.body || {};
     if (!refreshToken) return res.status(400).json({ error: 'refreshToken is required' });
+
+    // 1. Verify JWT signature + expiry
     const secret = process.env.JWT_SECRET || 'dev-secret';
     let payload: { userId?: string; type?: string };
     try {
@@ -228,19 +243,50 @@ authRouter.post('/refresh', async (req, res: Response, next) => {
     if (payload.type !== 'refresh' || !payload.userId) {
       return res.status(401).json({ error: 'Invalid refresh token' });
     }
+
+    // 2. Check DB — token must exist and not be revoked
+    const stored = await prisma.refreshToken.findUnique({ where: { token: refreshToken } });
+    if (!stored || stored.isRevoked || stored.expiresAt < new Date()) {
+      // If a revoked token is presented, revoke ALL tokens for this user (token reuse attack)
+      if (stored?.isRevoked) {
+        await prisma.refreshToken.updateMany({
+          where: { userId: payload.userId },
+          data: { isRevoked: true },
+        });
+        logger.warn(`Refresh token reuse detected for user ${payload.userId} — all tokens revoked`);
+      }
+      return res.status(401).json({ error: 'Refresh token is invalid or has been revoked' });
+    }
+
+    // 3. Load user
     const user = await prisma.user.findUnique({ where: { id: payload.userId } });
     if (!user || user.deletedAt) return res.status(401).json({ error: 'User not found' });
+
+    // 4. Atomically revoke old token and issue new one
+    await prisma.refreshToken.update({ where: { id: stored.id }, data: { isRevoked: true } });
     const accessToken = signToken(user.id, user.email);
-    const newRefresh = makeRefreshToken(user.id);
+    const newRefresh = await issueRefreshToken(user.id);
+
     return res.json({ token: accessToken, accessToken, refreshToken: newRefresh });
   } catch (err) {
     return next(err);
   }
 });
 
-// POST /api/auth/logout — stateless JWT; client clears tokens
-authRouter.post('/logout', (_req, res: Response) => {
-  return res.json({ message: 'Logged out' });
+// POST /api/auth/logout — revoke refresh token server-side
+authRouter.post('/logout', async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const { refreshToken } = (req.body as { refreshToken?: string }) || {};
+    if (refreshToken) {
+      await prisma.refreshToken.updateMany({
+        where: { token: refreshToken, isRevoked: false },
+        data: { isRevoked: true },
+      });
+    }
+    return res.json({ message: 'Logged out' });
+  } catch (err) {
+    return next(err);
+  }
 });
 
 // GET /api/auth/me
