@@ -208,7 +208,7 @@ export function ShareCardPage() {
                   fontFamily: "var(--font-display)",
                   fontWeight: 700,
                 }}>
-                  📅 {card.dateFormatted}
+                  🗓 {card.dateFormatted}
                 </span>
                 <span style={{
                   background: "rgba(255,255,255,0.9)",

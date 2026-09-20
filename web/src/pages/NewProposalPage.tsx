@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link, useNavigate, useLocation } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { proposalsApi } from "../api/client";
 import { AppNav } from "../components/AppNav";
-import type { Proposal } from "../types";
+import type { Proposal, Suggestion } from "../types";
 import type { AxiosError } from "axios";
 import type { ApiError } from "../types";
 
@@ -27,6 +27,8 @@ const CATEGORIES = ["Dining", "Movie", "Adventure", "Nightlife", "Culture", "Out
 export function NewProposalPage() {
   const { groupId } = useParams<{ groupId: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
+  const prefillSuggestion = (location.state as { suggestion?: Suggestion } | null)?.suggestion;
   const [submitError, setSubmitError] = useState("");
 
   const {
@@ -40,7 +42,12 @@ export function NewProposalPage() {
       date: "",
       time: "19:00",
       options: [
-        { name: "", category: "Dining", description: "", address: "" },
+        {
+          name: prefillSuggestion?.name ?? "",
+          category: prefillSuggestion?.category ?? "Dining",
+          description: "",
+          address: prefillSuggestion?.address ?? "",
+        },
         { name: "", category: "Dining", description: "", address: "" },
         { name: "", category: "Dining", description: "", address: "" },
       ],

@@ -143,7 +143,14 @@ export function LandingPage() {
       {/* ── Footer ── */}
       <footer className="landing-footer">
         <div className="landing-footer__logo">
-          <div className="landing-footer__logo-blob" aria-hidden="true">📅</div>
+          <div className="landing-footer__logo-blob" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="3" y="4" width="18" height="17" rx="2.5" stroke="var(--primary,#0E8C8C)" strokeWidth="2" />
+              <line x1="3" y1="9" x2="21" y2="9" stroke="var(--primary,#0E8C8C)" strokeWidth="2" />
+              <line x1="8" y1="2" x2="8" y2="7" stroke="var(--primary,#0E8C8C)" strokeWidth="2" strokeLinecap="round" />
+              <line x1="16" y1="2" x2="16" y2="7" stroke="var(--primary,#0E8C8C)" strokeWidth="2" strokeLinecap="round" />
+            </svg>
+          </div>
           <span>DateNight</span>
         </div>
         <div className="landing-footer__links">
