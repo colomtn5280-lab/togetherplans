@@ -42,8 +42,17 @@
         {
           "action": "VIEW",
           "autoVerify": true,
-          "data": [{"scheme": "https", "host": "togetherplans.app", "pathPrefix": "/join"}],
-          "category": ["BROWSABLE", "DEFAULT"]
+          "data": [
+            {
+              "scheme": "https",
+              "host": "togetherplans.app",
+              "pathPrefix": "/join"
+            }
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
         }
       ]
     },
@@ -63,7 +72,8 @@
         }
       ],
       "expo-web-browser",
-      "expo-apple-authentication"
+      "expo-apple-authentication",
+      "expo-font"
     ],
     "extra": {
       "apiBaseUrl": "https://api.togetherplans.app",

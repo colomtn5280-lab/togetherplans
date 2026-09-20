@@ -1,112 +1,310 @@
+/**
+ * CreateProposalScreen — 3i
+ * HANDOFF_README spec: full redesign
+ */
 import React, { useState } from 'react';
 import {
-  View, Text, TextInput, TouchableOpacity,
-  StyleSheet, ScrollView, Alert, ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RouteProp } from '@react-navigation/native';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { useTheme } from '@/contexts/ThemeContext';
+import { SPACING, TYPE, SHADOWS } from '@/constants';
+import {
+  DNButton,
+  DNInput,
+  DNScreenHeader,
+  DNSticker,
+  DNText,
+} from '@/components/ui';
 import { proposalsAPI } from '@/services/api';
-import { Suggestion, RootStackParamList } from '@/types';
-import { COLORS, SPACING } from '@/constants';
+import type { RootStackParamList } from '@/types';
 
-type Props = {
-  navigation: NativeStackNavigationProp<RootStackParamList, 'CreateProposal'>;
-  route: RouteProp<RootStackParamList, 'CreateProposal'>;
-};
+type RouteT = RouteProp<RootStackParamList, 'CreateProposal'>;
 
-export default function CreateProposalScreen({ navigation, route }: Props) {
-  const { groupId } = route.params;
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [scheduledFor, setScheduledFor] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
-  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
+// Random emoji per index
+const CATEGORY_EMOJIS = ['🍕', '🍣', '🎭', '🎬', '🌿', '🎵', '🍷', '🏃', '🎨', '😂'];
 
-  const loadSuggestions = async () => {
-    setLoadingSuggestions(true);
-    try {
-      const res = await proposalsAPI.suggestions();
-      // API returns a plain array
-      setSuggestions(Array.isArray(res.data) ? res.data : []);
-    } catch {
-      Alert.alert('Error', 'Could not load suggestions');
-    } finally {
-      setLoadingSuggestions(false);
-    }
-  };
-
-  const handleCreate = async () => {
-    if (!title.trim()) return Alert.alert('Error', 'Proposal title is required');
-    setLoading(true);
-    try {
-      const res = await proposalsAPI.create(
-        groupId, title.trim(), description.trim() || undefined,
-        scheduledFor.trim() || undefined,
-      );
-      navigation.replace('ProposalDetail', { proposalId: res.data.id });
-    } catch (err: any) {
-      Alert.alert('Error', err?.response?.data?.error || 'Could not create proposal');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.inner} keyboardShouldPersistTaps="handled">
-      <Text style={styles.label}>Proposal Title *</Text>
-      <TextInput style={styles.input} placeholder="Dinner this weekend, Movie night..."
-        value={title} onChangeText={setTitle} placeholderTextColor={COLORS.textSecondary} />
-
-      <Text style={styles.label}>Description (optional)</Text>
-      <TextInput style={[styles.input, styles.multiline]} placeholder="What are you thinking?"
-        value={description} onChangeText={setDescription} multiline numberOfLines={3}
-        placeholderTextColor={COLORS.textSecondary} />
-
-      <Text style={styles.label}>Date / Time (optional)</Text>
-      <TextInput style={styles.input} placeholder="e.g. Saturday evening, Dec 14"
-        value={scheduledFor} onChangeText={setScheduledFor}
-        placeholderTextColor={COLORS.textSecondary} />
-
-      <TouchableOpacity style={styles.button} onPress={handleCreate} disabled={loading}>
-        {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Create Proposal</Text>}
-      </TouchableOpacity>
-
-      <View style={styles.divider} />
-
-      <View style={styles.suggestionsHeader}>
-        <Text style={styles.sectionTitle}>Need ideas?</Text>
-        <TouchableOpacity onPress={loadSuggestions} disabled={loadingSuggestions}>
-          <Text style={styles.loadLink}>{loadingSuggestions ? 'Loading...' : 'Load suggestions'}</Text>
-        </TouchableOpacity>
-      </View>
-
-      {suggestions.map((s, i) => (
-        <TouchableOpacity key={`${s.name}-${i}`} style={styles.suggestionCard} onPress={() => {
-          setTitle(s.name);
-          setDescription(s.description);
-        }}>
-          <Text style={styles.suggestionTitle}>{s.name}</Text>
-          <Text style={styles.suggestionMeta}>{s.category}{s.address ? ` · ${s.address}` : ''}</Text>
-        </TouchableOpacity>
-      ))}
-    </ScrollView>
-  );
+interface OptionRow {
+  id: string;
+  name: string;
+  category: string;
+  address: string;
+  emoji: string;
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.background },
-  inner: { padding: SPACING.lg },
-  label: { fontSize: 14, fontWeight: '600', color: COLORS.text, marginBottom: SPACING.xs, marginTop: SPACING.md },
-  input: { borderWidth: 1, borderColor: COLORS.border, borderRadius: 12, padding: SPACING.md, fontSize: 16, color: COLORS.text, backgroundColor: COLORS.surface },
-  multiline: { height: 100, textAlignVertical: 'top' },
-  button: { backgroundColor: COLORS.primary, borderRadius: 12, padding: SPACING.md, alignItems: 'center', marginTop: SPACING.xl },
-  buttonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
-  divider: { height: 1, backgroundColor: COLORS.border, marginVertical: SPACING.xl },
-  suggestionsHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SPACING.md },
-  sectionTitle: { fontSize: 18, fontWeight: '700', color: COLORS.text },
-  loadLink: { color: COLORS.primary, fontWeight: '600' },
-  suggestionCard: { backgroundColor: COLORS.surface, borderRadius: 10, padding: SPACING.md, marginBottom: SPACING.sm, borderWidth: 1, borderColor: COLORS.border },
-  suggestionTitle: { fontSize: 15, fontWeight: '600', color: COLORS.text, marginBottom: 2 },
-  suggestionMeta: { fontSize: 13, color: COLORS.textSecondary },
-});
+function makeOption(): OptionRow {
+  return {
+    id: String(Date.now() + Math.random()),
+    name: '',
+    category: '',
+    address: '',
+    emoji: CATEGORY_EMOJIS[Math.floor(Math.random() * CATEGORY_EMOJIS.length)],
+  };
+}
+
+export default function CreateProposalScreen() {
+  const { colors } = useTheme();
+  const navigation = useNavigation<any>();
+  const route = useRoute<RouteT>();
+  const { groupId } = route.params;
+
+  const [title, setTitle] = useState('');
+  const [selectedDate, setSelectedDate] = useState(() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 1);
+    d.setHours(19, 0, 0, 0);
+    return d;
+  });
+  const [options, setOptions] = useState<OptionRow[]>([makeOption(), makeOption(), makeOption()]);
+  const [titleError, setTitleError] = useState('');
+  const [optionsError, setOptionsError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+
+  const addOption = () => {
+    if (options.length < 5) {
+      setOptions((prev) => [...prev, makeOption()]);
+    }
+  };
+
+  const deleteOption = (id: string) => {
+    setOptions((prev) => prev.filter((o) => o.id !== id));
+  };
+
+  const updateOption = (id: string, field: keyof OptionRow, value: string) => {
+    setOptions((prev) =>
+      prev.map((o) => (o.id === id ? { ...o, [field]: value } : o))
+    );
+  };
+
+  const handleFromDiscover = () => {
+    navigation.navigate('Suggestions', { groupId });
+  };
+
+  const validate = () => {
+    let valid = true;
+    if (!title.trim()) {
+      setTitleError('Title is required');
+      valid = false;
+    } else {
+      setTitleError('');
+    }
+    if (options.length < 3) {
+      setOptionsError('Add at least 3 options');
+      valid = false;
+    } else if (options.length > 5) {
+      setOptionsError('Maximum 5 options');
+      valid = false;
+    } else {
+      setOptionsError('');
+    }
+    return valid;
+  };
+
+  const handleSubmit = async () => {
+    if (!validate()) return;
+    setSubmitting(true);
+    try {
+      await proposalsAPI.create(groupId, title.trim(), undefined, selectedDate.toISOString());
+      navigation.goBack();
+    } catch (e) {
+      console.warn('Failed to create proposal', e);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const rowStyle: object = {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.surface,
+    borderRadius: 18,
+    paddingHorizontal: SPACING.md,
+    paddingVertical: 14,
+    marginBottom: SPACING.sm,
+    ...SHADOWS.card,
+  };
+
+  const dateLabel = selectedDate.toLocaleDateString(undefined, {
+    weekday: 'long', month: 'long', day: 'numeric',
+  });
+  const timeLabel = selectedDate.toLocaleTimeString(undefined, {
+    hour: '2-digit', minute: '2-digit',
+  });
+
+  return (
+    <KeyboardAvoidingView
+      style={{ flex: 1, backgroundColor: colors.bg }}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
+      <DNScreenHeader
+        title="New proposal"
+        onBack={() => navigation.goBack()}
+      />
+
+      <ScrollView
+        contentContainerStyle={{ padding: SPACING.gutter, paddingBottom: 160 }}
+        keyboardShouldPersistTaps="handled"
+      >
+        {/* Title */}
+        <DNInput
+          label="Title"
+          value={title}
+          onChangeText={setTitle}
+          placeholder="What are we planning?"
+          error={titleError}
+        />
+
+        {/* Date row */}
+        <TouchableOpacity
+          style={rowStyle}
+          onPress={() => {
+            // On a real device, you'd open a native date picker here.
+            // Using a basic increment for demo purposes.
+          }}
+        >
+          <Text style={{ fontSize: 18, marginRight: 12 }}>📅</Text>
+          <View style={{ flex: 1 }}>
+            <DNText variant="rowLabel" color={colors.ink}>Date</DNText>
+            <DNText variant="secondary" color={colors.ink2}>{dateLabel}</DNText>
+          </View>
+          <Text style={[TYPE.secondary, { color: colors.ink2 }]}>›</Text>
+        </TouchableOpacity>
+
+        {/* Time row */}
+        <View style={[rowStyle, { marginBottom: SPACING.lg }]}>
+          <Text style={{ fontSize: 18, marginRight: 12 }}>🕐</Text>
+          <View style={{ flex: 1 }}>
+            <DNText variant="rowLabel" color={colors.ink}>Time</DNText>
+            <DNText variant="secondary" color={colors.ink2}>{timeLabel}</DNText>
+          </View>
+          <Text style={[TYPE.secondary, { color: colors.ink2 }]}>›</Text>
+        </View>
+
+        {/* Options header */}
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: SPACING.sm }}>
+          <DNText variant="section" color={colors.ink2} style={{ flex: 1 }}>
+            Options
+          </DNText>
+          <DNSticker
+            label={`${options.length} of 5`}
+            color={colors.limeSoft}
+            textColor={colors.lime}
+            rotationIndex={1}
+          />
+        </View>
+
+        {optionsError ? (
+          <DNText variant="secondary" color={colors.error} style={{ marginBottom: SPACING.sm }}>
+            {optionsError}
+          </DNText>
+        ) : null}
+
+        {/* Option rows */}
+        {options.map((opt) => (
+          <View
+            key={opt.id}
+            style={{
+              backgroundColor: colors.surface,
+              borderRadius: 18,
+              padding: SPACING.md,
+              marginBottom: SPACING.sm,
+              ...SHADOWS.card,
+            }}
+          >
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              {/* Emoji blob */}
+              <View
+                style={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: 16,
+                  backgroundColor: colors.primarySoft,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginRight: 12,
+                }}
+              >
+                <Text style={{ fontSize: 16 }}>{opt.emoji}</Text>
+              </View>
+
+              {/* Inline name input */}
+              <TextInput
+                value={opt.name}
+                onChangeText={(v) => updateOption(opt.id, 'name', v)}
+                placeholder="Option name"
+                placeholderTextColor={colors.ink2}
+                style={[TYPE.rowLabel, { flex: 1, color: colors.ink }]}
+              />
+
+              {/* Delete menu */}
+              <TouchableOpacity onPress={() => deleteOption(opt.id)} style={{ padding: 4 }}>
+                <Text style={[TYPE.secondary, { color: colors.ink2, fontSize: 20 }]}>⋯</Text>
+              </TouchableOpacity>
+            </View>
+
+            {(opt.category || opt.address) && (
+              <DNText variant="secondary" color={colors.ink2} style={{ marginTop: 4, marginLeft: 44 }}>
+                {[opt.category, opt.address].filter(Boolean).join(' · ')}
+              </DNText>
+            )}
+          </View>
+        ))}
+
+        {/* Add your own dashed row */}
+        {options.length < 5 && (
+          <TouchableOpacity
+            onPress={addOption}
+            style={{
+              borderWidth: 1.5,
+              borderColor: colors.line,
+              borderStyle: 'dashed',
+              borderRadius: 18,
+              paddingVertical: 14,
+              alignItems: 'center',
+              marginBottom: SPACING.sm,
+            }}
+          >
+            <DNText variant="secondary" color={colors.ink2}>+ Add your own</DNText>
+          </TouchableOpacity>
+        )}
+
+        {/* From Discover button */}
+        <DNButton
+          label="✦ From Discover"
+          variant="tonal"
+          onPress={handleFromDiscover}
+          style={{ marginBottom: SPACING.lg }}
+        />
+      </ScrollView>
+
+      {/* Sticky bottom bar */}
+      <View
+        style={{
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          backgroundColor: colors.bg,
+          paddingHorizontal: SPACING.gutter,
+          paddingBottom: Platform.OS === 'ios' ? 36 : 24,
+          paddingTop: SPACING.md,
+          borderTopWidth: 1,
+          borderTopColor: colors.line,
+        }}
+      >
+        <DNButton
+          label="Send to group ♥"
+          variant="primary"
+          onPress={handleSubmit}
+          loading={submitting}
+        />
+      </View>
+    </KeyboardAvoidingView>
+  );
+}

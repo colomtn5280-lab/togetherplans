@@ -87,7 +87,8 @@ export interface Suggestion {
 export type RootStackParamList = {
   Login: undefined;
   Register: undefined;
-  Main: undefined;
+  Onboarding: undefined;
+  Main: { groupId?: string } | undefined;
   GroupDetail: { groupId: string; groupName: string };
   ProposalDetail: { proposalId: string };
   CreateProposal: { groupId: string };

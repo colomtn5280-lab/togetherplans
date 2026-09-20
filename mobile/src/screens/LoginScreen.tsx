@@ -1,34 +1,54 @@
+/**
+ * LoginScreen — DateNight v2 redesign (3a)
+ * Teal + lime palette, Sora/DM Sans, asymmetric sticker shape language.
+ */
 import React, { useState } from 'react';
 import {
-  View, Text, TextInput, TouchableOpacity,
-  StyleSheet, KeyboardAvoidingView, Platform,
-  ActivityIndicator, Alert, ScrollView,
+  View,
+  Text,
+  TouchableOpacity,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
 } from 'react-native';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/hooks/useAuth';
 import { useGoogleAuth } from '@/hooks/useGoogleAuth';
 import { useAppleAuth } from '@/hooks/useAppleAuth';
-import { COLORS, SPACING } from '@/constants';
+import { useTheme } from '@/contexts/ThemeContext';
+import { TYPE, SPACING, SHADOWS } from '@/constants';
+import { DNInput, DNButton } from '@/components/ui';
 import { RootStackParamList } from '@/types';
 
 type Props = { navigation: NativeStackNavigationProp<RootStackParamList, 'Login'> };
 
 export default function LoginScreen({ navigation }: Props) {
+  const { colors } = useTheme();
   const { login } = useAuth();
   const { promptAsync, request } = useGoogleAuth();
   const { signIn: appleSignIn, isAvailable: appleAvailable } = useAppleAuth();
+  const insets = useSafeAreaInsets();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const handleLogin = async () => {
-    if (!email || !password) return Alert.alert('Error', 'Please fill in all fields');
+    setError('');
+    if (!email || !password) {
+      setError('Please enter your email and password.');
+      return;
+    }
     setLoading(true);
     try {
       await login(email.trim().toLowerCase(), password);
-    } catch (err: any) {
-      Alert.alert('Login Failed', err?.response?.data?.error || 'Invalid credentials');
+    } catch (err: unknown) {
+      const e = err as { response?: { data?: { error?: string } } };
+      setError(e?.response?.data?.error || 'Invalid credentials. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -37,63 +57,164 @@ export default function LoginScreen({ navigation }: Props) {
   const handleAppleSignIn = async () => {
     try {
       await appleSignIn();
-    } catch (err: any) {
-      if (err?.code !== 'ERR_REQUEST_CANCELED') {
-        Alert.alert('Apple Sign In Failed', err?.message || 'Something went wrong');
+    } catch (err: unknown) {
+      const e = err as { code?: string; message?: string };
+      if (e?.code !== 'ERR_REQUEST_CANCELED') {
+        setError(e?.message || 'Apple Sign In failed.');
       }
     }
   };
 
   return (
-    <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <ScrollView contentContainerStyle={styles.inner} keyboardShouldPersistTaps="handled">
-        <Text style={styles.logo}>🗓️</Text>
-        <Text style={styles.title}>DateNight</Text>
-        <Text style={styles.subtitle}>Plan together, decide together</Text>
+    <KeyboardAvoidingView
+      style={[styles.flex, { backgroundColor: colors.bg }]}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
+      {/* Background blobs */}
+      <View
+        style={[
+          styles.blobTL,
+          {
+            backgroundColor: colors.primarySoft,
+          },
+        ]}
+      />
+      <View
+        style={[
+          styles.blobMR,
+          {
+            backgroundColor: colors.limeSoft,
+          },
+        ]}
+      />
 
-        <TextInput
-          style={styles.input}
-          placeholder="Email"
+      <ScrollView
+        contentContainerStyle={[
+          styles.inner,
+          { paddingTop: insets.top + SPACING.xl, paddingBottom: insets.bottom + SPACING.xl },
+        ]}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Logo */}
+        <View style={styles.logoArea}>
+          <View
+            style={[
+              styles.logoBlobOuter,
+              { backgroundColor: colors.primary },
+            ]}
+          >
+            <Text style={styles.logoEmoji}>📅</Text>
+            {/* Lime heart badge */}
+            <View
+              style={[
+                styles.heartBadge,
+                { backgroundColor: colors.lime },
+              ]}
+            >
+              <Text style={styles.heartEmoji}>♥</Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Title */}
+        <Text style={[TYPE.display, { color: colors.ink, textAlign: 'center', marginTop: SPACING.md }]}>
+          DateNight!
+        </Text>
+        <Text style={[TYPE.body, { color: colors.ink2, textAlign: 'center', marginTop: SPACING.xs, marginBottom: SPACING.xl }]}>
+          Plan together, decide together
+        </Text>
+
+        {/* Form */}
+        <DNInput
+          label="Email"
+          placeholder="you@example.com"
           value={email}
-          onChangeText={setEmail}
+          onChangeText={(t) => { setEmail(t); setError(''); }}
           keyboardType="email-address"
           autoCapitalize="none"
           autoCorrect={false}
-          placeholderTextColor={COLORS.textSecondary}
         />
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
+        <DNInput
+          label="Password"
+          placeholder="••••••••"
           value={password}
-          onChangeText={setPassword}
+          onChangeText={(t) => { setPassword(t); setError(''); }}
           secureTextEntry
-          placeholderTextColor={COLORS.textSecondary}
         />
 
-        <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={loading}>
-          {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Sign In</Text>}
-        </TouchableOpacity>
+        {/* Inline error */}
+        {error ? (
+          <Text style={[TYPE.secondary, { color: colors.error, marginBottom: SPACING.sm, marginTop: -SPACING.xs }]}>
+            {error}
+          </Text>
+        ) : null}
 
+        <DNButton
+          label="Log in"
+          onPress={handleLogin}
+          loading={loading}
+          style={{ marginTop: SPACING.sm, marginBottom: SPACING.lg }}
+        />
+
+        {/* Divider */}
+        <View style={styles.dividerRow}>
+          <View style={[styles.dividerLine, { backgroundColor: colors.line }]} />
+          <Text style={[TYPE.secondary, { color: colors.ink2, marginHorizontal: SPACING.sm }]}>or</Text>
+          <View style={[styles.dividerLine, { backgroundColor: colors.line }]} />
+        </View>
+
+        {/* Google button */}
         <TouchableOpacity
-          style={styles.googleButton}
+          style={[
+            styles.socialBtn,
+            {
+              backgroundColor: colors.surface,
+              borderColor: colors.line,
+              ...SHADOWS.card,
+            },
+          ]}
           onPress={() => promptAsync()}
           disabled={!request}
+          activeOpacity={0.82}
         >
-          <Text style={styles.googleButtonText}>Continue with Google</Text>
+          <Text style={[styles.googleG, { color: '#4285F4' }]}>G</Text>
+          <Text
+            style={[
+              { fontFamily: 'Sora_700Bold', fontSize: 15, color: colors.ink, marginLeft: SPACING.sm },
+            ]}
+          >
+            Continue with Google
+          </Text>
         </TouchableOpacity>
 
-        {appleAvailable && (
-          <AppleAuthentication.AppleAuthenticationButton
-            buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
-            buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
-            cornerRadius={12}
-            style={styles.appleButton}
+        {/* Apple button — iOS only */}
+        {Platform.OS === 'ios' && appleAvailable && (
+          <TouchableOpacity
+            style={[styles.socialBtn, styles.appleBtn]}
             onPress={handleAppleSignIn}
-          />
+            activeOpacity={0.82}
+          >
+            <Text style={styles.appleLogo}></Text>
+            <Text
+              style={{ fontFamily: 'Sora_700Bold', fontSize: 15, color: '#FFFFFF', marginLeft: SPACING.sm }}
+            >
+              Continue with Apple
+            </Text>
+          </TouchableOpacity>
         )}
 
-        <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-          <Text style={styles.link}>Don't have an account? <Text style={styles.linkBold}>Sign up</Text></Text>
+        {/* Footer */}
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Register')}
+          style={{ marginTop: SPACING.lg, alignItems: 'center' }}
+        >
+          <Text style={[TYPE.secondary, { color: colors.ink2 }]}>
+            No account?{' '}
+            <Text style={{ color: colors.primaryDeep, fontFamily: 'DMSans_600SemiBold' }}>
+              Create account
+            </Text>
+          </Text>
         </TouchableOpacity>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -101,35 +222,91 @@ export default function LoginScreen({ navigation }: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.background },
-  inner: { flexGrow: 1, justifyContent: 'center', padding: SPACING.xl },
-  logo: { fontSize: 64, textAlign: 'center', marginBottom: SPACING.sm },
-  title: { fontSize: 36, fontWeight: '700', textAlign: 'center', color: COLORS.primary, marginBottom: SPACING.xs },
-  subtitle: { fontSize: 16, textAlign: 'center', color: COLORS.textSecondary, marginBottom: SPACING.xl },
-  input: {
-    borderWidth: 1, borderColor: COLORS.border, borderRadius: 12,
-    padding: SPACING.md, marginBottom: SPACING.md,
-    fontSize: 16, color: COLORS.text, backgroundColor: COLORS.surface,
+  flex: { flex: 1 },
+  inner: { paddingHorizontal: SPACING.gutter, flexGrow: 1 },
+
+  // Blobs
+  blobTL: {
+    position: 'absolute',
+    top: -60,
+    left: -60,
+    width: 200,
+    height: 200,
+    borderTopLeftRadius: 100,
+    borderTopRightRadius: 60,
+    borderBottomRightRadius: 120,
+    borderBottomLeftRadius: 40,
+    opacity: 0.9,
   },
-  button: {
-    backgroundColor: COLORS.primary, borderRadius: 12,
-    padding: SPACING.md, alignItems: 'center', marginBottom: SPACING.md,
+  blobMR: {
+    position: 'absolute',
+    top: '35%',
+    right: -50,
+    width: 160,
+    height: 160,
+    borderTopLeftRadius: 80,
+    borderTopRightRadius: 40,
+    borderBottomRightRadius: 80,
+    borderBottomLeftRadius: 60,
+    opacity: 0.7,
   },
-  buttonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
-  link: { textAlign: 'center', color: COLORS.textSecondary, fontSize: 14 },
-  linkBold: { color: COLORS.primary, fontWeight: '600' },
-  googleButton: {
-    backgroundColor: '#fff',
+
+  // Logo
+  logoArea: { alignItems: 'center', marginTop: SPACING.md },
+  logoBlobOuter: {
+    width: 72,
+    height: 72,
+    borderTopLeftRadius: 42,
+    borderTopRightRadius: 26,
+    borderBottomRightRadius: 42,
+    borderBottomLeftRadius: 26,
+    alignItems: 'center',
+    justifyContent: 'center',
+    transform: [{ rotate: '-6deg' }],
+  },
+  logoEmoji: { fontSize: 32 },
+  heartBadge: {
+    position: 'absolute',
+    bottom: -4,
+    right: -4,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  heartEmoji: { fontSize: 10, color: '#FFFFFF' },
+
+  // Divider
+  dividerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: SPACING.md,
+  },
+  dividerLine: { flex: 1, height: 1 },
+
+  // Social buttons
+  socialBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 54,
+    borderRadius: 20,
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 12,
-    padding: SPACING.md,
-    alignItems: 'center' as const,
-    marginBottom: SPACING.md,
+    marginBottom: SPACING.sm,
+    paddingHorizontal: SPACING.lg,
   },
-  googleButtonText: { color: '#333', fontSize: 16, fontWeight: '600' as const },
-  appleButton: {
-    height: 50,
-    marginBottom: SPACING.md,
+  appleBtn: {
+    backgroundColor: '#000000',
+    borderColor: '#000000',
+  },
+  googleG: {
+    fontFamily: 'Sora_700Bold',
+    fontSize: 18,
+    fontWeight: '700',
+  },
+  appleLogo: {
+    fontSize: 18,
+    color: '#FFFFFF',
   },
 });

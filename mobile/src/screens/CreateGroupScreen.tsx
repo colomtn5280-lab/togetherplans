@@ -1,57 +1,144 @@
-import React, { useState } from 'react';
+/**
+ * CreateGroupScreen — §3f
+ * Create a new group with name, description, type
+ */
+import React, { useRef, useState } from 'react';
 import {
-  View, Text, TextInput, TouchableOpacity,
-  StyleSheet, ScrollView, Alert, ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+
+import { useTheme } from '@/contexts/ThemeContext';
+import { SPACING, TYPE } from '@/constants';
+import {
+  DNButton,
+  DNChip,
+  DNInput,
+  DNScreenHeader,
+} from '@/components/ui';
 import { groupsAPI } from '@/services/api';
-import { RootStackParamList } from '@/types';
-import { COLORS, SPACING } from '@/constants';
+import type { RootStackParamList } from '@/types';
 
-type Props = { navigation: NativeStackNavigationProp<RootStackParamList, 'CreateGroup'> };
+type Nav = NativeStackNavigationProp<RootStackParamList>;
 
-export default function CreateGroupScreen({ navigation }: Props) {
+type GroupType = 'Couple' | 'Friends' | 'Family';
+const GROUP_TYPES: GroupType[] = ['Couple', 'Friends', 'Family'];
+
+export default function CreateGroupScreen() {
+  const { colors } = useTheme();
+  const navigation = useNavigation<Nav>();
+
+  const [groupType, setGroupType] = useState<GroupType>('Couple');
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+  const [nameError, setNameError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const validate = () => {
+    if (!name.trim()) {
+      setNameError('Group name is required');
+      return false;
+    }
+    setNameError('');
+    return true;
+  };
+
   const handleCreate = async () => {
-    if (!name.trim()) return Alert.alert('Error', 'Group name is required');
+    if (!validate()) return;
     setLoading(true);
     try {
       const res = await groupsAPI.create(name.trim(), description.trim() || undefined);
-      navigation.replace('GroupDetail', { groupId: res.data.id, groupName: res.data.name });
+      const newGroup = res.data?.group ?? res.data;
+      navigation.replace('GroupDetail', {
+        groupId: newGroup?.id ?? 'new',
+        groupName: newGroup?.name ?? name.trim(),
+      });
     } catch (err: any) {
-      Alert.alert('Error', err?.response?.data?.error || 'Could not create group');
+      setNameError(err?.response?.data?.error ?? 'Failed to create group');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.inner} keyboardShouldPersistTaps="handled">
-      <Text style={styles.label}>Plan Name *</Text>
-      <TextInput style={styles.input} placeholder="Date night, Weekend trip, Dinner plans..."
-        value={name} onChangeText={setName} placeholderTextColor={COLORS.textSecondary} />
+    <KeyboardAvoidingView
+      style={{ flex: 1, backgroundColor: colors.bg }}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
+      <DNScreenHeader
+        title="New group"
+        rightElement={
+          <DNButton
+            label="Create"
+            onPress={handleCreate}
+            variant="primary"
+            size="compact"
+            loading={loading}
+            disabled={!name.trim()}
+          />
+        }
+      />
 
-      <Text style={styles.label}>Description (optional)</Text>
-      <TextInput style={[styles.input, styles.multiline]} placeholder="What's this plan about?"
-        value={description} onChangeText={setDescription} multiline numberOfLines={3}
-        placeholderTextColor={COLORS.textSecondary} />
+      {/* Cancel left — inject via absolute or header left */}
+      <ScrollView
+        contentContainerStyle={{ paddingHorizontal: SPACING.gutter, paddingBottom: 120 }}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Cancel link */}
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={{ marginBottom: SPACING.lg, alignSelf: 'flex-start' }}
+        >
+          <Text style={[TYPE.button, { color: colors.ink2 }]}>Cancel</Text>
+        </TouchableOpacity>
 
-      <TouchableOpacity style={styles.button} onPress={handleCreate} disabled={loading}>
-        {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Create Plan</Text>}
-      </TouchableOpacity>
-    </ScrollView>
+        {/* Group type chips */}
+        <Text style={[TYPE.secondary, { color: colors.ink2, marginBottom: 10 }]}>Group type</Text>
+        <View style={{ flexDirection: 'row', gap: 10, marginBottom: SPACING.lg, flexWrap: 'wrap' }}>
+          {GROUP_TYPES.map((type, i) => (
+            <DNChip
+              key={type}
+              label={type}
+              selected={groupType === type}
+              onPress={() => setGroupType(type)}
+              index={i}
+            />
+          ))}
+        </View>
+
+        {/* Name input */}
+        <DNInput
+          label="Group name *"
+          placeholder="e.g. Date nights ♥"
+          value={name}
+          onChangeText={(t) => {
+            setName(t);
+            if (nameError) setNameError('');
+          }}
+          autoFocus
+          error={nameError}
+          returnKeyType="next"
+        />
+
+        {/* Description input */}
+        <DNInput
+          label="Description (optional)"
+          placeholder="What's this group about?"
+          value={description}
+          onChangeText={setDescription}
+          multiline
+          numberOfLines={4}
+          textAlignVertical="top"
+          style={{ minHeight: 100 } as any}
+        />
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.background },
-  inner: { padding: SPACING.lg },
-  label: { fontSize: 14, fontWeight: '600', color: COLORS.text, marginBottom: SPACING.xs, marginTop: SPACING.md },
-  input: { borderWidth: 1, borderColor: COLORS.border, borderRadius: 12, padding: SPACING.md, fontSize: 16, color: COLORS.text, backgroundColor: COLORS.surface },
-  multiline: { height: 100, textAlignVertical: 'top' },
-  button: { backgroundColor: COLORS.primary, borderRadius: 12, padding: SPACING.md, alignItems: 'center', marginTop: SPACING.xl },
-  buttonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
-});
