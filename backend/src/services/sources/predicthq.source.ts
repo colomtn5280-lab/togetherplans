@@ -144,11 +144,13 @@ function phqCategories(categoryFilter?: string): string {
 // Helpers
 // ---------------------------------------------------------------------------
 function formatCostTier(ev: PhqEvent): Suggestion['costTier'] {
-  const spend = ev.predicted_event_spend;
-  if (!spend || spend < 10) return 'free';
-  if (spend < 30) return '$';
-  if (spend < 80) return '$$';
-  return '$$$';
+  // predicted_event_spend is a demand model, not a ticket price — don't map it to cost tier.
+  // PHQ doesn't provide actual ticket prices, so default to $$ (paid event assumption).
+  // Free community events (rank < 30) are likely free/cheap.
+  const rank = ev.local_rank ?? ev.rank ?? 50;
+  if (ev.category === 'community' && rank < 30) return 'free';
+  if (ev.category === 'community') return '$';
+  return '$$';
 }
 
 function extractVenueAndAddress(ev: PhqEvent): {
