@@ -23,7 +23,14 @@ import { ForgotPasswordPage } from "./pages/ForgotPasswordPage";
 import { ResetPasswordPage } from "./pages/ResetPasswordPage";
 import { JoinPage } from "./pages/JoinPage";
 import { ShareCardPage, PublicSharePage } from "./pages/ShareCardPage";
-import { AfterDarkPage } from "./pages/AfterDarkPage";
+import { AfterDarkPage } from './pages/AfterDarkPage';
+import BusinessLandingPage from './pages/business/BusinessLandingPage';
+import { BusinessAuthPage } from './pages/business/BusinessAuthPage';
+import { BusinessLayout } from './pages/business/BusinessLayout';
+import { BusinessDashboardPage } from './pages/business/BusinessDashboardPage';
+import { BusinessProfilePage } from './pages/business/BusinessProfilePage';
+import { BusinessListingsPage } from './pages/business/BusinessListingsPage';
+import { BusinessAnalyticsPage } from './pages/business/BusinessAnalyticsPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -119,6 +126,17 @@ export default function App() {
 
           {/* ── Catch-all 404 ── */}
           <Route path="*" element={<NotFoundPage />} />
+
+          {/* ── Business portal ── */}
+          <Route path="/business" element={<BusinessLandingPage />} />
+          <Route path="/business/login" element={<BusinessAuthPage mode="login" />} />
+          <Route path="/business/register" element={<BusinessAuthPage mode="register" />} />
+          <Route element={<BusinessLayout />}>
+            <Route path="/business/dashboard" element={<BusinessDashboardPage />} />
+            <Route path="/business/profile" element={<BusinessProfilePage />} />
+            <Route path="/business/listings" element={<BusinessListingsPage />} />
+            <Route path="/business/analytics" element={<BusinessAnalyticsPage />} />
+          </Route>
         </Routes>
       </BrowserRouter>
       <ReactQueryDevtools initialIsOpen={false} />

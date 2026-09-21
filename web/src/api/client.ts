@@ -334,4 +334,32 @@ export const safetyApi = {
     api.post('/safety/report', data),
 };
 
+// ── Business Portal ───────────────────────────────────────────────────────────
+
+const businessClient = axios.create({
+  baseURL: (import.meta.env.VITE_API_URL ?? 'https://api.togetherplans.app/api'),
+  headers: { 'Content-Type': 'application/json' },
+  timeout: 10_000,
+});
+
+businessClient.interceptors.request.use((cfg) => {
+  const token = localStorage.getItem('business_token');
+  if (token && cfg.headers) cfg.headers.Authorization = `Bearer ${token}`;
+  return cfg;
+});
+
+export const businessApi = {
+  register: (data: object) => businessClient.post('/business/auth/register', data),
+  login: (data: object) => businessClient.post('/business/auth/login', data),
+  getMe: () => businessClient.get('/business/me'),
+  updateMe: (data: object) => businessClient.patch('/business/me', data),
+  getListings: () => businessClient.get('/business/me/listings'),
+  createListing: (data: object) => businessClient.post('/business/me/listings', data),
+  updateListing: (id: string, data: object) => businessClient.patch(`/business/me/listings/${id}`, data),
+  deleteListing: (id: string) => businessClient.delete(`/business/me/listings/${id}`),
+  getAnalytics: (period: string) => businessClient.get(`/business/me/analytics?period=${period}`),
+  logImpression: (data: object) => businessClient.post('/business/impressions', data),
+  getPublicStats: () => businessClient.get('/business/public/stats'),
+};
+
 export default api;
