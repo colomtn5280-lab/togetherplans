@@ -17,6 +17,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/hooks/useAuth';
 import { useGoogleAuth } from '@/hooks/useGoogleAuth';
 import { useAppleAuth } from '@/hooks/useAppleAuth';
+import { useFacebookAuth } from '@/hooks/useFacebookAuth';
 import { useTheme } from '@/contexts/ThemeContext';
 import { TYPE, SPACING, SHADOWS } from '@/constants';
 import { DNInput, DNButton, DNSticker } from '@/components/ui';
@@ -31,6 +32,7 @@ export default function RegisterScreen({ navigation }: Props) {
   const { register } = useAuth();
   const { promptAsync, request } = useGoogleAuth();
   const { signIn: appleSignIn, isAvailable: appleAvailable } = useAppleAuth();
+  const { promptAsync: facebookPromptAsync, request: facebookRequest, error: facebookError } = useFacebookAuth();
   const insets = useSafeAreaInsets();
 
   const [displayName, setDisplayName] = useState('');
@@ -157,9 +159,9 @@ export default function RegisterScreen({ navigation }: Props) {
         />
 
         {/* General error */}
-        {errors.general ? (
+        {(errors.general || facebookError) ? (
           <Text style={[TYPE.secondary, { color: colors.error, marginBottom: SPACING.sm }]}>
-            {errors.general}
+            {errors.general || facebookError}
           </Text>
         ) : null}
 
@@ -200,6 +202,19 @@ export default function RegisterScreen({ navigation }: Props) {
               </Text>
             </TouchableOpacity>
           )}
+
+          {/* Facebook — all platforms */}
+          <TouchableOpacity
+            style={[styles.socialHalf, styles.facebookHalf]}
+            onPress={() => facebookPromptAsync()}
+            disabled={!facebookRequest}
+            activeOpacity={0.82}
+          >
+            <Text style={{ fontFamily: 'Sora_700Bold', fontSize: 16, fontWeight: '700', color: '#FFFFFF' }}>f</Text>
+            <Text style={{ fontFamily: 'Sora_700Bold', fontSize: 13, color: '#FFFFFF', marginLeft: 6 }}>
+              Facebook
+            </Text>
+          </TouchableOpacity>
         </View>
 
         {/* Footer */}
@@ -281,6 +296,10 @@ const styles = StyleSheet.create({
   appleHalf: {
     backgroundColor: '#000000',
     borderColor: '#000000',
+  },
+  facebookHalf: {
+    backgroundColor: '#1877F2',
+    borderColor: '#1877F2',
   },
   googleG: {
     fontFamily: 'Sora_700Bold',

@@ -18,6 +18,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/hooks/useAuth';
 import { useGoogleAuth } from '@/hooks/useGoogleAuth';
 import { useAppleAuth } from '@/hooks/useAppleAuth';
+import { useFacebookAuth } from '@/hooks/useFacebookAuth';
 import { useTheme } from '@/contexts/ThemeContext';
 import { TYPE, SPACING, SHADOWS } from '@/constants';
 import { DNInput, DNButton } from '@/components/ui';
@@ -30,12 +31,16 @@ export default function LoginScreen({ navigation }: Props) {
   const { login } = useAuth();
   const { promptAsync, request } = useGoogleAuth();
   const { signIn: appleSignIn, isAvailable: appleAvailable } = useAppleAuth();
+  const { promptAsync: facebookPromptAsync, request: facebookRequest, error: facebookError } = useFacebookAuth();
   const insets = useSafeAreaInsets();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // Show Facebook auth errors inline
+  const displayError = error || facebookError || '';
 
   const handleLogin = async () => {
     setError('');
@@ -148,9 +153,9 @@ export default function LoginScreen({ navigation }: Props) {
         />
 
         {/* Inline error */}
-        {error ? (
+        {displayError ? (
           <Text style={[TYPE.secondary, { color: colors.error, marginBottom: SPACING.sm, marginTop: -SPACING.xs }]}>
-            {error}
+            {displayError}
           </Text>
         ) : null}
 
@@ -207,6 +212,21 @@ export default function LoginScreen({ navigation }: Props) {
             </Text>
           </TouchableOpacity>
         )}
+
+        {/* Facebook button — all platforms */}
+        <TouchableOpacity
+          style={[styles.socialBtn, styles.facebookBtn]}
+          onPress={() => facebookPromptAsync()}
+          disabled={!facebookRequest}
+          activeOpacity={0.82}
+        >
+          <Text style={styles.facebookF}>f</Text>
+          <Text
+            style={{ fontFamily: 'Sora_700Bold', fontSize: 15, color: '#FFFFFF', marginLeft: SPACING.sm }}
+          >
+            Continue with Facebook
+          </Text>
+        </TouchableOpacity>
 
         {/* Footer */}
         <TouchableOpacity
@@ -304,6 +324,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#000000',
     borderColor: '#000000',
   },
+  facebookBtn: {
+    backgroundColor: '#1877F2',
+    borderColor: '#1877F2',
+  },
   googleG: {
     fontFamily: 'Sora_700Bold',
     fontSize: 18,
@@ -311,6 +335,12 @@ const styles = StyleSheet.create({
   },
   appleLogo: {
     fontSize: 18,
+    color: '#FFFFFF',
+  },
+  facebookF: {
+    fontFamily: 'Sora_700Bold',
+    fontSize: 20,
+    fontWeight: '700',
     color: '#FFFFFF',
   },
 });

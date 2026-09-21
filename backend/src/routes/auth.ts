@@ -43,7 +43,8 @@ async function issueRefreshToken(userId: string): Promise<string> {
 // POST /api/auth/register
 authRouter.post('/register', authLimiter, async (req, res: Response, next) => {
   try {
-    const { email, password, displayName } = req.body || {};
+    const { email: rawEmail, password, displayName } = req.body || {};
+    const email = typeof rawEmail === 'string' ? rawEmail.trim().toLowerCase() : rawEmail;
     if (!email || !EMAIL_RE.test(email)) {
       return res.status(400).json({ error: 'Valid email is required' });
     }
@@ -79,7 +80,8 @@ authRouter.post('/register', authLimiter, async (req, res: Response, next) => {
 // POST /api/auth/signup — alias for /register (used by web client)
 authRouter.post('/signup', authLimiter, async (req, res: Response, next) => {
   try {
-    const { email, password, displayName, firstName, lastName } = req.body || {};
+    const { email: rawEmail, password, displayName, firstName, lastName } = req.body || {};
+    const email = typeof rawEmail === 'string' ? rawEmail.trim().toLowerCase() : rawEmail;
     // Web client sends firstName/lastName; merge into displayName if needed
     const name = displayName?.trim() ||
       [firstName, lastName].filter(Boolean).map((s: string) => s.trim()).join(' ') ||
@@ -126,7 +128,8 @@ function loginAttemptsKey(email: string): string {
 // POST /api/auth/login
 authRouter.post('/login', authLimiter, async (req, res: Response, next) => {
   try {
-    const { email, password } = req.body || {};
+    const { email: rawEmail, password } = req.body || {};
+    const email = typeof rawEmail === 'string' ? rawEmail.trim().toLowerCase() : rawEmail;
     if (!email || !password) {
       return res.status(400).json({ error: 'email and password are required' });
     }
@@ -202,6 +205,44 @@ authRouter.post('/google', authLimiter, async (req, res: Response, next) => {
   } catch (err) {
     return next(err);
   }
+});
+
+// POST /api/auth/facebook
+authRouter.post('/facebook', authLimiter, async (req, res: Response, next: NextFunction) => {
+  try {
+    const { accessToken, email, name, providerId } = req.body || {};
+    if (!accessToken || !providerId) return res.status(400).json({ error: 'accessToken and providerId required' });
+
+    // Verify token with Facebook Graph API
+    const fbRes = await fetch(`https://graph.facebook.com/me?fields=id,name,email&access_token=${accessToken}`);
+    const fbData = await fbRes.json() as { id?: string; name?: string; email?: string; error?: unknown };
+    if (fbData.error || fbData.id !== providerId) return res.status(401).json({ error: 'Invalid Facebook token' });
+
+    const userEmail = fbData.email ?? email;
+    if (!userEmail) return res.status(400).json({ error: 'Email required — please grant email permission in Facebook' });
+
+    let user = await prisma.user.findFirst({
+      where: { OR: [{ provider: 'facebook', providerId }, { email: userEmail }] },
+    });
+    if (!user) {
+      user = await prisma.user.create({
+        data: {
+          email: userEmail,
+          displayName: fbData.name ?? name ?? userEmail.split('@')[0],
+          provider: 'facebook',
+          providerId,
+          passwordHash: null,
+        },
+      });
+      sendWelcomeEmail(user.email, user.email).catch(() => {});
+    } else if (!user.provider) {
+      user = await prisma.user.update({ where: { id: user.id }, data: { provider: 'facebook', providerId } });
+    }
+
+    const token = signToken(user.id, user.email);
+    const refreshToken = await issueRefreshToken(user.id);
+    return res.json({ token, accessToken: token, refreshToken, user: { id: user.id, email: user.email, displayName: user.displayName } });
+  } catch (err) { return next(err); }
 });
 
 // POST /api/auth/apple
@@ -408,7 +449,8 @@ const forgotPasswordLimiter = rateLimit({
 
 authRouter.post('/forgot-password', forgotPasswordLimiter, async (req, res: Response, next) => {
   try {
-    const { email } = req.body || {};
+    const { email: rawEmail } = req.body || {};
+    const email = typeof rawEmail === 'string' ? rawEmail.trim().toLowerCase() : rawEmail;
     if (!email || !EMAIL_RE.test(email)) {
       return res.status(400).json({ error: 'Valid email is required' });
     }
