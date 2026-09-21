@@ -49,9 +49,10 @@ internalRouter.post('/migrate', async (_req: Request, res: Response) => {
     }).toString();
     logger.info('Migration output:', { output });
     return res.json({ success: true, output });
-  } catch (err: any) {
-    logger.error('Migration failed', { err: err.message, stderr: err.stderr?.toString() });
-    return res.status(500).json({ error: err.message, stderr: err.stderr?.toString() });
+  } catch (err: unknown) {
+    const e = err as { message: string; stderr?: Buffer };
+    logger.error('Migration failed', { err: e.message, stderr: e.stderr?.toString() });
+    return res.status(500).json({ error: e.message, stderr: e.stderr?.toString() });
   }
 });
 

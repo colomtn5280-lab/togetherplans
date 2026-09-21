@@ -2,6 +2,7 @@ import express, { Request, Response, NextFunction } from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
 import rateLimit from 'express-rate-limit';
+import { execSync } from 'child_process';
 import { logger } from '@/services/logger';
 import { config } from '@/config';
 import { authRouter } from '@/routes/auth';
@@ -44,16 +45,16 @@ export function createApp(): express.Express {
     res.json({ status: 'ok', service: 'datenight-api', uptime: process.uptime() });
   });
 
-  // Temporary: public migrate endpoint — secured by obscurity, remove after first run
+  // Temporary: public migrate endpoint — remove after first successful run
   app.post('/api/run-migrations-a7f3k9', async (_req: Request, res: Response) => {
-    const { execSync } = require('child_process');
     try {
       const output = execSync('npx prisma migrate deploy', {
         cwd: process.cwd(), env: process.env, timeout: 60000,
       }).toString();
       return res.json({ success: true, output });
-    } catch (err: any) {
-      return res.status(500).json({ error: err.message, stderr: err.stderr?.toString() });
+    } catch (err: unknown) {
+      const e = err as { message: string; stderr?: Buffer };
+      return res.status(500).json({ error: e.message, stderr: e.stderr?.toString() });
     }
   });
 
