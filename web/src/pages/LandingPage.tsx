@@ -1,164 +1,240 @@
-import { Link, Navigate } from "react-router-dom";
-import { useAuthStore } from "../store/auth.store";
-import { AppNav } from "../components/AppNav";
-import "./LandingPage.css";
+import './LandingPage.css';
 
-export function LandingPage() {
-  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
-
-  if (isAuthenticated) {
-    return <Navigate to="/dashboard" replace />;
-  }
-
+export default function LandingPage() {
   return (
-    <div className="landing">
-      {/* Nav override for landing — full-width, no max-width constraint */}
-      <div className="landing__nav-wrap">
-        <AppNav />
+    <div className="page">
+      <div className="blob b1" />
+      <div className="blob b2" />
+      <div className="wrap">
+        <nav className="nav">
+          <a className="brand" href="/" aria-label="TogetherPlans home">
+            <svg viewBox="0 0 100 100" aria-hidden="true">
+              <g transform="rotate(6 34 62)">
+                <circle cx="33" cy="28" r="11" fill="#0E8C8C"/>
+                <path d="M15 84V62a18 18 0 0 1 36 0v22z" fill="#0E8C8C"/>
+              </g>
+              <g transform="rotate(-6 66 66)">
+                <circle cx="67" cy="32" r="11" fill="#7CB518"/>
+                <path d="M49 84V66a18 18 0 0 1 36 0v18z" fill="#7CB518"/>
+              </g>
+            </svg>
+            TogetherPlans
+          </a>
+          <div className="nav-links">
+            <a href="#how">How it works</a>
+            <a href="#features">Features</a>
+            <a href="/support">Support</a>
+            <a href="/login" className="btn btn-primary btn-sm">Sign in</a>
+          </div>
+        </nav>
       </div>
 
-      {/* ── Hero ── */}
-      <section className="landing-hero">
-        <div className="landing-hero__left">
-          <span className="dn-sticker dn-sticker--lime landing-hero__badge">Plan Together</span>
-          <h1 className="landing-hero__title">Plan together.<br />Go together.</h1>
-          <p className="landing-hero__desc">
-            47 messages later, still no plan. TogetherPlans ends it in three taps.
-          </p>
-          <div className="landing-hero__actions">
-            <Link to="/signup" className="dn-btn">Get started free →</Link>
-            <Link to="/login" className="dn-btn dn-btn--secondary">Log in</Link>
+      {/* Hero */}
+      <section className="hero">
+        <div className="wrap">
+          <div className="hero-eyebrow">🎉 Now on iOS &amp; Android</div>
+          <h1>Stop texting<br/><span>"I don't know,<br/>what do you want to do?"</span></h1>
+          <p className="hero-sub">Propose options, vote together, lock it in. TogetherPlans turns indecision into plans in minutes.</p>
+          <div className="hero-cta">
+            <a href="https://apps.apple.com/app/togetherplans/id6806890578" className="btn btn-primary">
+              🍎 App Store
+            </a>
+            <a href="https://play.google.com/store/apps/details?id=togetherplans.app" className="btn btn-outline">
+              🤖 Google Play
+            </a>
+            <a href="/signup" className="btn btn-lime">Try on web →</a>
           </div>
-          <div className="landing-hero__badges">
-            <div className="landing-store-badge">
-              <span className="landing-store-badge__icon">🍎</span>
-              <div>
-                <div className="landing-store-badge__small">Download on the</div>
-                <div className="landing-store-badge__big">App Store</div>
-              </div>
-            </div>
-            <div className="landing-store-badge">
-              <span className="landing-store-badge__icon">▶</span>
-              <div>
-                <div className="landing-store-badge__small">Get it on</div>
-                <div className="landing-store-badge__big">Google Play</div>
-              </div>
-            </div>
+          <div className="hero-badge">
+            <span className="badge"><span className="badge-dot"/>Free forever</span>
+            <span className="badge"><span className="badge-dot"/>iOS &amp; Android</span>
+            <span className="badge"><span className="badge-dot"/>No ads</span>
           </div>
-        </div>
 
-        <div className="landing-hero__right" aria-hidden="true">
-          {/* Card 1 */}
-          <div className="landing-product-card landing-product-card--1">
-            <div className="landing-product-card__header">
-              <span>Friday Night</span>
-              <span className="dn-sticker">Open</span>
-            </div>
-            <div className="landing-product-card__options">
-              <div className="landing-option">
-                <span className="landing-option__heart">♥</span>
-                <span className="landing-option__name">Italian Restaurant</span>
-                <span className="landing-option__votes landing-option__votes--lime">♥ ♥</span>
-              </div>
-              <div className="landing-option">
-                <span className="landing-option__heart">♡</span>
-                <span className="landing-option__name">Movie Night</span>
-                <span className="landing-option__votes">♥</span>
-              </div>
-              <div className="landing-option">
-                <span className="landing-option__heart">♡</span>
-                <span className="landing-option__name">Bowling</span>
-                <span className="landing-option__votes"></span>
-              </div>
-            </div>
-          </div>
-          {/* Card 2 */}
-          <div className="landing-product-card landing-product-card--2">
-            <div className="landing-product-card__header">
-              <span>Saturday Night</span>
-              <span className="dn-sticker dn-sticker--lime">Locked In 🎉</span>
-            </div>
-            <div className="landing-product-card__options">
-              <div className="landing-option landing-option--winner">
-                <span className="landing-option__heart">♥</span>
-                <span className="landing-option__name">Italian Restaurant</span>
-                <span className="landing-option__votes landing-option__votes--lime">♥ ♥ ♥</span>
-              </div>
-              <div className="landing-option" style={{ opacity: 0.5 }}>
-                <span className="landing-option__heart">♡</span>
-                <span className="landing-option__name">Bowling</span>
-                <span className="landing-option__votes">♥</span>
+          {/* Phone mockup */}
+          <div className="phone-mockup">
+            <div className="phone-frame">
+              <div className="phone-screen">
+                <div className="screen-inner">
+                  <div className="screen-status">
+                    <span>9:41</span><span>●●● 100%</span>
+                  </div>
+                  <div className="screen-card">
+                    <div className="screen-card-top">
+                      <span className="card-title">Friday Night Out 🌙</span>
+                      <span className="card-chip">OPEN</span>
+                    </div>
+                    <div className="card-sub">Vote for your favorite option</div>
+                    <div className="vote-row">
+                      <div className="vote-opt voted">🍽 Nobu</div>
+                      <div className="vote-opt">🎵 Jazz</div>
+                      <div className="vote-opt">😂 Comedy</div>
+                    </div>
+                  </div>
+                  <div className="match-card">
+                    <div className="match-emoji">🎉</div>
+                    <div className="match-title">It's a Match!</div>
+                    <div className="match-sub">You both chose Jazz at Blue Room</div>
+                    <span className="match-btn">Add to Calendar</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── Features ── */}
-      <section className="landing-section">
-        <h2 className="landing-section__title">Why TogetherPlans?</h2>
-        <div className="landing-features">
-          {[
-            { icon: "🔄", title: "Stop the loop", desc: "No more 'what do you want to do?' — everyone submits ideas and the group decides fast." },
-            { icon: "♥", title: "Tap a heart", desc: "Vote on favourites with a single tap. Instant, visual, and actually fun." },
-            { icon: "👫", title: "Works for everyone", desc: "Perfect for couples, friend groups, or family nights. Scales to any size." },
-          ].map((f, i) => (
-            <div key={i} className={`dn-card landing-feature dn-card--alt${i % 3}`}>
-              <div className="landing-feature__icon-blob" aria-hidden="true">{f.icon}</div>
-              <h3>{f.title}</h3>
-              <p>{f.desc}</p>
+      {/* How it works */}
+      <section className="how" id="how">
+        <div className="wrap">
+          <div className="section-label">How it works</div>
+          <h2 className="section-title">Three steps to a locked-in plan</h2>
+          <p className="section-sub">No more endless back-and-forth. Just options, votes, and a plan.</p>
+          <div className="steps">
+            <div className="step">
+              <div className="step-icon">📋</div>
+              <h3>Propose options</h3>
+              <p>Add 2–5 things you'd both enjoy. Restaurants, activities, anything.</p>
             </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── How it works ── */}
-      <section className="landing-section landing-section--alt">
-        <h2 className="landing-section__title">Three taps. Done.</h2>
-        <div className="landing-steps">
-          {[
-            { num: "1", color: "var(--primary)", title: "Invite your people", desc: "Share a link, QR code, or send an invite by email. They're in within seconds." },
-            { num: "2", color: "var(--lime)", title: "Tap a heart", desc: "Everyone votes on their favourites from a curated list of local activities." },
-            { num: "3", color: "var(--ink)", title: "Lock it in", desc: "Once there's consensus, the plan locks and you get a notification. Go." },
-          ].map((s, i) => (
-            <div key={i} className="landing-step">
-              <div className="landing-step__num" style={{ background: s.color, color: s.color === "var(--lime)" ? "var(--on-lime)" : "var(--on-primary)" }}>
-                {s.num}
-              </div>
-              <h3>{s.title}</h3>
-              <p>{s.desc}</p>
+            <div className="step">
+              <div className="step-icon lime">❤️</div>
+              <h3>Everyone votes</h3>
+              <p>Each person votes independently. No influence, no awkward negotiations.</p>
             </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── CTA Band ── */}
-      <section className="landing-cta-band">
-        <div className="landing-cta-band__blob" aria-hidden="true" />
-        <h2>Ready for your next date night?</h2>
-        <p>Join thousands of couples already using TogetherPlans.</p>
-        <Link to="/signup" className="dn-btn">Create free account →</Link>
-      </section>
-
-      {/* ── Footer ── */}
-      <footer className="landing-footer">
-        <div className="landing-footer__logo">
-          <div className="landing-footer__logo-blob" aria-hidden="true">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="3" y="4" width="18" height="17" rx="2.5" stroke="var(--primary,#0E8C8C)" strokeWidth="2" />
-              <line x1="3" y1="9" x2="21" y2="9" stroke="var(--primary,#0E8C8C)" strokeWidth="2" />
-              <line x1="8" y1="2" x2="8" y2="7" stroke="var(--primary,#0E8C8C)" strokeWidth="2" strokeLinecap="round" />
-              <line x1="16" y1="2" x2="16" y2="7" stroke="var(--primary,#0E8C8C)" strokeWidth="2" strokeLinecap="round" />
-            </svg>
+            <div className="step">
+              <div className="step-icon">🎉</div>
+              <h3>It's a match</h3>
+              <p>When you agree, it locks in automatically and goes straight to your calendar.</p>
+            </div>
           </div>
-          <span>TogetherPlans</span>
         </div>
-        <div className="landing-footer__links">
-          <Link to="/privacy">Privacy</Link>
-          <Link to="/terms">Terms</Link>
-          <Link to="/support">Support</Link>
+      </section>
+
+      {/* Features */}
+      <section className="features" id="features">
+        <div className="wrap">
+          <div className="section-label">Features</div>
+          <h2 className="section-title">Everything you need, nothing you don't</h2>
+          <p className="section-sub">Built for couples and friend groups who want to spend time together, not planning time together.</p>
+          <div className="feat-grid">
+            <div className="feat-card">
+              <div className="feat-icon">🗳️</div>
+              <h3>Group voting</h3>
+              <p>Everyone in the group votes. Consensus auto-detected. Plan locked in instantly.</p>
+            </div>
+            <div className="feat-card">
+              <div className="feat-icon">🌙</div>
+              <h3>After Dark mode</h3>
+              <p>Late-night suggestions ranked by your mood. Adventurous, romantic, chill — you pick the vibe.</p>
+            </div>
+            <div className="feat-card">
+              <div className="feat-icon">📍</div>
+              <h3>Smart suggestions</h3>
+              <p>Activities, restaurants, and events near you. Powered by location, curated by taste.</p>
+            </div>
+            <div className="feat-card">
+              <div className="feat-icon">📅</div>
+              <h3>Calendar sync</h3>
+              <p>Matched plans drop straight into your calendar. No copy-paste, no forgetting.</p>
+            </div>
+            <div className="feat-card">
+              <div className="feat-icon">📤</div>
+              <h3>Share Cards</h3>
+              <p>Share your matched plans with a beautiful card. Let everyone know what you decided.</p>
+            </div>
+            <div className="feat-card">
+              <div className="feat-icon">🔒</div>
+              <h3>Private by default</h3>
+              <p>Groups are invite-only. Your plans stay between the people you invite.</p>
+            </div>
+          </div>
         </div>
-        <p className="landing-footer__copy">Made with ❤️ for date nights</p>
+      </section>
+
+      {/* Reviews */}
+      <section className="social-proof">
+        <div className="wrap">
+          <div className="section-label">Early users</div>
+          <h2 className="section-title">People are planning again</h2>
+          <div className="reviews">
+            <div className="review">
+              <div className="review-stars">★★★★★</div>
+              <p className="review-text">"We used to spend 30 minutes deciding where to eat. Now we spend 2. This app is stupid simple and I love it."</p>
+              <div className="reviewer">
+                <div className="reviewer-avatar">👩</div>
+                <div>
+                  <div className="reviewer-name">Sarah M.</div>
+                  <div className="reviewer-meta">Denver, CO</div>
+                </div>
+              </div>
+            </div>
+            <div className="review">
+              <div className="review-stars">★★★★★</div>
+              <p className="review-text">"My boyfriend and I have completely different tastes. TogetherPlans found the overlap we didn't know we had."</p>
+              <div className="reviewer">
+                <div className="reviewer-avatar">👱</div>
+                <div>
+                  <div className="reviewer-name">Priya K.</div>
+                  <div className="reviewer-meta">San Francisco, CA</div>
+                </div>
+              </div>
+            </div>
+            <div className="review">
+              <div className="review-stars">★★★★★</div>
+              <p className="review-text">"Our friend group of 6 used to never agree on anything. Last week we had 3 plans locked in 10 minutes."</p>
+              <div className="reviewer">
+                <div className="reviewer-avatar">🧑</div>
+                <div>
+                  <div className="reviewer-name">Marcus T.</div>
+                  <div className="reviewer-meta">Austin, TX</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="cta-section">
+        <div className="wrap">
+          <div className="cta-box">
+            <h2>Ready to make a plan?</h2>
+            <p>Free on iOS, Android, and web. No credit card. No nonsense.</p>
+            <div className="cta-buttons">
+              <a href="https://apps.apple.com/app/togetherplans/id6806890578" className="btn btn-white">
+                🍎 Download for iOS
+              </a>
+              <a href="https://play.google.com/store/apps/details?id=togetherplans.app" className="btn btn-ghost">
+                🤖 Get it on Android
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <footer>
+        <div className="wrap">
+          <div className="footer-inner">
+            <a className="brand" href="/" style={{fontSize:'16px'}}>
+              <svg viewBox="0 0 100 100" style={{width:28,height:28}}>
+                <g transform="rotate(6 34 62)">
+                  <circle cx="33" cy="28" r="11" fill="#0E8C8C"/>
+                  <path d="M15 84V62a18 18 0 0 1 36 0v22z" fill="#0E8C8C"/>
+                </g>
+                <g transform="rotate(-6 66 66)">
+                  <circle cx="67" cy="32" r="11" fill="#7CB518"/>
+                  <path d="M49 84V66a18 18 0 0 1 36 0v18z" fill="#7CB518"/>
+                </g>
+              </svg>
+              TogetherPlans
+            </a>
+            <div className="footer-links">
+              <a href="/privacy">Privacy</a>
+              <a href="/terms">Terms</a>
+              <a href="/support">Support</a>
+            </div>
+            <span className="footer-copy">© 2026 TogetherPlans LLC</span>
+          </div>
+        </div>
       </footer>
     </div>
   );
