@@ -188,8 +188,12 @@ export async function getSuggestions(query: SuggestionQuery): Promise<Suggestion
     }
   }
 
+  // Filter by category (applied before date filter so every code path is covered)
+  let filtered = category
+    ? allResults.filter((s) => !s.category || s.category === category)
+    : allResults;
+
   // Filter by date if requested
-  let filtered = allResults;
   if (query.dateFilter && query.dateFilter !== 'anytime') {
     const now = new Date();
     const todayStr = now.toISOString().split('T')[0];

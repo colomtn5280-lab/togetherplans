@@ -296,7 +296,12 @@ export default function SuggestionsScreen() {
     }
   };
 
-  const isEmpty = !loading && suggestions.length === 0;
+  // Client-side guard: filter by activeFilter in case the backend returned cached unfiltered results
+  const displayedSuggestions = activeFilter === 'All'
+    ? suggestions
+    : suggestions.filter((s) => s.category === activeFilter);
+
+  const isEmpty = !loading && displayedSuggestions.length === 0;
 
   if (locationGranted === false && isEmpty) {
     return (
@@ -354,7 +359,7 @@ export default function SuggestionsScreen() {
         />
       ) : (
         <FlatList
-          data={suggestions}
+          data={displayedSuggestions}
           keyExtractor={(item, i) => `${item.name}-${i}`}
           renderItem={({ item, index }) => {
             const key = item.name + (item.address ?? '');

@@ -1,6 +1,6 @@
 /**
- * CreateProposalScreen — 3i
- * HANDOFF_README spec: full redesign
+ * CreateProposalScreen — category-picker redesign
+ * Pick 3–5 categories (or custom) → send to group.
  */
 import React, { useState } from 'react';
 import {
@@ -28,34 +28,151 @@ import type { RootStackParamList } from '@/types';
 
 type RouteT = RouteProp<RootStackParamList, 'CreateProposal'>;
 
-// Random emoji per index
-const CATEGORY_EMOJIS = ['🍕', '🍣', '🎭', '🎬', '🌿', '🎵', '🍷', '🏃', '🎨', '😂'];
-
-interface OptionRow {
-  id: string;
+// ── Category definitions ───────────────────────────────────────────────────────
+interface CategoryDef {
   name: string;
-  category: string;
-  address: string;
   emoji: string;
+  description: string;
 }
 
-function makeOption(): OptionRow {
-  return {
-    id: String(Date.now() + Math.random()),
-    name: '',
-    category: '',
-    address: '',
-    emoji: CATEGORY_EMOJIS[Math.floor(Math.random() * CATEGORY_EMOJIS.length)],
-  };
+const CATEGORIES: CategoryDef[] = [
+  { name: 'Dining',           emoji: '🍽️', description: 'Restaurants, food crawls & culinary adventures' },
+  { name: 'Live Music',       emoji: '🎵', description: 'Concerts, jazz clubs & local bands' },
+  { name: 'Comedy',           emoji: '😂', description: 'Stand-up, improv & open mic nights' },
+  { name: 'Theater & Plays',  emoji: '🎭', description: 'Broadway tours, community theater & murder mystery' },
+  { name: 'Movies',           emoji: '🎬', description: 'Cinema, drive-ins & outdoor screenings' },
+  { name: 'Streaming Night',  emoji: '📺', description: 'Netflix binge, classic marathon & documentaries' },
+  { name: 'Outdoors',         emoji: '🌿', description: 'Hikes, picnics, parks & stargazing' },
+  { name: 'Day Trip',         emoji: '🚗', description: 'National parks, small towns & scenic drives' },
+  { name: 'Wine & Drinks',    emoji: '🍷', description: 'Wineries, breweries, cocktail bars & tastings' },
+  { name: 'Arts & Culture',   emoji: '🎨', description: 'Museums, gallery openings & cooking classes' },
+  { name: 'Active',           emoji: '🏃', description: 'Bowling, mini golf, climbing & cycling' },
+  { name: 'Local Experience', emoji: '📍', description: 'Escape rooms, karaoke, trivia & axe throwing' },
+  { name: 'Games & Puzzles',  emoji: '🎲', description: 'Board game cafés, puzzles & game nights' },
+  { name: 'At Home',          emoji: '🏠', description: 'Cozy night in with good food & great company' },
+];
+
+// ── Selected option chip ───────────────────────────────────────────────────────
+function SelectedChip({
+  label,
+  onRemove,
+  colors,
+}: {
+  label: string;
+  onRemove: () => void;
+  colors: ReturnType<typeof import('@/constants').palette>;
+}) {
+  return (
+    <View
+      style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: colors.primarySoft,
+        borderRadius: 20,
+        paddingVertical: 6,
+        paddingLeft: 12,
+        paddingRight: 8,
+        marginRight: SPACING.xs,
+        marginBottom: SPACING.xs,
+      }}
+    >
+      <DNText variant="secondary" color={colors.primary} style={{ marginRight: 6 }}>
+        {label}
+      </DNText>
+      <TouchableOpacity onPress={onRemove} hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}>
+        <Text style={{ color: colors.primary, fontSize: 14, fontWeight: '700' }}>×</Text>
+      </TouchableOpacity>
+    </View>
+  );
 }
 
+// ── Category card ──────────────────────────────────────────────────────────────
+function CategoryCard({
+  cat,
+  selected,
+  disabled,
+  onPress,
+  colors,
+}: {
+  cat: CategoryDef;
+  selected: boolean;
+  disabled: boolean;
+  onPress: () => void;
+  colors: ReturnType<typeof import('@/constants').palette>;
+}) {
+  return (
+    <TouchableOpacity
+      onPress={onPress}
+      disabled={disabled && !selected}
+      activeOpacity={0.75}
+      style={[
+        {
+          flexDirection: 'row',
+          alignItems: 'center',
+          backgroundColor: selected ? colors.primarySoft : colors.surface,
+          borderRadius: 16,
+          padding: SPACING.md,
+          marginBottom: SPACING.sm,
+          borderWidth: selected ? 1.5 : 1,
+          borderColor: selected ? colors.primary : colors.line,
+          opacity: disabled && !selected ? 0.45 : 1,
+        },
+        SHADOWS.card,
+      ]}
+    >
+      {/* Emoji */}
+      <View
+        style={{
+          width: 44,
+          height: 44,
+          borderRadius: 12,
+          backgroundColor: selected ? colors.primary : colors.bg,
+          alignItems: 'center',
+          justifyContent: 'center',
+          marginRight: SPACING.md,
+        }}
+      >
+        <Text style={{ fontSize: 22 }}>{cat.emoji}</Text>
+      </View>
+
+      {/* Text */}
+      <View style={{ flex: 1 }}>
+        <DNText variant="rowLabel" color={selected ? colors.primary : colors.ink}>
+          {cat.name}
+        </DNText>
+        <DNText variant="secondary" color={selected ? colors.primary : colors.ink2} style={{ marginTop: 2 }}>
+          {cat.description}
+        </DNText>
+      </View>
+
+      {/* Checkmark */}
+      {selected && (
+        <View
+          style={{
+            width: 24,
+            height: 24,
+            borderRadius: 12,
+            backgroundColor: colors.primary,
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginLeft: SPACING.sm,
+          }}
+        >
+          <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700' }}>✓</Text>
+        </View>
+      )}
+    </TouchableOpacity>
+  );
+}
+
+// ── Main Screen ───────────────────────────────────────────────────────────────
 export default function CreateProposalScreen() {
   const { colors } = useTheme();
   const navigation = useNavigation<any>();
   const route = useRoute<RouteT>();
   const { groupId } = route.params;
 
-  // If coming back from Suggestions with a selected suggestion, add it as an option
+  // Apply incoming suggestion from Suggestions screen
   const incomingSuggestion = route.params?.addSuggestion;
   const appliedSuggestionRef = React.useRef<string | null>(null);
 
@@ -68,50 +185,49 @@ export default function CreateProposalScreen() {
   });
   const [showDateModal, setShowDateModal] = useState(false);
   const [dateInput, setDateInput] = useState('');
-  const [options, setOptions] = useState<OptionRow[]>([makeOption(), makeOption(), makeOption()]);
+
+  // Selected category names (max 5)
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+
+  // Custom option
+  const [showCustomInput, setShowCustomInput] = useState(false);
+  const [customText, setCustomText] = useState('');
+
   const [titleError, setTitleError] = useState('');
   const [optionsError, setOptionsError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  // Apply incoming suggestion from Suggestions screen (idempotent via ref)
+  // Apply incoming suggestion from Discover
   React.useEffect(() => {
     if (incomingSuggestion && appliedSuggestionRef.current !== incomingSuggestion.name) {
       appliedSuggestionRef.current = incomingSuggestion.name;
-      setOptions((prev) => {
-        // Fill the first empty slot, or append if all filled (max 5)
-        const emptyIdx = prev.findIndex((o) => !o.name.trim());
-        const newOpt: OptionRow = {
-          ...makeOption(),
-          name: incomingSuggestion.name,
-          address: incomingSuggestion.address,
-        };
-        if (emptyIdx >= 0) {
-          const updated = [...prev];
-          updated[emptyIdx] = newOpt;
-          return updated;
-        }
-        return prev.length < 5 ? [...prev, newOpt] : prev;
+      const label = incomingSuggestion.name;
+      setSelectedCategories((prev) => {
+        if (prev.includes(label) || prev.length >= 5) return prev;
+        return [...prev, label];
       });
     }
   }, [incomingSuggestion]);
 
-  const addOption = () => {
-    if (options.length < 5) {
-      setOptions((prev) => [...prev, makeOption()]);
-    }
-  };
-
-  const deleteOption = (id: string) => {
-    setOptions((prev) => {
-      if (prev.length <= 1) return prev;
-      return prev.filter((o) => o.id !== id);
+  const toggleCategory = (name: string) => {
+    setSelectedCategories((prev) => {
+      if (prev.includes(name)) return prev.filter((c) => c !== name);
+      if (prev.length >= 5) return prev; // max 5
+      return [...prev, name];
     });
   };
 
-  const updateOption = (id: string, field: keyof OptionRow, value: string) => {
-    setOptions((prev) =>
-      prev.map((o) => (o.id === id ? { ...o, [field]: value } : o))
-    );
+  const removeCategory = (name: string) => {
+    setSelectedCategories((prev) => prev.filter((c) => c !== name));
+  };
+
+  const handleAddCustom = () => {
+    const trimmed = customText.trim();
+    if (!trimmed) return;
+    if (selectedCategories.includes(trimmed) || selectedCategories.length >= 5) return;
+    setSelectedCategories((prev) => [...prev, trimmed]);
+    setCustomText('');
+    setShowCustomInput(false);
   };
 
   const handleFromDiscover = () => {
@@ -126,11 +242,10 @@ export default function CreateProposalScreen() {
     } else {
       setTitleError('');
     }
-    const filledOptions = options.filter((o) => o.name.trim().length > 0);
-    if (filledOptions.length < 3) {
-      setOptionsError('Add at least 3 options with names');
+    if (selectedCategories.length < 3) {
+      setOptionsError('Pick at least 3 options');
       valid = false;
-    } else if (filledOptions.length > 5) {
+    } else if (selectedCategories.length > 5) {
       setOptionsError('Maximum 5 options');
       valid = false;
     } else {
@@ -143,15 +258,16 @@ export default function CreateProposalScreen() {
     if (!validate()) return;
     setSubmitting(true);
     try {
-      const filledOptions = options
-        .filter((o) => o.name.trim().length > 0)
-        .map((o) => ({
-          name: o.name.trim(),
-          category: o.category?.trim() || 'Local Experience',
-          description: '',
-          address: o.address.trim() || '',
-        }));
-      const res = await proposalsAPI.create(groupId, title.trim(), selectedDate.toISOString(), filledOptions);
+      const options = selectedCategories.map((name) => {
+        const cat = CATEGORIES.find((c) => c.name === name);
+        return {
+          name,
+          category: cat ? name : 'Local Experience',
+          description: cat?.description ?? '',
+          address: '',
+        };
+      });
+      const res = await proposalsAPI.create(groupId, title.trim(), selectedDate.toISOString(), options);
       navigation.navigate('ProposalDetail', { proposalId: res.data.id });
     } catch (e) {
       console.warn('Failed to create proposal', e);
@@ -177,6 +293,8 @@ export default function CreateProposalScreen() {
   const timeLabel = selectedDate.toLocaleTimeString(undefined, {
     hour: '2-digit', minute: '2-digit',
   });
+
+  const atMax = selectedCategories.length >= 5;
 
   return (
     <KeyboardAvoidingView
@@ -294,104 +412,126 @@ export default function CreateProposalScreen() {
           </View>
         </Modal>
 
-        {/* Options header */}
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: SPACING.sm }}>
+        {/* Options section header */}
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: SPACING.md, marginBottom: SPACING.sm }}>
           <DNText variant="section" color={colors.ink2} style={{ flex: 1 }}>
-            Options
+            Pick what you&apos;re open to
           </DNText>
           <DNSticker
-            label={`${options.length} of 5`}
-            color={colors.limeSoft}
-            textColor={colors.lime}
+            label={`${selectedCategories.length} / 5`}
+            color={selectedCategories.length >= 3 ? colors.limeSoft : colors.primarySoft}
+            textColor={selectedCategories.length >= 3 ? colors.lime : colors.primary}
             rotationIndex={1}
           />
         </View>
 
+        <DNText variant="secondary" color={colors.ink2} style={{ marginBottom: SPACING.md }}>
+          Choose 3–5 date vibes for your group to vote on.
+        </DNText>
+
+        {/* Selected chips */}
+        {selectedCategories.length > 0 && (
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginBottom: SPACING.md }}>
+            {selectedCategories.map((name) => (
+              <SelectedChip
+                key={name}
+                label={name}
+                onRemove={() => removeCategory(name)}
+                colors={colors}
+              />
+            ))}
+          </View>
+        )}
+
+        {/* Options error */}
         {optionsError ? (
           <DNText variant="secondary" color={colors.error} style={{ marginBottom: SPACING.sm }}>
             {optionsError}
           </DNText>
         ) : null}
 
-        {/* Option rows */}
-        {options.map((opt) => (
+        {/* Category cards */}
+        {CATEGORIES.map((cat) => (
+          <CategoryCard
+            key={cat.name}
+            cat={cat}
+            selected={selectedCategories.includes(cat.name)}
+            disabled={atMax}
+            onPress={() => toggleCategory(cat.name)}
+            colors={colors}
+          />
+        ))}
+
+        {/* Custom option */}
+        {showCustomInput ? (
           <View
-            key={opt.id}
             style={{
               backgroundColor: colors.surface,
-              borderRadius: 18,
+              borderRadius: 16,
               padding: SPACING.md,
               marginBottom: SPACING.sm,
+              borderWidth: 1.5,
+              borderColor: colors.primary,
               ...SHADOWS.card,
             }}
           >
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              {/* Emoji blob */}
-              <View
+            <DNText variant="secondary" color={colors.ink2} style={{ marginBottom: 8 }}>
+              Custom option
+            </DNText>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: SPACING.sm }}>
+              <TextInput
+                value={customText}
+                onChangeText={setCustomText}
+                placeholder="e.g. Pottery class downtown"
+                placeholderTextColor={colors.ink2}
+                style={[TYPE.body, { flex: 1, color: colors.ink }]}
+                autoFocus
+                onSubmitEditing={handleAddCustom}
+                returnKeyType="done"
+              />
+              <TouchableOpacity
+                onPress={handleAddCustom}
+                disabled={!customText.trim() || atMax}
                 style={{
-                  width: 32,
-                  height: 32,
-                  borderRadius: 16,
-                  backgroundColor: colors.primarySoft,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  marginRight: 12,
+                  backgroundColor: colors.primary,
+                  borderRadius: 10,
+                  paddingHorizontal: 14,
+                  paddingVertical: 8,
+                  opacity: !customText.trim() || atMax ? 0.4 : 1,
                 }}
               >
-                <Text style={{ fontSize: 16 }}>{opt.emoji}</Text>
-              </View>
-
-              {/* Inline name input */}
-              <TextInput
-                value={opt.name}
-                onChangeText={(v) => updateOption(opt.id, 'name', v)}
-                placeholder="Option name"
-                placeholderTextColor={colors.ink2}
-                style={[TYPE.rowLabel, { flex: 1, color: colors.ink }]}
-              />
-
-              {/* Delete menu */}
-              <TouchableOpacity
-                onPress={() => deleteOption(opt.id)}
-                style={{ padding: 4 }}
-                disabled={options.length <= 1}
-              >
-                <Text style={[TYPE.secondary, { color: options.length <= 1 ? colors.line : colors.ink2, fontSize: 20 }]}>🗑️</Text>
+                <Text style={{ color: '#fff', fontWeight: '700', fontSize: 14 }}>Add</Text>
               </TouchableOpacity>
             </View>
-
-            {(opt.category || opt.address) && (
-              <DNText variant="secondary" color={colors.ink2} style={{ marginTop: 4, marginLeft: 44 }}>
-                {[opt.category, opt.address].filter(Boolean).join(' · ')}
-              </DNText>
-            )}
+            <TouchableOpacity onPress={() => { setShowCustomInput(false); setCustomText(''); }} style={{ marginTop: 8 }}>
+              <DNText variant="secondary" color={colors.ink2}>Cancel</DNText>
+            </TouchableOpacity>
           </View>
-        ))}
-
-        {/* Add your own dashed row */}
-        {options.length < 5 && (
-          <TouchableOpacity
-            onPress={addOption}
-            style={{
-              borderWidth: 1.5,
-              borderColor: colors.line,
-              borderStyle: 'dashed',
-              borderRadius: 18,
-              paddingVertical: 14,
-              alignItems: 'center',
-              marginBottom: SPACING.sm,
-            }}
-          >
-            <DNText variant="secondary" color={colors.ink2}>+ Add your own</DNText>
-          </TouchableOpacity>
+        ) : (
+          !atMax && (
+            <TouchableOpacity
+              onPress={() => setShowCustomInput(true)}
+              style={{
+                borderWidth: 1.5,
+                borderColor: colors.line,
+                borderStyle: 'dashed',
+                borderRadius: 16,
+                paddingVertical: 14,
+                alignItems: 'center',
+                marginBottom: SPACING.sm,
+              }}
+            >
+              <DNText variant="secondary" color={colors.ink2}>+ Add custom option</DNText>
+            </TouchableOpacity>
+          )
         )}
 
         {/* From Discover button */}
         <DNButton
-          label="✦ From Discover"
+          label="✦ Let me Browse Discover"
           variant="tonal"
           onPress={handleFromDiscover}
-          style={{ marginBottom: SPACING.lg }}
+          style={{ marginTop: SPACING.sm, marginBottom: SPACING.lg }}
         />
       </ScrollView>
 
