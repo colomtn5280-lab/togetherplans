@@ -211,6 +211,16 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* B2B CTA */}
+      <section style={{padding:'48px 0',background:'var(--surface)',borderTop:'1px solid var(--line)'}}>
+        <div className="wrap" style={{textAlign:'center'}}>
+          <p style={{fontSize:'14px',color:'var(--ink2)',marginBottom:'12px'}}>Are you a venue, restaurant, or experience provider?</p>
+          <a href="/business" className="btn btn-outline">
+            🏢 Feature Your Business With Us
+          </a>
+        </div>
+      </section>
+
       <footer>
         <div className="wrap">
           <div className="footer-inner">
