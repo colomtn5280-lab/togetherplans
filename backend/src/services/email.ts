@@ -36,18 +36,27 @@ function loadTemplate(filename: string): string {
   }
 }
 
-const t01 = loadTemplate('01-verify-email.html');
-const t02 = loadTemplate('02-welcome.html');
-const t03 = loadTemplate('03-reset-password.html');
-const t04 = loadTemplate('04-group-invite.html');
-const t05 = loadTemplate('05-new-proposal.html');
-const t06 = loadTemplate('06-status-update.html');
-const t07 = loadTemplate('07-reminder-24h.html');
-const t08 = loadTemplate('08-its-a-match.html');
-const t09 = loadTemplate('09-take-2.html');
-const t10 = loadTemplate('10-plan-changed.html');
-const t11 = loadTemplate('11-share-card-received.html');
-const t12 = loadTemplate('12-account-deleted.html');
+// Templates are loaded lazily on first use to prevent startup crashes
+let t01: string, t02: string, t03: string, t04: string, t05: string, t06: string;
+let t07: string, t08: string, t09: string, t10: string, t11: string, t12: string;
+
+function getTemplates() {
+  if (!t01) {
+    t01 = loadTemplate('01-verify-email.html');
+    t02 = loadTemplate('02-welcome.html');
+    t03 = loadTemplate('03-reset-password.html');
+    t04 = loadTemplate('04-group-invite.html');
+    t05 = loadTemplate('05-new-proposal.html');
+    t06 = loadTemplate('06-status-update.html');
+    t07 = loadTemplate('07-reminder-24h.html');
+    t08 = loadTemplate('08-its-a-match.html');
+    t09 = loadTemplate('09-take-2.html');
+    t10 = loadTemplate('10-plan-changed.html');
+    t11 = loadTemplate('11-share-card-received.html');
+    t12 = loadTemplate('12-account-deleted.html');
+  }
+  return { t01, t02, t03, t04, t05, t06, t07, t08, t09, t10, t11, t12 };
+}
 
 // ─── Utilities ────────────────────────────────────────────────────────────────
 
@@ -77,6 +86,7 @@ export async function sendVerifyEmail(
 ): Promise<void> {
   const client = getClient();
   if (!client) return;
+  const { t01 } = getTemplates();
   const html = renderTemplate(t01, { first_name: firstName, email, token });
   try {
     await client.emails.send({ from: FROM_ADDRESS, to, subject: 'Confirm your email', html });
@@ -91,6 +101,7 @@ export async function sendVerifyEmail(
 export async function sendWelcomeEmail(to: string, email: string): Promise<void> {
   const client = getClient();
   if (!client) return;
+  const { t02 } = getTemplates();
   const html = renderTemplate(t02, { email });
   try {
     await client.emails.send({ from: FROM_ADDRESS, to, subject: 'Welcome. Now invite one person.', html });
@@ -109,6 +120,7 @@ export async function sendPasswordResetEmail(
 ): Promise<void> {
   const client = getClient();
   if (!client) return;
+  const { t03 } = getTemplates();
   const html = renderTemplate(t03, { email, token });
   try {
     await client.emails.send({ from: FROM_ADDRESS, to, subject: 'Reset your password', html });
@@ -128,6 +140,7 @@ export async function sendGroupInviteEmail(
 ): Promise<void> {
   const client = getClient();
   if (!client) return;
+  const { t04 } = getTemplates();
   const html = renderTemplate(t04, { inviter, group_name: groupName, token });
   try {
     await client.emails.send({
@@ -152,6 +165,7 @@ export async function sendNewProposalEmail(
 ): Promise<void> {
   const client = getClient();
   if (!client) return;
+  const { t05 } = getTemplates();
   const html = renderTemplate(t05, { proposer, proposal_title: proposalTitle, proposal_id: proposalId });
   try {
     await client.emails.send({
@@ -175,6 +189,7 @@ export async function sendStatusUpdateEmail(
 ): Promise<void> {
   const client = getClient();
   if (!client) return;
+  const { t06 } = getTemplates();
   const html = renderTemplate(t06, { proposer: voterName, proposal_id: proposalId });
   try {
     await client.emails.send({
@@ -199,6 +214,7 @@ export async function sendVoteReminderEmail(
 ): Promise<void> {
   const client = getClient();
   if (!client) return;
+  const { t07 } = getTemplates();
   const html = renderTemplate(t07, { email, proposal_id: proposalId, proposal_title: proposalTitle });
   try {
     await client.emails.send({
@@ -223,6 +239,7 @@ export async function sendItsAMatchEmail(
 ): Promise<void> {
   const client = getClient();
   if (!client) return;
+  const { t08 } = getTemplates();
   const html = renderTemplate(t08, { email, proposal_id: proposalId, proposal_title: proposalTitle });
   try {
     await client.emails.send({
@@ -248,6 +265,7 @@ export async function sendTake2Email(
 ): Promise<void> {
   const client = getClient();
   if (!client) return;
+  const { t09 } = getTemplates();
   const html = renderTemplate(t09, {
     email,
     proposal_id: proposalId,
@@ -277,6 +295,7 @@ export async function sendPlanChangedEmail(
 ): Promise<void> {
   const client = getClient();
   if (!client) return;
+  const { t10 } = getTemplates();
   const html = renderTemplate(t10, { email, proposal_id: proposalId, proposal_title: proposalTitle });
   try {
     await client.emails.send({
@@ -302,6 +321,7 @@ export async function sendShareCardEmail(
 ): Promise<void> {
   const client = getClient();
   if (!client) return;
+  const { t11 } = getTemplates();
   const html = renderTemplate(t11, {
     email,
     proposal_id: proposalId,
@@ -326,6 +346,7 @@ export async function sendShareCardEmail(
 export async function sendAccountDeletedEmail(to: string, email: string): Promise<void> {
   const client = getClient();
   if (!client) return;
+  const { t12 } = getTemplates();
   const date = new Date().toDateString();
   const html = renderTemplate(t12, { email, date });
   try {
