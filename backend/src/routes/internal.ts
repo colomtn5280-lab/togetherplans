@@ -1,4 +1,5 @@
 import { Router, Request, Response, NextFunction } from 'express';
+import { execSync } from 'child_process';
 import { Expo } from 'expo-server-sdk';
 import { prisma } from '@/services/db';
 import { sendVoteReminderEmail } from '@/services/email';
@@ -33,6 +34,26 @@ internalRouter.use(requireInternalKey);
  *
  * Idempotent: proposals already marked remindedAt are skipped.
  */
+/**
+ * POST /api/internal/migrate
+ * Runs prisma migrate deploy against the production database.
+ */
+internalRouter.post('/migrate', async (_req: Request, res: Response) => {
+  try {
+    logger.info('Running prisma migrate deploy...');
+    const output = execSync('npx prisma migrate deploy', {
+      cwd: process.cwd(),
+      env: process.env,
+      timeout: 60000,
+    }).toString();
+    logger.info('Migration output:', { output });
+    return res.json({ success: true, output });
+  } catch (err: any) {
+    logger.error('Migration failed', { err: err.message, stderr: err.stderr?.toString() });
+    return res.status(500).json({ error: err.message, stderr: err.stderr?.toString() });
+  }
+});
+
 internalRouter.post('/reminders/run', async (_req: Request, res: Response, next: NextFunction) => {
   try {
     const now = new Date();
