@@ -406,7 +406,10 @@ export const ModelName = {
   Proposal: 'Proposal',
   Option: 'Option',
   Vote: 'Vote',
-  RefreshToken: 'RefreshToken'
+  RefreshToken: 'RefreshToken',
+  Business: 'Business',
+  FeaturedListing: 'FeaturedListing',
+  BusinessImpression: 'BusinessImpression'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -422,7 +425,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "blockedUser" | "report" | "group" | "groupMember" | "invitation" | "proposal" | "option" | "vote" | "refreshToken"
+    modelProps: "user" | "blockedUser" | "report" | "group" | "groupMember" | "invitation" | "proposal" | "option" | "vote" | "refreshToken" | "business" | "featuredListing" | "businessImpression"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1166,6 +1169,228 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Business: {
+      payload: Prisma.$BusinessPayload<ExtArgs>
+      fields: Prisma.BusinessFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.BusinessFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.BusinessFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessPayload>
+        }
+        findFirst: {
+          args: Prisma.BusinessFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.BusinessFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessPayload>
+        }
+        findMany: {
+          args: Prisma.BusinessFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessPayload>[]
+        }
+        create: {
+          args: Prisma.BusinessCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessPayload>
+        }
+        createMany: {
+          args: Prisma.BusinessCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.BusinessCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessPayload>[]
+        }
+        delete: {
+          args: Prisma.BusinessDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessPayload>
+        }
+        update: {
+          args: Prisma.BusinessUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessPayload>
+        }
+        deleteMany: {
+          args: Prisma.BusinessDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.BusinessUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.BusinessUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessPayload>[]
+        }
+        upsert: {
+          args: Prisma.BusinessUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessPayload>
+        }
+        aggregate: {
+          args: Prisma.BusinessAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateBusiness>
+        }
+        groupBy: {
+          args: Prisma.BusinessGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BusinessGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.BusinessCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BusinessCountAggregateOutputType> | number
+        }
+      }
+    }
+    FeaturedListing: {
+      payload: Prisma.$FeaturedListingPayload<ExtArgs>
+      fields: Prisma.FeaturedListingFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.FeaturedListingFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FeaturedListingPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.FeaturedListingFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FeaturedListingPayload>
+        }
+        findFirst: {
+          args: Prisma.FeaturedListingFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FeaturedListingPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.FeaturedListingFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FeaturedListingPayload>
+        }
+        findMany: {
+          args: Prisma.FeaturedListingFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FeaturedListingPayload>[]
+        }
+        create: {
+          args: Prisma.FeaturedListingCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FeaturedListingPayload>
+        }
+        createMany: {
+          args: Prisma.FeaturedListingCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.FeaturedListingCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FeaturedListingPayload>[]
+        }
+        delete: {
+          args: Prisma.FeaturedListingDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FeaturedListingPayload>
+        }
+        update: {
+          args: Prisma.FeaturedListingUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FeaturedListingPayload>
+        }
+        deleteMany: {
+          args: Prisma.FeaturedListingDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.FeaturedListingUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.FeaturedListingUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FeaturedListingPayload>[]
+        }
+        upsert: {
+          args: Prisma.FeaturedListingUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FeaturedListingPayload>
+        }
+        aggregate: {
+          args: Prisma.FeaturedListingAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateFeaturedListing>
+        }
+        groupBy: {
+          args: Prisma.FeaturedListingGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FeaturedListingGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.FeaturedListingCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FeaturedListingCountAggregateOutputType> | number
+        }
+      }
+    }
+    BusinessImpression: {
+      payload: Prisma.$BusinessImpressionPayload<ExtArgs>
+      fields: Prisma.BusinessImpressionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.BusinessImpressionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessImpressionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.BusinessImpressionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessImpressionPayload>
+        }
+        findFirst: {
+          args: Prisma.BusinessImpressionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessImpressionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.BusinessImpressionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessImpressionPayload>
+        }
+        findMany: {
+          args: Prisma.BusinessImpressionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessImpressionPayload>[]
+        }
+        create: {
+          args: Prisma.BusinessImpressionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessImpressionPayload>
+        }
+        createMany: {
+          args: Prisma.BusinessImpressionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.BusinessImpressionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessImpressionPayload>[]
+        }
+        delete: {
+          args: Prisma.BusinessImpressionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessImpressionPayload>
+        }
+        update: {
+          args: Prisma.BusinessImpressionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessImpressionPayload>
+        }
+        deleteMany: {
+          args: Prisma.BusinessImpressionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.BusinessImpressionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.BusinessImpressionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessImpressionPayload>[]
+        }
+        upsert: {
+          args: Prisma.BusinessImpressionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessImpressionPayload>
+        }
+        aggregate: {
+          args: Prisma.BusinessImpressionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateBusinessImpression>
+        }
+        groupBy: {
+          args: Prisma.BusinessImpressionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BusinessImpressionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.BusinessImpressionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BusinessImpressionCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1341,12 +1566,81 @@ export const RefreshTokenScalarFieldEnum = {
 export type RefreshTokenScalarFieldEnum = (typeof RefreshTokenScalarFieldEnum)[keyof typeof RefreshTokenScalarFieldEnum]
 
 
+export const BusinessScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  email: 'email',
+  passwordHash: 'passwordHash',
+  category: 'category',
+  description: 'description',
+  address: 'address',
+  city: 'city',
+  state: 'state',
+  zipCode: 'zipCode',
+  lat: 'lat',
+  lng: 'lng',
+  website: 'website',
+  phone: 'phone',
+  logoUrl: 'logoUrl',
+  photos: 'photos',
+  priceRange: 'priceRange',
+  tags: 'tags',
+  tier: 'tier',
+  stripeCustomerId: 'stripeCustomerId',
+  stripeSubscriptionId: 'stripeSubscriptionId',
+  active: 'active',
+  verified: 'verified',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BusinessScalarFieldEnum = (typeof BusinessScalarFieldEnum)[keyof typeof BusinessScalarFieldEnum]
+
+
+export const FeaturedListingScalarFieldEnum = {
+  id: 'id',
+  businessId: 'businessId',
+  title: 'title',
+  description: 'description',
+  imageUrl: 'imageUrl',
+  ctaText: 'ctaText',
+  ctaUrl: 'ctaUrl',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  active: 'active',
+  createdAt: 'createdAt'
+} as const
+
+export type FeaturedListingScalarFieldEnum = (typeof FeaturedListingScalarFieldEnum)[keyof typeof FeaturedListingScalarFieldEnum]
+
+
+export const BusinessImpressionScalarFieldEnum = {
+  id: 'id',
+  businessId: 'businessId',
+  eventType: 'eventType',
+  userId: 'userId',
+  proposalId: 'proposalId',
+  metadata: 'metadata',
+  createdAt: 'createdAt'
+} as const
+
+export type BusinessImpressionScalarFieldEnum = (typeof BusinessImpressionScalarFieldEnum)[keyof typeof BusinessImpressionScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
 } as const
 
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+export const NullableJsonNullValueInput = {
+  DbNull: DbNull,
+  JsonNull: JsonNull
+} as const
+
+export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
 export const QueryMode = {
@@ -1363,6 +1657,15 @@ export const NullsOrder = {
 } as const
 
 export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 
 
 
@@ -1473,6 +1776,20 @@ export type ListEnumProposalStatusFieldRefInput<$PrismaModel> = FieldRefInputTyp
  * Reference to a field of type 'Boolean'
  */
 export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+    
+
+
+/**
+ * Reference to a field of type 'Json'
+ */
+export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+/**
+ * Reference to a field of type 'QueryMode'
+ */
+export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
     
 
 
@@ -1650,6 +1967,9 @@ export type GlobalOmitConfig = {
   option?: Prisma.OptionOmit
   vote?: Prisma.VoteOmit
   refreshToken?: Prisma.RefreshTokenOmit
+  business?: Prisma.BusinessOmit
+  featuredListing?: Prisma.FeaturedListingOmit
+  businessImpression?: Prisma.BusinessImpressionOmit
 }
 
 /* Types for Logging */

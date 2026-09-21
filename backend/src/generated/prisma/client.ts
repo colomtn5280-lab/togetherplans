@@ -89,3 +89,18 @@ export type Vote = Prisma.VoteModel
  * 
  */
 export type RefreshToken = Prisma.RefreshTokenModel
+/**
+ * Model Business
+ * 
+ */
+export type Business = Prisma.BusinessModel
+/**
+ * Model FeaturedListing
+ * 
+ */
+export type FeaturedListing = Prisma.FeaturedListingModel
+/**
+ * Model BusinessImpression
+ * 
+ */
+export type BusinessImpression = Prisma.BusinessImpressionModel

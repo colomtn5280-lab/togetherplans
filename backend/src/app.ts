@@ -16,6 +16,7 @@ import { internalRouter } from '@/routes/internal';
 import { shareCardsRouter } from '@/routes/share-cards';
 import { afterDarkRouter } from '@/routes/after-dark';
 import { safetyRouter } from '@/routes/safety';
+import { businessRouter } from '@/routes/business';
 
 export function createApp(): express.Express {
   const app = express();
@@ -55,6 +56,7 @@ export function createApp(): express.Express {
   app.use('/api/share-cards', shareCardsRouter);
   app.use('/api/after-dark', afterDarkRouter);
   app.use('/api/safety', safetyRouter);
+  app.use('/api/business', businessRouter);
   app.use('/', legalRouter);
 
   app.use((_req: Request, res: Response) => {

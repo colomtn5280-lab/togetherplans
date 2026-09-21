@@ -202,3 +202,59 @@ model RefreshToken {
   @@index([userId])
   @@index([token])
 }
+
+model Business {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  category     String
+  description  String   @default("")
+  address      String   @default("")
+  city         String   @default("")
+  state        String   @default("")
+  zipCode      String   @default("")
+  lat          Float?
+  lng          Float?
+  website      String?
+  phone        String?
+  logoUrl      String?
+  photos       String[]
+  priceRange   String   @default("$$")
+  tags         String[]
+  tier         String   @default("free")
+  stripeCustomerId     String?
+  stripeSubscriptionId String?
+  active       Boolean  @default(true)
+  verified     Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  listings     FeaturedListing[]
+  impressions  BusinessImpression[]
+}
+
+model FeaturedListing {
+  id           String   @id @default(cuid())
+  businessId   String
+  title        String
+  description  String
+  imageUrl     String?
+  ctaText      String   @default("Learn More")
+  ctaUrl       String?
+  startDate    DateTime?
+  endDate      DateTime?
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  business     Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+}
+
+model BusinessImpression {
+  id           String   @id @default(cuid())
+  businessId   String
+  eventType    String
+  userId       String?
+  proposalId   String?
+  metadata     Json?
+  createdAt    DateTime @default(now())
+  business     Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+}

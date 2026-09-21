@@ -60,7 +60,10 @@ export const ModelName = {
   Proposal: 'Proposal',
   Option: 'Option',
   Vote: 'Vote',
-  RefreshToken: 'RefreshToken'
+  RefreshToken: 'RefreshToken',
+  Business: 'Business',
+  FeaturedListing: 'FeaturedListing',
+  BusinessImpression: 'BusinessImpression'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -215,12 +218,81 @@ export const RefreshTokenScalarFieldEnum = {
 export type RefreshTokenScalarFieldEnum = (typeof RefreshTokenScalarFieldEnum)[keyof typeof RefreshTokenScalarFieldEnum]
 
 
+export const BusinessScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  email: 'email',
+  passwordHash: 'passwordHash',
+  category: 'category',
+  description: 'description',
+  address: 'address',
+  city: 'city',
+  state: 'state',
+  zipCode: 'zipCode',
+  lat: 'lat',
+  lng: 'lng',
+  website: 'website',
+  phone: 'phone',
+  logoUrl: 'logoUrl',
+  photos: 'photos',
+  priceRange: 'priceRange',
+  tags: 'tags',
+  tier: 'tier',
+  stripeCustomerId: 'stripeCustomerId',
+  stripeSubscriptionId: 'stripeSubscriptionId',
+  active: 'active',
+  verified: 'verified',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BusinessScalarFieldEnum = (typeof BusinessScalarFieldEnum)[keyof typeof BusinessScalarFieldEnum]
+
+
+export const FeaturedListingScalarFieldEnum = {
+  id: 'id',
+  businessId: 'businessId',
+  title: 'title',
+  description: 'description',
+  imageUrl: 'imageUrl',
+  ctaText: 'ctaText',
+  ctaUrl: 'ctaUrl',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  active: 'active',
+  createdAt: 'createdAt'
+} as const
+
+export type FeaturedListingScalarFieldEnum = (typeof FeaturedListingScalarFieldEnum)[keyof typeof FeaturedListingScalarFieldEnum]
+
+
+export const BusinessImpressionScalarFieldEnum = {
+  id: 'id',
+  businessId: 'businessId',
+  eventType: 'eventType',
+  userId: 'userId',
+  proposalId: 'proposalId',
+  metadata: 'metadata',
+  createdAt: 'createdAt'
+} as const
+
+export type BusinessImpressionScalarFieldEnum = (typeof BusinessImpressionScalarFieldEnum)[keyof typeof BusinessImpressionScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
 } as const
 
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+export const NullableJsonNullValueInput = {
+  DbNull: DbNull,
+  JsonNull: JsonNull
+} as const
+
+export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
 export const QueryMode = {
@@ -237,4 +309,13 @@ export const NullsOrder = {
 } as const
 
 export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 
