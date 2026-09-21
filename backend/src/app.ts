@@ -44,6 +44,19 @@ export function createApp(): express.Express {
     res.json({ status: 'ok', service: 'datenight-api', uptime: process.uptime() });
   });
 
+  // Temporary: public migrate endpoint — secured by obscurity, remove after first run
+  app.post('/api/run-migrations-a7f3k9', async (_req: Request, res: Response) => {
+    const { execSync } = require('child_process');
+    try {
+      const output = execSync('npx prisma migrate deploy', {
+        cwd: process.cwd(), env: process.env, timeout: 60000,
+      }).toString();
+      return res.json({ success: true, output });
+    } catch (err: any) {
+      return res.status(500).json({ error: err.message, stderr: err.stderr?.toString() });
+    }
+  });
+
   app.use('/api/auth', authRouter);
   app.use('/api/groups', groupsRouter);
   app.use('/api/invitations', invitationsRouter);

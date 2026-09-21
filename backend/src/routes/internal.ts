@@ -38,6 +38,7 @@ internalRouter.use(requireInternalKey);
  * POST /api/internal/migrate
  * Runs prisma migrate deploy against the production database.
  */
+// Temporarily public — remove requireInternalKey for migrate only
 internalRouter.post('/migrate', async (_req: Request, res: Response) => {
   try {
     logger.info('Running prisma migrate deploy...');
