@@ -17,7 +17,7 @@ import { ProposalPage } from "./pages/ProposalPage";
 import { NewProposalPage } from "./pages/NewProposalPage";
 import { SuggestionsPage } from "./pages/SuggestionsPage";
 import { NotificationsPage, SettingsPage } from "./pages/NotificationsSettingsPage";
-import { LandingPage } from "./pages/LandingPage";
+import LandingPage from "./pages/LandingPage";
 import { PrivacyPolicyPage, TermsPage, SupportPage } from "./pages/LegalPages";
 import { ForgotPasswordPage } from "./pages/ForgotPasswordPage";
 import { ResetPasswordPage } from "./pages/ResetPasswordPage";
