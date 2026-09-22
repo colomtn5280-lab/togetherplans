@@ -58,7 +58,8 @@ export interface SuggestionQuery {
   lat?: number;
   lng?: number;
   zip?: string;
-  category?: SuggestionCategory | 'All';
+  /** Legacy internal category, new category slug/display name, or 'All'. */
+  category?: string;
   radiusMiles?: number;
   dateFilter?: 'tonight' | 'this-weekend' | 'this-week' | 'anytime';
 }

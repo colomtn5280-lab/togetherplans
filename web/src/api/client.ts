@@ -320,10 +320,19 @@ export const afterDarkApi = {
     api.post("/after-dark/impulse", { groupId, optionName, optionCategory, optionAddress }),
 };
 
-// Legacy compat: categoriesApi returns empty list (no /categories endpoint)
+// Categories — unified 15-category list (+ Custom) from GET /api/categories,
+// falling back to the local constant if the request fails.
+import { ALL_CATEGORIES } from "../constants/categories";
+
 export const categoriesApi = {
-  list: (): Promise<AxiosResponse<{ id: string; name: string }[]>> =>
-    Promise.resolve({ data: [], status: 200, statusText: "OK", headers: {}, config: {} as never }),
+  list: async (): Promise<AxiosResponse<{ id: string; name: string; emoji?: string; tagline?: string }[]>> => {
+    try {
+      const res = await api.get<{ categories: { id: string; name: string; emoji?: string; tagline?: string }[] }>("/categories");
+      return { ...res, data: res.data.categories };
+    } catch {
+      return { data: ALL_CATEGORIES, status: 200, statusText: "OK", headers: {}, config: {} as never };
+    }
+  },
 };
 
 // ── Safety ────────────────────────────────────────────────────────────────────

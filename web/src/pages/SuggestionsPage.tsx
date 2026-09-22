@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { suggestionsApi, categoriesApi, groupsApi } from "../api/client";
+import { suggestionsApi, groupsApi } from "../api/client";
 import { AppNav } from "../components/AppNav";
+import { CATEGORIES } from "../constants/categories";
 import type { Suggestion, Group } from "../types";
 
 function useGeolocation() {
@@ -137,13 +138,7 @@ export function SuggestionsPage() {
 
   const [addingSuggestion, setAddingSuggestion] = useState<Suggestion | null>(null);
 
-  const { data: categories } = useQuery({
-    queryKey: ["categories"],
-    queryFn: async () => {
-      const res = await categoriesApi.list();
-      return res.data;
-    },
-  });
+  const activeCategory = CATEGORIES.find((c) => c.id === categoryId);
 
   const {
     data: suggestions,
@@ -164,10 +159,15 @@ export function SuggestionsPage() {
     },
   });
 
-  const filterCategories = [
-    { id: "", name: "All" },
-    ...(categories ?? []),
-  ];
+  // Client-side guard: match new display names AND legacy internal categories
+  const displayed = !activeCategory
+    ? suggestions
+    : suggestions?.filter(
+        (s) =>
+          !s.category ||
+          s.category === activeCategory.name ||
+          activeCategory.matches.includes(s.category),
+      );
 
   return (
     <>
@@ -201,20 +201,49 @@ export function SuggestionsPage() {
           </div>
         )}
 
-        {/* Filter chips row */}
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 24, alignItems: "center" }}>
-          {filterCategories.map((c) => (
-            <button
-              key={c.id}
-              className={`dn-chip${categoryId === c.id ? " selected" : ""}`}
-              onClick={() => {
-                setCategoryId(c.id);
-              }}
-            >
-              {c.name}
-            </button>
-          ))}
+        {/* Category grid */}
+        <div className="category-grid" style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 10, marginBottom: 20 }}>
+          {CATEGORIES.map((c) => {
+            const selected = categoryId === c.id;
+            return (
+              <button
+                key={c.id}
+                onClick={() => setCategoryId(selected ? "" : c.id)}
+                aria-pressed={selected}
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: 4,
+                  padding: "14px 8px",
+                  borderRadius: 16,
+                  cursor: "pointer",
+                  border: `1.5px solid ${selected ? "var(--primary)" : "var(--line)"}`,
+                  background: selected ? "var(--primary)" : "var(--surface)",
+                  color: selected ? "#fff" : "var(--ink)",
+                  transition: "all .15s ease",
+                }}
+              >
+                <span style={{ fontSize: 24 }}>{c.emoji}</span>
+                <span style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 13, lineHeight: 1.2, textAlign: "center" }}>
+                  {c.name}
+                </span>
+                <span style={{ fontSize: 10, color: selected ? "rgba(255,255,255,.85)" : "var(--ink2)", textAlign: "center" }}>
+                  {c.tagline}
+                </span>
+              </button>
+            );
+          })}
+        </div>
 
+        {/* Location + radius row */}
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 24, alignItems: "center" }}>
+          <button
+            className={`dn-chip${categoryId === "" ? " selected" : ""}`}
+            onClick={() => setCategoryId("")}
+          >
+            All categories
+          </button>
           <div style={{ marginLeft: "auto", display: "flex", gap: 8, alignItems: "center" }}>
             <span style={{ fontSize: 13, color: "var(--ink2)" }}>
               {geoLoading && "📍 Getting location…"}
@@ -256,7 +285,7 @@ export function SuggestionsPage() {
           <p role="alert" style={{ color: "var(--error)", marginBottom: 20 }}>Failed to load suggestions.</p>
         )}
 
-        {!isLoading && suggestions && suggestions.length === 0 && (
+        {!isLoading && displayed && displayed.length === 0 && (
           <div data-testid="no-suggestions" style={{ textAlign: "center", padding: "60px 0" }}>
             <div style={{ fontSize: 56, marginBottom: 16 }}>🧭</div>
             <h2 style={{ marginBottom: 8 }}>Nothing here yet</h2>
@@ -265,13 +294,13 @@ export function SuggestionsPage() {
         )}
 
         {/* Suggestions 4-up grid */}
-        {suggestions && suggestions.length > 0 && (
+        {displayed && displayed.length > 0 && (
           <div
             style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 20 }}
             data-testid="suggestions-list"
             className="suggestions-grid"
           >
-            {suggestions.map((s: Suggestion, i: number) => (
+            {displayed.map((s: Suggestion, i: number) => (
               <div key={s.id} className={`dn-card${i % 2 === 1 ? " dn-card--alt1" : ""}`} style={{ display: "flex", flexDirection: "column" }}>
                 {/* Image slot */}
                 <div
@@ -356,10 +385,16 @@ export function SuggestionsPage() {
             .suggestions-grid {
               grid-template-columns: 1fr !important;
             }
+            .category-grid {
+              grid-template-columns: repeat(2, 1fr) !important;
+            }
           }
           @media (max-width: 1024px) and (min-width: 769px) {
             .suggestions-grid {
               grid-template-columns: repeat(2, 1fr) !important;
+            }
+            .category-grid {
+              grid-template-columns: repeat(3, 1fr) !important;
             }
           }
         `}</style>

@@ -16,6 +16,7 @@ import {
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { useTheme } from '@/contexts/ThemeContext';
 import { SPACING, TYPE, SHADOWS } from '@/constants';
+import { CATEGORIES, CUSTOM_CATEGORY, Category } from '@/constants/categories';
 import {
   DNButton,
   DNInput,
@@ -27,30 +28,6 @@ import { proposalsAPI } from '@/services/api';
 import type { RootStackParamList } from '@/types';
 
 type RouteT = RouteProp<RootStackParamList, 'CreateProposal'>;
-
-// ── Category definitions ───────────────────────────────────────────────────────
-interface CategoryDef {
-  name: string;
-  emoji: string;
-  description: string;
-}
-
-const CATEGORIES: CategoryDef[] = [
-  { name: 'Dining',           emoji: '🍽️', description: 'Restaurants, food crawls & culinary adventures' },
-  { name: 'Live Music',       emoji: '🎵', description: 'Concerts, jazz clubs & local bands' },
-  { name: 'Comedy',           emoji: '😂', description: 'Stand-up, improv & open mic nights' },
-  { name: 'Theater & Plays',  emoji: '🎭', description: 'Broadway tours, community theater & murder mystery' },
-  { name: 'Movies',           emoji: '🎬', description: 'Cinema, drive-ins & outdoor screenings' },
-  { name: 'Streaming Night',  emoji: '📺', description: 'Netflix binge, classic marathon & documentaries' },
-  { name: 'Outdoors',         emoji: '🌿', description: 'Hikes, picnics, parks & stargazing' },
-  { name: 'Day Trip',         emoji: '🚗', description: 'National parks, small towns & scenic drives' },
-  { name: 'Wine & Drinks',    emoji: '🍷', description: 'Wineries, breweries, cocktail bars & tastings' },
-  { name: 'Arts & Culture',   emoji: '🎨', description: 'Museums, gallery openings & cooking classes' },
-  { name: 'Active',           emoji: '🏃', description: 'Bowling, mini golf, climbing & cycling' },
-  { name: 'Local Experience', emoji: '📍', description: 'Escape rooms, karaoke, trivia & axe throwing' },
-  { name: 'Games & Puzzles',  emoji: '🎲', description: 'Board game cafés, puzzles & game nights' },
-  { name: 'At Home',          emoji: '🏠', description: 'Cozy night in with good food & great company' },
-];
 
 // ── Selected option chip ───────────────────────────────────────────────────────
 function SelectedChip({
@@ -94,7 +71,7 @@ function CategoryCard({
   onPress,
   colors,
 }: {
-  cat: CategoryDef;
+  cat: Category;
   selected: boolean;
   disabled: boolean;
   onPress: () => void;
@@ -141,7 +118,7 @@ function CategoryCard({
           {cat.name}
         </DNText>
         <DNText variant="secondary" color={selected ? colors.primary : colors.ink2} style={{ marginTop: 2 }}>
-          {cat.description}
+          {cat.tagline}
         </DNText>
       </View>
 
@@ -262,8 +239,8 @@ export default function CreateProposalScreen() {
         const cat = CATEGORIES.find((c) => c.name === name);
         return {
           name,
-          category: cat ? name : 'Local Experience',
-          description: cat?.description ?? '',
+          category: cat ? name : 'Custom',
+          description: cat?.tagline ?? '',
           address: '',
         };
       });
@@ -462,7 +439,7 @@ export default function CreateProposalScreen() {
           />
         ))}
 
-        {/* Custom option */}
+        {/* Custom option — always LAST */}
         {showCustomInput ? (
           <View
             style={{
@@ -476,7 +453,7 @@ export default function CreateProposalScreen() {
             }}
           >
             <DNText variant="secondary" color={colors.ink2} style={{ marginBottom: 8 }}>
-              Custom option
+              {CUSTOM_CATEGORY.emoji} Custom option
             </DNText>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: SPACING.sm }}>
               <TextInput
@@ -511,17 +488,41 @@ export default function CreateProposalScreen() {
           !atMax && (
             <TouchableOpacity
               onPress={() => setShowCustomInput(true)}
-              style={{
-                borderWidth: 1.5,
-                borderColor: colors.line,
-                borderStyle: 'dashed',
-                borderRadius: 16,
-                paddingVertical: 14,
-                alignItems: 'center',
-                marginBottom: SPACING.sm,
-              }}
+              activeOpacity={0.75}
+              style={[
+                {
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  backgroundColor: colors.surface,
+                  borderRadius: 16,
+                  padding: SPACING.md,
+                  marginBottom: SPACING.sm,
+                  borderWidth: 1.5,
+                  borderColor: colors.line,
+                  borderStyle: 'dashed',
+                },
+                SHADOWS.card,
+              ]}
             >
-              <DNText variant="secondary" color={colors.ink2}>+ Add custom option</DNText>
+              <View
+                style={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: 12,
+                  backgroundColor: colors.bg,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginRight: SPACING.md,
+                }}
+              >
+                <Text style={{ fontSize: 22 }}>{CUSTOM_CATEGORY.emoji}</Text>
+              </View>
+              <View style={{ flex: 1 }}>
+                <DNText variant="rowLabel" color={colors.ink}>{CUSTOM_CATEGORY.name}</DNText>
+                <DNText variant="secondary" color={colors.ink2} style={{ marginTop: 2 }}>
+                  {CUSTOM_CATEGORY.tagline}
+                </DNText>
+              </View>
             </TouchableOpacity>
           )
         )}

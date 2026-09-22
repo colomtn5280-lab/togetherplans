@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { useParams, Link, useNavigate, useLocation } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { proposalsApi } from "../api/client";
 import { AppNav } from "../components/AppNav";
+import { CATEGORIES, CUSTOM_CATEGORY } from "../constants/categories";
 import type { Proposal, Suggestion } from "../types";
 import type { AxiosError } from "axios";
 import type { ApiError } from "../types";
@@ -22,7 +23,95 @@ interface FormData {
   options: OptionInput[];
 }
 
-const CATEGORIES = ["Dining", "Movie", "Adventure", "Nightlife", "Culture", "Outdoors", "Sports", "Other"];
+const DEFAULT_CATEGORY = CATEGORIES[11].name; // Restaurants & Dining
+
+// ── Category picker grid (15 categories + Custom last) ────────────────────────
+function CategoryPicker({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  const isKnown = CATEGORIES.some((c) => c.name === value);
+  const [customMode, setCustomMode] = useState(!isKnown && value !== "");
+
+  return (
+    <div>
+      <div
+        className="category-picker-grid"
+        style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}
+      >
+        {CATEGORIES.map((c) => {
+          const selected = !customMode && value === c.name;
+          return (
+            <button
+              key={c.id}
+              type="button"
+              onClick={() => { setCustomMode(false); onChange(c.name); }}
+              aria-pressed={selected}
+              title={c.tagline}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 2,
+                padding: "10px 4px",
+                borderRadius: 12,
+                cursor: "pointer",
+                border: `1.5px solid ${selected ? "var(--primary)" : "var(--line)"}`,
+                background: selected ? "var(--primary)" : "var(--surface)",
+                color: selected ? "#fff" : "var(--ink)",
+                transition: "all .15s ease",
+              }}
+            >
+              <span style={{ fontSize: 18 }}>{c.emoji}</span>
+              <span style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 11, lineHeight: 1.15, textAlign: "center" }}>
+                {c.name}
+              </span>
+            </button>
+          );
+        })}
+        {/* Custom — always LAST */}
+        <button
+          type="button"
+          onClick={() => { setCustomMode(true); onChange(""); }}
+          aria-pressed={customMode}
+          title={CUSTOM_CATEGORY.tagline}
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 2,
+            padding: "10px 4px",
+            borderRadius: 12,
+            cursor: "pointer",
+            border: `1.5px ${customMode ? "solid var(--primary)" : "dashed var(--line)"}`,
+            background: customMode ? "var(--primary)" : "var(--surface)",
+            color: customMode ? "#fff" : "var(--ink)",
+            transition: "all .15s ease",
+          }}
+        >
+          <span style={{ fontSize: 18 }}>{CUSTOM_CATEGORY.emoji}</span>
+          <span style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 11, lineHeight: 1.15, textAlign: "center" }}>
+            {CUSTOM_CATEGORY.name}
+          </span>
+        </button>
+      </div>
+      {customMode && (
+        <input
+          type="text"
+          className="dn-input"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder="Your own category, e.g. Pottery class"
+          style={{ height: 38, marginTop: 8 }}
+          autoFocus
+        />
+      )}
+    </div>
+  );
+}
 
 export function NewProposalPage() {
   const { groupId } = useParams<{ groupId: string }>();
@@ -44,12 +133,12 @@ export function NewProposalPage() {
       options: [
         {
           name: prefillSuggestion?.name ?? "",
-          category: prefillSuggestion?.category ?? "Dining",
+          category: prefillSuggestion?.category ?? DEFAULT_CATEGORY,
           description: "",
           address: prefillSuggestion?.address ?? "",
         },
-        { name: "", category: "Dining", description: "", address: "" },
-        { name: "", category: "Dining", description: "", address: "" },
+        { name: "", category: DEFAULT_CATEGORY, description: "", address: "" },
+        { name: "", category: DEFAULT_CATEGORY, description: "", address: "" },
       ],
     },
   });
@@ -71,7 +160,7 @@ export function NewProposalPage() {
         dateTime,
         options: filledOptions.map((o) => ({
           name: o.name,
-          category: o.category || "Other",
+          category: o.category || "Custom",
           description: o.description || undefined,
           address: o.address || undefined,
         })),
@@ -169,7 +258,7 @@ export function NewProposalPage() {
                 <button
                   type="button"
                   className="dn-btn dn-btn--sm dn-btn--tonal"
-                  onClick={() => fields.length < 5 && append({ name: "", category: "Dining", description: "", address: "" })}
+                  onClick={() => fields.length < 5 && append({ name: "", category: DEFAULT_CATEGORY, description: "", address: "" })}
                   disabled={fields.length >= 5}
                 >
                   + Add option
@@ -194,38 +283,34 @@ export function NewProposalPage() {
                     </div>
 
                     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                      <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 10 }}>
-                        <div>
-                          <label style={{ display: "block", fontSize: 11, color: "var(--ink2)", fontFamily: "var(--font-display)", fontWeight: 700, marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                            Name *
-                          </label>
-                          <input
-                            type="text"
-                            className={`dn-input${errors.options?.[i]?.name ? " error" : ""}`}
-                            {...register(`options.${i}.name` as const, { required: "Name required" })}
-                            placeholder="e.g. Sushi Palace"
-                            style={{ height: 38 }}
-                          />
-                          {errors.options?.[i]?.name && (
-                            <p role="alert" style={{ color: "var(--error)", fontSize: 12, marginTop: 2 }}>
-                              {errors.options[i]?.name?.message}
-                            </p>
+                      <div>
+                        <label style={{ display: "block", fontSize: 11, color: "var(--ink2)", fontFamily: "var(--font-display)", fontWeight: 700, marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                          Name *
+                        </label>
+                        <input
+                          type="text"
+                          className={`dn-input${errors.options?.[i]?.name ? " error" : ""}`}
+                          {...register(`options.${i}.name` as const, { required: "Name required" })}
+                          placeholder="e.g. Sushi Palace"
+                          style={{ height: 38 }}
+                        />
+                        {errors.options?.[i]?.name && (
+                          <p role="alert" style={{ color: "var(--error)", fontSize: 12, marginTop: 2 }}>
+                            {errors.options[i]?.name?.message}
+                          </p>
+                        )}
+                      </div>
+                      <div>
+                        <label style={{ display: "block", fontSize: 11, color: "var(--ink2)", fontFamily: "var(--font-display)", fontWeight: 700, marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                          Category
+                        </label>
+                        <Controller
+                          control={control}
+                          name={`options.${i}.category` as const}
+                          render={({ field }) => (
+                            <CategoryPicker value={field.value} onChange={field.onChange} />
                           )}
-                        </div>
-                        <div>
-                          <label style={{ display: "block", fontSize: 11, color: "var(--ink2)", fontFamily: "var(--font-display)", fontWeight: 700, marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                            Category
-                          </label>
-                          <select
-                            className="dn-input"
-                            {...register(`options.${i}.category` as const)}
-                            style={{ height: 38 }}
-                          >
-                            {CATEGORIES.map((c) => (
-                              <option key={c} value={c}>{c}</option>
-                            ))}
-                          </select>
-                        </div>
+                        />
                       </div>
                       <div>
                         <label style={{ display: "block", fontSize: 11, color: "var(--ink2)", fontFamily: "var(--font-display)", fontWeight: 700, marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.05em" }}>

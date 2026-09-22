@@ -11,6 +11,7 @@ import { proposalsRouter } from '@/routes/proposals';
 import { legalRouter } from '@/routes/legal';
 import { suggestionsRouter } from '@/routes/suggestions';
 import { notificationsRouter } from '@/routes/notifications';
+import { categoriesRouter } from '@/routes/categories';
 import { usersRouter } from '@/routes/users';
 import { internalRouter } from '@/routes/internal';
 import { shareCardsRouter } from '@/routes/share-cards';
@@ -51,6 +52,7 @@ export function createApp(): express.Express {
   app.use('/api/proposals', proposalsRouter);
   app.use('/api/suggestions', suggestionsRouter);
   app.use('/api/notifications', notificationsRouter);
+  app.use('/api/categories', categoriesRouter);
   app.use('/api/users', usersRouter);
   app.use('/api/internal', internalRouter);
   app.use('/api/share-cards', shareCardsRouter);

@@ -16,6 +16,7 @@ import * as Location from 'expo-location';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { useTheme } from '@/contexts/ThemeContext';
 import { OPTION_RADII, SHADOWS, SPACING, TYPE } from '@/constants';
+import { CATEGORIES, Category } from '@/constants/categories';
 import {
   DNButton,
   DNCard,
@@ -29,10 +30,103 @@ import type { RootStackParamList, Suggestion } from '@/types';
 
 type RouteT = RouteProp<RootStackParamList, 'Suggestions'>;
 
-const FILTERS = [
-  'All', 'Dining', 'Outdoors', 'Live Music', 'Movies',
-  'Wine & Drinks', 'Arts & Culture', 'Active', 'Comedy', 'Local Experience',
-];
+// ── Category grid card ─────────────────────────────────────────────────────────
+function CategoryGridCard({
+  cat,
+  selected,
+  onPress,
+  colors,
+}: {
+  cat: Category;
+  selected: boolean;
+  onPress: () => void;
+  colors: ReturnType<typeof import('@/constants').palette>;
+}) {
+  return (
+    <TouchableOpacity
+      onPress={onPress}
+      activeOpacity={0.75}
+      style={[
+        {
+          flex: 1,
+          backgroundColor: selected ? colors.primary : colors.surface,
+          borderRadius: 16,
+          borderWidth: 1.5,
+          borderColor: selected ? colors.primary : colors.line,
+          paddingVertical: SPACING.sm + 2,
+          paddingHorizontal: SPACING.sm,
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: 84,
+        },
+        SHADOWS.card,
+      ]}
+    >
+      <Text style={{ fontSize: 24, marginBottom: 4 }}>{cat.emoji}</Text>
+      <DNText
+        variant="rowLabel"
+        color={selected ? colors.onPrimary : colors.ink}
+        style={{ textAlign: 'center' }}
+        numberOfLines={2}
+      >
+        {cat.name}
+      </DNText>
+      <DNText
+        variant="secondary"
+        color={selected ? colors.onPrimary : colors.ink2}
+        style={{ textAlign: 'center', fontSize: 11, marginTop: 2 }}
+        numberOfLines={1}
+      >
+        {cat.tagline}
+      </DNText>
+    </TouchableOpacity>
+  );
+}
+
+// ── Category grid (2-column) ───────────────────────────────────────────────────
+function CategoryGrid({
+  activeId,
+  onSelect,
+  colors,
+}: {
+  activeId: string | null;
+  onSelect: (cat: Category | null) => void;
+  colors: ReturnType<typeof import('@/constants').palette>;
+}) {
+  const rows: Category[][] = [];
+  for (let i = 0; i < CATEGORIES.length; i += 2) {
+    rows.push(CATEGORIES.slice(i, i + 2));
+  }
+  return (
+    <View style={{ marginBottom: SPACING.md }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: SPACING.sm }}>
+        <DNText variant="section" color={colors.ink2} style={{ flex: 1 }}>
+          Browse by category
+        </DNText>
+        <DNChip
+          label="All"
+          selected={activeId === null}
+          onPress={() => onSelect(null)}
+          index={0}
+        />
+      </View>
+      {rows.map((row, ri) => (
+        <View key={ri} style={{ flexDirection: 'row', gap: SPACING.sm, marginBottom: SPACING.sm }}>
+          {row.map((cat) => (
+            <CategoryGridCard
+              key={cat.id}
+              cat={cat}
+              selected={activeId === cat.id}
+              onPress={() => onSelect(activeId === cat.id ? null : cat)}
+              colors={colors}
+            />
+          ))}
+          {row.length === 1 && <View style={{ flex: 1 }} />}
+        </View>
+      ))}
+    </View>
+  );
+}
 
 // ── Striped placeholder ────────────────────────────────────────────────────────
 function StripedPlaceholder({ primarySoft }: { primarySoft: string }) {
@@ -210,7 +304,7 @@ export default function SuggestionsScreen() {
   const route = useRoute<RouteT>();
   const hasProposalContext = !!route.params?.groupId;
 
-  const [activeFilter, setActiveFilter] = useState('All');
+  const [activeCategory, setActiveCategory] = useState<Category | null>(null);
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [loading, setLoading] = useState(false);
   const [locationGranted, setLocationGranted] = useState<boolean | null>(null);
@@ -260,22 +354,22 @@ export default function SuggestionsScreen() {
         const [geo] = await Location.reverseGeocodeAsync({ latitude: lat, longitude: lng });
         setCity(geo.city ?? geo.region ?? 'your area');
 
-        fetchSuggestions(lat, lng, activeFilter);
+        fetchSuggestions(lat, lng, activeCategory?.id);
       } catch {
-        fetchSuggestions(undefined, undefined, activeFilter);
+        fetchSuggestions(undefined, undefined, activeCategory?.id);
       }
     } else {
       setLocationGranted(false);
     }
-  }, [activeFilter, fetchSuggestions]);
+  }, [activeCategory, fetchSuggestions]);
 
   useEffect(() => {
     requestLocation();
   }, []); // eslint-disable-line
 
-  const handleFilterChange = (f: string) => {
-    setActiveFilter(f);
-    fetchSuggestions(coords?.lat, coords?.lng, f, true);
+  const handleCategorySelect = (cat: Category | null) => {
+    setActiveCategory(cat);
+    fetchSuggestions(coords?.lat, coords?.lng, cat?.id, true);
   };
 
   const handleAdd = (s: Suggestion) => {
@@ -292,14 +386,20 @@ export default function SuggestionsScreen() {
 
   const handleLoadMore = () => {
     if (!loadingMore && hasMore) {
-      fetchSuggestions(coords?.lat, coords?.lng, activeFilter, false);
+      fetchSuggestions(coords?.lat, coords?.lng, activeCategory?.id, false);
     }
   };
 
-  // Client-side guard: filter by activeFilter in case the backend returned cached unfiltered results
-  const displayedSuggestions = activeFilter === 'All'
+  // Client-side guard: filter by active category in case the backend returned
+  // cached unfiltered results. Matches new display names AND legacy internal names.
+  const displayedSuggestions = !activeCategory
     ? suggestions
-    : suggestions.filter((s) => s.category === activeFilter);
+    : suggestions.filter(
+        (s) =>
+          !s.category ||
+          s.category === activeCategory.name ||
+          activeCategory.matches.includes(s.category),
+      );
 
   const isEmpty = !loading && displayedSuggestions.length === 0;
 
@@ -327,40 +427,31 @@ export default function SuggestionsScreen() {
         subtitle={`📍 Near ${city} · tonight`}
       />
 
-      {/* Filter chips */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ paddingHorizontal: SPACING.gutter, paddingBottom: SPACING.sm, gap: SPACING.sm }}
-        style={{ maxHeight: 56, flexGrow: 0 }}
-      >
-        {FILTERS.map((f, i) => (
-          <DNChip
-            key={f}
-            label={f}
-            selected={activeFilter === f}
-            onPress={() => handleFilterChange(f)}
-            index={i}
-          />
-        ))}
-      </ScrollView>
-
-      {/* Suggestion list */}
+      {/* Category grid + suggestion list */}
       {loading ? (
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <ActivityIndicator color={colors.primary} size="large" />
-        </View>
+        <ScrollView contentContainerStyle={{ padding: SPACING.gutter, paddingBottom: 120 }}>
+          <CategoryGrid activeId={activeCategory?.id ?? null} onSelect={handleCategorySelect} colors={colors} />
+          <View style={{ paddingVertical: SPACING.xl, alignItems: 'center' }}>
+            <ActivityIndicator color={colors.primary} size="large" />
+          </View>
+        </ScrollView>
       ) : isEmpty ? (
-        <EmptyState
-          onUseLocation={requestLocation}
-          onSetHomeArea={() => {}}
-          onAddManually={() => {}}
-          colors={colors}
-        />
+        <ScrollView contentContainerStyle={{ padding: SPACING.gutter, paddingBottom: 120 }}>
+          <CategoryGrid activeId={activeCategory?.id ?? null} onSelect={handleCategorySelect} colors={colors} />
+          <EmptyState
+            onUseLocation={requestLocation}
+            onSetHomeArea={() => {}}
+            onAddManually={() => {}}
+            colors={colors}
+          />
+        </ScrollView>
       ) : (
         <FlatList
           data={displayedSuggestions}
           keyExtractor={(item, i) => `${item.name}-${i}`}
+          ListHeaderComponent={
+            <CategoryGrid activeId={activeCategory?.id ?? null} onSelect={handleCategorySelect} colors={colors} />
+          }
           renderItem={({ item, index }) => {
             const key = item.name + (item.address ?? '');
             return (

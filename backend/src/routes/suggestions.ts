@@ -1,12 +1,18 @@
 import { Router, Request, Response, NextFunction } from 'express';
-import { getSuggestions, SuggestionCategory } from '@/services/suggestions';
+import { getSuggestions } from '@/services/suggestions';
+import { ALL_CATEGORIES } from '@/constants/categories';
 
 export const suggestionsRouter = Router();
 
 const VALID_CATEGORIES = new Set<string>([
-  'All', 'Dining', 'Live Music', 'Comedy', 'Theater & Plays', 'Movies',
+  'All',
+  // Legacy internal categories (kept for old clients + stored DB values)
+  'Dining', 'Live Music', 'Comedy', 'Theater & Plays', 'Movies',
   'Streaming Night', 'Outdoors', 'Day Trip', 'Wine & Drinks',
   'Arts & Culture', 'Active', 'Local Experience', 'Unique & Quirky',
+  // New unified categories — slugs and display names both accepted
+  ...ALL_CATEGORIES.map((c) => c.id),
+  ...ALL_CATEGORIES.map((c) => c.name),
 ]);
 
 const VALID_DATE_FILTERS = new Set(['tonight', 'this-weekend', 'this-week', 'anytime']);
@@ -69,7 +75,7 @@ suggestionsRouter.get('/', async (req: Request, res: Response, next: NextFunctio
       lat: lat !== undefined && !isNaN(lat) ? lat : undefined,
       lng: lng !== undefined && !isNaN(lng) ? lng : undefined,
       zip,
-      category: rawCategory as SuggestionCategory | 'All' | undefined,
+      category: rawCategory,
       radiusMiles,
       dateFilter: rawDateFilter as 'tonight' | 'this-weekend' | 'this-week' | 'anytime' | undefined,
     });

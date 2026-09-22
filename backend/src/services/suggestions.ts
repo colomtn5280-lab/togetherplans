@@ -28,6 +28,61 @@ import { fetchPredictHQ } from './sources/predicthq.source';
 export type { Suggestion, SuggestionCategory, SuggestionQuery };
 
 // ---------------------------------------------------------------------------
+// New unified category ids/names → legacy internal SuggestionCategory.
+// `null` = no external source covers it yet → seed-only fallback (never error).
+// Old internal category strings stored in the DB pass through unchanged.
+// ---------------------------------------------------------------------------
+const NEW_TO_INTERNAL: Record<string, SuggestionCategory | null> = {
+  // slug ids
+  'comedy': 'Comedy',
+  'concerts': 'Live Music',
+  'couples-events': null,
+  'family-events': null,
+  'golf': 'Active',
+  'hiking-trails': 'Outdoors',
+  'hotel-stays': null,
+  'local-experiences': 'Local Experience',
+  'movies': 'Movies',
+  'netflix-shows': 'Streaming Night',
+  'performing-arts': 'Theater & Plays',
+  'restaurants-dining': 'Dining',
+  'volunteering': null,
+  'wellness-spa': null,
+  'wine-drinks': 'Wine & Drinks',
+  'custom': null,
+  // display names (mobile/web send these on option.category)
+  'Concerts': 'Live Music',
+  'Couples Events': null,
+  'Family Events': null,
+  'Golf': 'Active',
+  'Hiking Trails': 'Outdoors',
+  'Hotel Stays': null,
+  'Local Experiences': 'Local Experience',
+  'Netflix Shows': 'Streaming Night',
+  'Performing Arts': 'Theater & Plays',
+  'Restaurants & Dining': 'Dining',
+  'Volunteering': null,
+  'Wellness & Spa': null,
+  'Custom': null,
+  // 'Comedy', 'Movies', 'Wine & Drinks' are already valid internal categories
+};
+
+/**
+ * Resolve a raw category string (new slug, new display name, legacy internal
+ * name, or 'All') to an internal SuggestionCategory.
+ * seedOnly=true means no external source covers it — serve seed suggestions.
+ */
+function resolveCategory(raw?: string): { internal?: SuggestionCategory; seedOnly: boolean } {
+  if (!raw || raw === 'All') return { internal: undefined, seedOnly: false };
+  if (raw in NEW_TO_INTERNAL) {
+    const mapped = NEW_TO_INTERNAL[raw];
+    return mapped ? { internal: mapped, seedOnly: false } : { internal: undefined, seedOnly: true };
+  }
+  // Legacy internal category string (e.g. 'Dining', 'Outdoors') — pass through as-is
+  return { internal: raw as SuggestionCategory, seedOnly: false };
+}
+
+// ---------------------------------------------------------------------------
 // Zip code → lat/lng (lightweight static table for top 50 US metro zip prefixes)
 // Falls back to center-of-US if zip not found.
 // ---------------------------------------------------------------------------
@@ -133,8 +188,15 @@ export async function getSuggestions(query: SuggestionQuery): Promise<Suggestion
   }
 
   const radiusMiles = query.radiusMiles ?? 25;
-  const category = (query.category === 'All' ? undefined : query.category) as SuggestionCategory | undefined;
+  const { internal: category, seedOnly } = resolveCategory(query.category);
   const key = cacheKey(query);
+
+  // Category with no external-source coverage yet → serve seed suggestions
+  if (seedOnly) {
+    const seeds = getSeedSuggestions(undefined, 12);
+    logger.info(`Suggestions seed-only fallback for category "${query.category}": ${seeds.length} results`);
+    return seeds;
+  }
 
   // Cache check
   const cached = await cache.get(key);
