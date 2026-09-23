@@ -1,18 +1,256 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { proposalsApi } from "../api/client";
+import { proposalsApi, shareCardsApi } from "../api/client";
 import { AppNav } from "../components/AppNav";
 import { useAuthStore } from "../store/auth.store";
 import type { AxiosError } from "axios";
 import type { ApiError } from "../types";
 
+// ── Category helpers ──────────────────────────────────────────────────────────
+const CATEGORY_COLORS: Record<string, string> = {
+  "Restaurants & Dining": "#FDEBD0",
+  "Live Music & Concerts": "#EBD5FB",
+  "Comedy Shows": "#FEF9C3",
+  "Movies & Theater": "#D5E8FD",
+  "Art & Museums": "#FCE4EC",
+  "Outdoor Adventures": "#D4EDDA",
+  "Sports & Active": "#FFE0B2",
+  "Nightlife & Bars": "#E8D5F5",
+  "Wellness & Spa": "#D0F4F1",
+  "Cooking & Classes": "#FFF3CD",
+  Custom: "#F0F0F0",
+};
+const CATEGORY_EMOJIS: Record<string, string> = {
+  "Restaurants & Dining": "🍽️",
+  "Live Music & Concerts": "🎵",
+  "Comedy Shows": "😂",
+  "Movies & Theater": "🎬",
+  "Art & Museums": "🎨",
+  "Outdoor Adventures": "🏔️",
+  "Sports & Active": "🏃",
+  "Nightlife & Bars": "🍸",
+  "Wellness & Spa": "💆",
+  "Cooking & Classes": "🍳",
+};
+
+function getCategoryEmoji(cat: string): string {
+  return CATEGORY_EMOJIS[cat] ?? "📍";
+}
+function getCategoryColor(cat: string): string {
+  return CATEGORY_COLORS[cat] ?? "#F0F0F0";
+}
+
+function formatEventDate(dateStr: string): string {
+  try {
+    const d = new Date(dateStr);
+    return (
+      d.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" }) +
+      " · " +
+      d.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })
+    );
+  } catch {
+    return dateStr;
+  }
+}
+
+function formatPriceLevel(level: number): string {
+  return "$".repeat(Math.max(1, Math.min(4, level)));
+}
+
+function buildGoogleCalendarUrl(title: string, venue: string, dateStr?: string): string {
+  const base = "https://calendar.google.com/calendar/render?action=TEMPLATE";
+  const text = encodeURIComponent(title);
+  const details = encodeURIComponent(venue);
+  let dates = "";
+  if (dateStr) {
+    try {
+      const start = new Date(dateStr);
+      const end = new Date(start.getTime() + 2 * 60 * 60 * 1000); // +2h
+      const fmt = (d: Date) =>
+        d.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+      dates = `&dates=${fmt(start)}/${fmt(end)}`;
+    } catch {
+      // no dates
+    }
+  }
+  return `${base}&text=${text}${dates}&details=${details}`;
+}
+
+// ── Confetti pieces (generated once) ─────────────────────────────────────────
+const CONFETTI_COLORS = ["#0E8C8C", "#7CB518", "#ffffff", "#FFD700"];
+const CONFETTI_PIECES = Array.from({ length: 40 }, (_, i) => ({
+  id: i,
+  left: Math.random() * 100,
+  color: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
+  delay: Math.random() * 2.5,
+  size: 8 + Math.random() * 8,
+  duration: 2.5 + Math.random() * 2,
+}));
+
+// ── Share modal ───────────────────────────────────────────────────────────────
+interface ShareModalProps {
+  proposalId: string;
+  onClose: () => void;
+}
+function ShareModal({ proposalId, onClose }: ShareModalProps) {
+  const [shareUrl, setShareUrl] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [copied, setCopied] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    shareCardsApi.generate(proposalId)
+      .then((res) => {
+        const data = res.data as { shareUrl?: string; url?: string; token?: string };
+        const url =
+          data.shareUrl ??
+          data.url ??
+          (data.token
+            ? `${window.location.origin}/share/${data.token}`
+            : null);
+        setShareUrl(url);
+      })
+      .catch(() => setError("Could not generate share link."))
+      .finally(() => setLoading(false));
+  }, [proposalId]);
+
+  function handleCopy() {
+    if (shareUrl) {
+      navigator.clipboard.writeText(shareUrl).then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      });
+    }
+  }
+
+  const waUrl = shareUrl
+    ? `https://wa.me/?text=${encodeURIComponent("Check out our plan: " + shareUrl)}`
+    : null;
+  const ogImageUrl = `${window.location.origin}/api/share-cards/${proposalId}/og-image`;
+
+  return (
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        background: "rgba(0,0,0,.65)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        zIndex: 300,
+      }}
+      onClick={onClose}
+    >
+      <div
+        className="dn-card"
+        style={{
+          width: "100%",
+          maxWidth: 460,
+          padding: 32,
+          borderRadius: "32px 28px 36px 28px",
+          textAlign: "center",
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h2 style={{ marginBottom: 8, fontFamily: "var(--font-display)" }}>Share this plan 🎉</h2>
+
+        {loading && <p style={{ color: "var(--ink2)" }}>Generating link…</p>}
+        {error && <p style={{ color: "var(--error)" }}>{error}</p>}
+
+        {shareUrl && (
+          <>
+            <div
+              style={{
+                background: "var(--bg)",
+                borderRadius: 12,
+                padding: "10px 14px",
+                marginBottom: 12,
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                justifyContent: "space-between",
+              }}
+            >
+              <span
+                style={{
+                  fontSize: 13,
+                  color: "var(--ink2)",
+                  wordBreak: "break-all",
+                  textAlign: "left",
+                  flex: 1,
+                }}
+              >
+                {shareUrl}
+              </span>
+              <button
+                className="dn-btn dn-btn--sm"
+                onClick={handleCopy}
+                style={{ flexShrink: 0 }}
+              >
+                {copied ? "Copied ✓" : "Copy"}
+              </button>
+            </div>
+
+            {/* OG image preview */}
+            <img
+              src={ogImageUrl}
+              alt="Plan preview"
+              style={{
+                width: "100%",
+                borderRadius: 16,
+                marginBottom: 16,
+                objectFit: "cover",
+                maxHeight: 200,
+              }}
+              onError={(e) => {
+                (e.target as HTMLImageElement).style.display = "none";
+              }}
+            />
+
+            {waUrl && (
+              <a
+                href={waUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="dn-btn"
+                style={{
+                  display: "block",
+                  textDecoration: "none",
+                  marginBottom: 12,
+                  background: "#25D366",
+                  color: "#fff",
+                  border: "none",
+                }}
+              >
+                📱 Share on WhatsApp
+              </a>
+            )}
+          </>
+        )}
+
+        <button
+          className="dn-btn dn-btn--secondary"
+          onClick={onClose}
+          style={{ width: "100%" }}
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ── Main component ────────────────────────────────────────────────────────────
 export function ProposalPage() {
   const { proposalId } = useParams<{ proposalId: string }>();
   const queryClient = useQueryClient();
   const user = useAuthStore((s) => s.user);
   const [showCounter, setShowCounter] = useState(false);
-  const [showConsensusModal, setShowConsensusModal] = useState(false);
+  const [showCelebration, setShowCelebration] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const prevStatusRef = useRef<string | null>(null);
+  const confettiInjectedRef = useRef(false);
 
   const { data: proposal, isLoading, isError } = useQuery({
     queryKey: ["proposal", proposalId],
@@ -22,6 +260,31 @@ export function ProposalPage() {
     },
     enabled: !!proposalId,
   });
+
+  // Auto-show celebration when status becomes DECIDED
+  useEffect(() => {
+    if (!proposal) return;
+    const prev = prevStatusRef.current;
+    const current = proposal.status;
+    if (
+      (current === "DECIDED" || current === "locked") &&
+      prev !== null &&
+      prev !== "DECIDED" &&
+      prev !== "locked"
+    ) {
+      setShowCelebration(true);
+    }
+    prevStatusRef.current = current;
+  }, [proposal?.status]);
+
+  // Also auto-show when navigating directly to an already-DECIDED proposal
+  // (only on first load — prev is null)
+  useEffect(() => {
+    if (!proposal) return;
+    if (prevStatusRef.current === null) {
+      prevStatusRef.current = proposal.status;
+    }
+  }, [proposal]);
 
   const voteMutation = useMutation<unknown, AxiosError<ApiError>, { optionId: string }>({
     mutationFn: async ({ optionId }) => {
@@ -83,12 +346,38 @@ export function ProposalPage() {
     opt.votes?.some((v) => v.userId === myUserId)
   )?.id;
 
+  const isDecided = proposal.status === "DECIDED" || proposal.status === "locked";
+
+  // Find the winning option (consensus or most votes)
+  const winningOption =
+    options.find((opt) => tally.find((t) => t.optionId === opt.id)?.consensus) ??
+    options.reduce<typeof options[0] | null>((best, opt) => {
+      const votes = tally.find((t) => t.optionId === opt.id)?.votes ?? 0;
+      const bestVotes = best ? (tally.find((t) => t.optionId === best.id)?.votes ?? 0) : -1;
+      return votes > bestVotes ? opt : best;
+    }, null);
+
   const statusSticker = () => {
     const s = proposal.status;
     if (s === "DECIDED" || s === "locked") return <span className="dn-sticker dn-sticker--lime">Decided 🎉</span>;
     if (s === "CANCELLED" || s === "rejected") return <span className="dn-sticker dn-sticker--ink">Cancelled</span>;
     return <span className="dn-sticker">Open</span>;
   };
+
+  // Inject confetti keyframes once
+  function ConfettiStyle() {
+    if (confettiInjectedRef.current) return null;
+    confettiInjectedRef.current = true;
+    return (
+      <style>{`
+        @keyframes dn-confetti-fall {
+          0%   { transform: translateY(-40px) rotate(0deg); opacity: 1; }
+          80%  { opacity: 1; }
+          100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+      `}</style>
+    );
+  }
 
   return (
     <>
@@ -105,16 +394,70 @@ export function ProposalPage() {
         <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 32 }}>
           {statusSticker()}
           <h1 style={{ margin: 0, fontSize: 24 }}>{proposal.title ?? "Proposal"}</h1>
-          {(proposal.status === "DECIDED" || proposal.status === "locked") && (
-            <Link
-              to={`/proposals/${proposalId}/share`}
+          {isDecided && (
+            <button
               className="dn-btn dn-btn--sm"
-              style={{ marginLeft: "auto", textDecoration: "none" }}
+              style={{ marginLeft: "auto" }}
+              onClick={() => setShowShareModal(true)}
             >
               📤 Share
-            </Link>
+            </button>
           )}
         </div>
+
+        {/* DECIDED: winning option banner */}
+        {isDecided && winningOption && (
+          <div
+            className="dn-card"
+            style={{
+              marginBottom: 32,
+              background: "linear-gradient(135deg, rgba(14,140,140,0.08), rgba(124,181,24,0.08))",
+              border: "2px solid var(--lime)",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "flex-start", gap: 20, flexWrap: "wrap" }}>
+              {/* image */}
+              {winningOption.imageUrl ? (
+                <img
+                  src={winningOption.imageUrl}
+                  alt={winningOption.name}
+                  style={{ width: 120, height: 90, objectFit: "cover", borderRadius: 12, flexShrink: 0 }}
+                  onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                />
+              ) : (
+                <div style={{
+                  width: 120, height: 90, borderRadius: 12, flexShrink: 0,
+                  background: getCategoryColor(winningOption.category),
+                  display: "flex", alignItems: "center", justifyContent: "center", fontSize: 32,
+                }}>
+                  {getCategoryEmoji(winningOption.category)}
+                </div>
+              )}
+              <div style={{ flex: 1, minWidth: 180 }}>
+                <div style={{ fontSize: 12, color: "var(--lime)", fontFamily: "var(--font-display)", fontWeight: 700, marginBottom: 4 }}>
+                  🏆 The plan
+                </div>
+                <h2 style={{ margin: "0 0 6px", fontSize: 20 }}>{winningOption.name}</h2>
+                {winningOption.address && (
+                  <p style={{ color: "var(--ink2)", fontSize: 13, margin: "0 0 4px" }}>📍 {winningOption.address}</p>
+                )}
+                {winningOption.eventDate && (
+                  <p style={{ color: "var(--ink2)", fontSize: 13, margin: "0 0 4px" }}>
+                    📅 {formatEventDate(winningOption.eventDate)}
+                  </p>
+                )}
+                {/* Share this plan button */}
+                <button
+                  className="dn-btn"
+                  style={{ marginTop: 12 }}
+                  onClick={() => setShowShareModal(true)}
+                >
+                  Share this plan 🎉
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* 2-column layout */}
         <div
@@ -135,6 +478,8 @@ export function ProposalPage() {
                 const tallyEntry = tally.find((t) => t.optionId === option.id);
                 const voteCount = tallyEntry?.votes ?? option.votes?.length ?? 0;
                 const consensus = tallyEntry?.consensus ?? false;
+                const catColor = getCategoryColor(option.category);
+                const catEmoji = getCategoryEmoji(option.category);
 
                 return (
                   <div
@@ -143,23 +488,46 @@ export function ProposalPage() {
                     style={{
                       background: consensus ? "var(--lime-soft)" : "var(--surface)",
                       position: "relative",
+                      padding: 0,
+                      overflow: "hidden",
                     }}
                   >
-                    {/* Image slot */}
+                    {/* Image header */}
+                    {option.imageUrl ? (
+                      <img
+                        src={option.imageUrl}
+                        alt={option.name}
+                        style={{
+                          width: "100%",
+                          height: 160,
+                          objectFit: "cover",
+                          borderRadius: "12px 12px 0 0",
+                          display: "block",
+                        }}
+                        onError={(e) => {
+                          const img = e.target as HTMLImageElement;
+                          const fallback = img.nextElementSibling as HTMLElement | null;
+                          if (fallback) fallback.style.display = "flex";
+                          img.style.display = "none";
+                        }}
+                      />
+                    ) : null}
+                    {/* Fallback colored block — always rendered, hidden if imageUrl loaded */}
                     <div
                       style={{
-                        height: 110,
-                        borderRadius: 16,
-                        marginBottom: 14,
-                        background: `repeating-linear-gradient(
-                          45deg,
-                          var(--bg),
-                          var(--bg) 8px,
-                          var(--line) 8px,
-                          var(--line) 16px
-                        )`,
+                        width: "100%",
+                        height: 160,
+                        background: catColor,
+                        borderRadius: "12px 12px 0 0",
+                        display: option.imageUrl ? "none" : "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: 48,
                       }}
-                    />
+                      aria-hidden="true"
+                    >
+                      {catEmoji}
+                    </div>
 
                     {/* Heart vote button */}
                     <button
@@ -173,44 +541,79 @@ export function ProposalPage() {
                       disabled={voteMutation.isPending || retractMutation.isPending}
                       style={{
                         position: "absolute",
-                        top: 96,
+                        top: 136,
                         right: 16,
-                        width: 56,
-                        height: 56,
+                        width: 48,
+                        height: 48,
                         borderRadius: "50%",
                         border: "none",
                         cursor: "pointer",
                         background: hasMyVote ? "var(--lime)" : "var(--surface)",
                         color: hasMyVote ? "var(--on-lime)" : "var(--ink2)",
-                        fontSize: 22,
+                        fontSize: 20,
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
                         boxShadow: "var(--shadow-dock)",
                         transition: "transform 150ms, background 150ms",
+                        zIndex: 2,
                       }}
                       aria-label={hasMyVote ? "Remove vote" : "Vote for this option"}
                     >
                       {hasMyVote ? "♥" : "♡"}
                     </button>
 
-                    <h3 style={{ fontSize: 15, marginBottom: 4 }}>
-                      {option.name ?? `Option ${i + 1}`}
-                    </h3>
-                    {option.address && (
-                      <p style={{ color: "var(--ink2)", fontSize: 12 }}>
-                        📍 {option.address}
+                    {/* Card body */}
+                    <div style={{ padding: "14px 16px 16px" }}>
+                      <h3 style={{ fontSize: 14, marginBottom: 4, marginTop: 0 }}>
+                        {option.name ?? `Option ${i + 1}`}
+                      </h3>
+
+                      {option.address && (
+                        <p style={{ color: "var(--ink2)", fontSize: 12, margin: "0 0 3px" }}>
+                          📍 {option.address}
+                        </p>
+                      )}
+
+                      {/* Rating + price */}
+                      {(option.rating != null || option.priceLevel != null) && (
+                        <p style={{ color: "var(--ink2)", fontSize: 12, margin: "0 0 3px" }}>
+                          {option.rating != null && `★ ${option.rating.toFixed(1)}`}
+                          {option.rating != null && option.priceLevel != null && "  "}
+                          {option.priceLevel != null && formatPriceLevel(option.priceLevel)}
+                        </p>
+                      )}
+
+                      {/* Event date */}
+                      {option.eventDate && (
+                        <p style={{ color: "var(--ink2)", fontSize: 12, margin: "0 0 3px" }}>
+                          📅 {formatEventDate(option.eventDate)}
+                        </p>
+                      )}
+
+                      {option.category && (
+                        <span className="dn-sticker dn-sticker--lime" style={{ fontSize: 11 }}>
+                          {option.category}
+                        </span>
+                      )}
+
+                      <p style={{ color: "var(--ink2)", fontSize: 12, marginTop: 6, marginBottom: 4 }}>
+                        {voteCount}{memberCount > 0 ? `/${memberCount}` : ""} vote{voteCount !== 1 ? "s" : ""}
+                        {consensus && " ✓"}
                       </p>
-                    )}
-                    {option.category && (
-                      <span className="dn-sticker dn-sticker--lime" style={{ fontSize: 11 }}>
-                        {option.category}
-                      </span>
-                    )}
-                    <p style={{ color: "var(--ink2)", fontSize: 12, marginTop: 8 }}>
-                      {voteCount}{memberCount > 0 ? `/${memberCount}` : ""} vote{voteCount !== 1 ? "s" : ""}
-                      {consensus && " ✓"}
-                    </p>
+
+                      {/* View details link */}
+                      {option.sourceUrl && (
+                        <a
+                          href={option.sourceUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{ fontSize: 12, color: "var(--primary)", textDecoration: "none" }}
+                        >
+                          View Details →
+                        </a>
+                      )}
+                    </div>
                   </div>
                 );
               })}
@@ -246,6 +649,17 @@ export function ProposalPage() {
                 <p style={{ color: "var(--ink2)", fontSize: 13 }}>
                   Members: <strong>{memberCount}</strong>
                 </p>
+              )}
+
+              {/* Show celebration button if decided */}
+              {isDecided && (
+                <button
+                  className="dn-btn dn-btn--sm"
+                  style={{ marginTop: 10 }}
+                  onClick={() => setShowCelebration(true)}
+                >
+                  🎉 See the match!
+                </button>
               )}
             </div>
 
@@ -337,41 +751,137 @@ export function ProposalPage() {
           </div>
         </div>
 
-        {/* Consensus modal */}
-        {showConsensusModal && (
+        {/* ── Match celebration overlay ────────────────────────────────────── */}
+        {showCelebration && (
           <div
             style={{
               position: "fixed",
               inset: 0,
-              background: "rgba(0,0,0,.6)",
+              background: "linear-gradient(135deg, #0E8C8C 0%, #7CB518 100%)",
               display: "flex",
+              flexDirection: "column",
               alignItems: "center",
               justifyContent: "center",
-              zIndex: 200,
+              zIndex: 400,
+              overflow: "hidden",
             }}
-            onClick={() => setShowConsensusModal(false)}
           >
+            <ConfettiStyle />
+
+            {/* Confetti */}
+            {CONFETTI_PIECES.map((p) => (
+              <div
+                key={p.id}
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  left: `${p.left}%`,
+                  width: p.size,
+                  height: p.size,
+                  background: p.color,
+                  borderRadius: Math.random() > 0.5 ? "50%" : "2px",
+                  animation: `dn-confetti-fall ${p.duration}s ${p.delay}s ease-in infinite`,
+                  opacity: 0,
+                }}
+                aria-hidden="true"
+              />
+            ))}
+
+            {/* Card */}
             <div
-              className="dn-card"
               style={{
-                width: "100%",
-                maxWidth: 460,
+                background: "rgba(255,255,255,0.95)",
+                borderRadius: 32,
+                padding: "40px 32px",
+                maxWidth: 480,
+                width: "90%",
                 textAlign: "center",
-                padding: 48,
-                borderRadius: "44px 36px 48px 40px",
+                position: "relative",
+                zIndex: 2,
+                boxShadow: "0 24px 64px rgba(0,0,0,0.2)",
               }}
-              onClick={e => e.stopPropagation()}
             >
-              <div style={{ fontSize: 56, marginBottom: 16 }}>🎉</div>
-              <h2 style={{ marginBottom: 8 }}>You're locked in!</h2>
-              <p style={{ color: "var(--ink2)", marginBottom: 24 }}>
-                Everyone agreed. It's happening. Get excited!
-              </p>
-              <button className="dn-btn" onClick={() => setShowConsensusModal(false)} style={{ width: "100%" }}>
-                Amazing ♥
-              </button>
+              <h1 style={{ fontFamily: "Sora, var(--font-display), sans-serif", fontSize: 32, marginBottom: 8, color: "#0E8C8C" }}>
+                🎉 It's a Match!
+              </h1>
+              <p style={{ color: "var(--ink2)", marginBottom: 24 }}>Everyone agreed. It's happening!</p>
+
+              {winningOption && (
+                <div style={{ marginBottom: 24 }}>
+                  {/* Option image */}
+                  {winningOption.imageUrl ? (
+                    <img
+                      src={winningOption.imageUrl}
+                      alt={winningOption.name}
+                      style={{ width: "100%", height: 160, objectFit: "cover", borderRadius: 16, marginBottom: 16 }}
+                      onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                    />
+                  ) : (
+                    <div style={{
+                      width: "100%", height: 160, borderRadius: 16, marginBottom: 16,
+                      background: getCategoryColor(winningOption.category),
+                      display: "flex", alignItems: "center", justifyContent: "center", fontSize: 64,
+                    }}>
+                      {getCategoryEmoji(winningOption.category)}
+                    </div>
+                  )}
+                  <h2 style={{ margin: "0 0 6px", fontSize: 20 }}>{winningOption.name}</h2>
+                  {winningOption.address && (
+                    <p style={{ color: "var(--ink2)", fontSize: 14, margin: "0 0 4px" }}>📍 {winningOption.address}</p>
+                  )}
+                  {winningOption.eventDate && (
+                    <p style={{ color: "var(--ink2)", fontSize: 14, margin: 0 }}>📅 {formatEventDate(winningOption.eventDate)}</p>
+                  )}
+                </div>
+              )}
+
+              {/* Action buttons */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                {/* Add to Calendar */}
+                <a
+                  href={buildGoogleCalendarUrl(
+                    proposal.title ?? winningOption?.name ?? "Our Plan",
+                    winningOption?.address ?? "",
+                    winningOption?.eventDate ?? proposal.dateTime,
+                  )}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="dn-btn"
+                  style={{ textDecoration: "none", display: "block" }}
+                >
+                  📅 Add to Calendar
+                </a>
+
+                {/* Share Plan */}
+                <button
+                  className="dn-btn"
+                  style={{ background: "var(--lime)", color: "#fff", border: "none" }}
+                  onClick={() => {
+                    setShowCelebration(false);
+                    setShowShareModal(true);
+                  }}
+                >
+                  📤 Share Plan
+                </button>
+
+                {/* View Plan */}
+                <button
+                  className="dn-btn dn-btn--secondary"
+                  onClick={() => setShowCelebration(false)}
+                >
+                  View Plan
+                </button>
+              </div>
             </div>
           </div>
+        )}
+
+        {/* ── Share modal ──────────────────────────────────────────────────── */}
+        {showShareModal && proposalId && (
+          <ShareModal
+            proposalId={proposalId}
+            onClose={() => setShowShareModal(false)}
+          />
         )}
 
         {/* error display */}
@@ -382,8 +892,6 @@ export function ProposalPage() {
              "Vote action failed"}
           </p>
         )}
-
-        {/* suppress unused refs */ null}
 
         <style>{`
           @media (max-width: 768px) {
