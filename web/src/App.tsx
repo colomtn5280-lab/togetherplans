@@ -151,8 +151,8 @@ export default function App() {
             <Route path="/business/analytics" element={<BusinessAnalyticsPage />} />
           </Route>
         </Routes>
+        <PlanBuilderDock />
       </BrowserRouter>
-      <PlanBuilderDock />
       </PlanBuilderProvider>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
