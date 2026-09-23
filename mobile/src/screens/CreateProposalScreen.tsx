@@ -1,22 +1,28 @@
 /**
- * CreateProposalScreen — category-picker redesign
- * Pick 3–5 categories (or custom) → send to group.
+ * CreateProposalScreen — FINALIZE step (rewritten)
+ *
+ * Receives options[] from PlanBuilderContext (via strip) or from Suggestions
+ * as route params. Shows plan summary, title, date/time picker, group selector,
+ * preview modal, and send button.
  */
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
+  Image,
   KeyboardAvoidingView,
+  Linking,
   Modal,
   Platform,
   ScrollView,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
+import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { useTheme } from '@/contexts/ThemeContext';
-import { SPACING, TYPE, SHADOWS } from '@/constants';
-import { CATEGORIES, CUSTOM_CATEGORY, Category } from '@/constants/categories';
+import { usePlanBuilder } from '@/contexts/PlanBuilderContext';
+import { SPACING, SHADOWS } from '@/constants';
+import { CATEGORIES } from '@/constants/categories';
 import {
   DNButton,
   DNInput,
@@ -24,122 +30,258 @@ import {
   DNSticker,
   DNText,
 } from '@/components/ui';
-import { proposalsAPI } from '@/services/api';
-import type { RootStackParamList } from '@/types';
+import { proposalsAPI, groupsAPI } from '@/services/api';
+import type { ActivityOption, Group, PlanBuilderOption, RootStackParamList } from '@/types';
 
 type RouteT = RouteProp<RootStackParamList, 'CreateProposal'>;
 
-// ── Selected option chip ───────────────────────────────────────────────────────
-function SelectedChip({
-  label,
-  onRemove,
-  colors,
-}: {
-  label: string;
-  onRemove: () => void;
-  colors: ReturnType<typeof import('@/constants').palette>;
-}) {
+// ── Helper: category → colour/emoji ───────────────────────────────────────────
+const CATEGORY_COLORS: Record<string, string> = {
+  'Restaurants & Dining': '#FDEBD0',
+  'Live Music & Concerts': '#EBD5FB',
+  'Comedy Shows': '#FEF9C3',
+  'Movies & Theater': '#D5E8FD',
+  'Art & Museums': '#FCE4EC',
+  'Outdoor Adventures': '#D4EDDA',
+  'Sports & Active': '#FFE0B2',
+  'Nightlife & Bars': '#E8D5F5',
+  'Wellness & Spa': '#D0F4F1',
+  'Cooking & Classes': '#FFF3CD',
+  Custom: '#F0F0F0',
+};
+
+function getCategoryEmoji(category: string): string {
+  return CATEGORIES.find((c) => c.name === category)?.emoji ?? '📍';
+}
+function getCategoryColor(category: string): string {
+  return CATEGORY_COLORS[category] ?? '#F0F0F0';
+}
+
+// ── Thumbnail (image or emoji fallback) ───────────────────────────────────────
+function OptionThumbnail({ opt }: { opt: PlanBuilderOption }) {
+  const [err, setErr] = useState(false);
+  if (opt.imageUrl && !err) {
+    return (
+      <Image
+        source={{ uri: opt.imageUrl }}
+        style={{ width: 60, height: 60, borderRadius: 12 }}
+        resizeMode="cover"
+        onError={() => setErr(true)}
+      />
+    );
+  }
   return (
     <View
       style={{
-        flexDirection: 'row',
+        width: 60,
+        height: 60,
+        borderRadius: 12,
+        backgroundColor: getCategoryColor(opt.category),
         alignItems: 'center',
-        backgroundColor: colors.primarySoft,
-        borderRadius: 20,
-        paddingVertical: 6,
-        paddingLeft: 12,
-        paddingRight: 8,
-        marginRight: SPACING.xs,
-        marginBottom: SPACING.xs,
+        justifyContent: 'center',
       }}
     >
-      <DNText variant="secondary" color={colors.primary} style={{ marginRight: 6 }}>
-        {label}
-      </DNText>
-      <TouchableOpacity onPress={onRemove} hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}>
-        <Text style={{ color: colors.primary, fontSize: 14, fontWeight: '700' }}>×</Text>
+      <Text style={{ fontSize: 26 }}>{getCategoryEmoji(opt.category)}</Text>
+    </View>
+  );
+}
+
+// ── Option card for "Your Plan" list ──────────────────────────────────────────
+function PlanOptionCard({
+  opt,
+  onRemove,
+  colors,
+}: {
+  opt: PlanBuilderOption;
+  onRemove: () => void;
+  colors: any;
+}) {
+  const priceStr = opt.priceLevel ? '$'.repeat(opt.priceLevel) : null;
+  return (
+    <View
+      style={[
+        {
+          flexDirection: 'row',
+          alignItems: 'center',
+          backgroundColor: colors.surface,
+          borderRadius: 16,
+          padding: SPACING.sm,
+          marginBottom: SPACING.sm,
+          gap: SPACING.sm,
+        },
+        SHADOWS.card,
+      ]}
+    >
+      <OptionThumbnail opt={opt} />
+      <View style={{ flex: 1 }}>
+        <DNText variant="rowLabel" color={colors.ink} numberOfLines={1}>
+          {opt.name}
+        </DNText>
+        {opt.address && (
+          <DNText variant="secondary" color={colors.ink2} numberOfLines={1}>
+            {opt.address}
+          </DNText>
+        )}
+        <View style={{ flexDirection: 'row', gap: 6, marginTop: 2 }}>
+          {opt.rating != null && (
+            <DNText variant="secondary" color={colors.lime}>
+              ★ {opt.rating.toFixed(1)}
+            </DNText>
+          )}
+          {priceStr && (
+            <DNText variant="secondary" color={colors.ink2}>
+              {priceStr}
+            </DNText>
+          )}
+        </View>
+      </View>
+      <TouchableOpacity
+        onPress={onRemove}
+        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+        style={{
+          width: 30,
+          height: 30,
+          borderRadius: 15,
+          backgroundColor: colors.line,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <Text style={{ color: colors.ink2, fontSize: 16, lineHeight: 20 }}>×</Text>
       </TouchableOpacity>
     </View>
   );
 }
 
-// ── Category card ──────────────────────────────────────────────────────────────
-function CategoryCard({
-  cat,
-  selected,
-  disabled,
-  onPress,
+// ── Preview Modal ─────────────────────────────────────────────────────────────
+function PreviewModal({
+  visible,
+  onClose,
+  opts,
+  title,
+  partnerName,
   colors,
 }: {
-  cat: Category;
-  selected: boolean;
-  disabled: boolean;
-  onPress: () => void;
-  colors: ReturnType<typeof import('@/constants').palette>;
+  visible: boolean;
+  onClose: () => void;
+  opts: PlanBuilderOption[];
+  title: string;
+  partnerName: string;
+  colors: any;
 }) {
   return (
-    <TouchableOpacity
-      onPress={onPress}
-      disabled={disabled && !selected}
-      activeOpacity={0.75}
-      style={[
-        {
-          flexDirection: 'row',
-          alignItems: 'center',
-          backgroundColor: selected ? colors.primarySoft : colors.surface,
-          borderRadius: 16,
-          padding: SPACING.md,
-          marginBottom: SPACING.sm,
-          borderWidth: selected ? 1.5 : 1,
-          borderColor: selected ? colors.primary : colors.line,
-          opacity: disabled && !selected ? 0.45 : 1,
-        },
-        SHADOWS.card,
-      ]}
-    >
-      {/* Emoji */}
-      <View
-        style={{
-          width: 44,
-          height: 44,
-          borderRadius: 12,
-          backgroundColor: selected ? colors.primary : colors.bg,
-          alignItems: 'center',
-          justifyContent: 'center',
-          marginRight: SPACING.md,
-        }}
-      >
-        <Text style={{ fontSize: 22 }}>{cat.emoji}</Text>
-      </View>
-
-      {/* Text */}
-      <View style={{ flex: 1 }}>
-        <DNText variant="rowLabel" color={selected ? colors.primary : colors.ink}>
-          {cat.name}
-        </DNText>
-        <DNText variant="secondary" color={selected ? colors.primary : colors.ink2} style={{ marginTop: 2 }}>
-          {cat.tagline}
-        </DNText>
-      </View>
-
-      {/* Checkmark */}
-      {selected && (
+    <Modal transparent animationType="slide" visible={visible} onRequestClose={onClose}>
+      <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
         <View
           style={{
-            width: 24,
-            height: 24,
-            borderRadius: 12,
-            backgroundColor: colors.primary,
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginLeft: SPACING.sm,
+            backgroundColor: colors.surface,
+            borderTopLeftRadius: 28,
+            borderTopRightRadius: 28,
+            maxHeight: '85%',
+            padding: SPACING.gutter,
+            paddingBottom: 40,
           }}
         >
-          <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700' }}>✓</Text>
+          <DNText variant="heading" color={colors.ink} style={{ marginBottom: 4 }}>
+            Preview
+          </DNText>
+          <DNText variant="secondary" color={colors.ink2} style={{ marginBottom: SPACING.md }}>
+            What {partnerName} will see
+          </DNText>
+
+          <ScrollView showsVerticalScrollIndicator={false}>
+            <DNText variant="title" color={colors.ink} style={{ marginBottom: SPACING.sm }}>
+              {title || 'Date Night'}
+            </DNText>
+            {opts.map((opt) => (
+              <View
+                key={opt.id}
+                style={[
+                  {
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    backgroundColor: colors.bg,
+                    borderRadius: 14,
+                    padding: SPACING.sm,
+                    marginBottom: SPACING.sm,
+                    gap: SPACING.sm,
+                  },
+                ]}
+              >
+                <OptionThumbnail opt={opt} />
+                <View style={{ flex: 1 }}>
+                  <DNText variant="rowLabel" color={colors.ink}>{opt.name}</DNText>
+                  {opt.address && (
+                    <DNText variant="secondary" color={colors.ink2}>{opt.address}</DNText>
+                  )}
+                </View>
+                {/* Greyed vote button */}
+                <View
+                  style={{
+                    width: 36,
+                    height: 36,
+                    borderRadius: 18,
+                    backgroundColor: colors.line,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    opacity: 0.4,
+                  }}
+                >
+                  <Text style={{ fontSize: 16 }}>♥</Text>
+                </View>
+              </View>
+            ))}
+          </ScrollView>
+
+          <DNButton
+            label="Close Preview"
+            variant="secondary"
+            onPress={onClose}
+            style={{ marginTop: SPACING.md }}
+          />
         </View>
-      )}
-    </TouchableOpacity>
+      </View>
+    </Modal>
   );
+}
+
+// ── Format date label ─────────────────────────────────────────────────────────
+function formatDateLabel(d: Date): string {
+  return (
+    d.toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' }) +
+    ' · ' +
+    d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })
+  );
+}
+
+// ── Smart title suggestion ────────────────────────────────────────────────────
+function suggestTitle(opts: PlanBuilderOption[]): string {
+  if (opts.length === 0) return '';
+  const categories = opts.map((o) => o.category);
+  // All events on same date
+  const dates = opts.filter((o) => o.eventDate).map((o) => o.eventDate!.slice(0, 10));
+  if (dates.length > 0 && new Set(dates).size === 1) {
+    const d = new Date(dates[0]);
+    const day = d.toLocaleDateString(undefined, { weekday: 'long' });
+    return `Date Night · ${day}`;
+  }
+  const hasDining = categories.some((c) =>
+    c.includes('Dining') || c.includes('Restaurant') || c.includes('Cooking'),
+  );
+  const hasEntertainment = categories.some((c) =>
+    c.includes('Music') || c.includes('Theater') || c.includes('Comedy') || c.includes('Movie'),
+  );
+  if (hasDining && hasEntertainment) {
+    const diner = opts.find((o) =>
+      o.category.includes('Dining') || o.category.includes('Restaurant'),
+    );
+    const show = opts.find((o) =>
+      o.category.includes('Music') || o.category.includes('Theater'),
+    );
+    if (diner && show) return `${diner.name.split(' ').slice(0, 2).join(' ')} + ${show.name.split(' ').slice(0, 2).join(' ')}`;
+  }
+  const firstCat = categories[0];
+  return `${firstCat} Night`;
 }
 
 // ── Main Screen ───────────────────────────────────────────────────────────────
@@ -147,68 +289,129 @@ export default function CreateProposalScreen() {
   const { colors } = useTheme();
   const navigation = useNavigation<any>();
   const route = useRoute<RouteT>();
-  const { groupId } = route.params;
+  const { options: pbOptions, addOption, removeOption, clearPlan, groupId: pbGroupId } = usePlanBuilder();
 
-  // Apply incoming suggestion from Suggestions screen
-  const incomingSuggestion = route.params?.addSuggestion;
-  const appliedSuggestionRef = React.useRef<string | null>(null);
+  const routeGroupId = route.params?.groupId ?? pbGroupId ?? '';
 
-  const [title, setTitle] = useState('');
-  const [selectedDate, setSelectedDate] = useState(() => {
+  // Merge PlanBuilder options with any route-passed options (from Finalize button)
+  const routeOptions: PlanBuilderOption[] = route.params?.options ?? [];
+  // Use route options if provided, otherwise use PlanBuilder context
+  const [localOptions, setLocalOptions] = useState<PlanBuilderOption[]>(() => {
+    return routeOptions.length > 0 ? routeOptions : pbOptions;
+  });
+
+  // Apply any incoming single suggestion from route params
+  const appliedRef = useRef<string | null>(null);
+  useEffect(() => {
+    const s = route.params?.addSuggestion;
+    if (s && appliedRef.current !== s.name) {
+      appliedRef.current = s.name;
+      const id = `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+      setLocalOptions((prev) => {
+        if (prev.length >= 5) return prev;
+        if (prev.some((o) => o.name === s.name)) return prev;
+        return [...prev, { id, ...s }];
+      });
+    }
+  }, [route.params?.addSuggestion]);
+
+  // Sync from PlanBuilder if no route options
+  useEffect(() => {
+    if (routeOptions.length === 0) {
+      setLocalOptions(pbOptions);
+    }
+  }, [pbOptions]);
+
+  const handleRemoveOption = (id: string) => {
+    setLocalOptions((prev) => prev.filter((o) => o.id !== id));
+    removeOption(id);
+  };
+
+  // Earliest eventDate → pre-fill date
+  const earliestEventDate = localOptions
+    .filter((o) => o.eventDate)
+    .map((o) => new Date(o.eventDate!))
+    .sort((a, b) => a.getTime() - b.getTime())[0] ?? null;
+
+  const [title, setTitle] = useState(() => suggestTitle(localOptions));
+  const [selectedDate, setSelectedDate] = useState<Date>(() => {
+    if (earliestEventDate) return earliestEventDate;
     const d = new Date();
     d.setDate(d.getDate() + 1);
     d.setHours(19, 0, 0, 0);
     return d;
   });
-  const [showDateModal, setShowDateModal] = useState(false);
-  const [dateInput, setDateInput] = useState('');
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showTimePicker, setShowTimePicker] = useState(false);
 
-  // Selected category names (max 5)
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  // Groups
+  const [groups, setGroups] = useState<Group[]>([]);
+  const [selectedGroupId, setSelectedGroupId] = useState<string>(routeGroupId);
+  const [groupsLoaded, setGroupsLoaded] = useState(false);
 
-  // Custom option
-  const [showCustomInput, setShowCustomInput] = useState(false);
-  const [customText, setCustomText] = useState('');
+  // Preview
+  const [previewVisible, setPreviewVisible] = useState(false);
 
+  // Success overlay
+  const [successVisible, setSuccessVisible] = useState(false);
+  const [createdProposalId, setCreatedProposalId] = useState<string>('');
+  const [partnerName, setPartnerName] = useState('your partner');
+
+  const [submitting, setSubmitting] = useState(false);
   const [titleError, setTitleError] = useState('');
   const [optionsError, setOptionsError] = useState('');
-  const [submitting, setSubmitting] = useState(false);
 
-  // Apply incoming suggestion from Discover
-  React.useEffect(() => {
-    if (incomingSuggestion && appliedSuggestionRef.current !== incomingSuggestion.name) {
-      appliedSuggestionRef.current = incomingSuggestion.name;
-      const label = incomingSuggestion.name;
-      setSelectedCategories((prev) => {
-        if (prev.includes(label) || prev.length >= 5) return prev;
-        return [...prev, label];
+  // Update title suggestion when options change
+  useEffect(() => {
+    if (!title || title === suggestTitle([])) {
+      setTitle(suggestTitle(localOptions));
+    }
+  }, [localOptions]);
+
+  // Load groups
+  useEffect(() => {
+    groupsAPI
+      .list()
+      .then((res) => {
+        const gs: Group[] = Array.isArray(res.data) ? res.data : res.data?.groups ?? [];
+        setGroups(gs);
+        if (!selectedGroupId && gs.length > 0) {
+          setSelectedGroupId(gs[0].id);
+        }
+        // Find partner name from first group with 2 members
+        const g = gs.find((g2) => g2.id === (selectedGroupId || gs[0]?.id));
+        if (g?.members && g.members.length === 2) {
+          const partner = g.members.find((m) => m.userId !== (globalThis as any).__userId);
+          if (partner) {
+            setPartnerName(partner.user?.displayName ?? 'your partner');
+          }
+        }
+      })
+      .catch(() => {})
+      .finally(() => setGroupsLoaded(true));
+  }, []);
+
+  const handleDateChange = (_event: DateTimePickerEvent, date?: Date) => {
+    if (Platform.OS === 'android') setShowDatePicker(false);
+    if (date) {
+      setSelectedDate((prev) => {
+        const next = new Date(date);
+        next.setHours(prev.getHours(), prev.getMinutes(), 0, 0);
+        return next;
+      });
+      if (Platform.OS === 'android') setShowTimePicker(true);
+    }
+  };
+
+  const handleTimeChange = (_event: DateTimePickerEvent, date?: Date) => {
+    if (Platform.OS === 'android') setShowTimePicker(false);
+    if (date) {
+      setSelectedDate((prev) => {
+        const next = new Date(prev);
+        next.setHours(date.getHours(), date.getMinutes(), 0, 0);
+        return next;
       });
     }
-  }, [incomingSuggestion]);
-
-  const toggleCategory = (name: string) => {
-    setSelectedCategories((prev) => {
-      if (prev.includes(name)) return prev.filter((c) => c !== name);
-      if (prev.length >= 5) return prev; // max 5
-      return [...prev, name];
-    });
-  };
-
-  const removeCategory = (name: string) => {
-    setSelectedCategories((prev) => prev.filter((c) => c !== name));
-  };
-
-  const handleAddCustom = () => {
-    const trimmed = customText.trim();
-    if (!trimmed) return;
-    if (selectedCategories.includes(trimmed) || selectedCategories.length >= 5) return;
-    setSelectedCategories((prev) => [...prev, trimmed]);
-    setCustomText('');
-    setShowCustomInput(false);
-  };
-
-  const handleFromDiscover = () => {
-    navigation.navigate('Suggestions', { groupId, returnTo: 'CreateProposal' });
   };
 
   const validate = () => {
@@ -216,17 +419,17 @@ export default function CreateProposalScreen() {
     if (!title.trim()) {
       setTitleError('Title is required');
       valid = false;
-    } else {
-      setTitleError('');
-    }
-    if (selectedCategories.length < 3) {
-      setOptionsError('Pick at least 3 options');
+    } else setTitleError('');
+    if (localOptions.length < 1) {
+      setOptionsError('Add at least 1 activity');
       valid = false;
-    } else if (selectedCategories.length > 5) {
+    } else if (localOptions.length > 5) {
       setOptionsError('Maximum 5 options');
       valid = false;
-    } else {
-      setOptionsError('');
+    } else setOptionsError('');
+    if (!selectedGroupId) {
+      setOptionsError('Select a group to send to');
+      valid = false;
     }
     return valid;
   };
@@ -235,17 +438,27 @@ export default function CreateProposalScreen() {
     if (!validate()) return;
     setSubmitting(true);
     try {
-      const options = selectedCategories.map((name) => {
-        const cat = CATEGORIES.find((c) => c.name === name);
-        return {
-          name,
-          category: cat ? name : 'Custom',
-          description: cat?.tagline ?? '',
-          address: '',
-        };
-      });
-      const res = await proposalsAPI.create(groupId, title.trim(), selectedDate.toISOString(), options);
-      navigation.navigate('ProposalDetail', { proposalId: res.data.id });
+      const apiOptions = localOptions.map((o) => ({
+        name: o.name,
+        category: o.category,
+        description: o.description,
+        address: o.address,
+        imageUrl: o.imageUrl,
+        sourceUrl: o.sourceUrl,
+        eventDate: o.eventDate,
+        rating: o.rating,
+        priceLevel: o.priceLevel,
+        sourceName: o.sourceName,
+      }));
+      const res = await proposalsAPI.create(
+        selectedGroupId,
+        title.trim(),
+        selectedDate.toISOString(),
+        apiOptions,
+      );
+      setCreatedProposalId(res.data.id);
+      clearPlan();
+      setSuccessVisible(true);
     } catch (e) {
       console.warn('Failed to create proposal', e);
     } finally {
@@ -253,9 +466,9 @@ export default function CreateProposalScreen() {
     }
   };
 
-  const rowStyle: object = {
-    flexDirection: 'row',
-    alignItems: 'center',
+  const rowStyle = {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
     backgroundColor: colors.surface,
     borderRadius: 18,
     paddingHorizontal: SPACING.md,
@@ -264,300 +477,280 @@ export default function CreateProposalScreen() {
     ...SHADOWS.card,
   };
 
-  const dateLabel = selectedDate.toLocaleDateString(undefined, {
-    weekday: 'long', month: 'long', day: 'numeric',
-  });
-  const timeLabel = selectedDate.toLocaleTimeString(undefined, {
-    hour: '2-digit', minute: '2-digit',
-  });
-
-  const atMax = selectedCategories.length >= 5;
-
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1, backgroundColor: colors.bg }}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
-      <DNScreenHeader
-        title="New proposal"
-        onBack={() => navigation.goBack()}
-      />
-
-      <ScrollView
-        contentContainerStyle={{ padding: SPACING.gutter, paddingBottom: 160 }}
-        keyboardShouldPersistTaps="handled"
+    <>
+      <KeyboardAvoidingView
+        style={{ flex: 1, backgroundColor: colors.bg }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-        {/* Title */}
-        <DNInput
-          label="Title"
-          value={title}
-          onChangeText={setTitle}
-          placeholder="What are we planning?"
-          error={titleError}
+        <DNScreenHeader
+          title="Your Plan"
+          onBack={() => navigation.goBack()}
         />
 
-        {/* Date row */}
-        <TouchableOpacity
-          style={rowStyle}
-          onPress={() => {
-            setDateInput(selectedDate.toISOString().slice(0, 16));
-            setShowDateModal(true);
-          }}
+        <ScrollView
+          contentContainerStyle={{ padding: SPACING.gutter, paddingBottom: 180 }}
+          keyboardShouldPersistTaps="handled"
         >
-          <Text style={{ fontSize: 18, marginRight: 12 }}>📅</Text>
-          <View style={{ flex: 1 }}>
-            <DNText variant="rowLabel" color={colors.ink}>Date &amp; Time</DNText>
-            <DNText variant="secondary" color={colors.ink2}>{dateLabel} · {timeLabel}</DNText>
-          </View>
-          <Text style={[TYPE.secondary, { color: colors.ink2 }]}>›</Text>
-        </TouchableOpacity>
+          {/* ── Options list ─────────────────────────────────────────────── */}
+          <DNText variant="section" color={colors.ink2} style={{ marginBottom: SPACING.sm }}>
+            Activities ({localOptions.length} / 5)
+          </DNText>
 
-        {/* Date/time picker modal */}
-        <Modal
-          transparent
-          animationType="slide"
-          visible={showDateModal}
-          onRequestClose={() => setShowDateModal(false)}
-        >
-          <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.4)' }}>
+          {optionsError ? (
+            <DNText variant="secondary" color={colors.error} style={{ marginBottom: SPACING.sm }}>
+              {optionsError}
+            </DNText>
+          ) : null}
+
+          {localOptions.map((opt) => (
+            <PlanOptionCard
+              key={opt.id}
+              opt={opt}
+              onRemove={() => handleRemoveOption(opt.id)}
+              colors={colors}
+            />
+          ))}
+
+          {localOptions.length === 0 && (
             <View
               style={{
                 backgroundColor: colors.surface,
-                borderTopLeftRadius: 28,
-                borderTopRightRadius: 28,
+                borderRadius: 16,
                 padding: SPACING.xl,
+                alignItems: 'center',
+                marginBottom: SPACING.md,
+                borderWidth: 1.5,
+                borderColor: colors.line,
+                borderStyle: 'dashed',
               }}
             >
-              <DNText variant="heading" color={colors.ink} style={{ marginBottom: SPACING.md }}>
-                Set date &amp; time
+              <Text style={{ fontSize: 36, marginBottom: SPACING.sm }}>🎯</Text>
+              <DNText variant="secondary" color={colors.ink2} style={{ textAlign: 'center' }}>
+                No activities yet. Add some from Discover!
               </DNText>
-              <DNText variant="secondary" color={colors.ink2} style={{ marginBottom: SPACING.sm }}>
-                Enter in ISO format: YYYY-MM-DDTHH:MM
-              </DNText>
-              <TextInput
-                value={dateInput}
-                onChangeText={setDateInput}
-                placeholder="2025-06-01T19:00"
-                placeholderTextColor={colors.ink2}
-                style={[
-                  TYPE.body,
-                  {
-                    color: colors.ink,
-                    borderWidth: 1,
-                    borderColor: colors.line,
-                    borderRadius: 12,
-                    padding: SPACING.md,
-                    marginBottom: SPACING.lg,
-                  },
-                ]}
-                autoCapitalize="none"
-                keyboardType="ascii-capable"
-              />
-              <View style={{ flexDirection: 'row', gap: SPACING.sm }}>
-                <TouchableOpacity
-                  onPress={() => setShowDateModal(false)}
-                  style={{
-                    flex: 1,
-                    padding: SPACING.md,
-                    borderRadius: 12,
-                    backgroundColor: colors.line,
-                    alignItems: 'center',
-                  }}
-                >
-                  <Text style={[TYPE.body, { color: colors.ink }]}>Cancel</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => {
-                    const parsed = new Date(dateInput);
-                    if (!isNaN(parsed.getTime())) {
-                      setSelectedDate(parsed);
-                    }
-                    setShowDateModal(false);
-                  }}
-                  style={{
-                    flex: 1,
-                    padding: SPACING.md,
-                    borderRadius: 12,
-                    backgroundColor: colors.primary,
-                    alignItems: 'center',
-                  }}
-                >
-                  <Text style={[TYPE.body, { color: colors.onPrimary }]}>Set</Text>
-                </TouchableOpacity>
-              </View>
             </View>
-          </View>
-        </Modal>
+          )}
 
-        {/* Options section header */}
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: SPACING.md, marginBottom: SPACING.sm }}>
-          <DNText variant="section" color={colors.ink2} style={{ flex: 1 }}>
-            Pick what you&apos;re open to
-          </DNText>
-          <DNSticker
-            label={`${selectedCategories.length} / 5`}
-            color={selectedCategories.length >= 3 ? colors.limeSoft : colors.primarySoft}
-            textColor={selectedCategories.length >= 3 ? colors.lime : colors.primary}
-            rotationIndex={1}
-          />
-        </View>
-
-        <DNText variant="secondary" color={colors.ink2} style={{ marginBottom: SPACING.md }}>
-          Choose 3–5 date vibes for your group to vote on.
-        </DNText>
-
-        {/* Selected chips */}
-        {selectedCategories.length > 0 && (
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginBottom: SPACING.md }}>
-            {selectedCategories.map((name) => (
-              <SelectedChip
-                key={name}
-                label={name}
-                onRemove={() => removeCategory(name)}
-                colors={colors}
-              />
-            ))}
-          </View>
-        )}
-
-        {/* Options error */}
-        {optionsError ? (
-          <DNText variant="secondary" color={colors.error} style={{ marginBottom: SPACING.sm }}>
-            {optionsError}
-          </DNText>
-        ) : null}
-
-        {/* Category cards */}
-        {CATEGORIES.map((cat) => (
-          <CategoryCard
-            key={cat.name}
-            cat={cat}
-            selected={selectedCategories.includes(cat.name)}
-            disabled={atMax}
-            onPress={() => toggleCategory(cat.name)}
-            colors={colors}
-          />
-        ))}
-
-        {/* Custom option — always LAST */}
-        {showCustomInput ? (
-          <View
-            style={{
-              backgroundColor: colors.surface,
-              borderRadius: 16,
-              padding: SPACING.md,
-              marginBottom: SPACING.sm,
-              borderWidth: 1.5,
-              borderColor: colors.primary,
-              ...SHADOWS.card,
-            }}
-          >
-            <DNText variant="secondary" color={colors.ink2} style={{ marginBottom: 8 }}>
-              {CUSTOM_CATEGORY.emoji} Custom option
-            </DNText>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: SPACING.sm }}>
-              <TextInput
-                value={customText}
-                onChangeText={setCustomText}
-                placeholder="e.g. Pottery class downtown"
-                placeholderTextColor={colors.ink2}
-                style={[TYPE.body, { flex: 1, color: colors.ink }]}
-                autoFocus
-                onSubmitEditing={handleAddCustom}
-                returnKeyType="done"
-              />
-              <TouchableOpacity
-                onPress={handleAddCustom}
-                disabled={!customText.trim() || atMax}
-                style={{
-                  backgroundColor: colors.primary,
-                  borderRadius: 10,
-                  paddingHorizontal: 14,
-                  paddingVertical: 8,
-                  opacity: !customText.trim() || atMax ? 0.4 : 1,
-                }}
-              >
-                <Text style={{ color: '#fff', fontWeight: '700', fontSize: 14 }}>Add</Text>
-              </TouchableOpacity>
-            </View>
-            <TouchableOpacity onPress={() => { setShowCustomInput(false); setCustomText(''); }} style={{ marginTop: 8 }}>
-              <DNText variant="secondary" color={colors.ink2}>Cancel</DNText>
-            </TouchableOpacity>
-          </View>
-        ) : (
-          !atMax && (
+          {localOptions.length < 5 && (
             <TouchableOpacity
-              onPress={() => setShowCustomInput(true)}
-              activeOpacity={0.75}
+              onPress={() =>
+                navigation.navigate('Suggestions', {
+                  groupId: selectedGroupId,
+                  returnTo: 'CreateProposal',
+                })
+              }
               style={[
                 {
                   flexDirection: 'row',
                   alignItems: 'center',
-                  backgroundColor: colors.surface,
+                  justifyContent: 'center',
                   borderRadius: 16,
                   padding: SPACING.md,
-                  marginBottom: SPACING.sm,
+                  marginBottom: SPACING.md,
                   borderWidth: 1.5,
-                  borderColor: colors.line,
+                  borderColor: colors.primary,
                   borderStyle: 'dashed',
+                  gap: SPACING.sm,
                 },
-                SHADOWS.card,
               ]}
             >
-              <View
-                style={{
-                  width: 44,
-                  height: 44,
-                  borderRadius: 12,
-                  backgroundColor: colors.bg,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  marginRight: SPACING.md,
-                }}
-              >
-                <Text style={{ fontSize: 22 }}>{CUSTOM_CATEGORY.emoji}</Text>
-              </View>
-              <View style={{ flex: 1 }}>
-                <DNText variant="rowLabel" color={colors.ink}>{CUSTOM_CATEGORY.name}</DNText>
-                <DNText variant="secondary" color={colors.ink2} style={{ marginTop: 2 }}>
-                  {CUSTOM_CATEGORY.tagline}
-                </DNText>
-              </View>
+              <Text style={{ fontSize: 18 }}>+</Text>
+              <DNText variant="rowLabel" color={colors.primary}>
+                Add another activity
+              </DNText>
             </TouchableOpacity>
-          )
-        )}
+          )}
 
-        {/* From Discover button */}
-        <DNButton
-          label="✦ Let me Browse Discover"
-          variant="tonal"
-          onPress={handleFromDiscover}
-          style={{ marginTop: SPACING.sm, marginBottom: SPACING.lg }}
-        />
-      </ScrollView>
+          {/* ── Title ───────────────────────────────────────────────────── */}
+          <DNInput
+            label="Title"
+            value={title}
+            onChangeText={setTitle}
+            placeholder="Date Night · Friday"
+            error={titleError}
+          />
 
-      {/* Sticky bottom bar */}
-      <View
-        style={{
-          position: 'absolute',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          backgroundColor: colors.bg,
-          paddingHorizontal: SPACING.gutter,
-          paddingBottom: Platform.OS === 'ios' ? 36 : 24,
-          paddingTop: SPACING.md,
-          borderTopWidth: 1,
-          borderTopColor: colors.line,
-        }}
-      >
-        <DNButton
-          label="Send to group ♥"
-          variant="primary"
-          onPress={handleSubmit}
-          loading={submitting}
-        />
-      </View>
-    </KeyboardAvoidingView>
+          {/* ── Date/time ─────────────────────────────────────────────── */}
+          <DNText variant="section" color={colors.ink2} style={{ marginBottom: SPACING.sm }}>
+            When?
+          </DNText>
+
+          <TouchableOpacity
+            style={rowStyle}
+            onPress={() => {
+              if (Platform.OS === 'ios') {
+                setShowDatePicker((v) => !v);
+              } else {
+                setShowDatePicker(true);
+              }
+            }}
+          >
+            <Text style={{ fontSize: 18, marginRight: 12 }}>📅</Text>
+            <View style={{ flex: 1 }}>
+              <DNText variant="rowLabel" color={colors.ink}>Date &amp; Time</DNText>
+              <DNText variant="secondary" color={colors.ink2}>
+                {formatDateLabel(selectedDate)} ▾
+              </DNText>
+            </View>
+          </TouchableOpacity>
+
+          {/* iOS inline picker */}
+          {Platform.OS === 'ios' && showDatePicker && (
+            <View
+              style={{
+                backgroundColor: colors.surface,
+                borderRadius: 16,
+                marginBottom: SPACING.sm,
+                overflow: 'hidden',
+              }}
+            >
+              <DateTimePicker
+                value={selectedDate}
+                mode="datetime"
+                display="inline"
+                onChange={(_e, d) => { if (d) setSelectedDate(d); }}
+                minimumDate={new Date()}
+                themeVariant="light"
+              />
+              <TouchableOpacity
+                onPress={() => setShowDatePicker(false)}
+                style={{ padding: SPACING.md, alignItems: 'center' }}
+              >
+                <DNText variant="buttonSm" color={colors.primary}>Done</DNText>
+              </TouchableOpacity>
+            </View>
+          )}
+
+          {/* Android modal date picker */}
+          {Platform.OS === 'android' && showDatePicker && (
+            <DateTimePicker
+              value={selectedDate}
+              mode="date"
+              display="default"
+              onChange={handleDateChange}
+              minimumDate={new Date()}
+            />
+          )}
+          {Platform.OS === 'android' && showTimePicker && (
+            <DateTimePicker
+              value={selectedDate}
+              mode="time"
+              display="default"
+              onChange={handleTimeChange}
+            />
+          )}
+
+          {/* ── Group selector ──────────────────────────────────────────── */}
+          {groups.length > 1 && (
+            <>
+              <DNText variant="section" color={colors.ink2} style={{ marginBottom: SPACING.sm, marginTop: SPACING.sm }}>
+                Send to
+              </DNText>
+              {groups.map((g) => (
+                <TouchableOpacity
+                  key={g.id}
+                  onPress={() => setSelectedGroupId(g.id)}
+                  style={[
+                    rowStyle,
+                    {
+                      borderWidth: selectedGroupId === g.id ? 2 : 0,
+                      borderColor: colors.primary,
+                    },
+                  ]}
+                >
+                  <Text style={{ fontSize: 18, marginRight: 12 }}>👥</Text>
+                  <DNText variant="rowLabel" color={colors.ink} style={{ flex: 1 }}>
+                    {g.name}
+                  </DNText>
+                  {selectedGroupId === g.id && (
+                    <Text style={{ color: colors.primary, fontSize: 16 }}>✓</Text>
+                  )}
+                </TouchableOpacity>
+              ))}
+            </>
+          )}
+        </ScrollView>
+
+        {/* ── Sticky bottom bar ──────────────────────────────────────────── */}
+        <View
+          style={{
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            backgroundColor: colors.bg,
+            paddingHorizontal: SPACING.gutter,
+            paddingBottom: Platform.OS === 'ios' ? 36 : 24,
+            paddingTop: SPACING.md,
+            borderTopWidth: 1,
+            borderTopColor: colors.line,
+            gap: SPACING.sm,
+          }}
+        >
+          <DNButton
+            label="Preview →"
+            variant="tonal"
+            onPress={() => localOptions.length > 0 && setPreviewVisible(true)}
+            style={{ marginBottom: 4 }}
+          />
+          <DNButton
+            label={`Send to ${partnerName} ♥`}
+            variant="primary"
+            onPress={handleSubmit}
+            loading={submitting}
+          />
+        </View>
+      </KeyboardAvoidingView>
+
+      {/* Preview modal */}
+      <PreviewModal
+        visible={previewVisible}
+        onClose={() => setPreviewVisible(false)}
+        opts={localOptions}
+        title={title}
+        partnerName={partnerName}
+        colors={colors}
+      />
+
+      {/* Success overlay */}
+      <Modal transparent animationType="fade" visible={successVisible}>
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: colors.bg,
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: SPACING.gutter,
+          }}
+        >
+          <Text style={{ fontSize: 72, marginBottom: SPACING.lg }}>🎉</Text>
+          <DNText variant="title" color={colors.ink} style={{ textAlign: 'center', marginBottom: SPACING.sm }}>
+            Plan sent to {partnerName}!
+          </DNText>
+          <DNText variant="secondary" color={colors.ink2} style={{ textAlign: 'center', marginBottom: SPACING.xl }}>
+            They'll vote on your options and you'll get notified when a decision is made.
+          </DNText>
+          <DNButton
+            label="View Plan"
+            variant="primary"
+            onPress={() => {
+              setSuccessVisible(false);
+              navigation.navigate('ProposalDetail', { proposalId: createdProposalId });
+            }}
+            style={{ width: '100%', marginBottom: SPACING.sm }}
+          />
+          <DNButton
+            label="Back to Groups"
+            variant="secondary"
+            onPress={() => {
+              setSuccessVisible(false);
+              navigation.navigate('Main');
+            }}
+            style={{ width: '100%' }}
+          />
+        </View>
+      </Modal>
+    </>
   );
 }

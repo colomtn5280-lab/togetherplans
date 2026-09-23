@@ -190,6 +190,12 @@ export const OptionScalarFieldEnum = {
   latitude: 'latitude',
   longitude: 'longitude',
   externalRef: 'externalRef',
+  imageUrl: 'imageUrl',
+  sourceUrl: 'sourceUrl',
+  eventDate: 'eventDate',
+  rating: 'rating',
+  priceLevel: 'priceLevel',
+  sourceName: 'sourceName',
   createdAt: 'createdAt'
 } as const
 

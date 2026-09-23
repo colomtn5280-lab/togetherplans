@@ -1,11 +1,17 @@
 /**
- * SuggestionsScreen / DiscoverScreen — 3j + 4e
- * HANDOFF_README spec: full redesign
+ * SuggestionsScreen / DiscoverScreen — rewritten for real event data
+ *
+ * Flow: Category grid → tap category → event list loads inline →
+ *       tap event card → EventDetailSheet → "Add to Plan"
  */
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
+  Image,
+  Linking,
+  Modal,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -14,7 +20,9 @@ import {
 } from 'react-native';
 import * as Location from 'expo-location';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/contexts/ThemeContext';
+import { usePlanBuilder } from '@/contexts/PlanBuilderContext';
 import { OPTION_RADII, SHADOWS, SPACING, TYPE } from '@/constants';
 import { CATEGORIES, Category } from '@/constants/categories';
 import {
@@ -30,6 +38,92 @@ import type { RootStackParamList, Suggestion } from '@/types';
 
 type RouteT = RouteProp<RootStackParamList, 'Suggestions'>;
 
+// ── Category colour & emoji fallbacks ─────────────────────────────────────────
+const CATEGORY_COLORS: Record<string, string> = {
+  'Restaurants & Dining': '#FDEBD0',
+  'Live Music & Concerts': '#EBD5FB',
+  'Comedy Shows': '#FEF9C3',
+  'Movies & Theater': '#D5E8FD',
+  'Art & Museums': '#FCE4EC',
+  'Outdoor Adventures': '#D4EDDA',
+  'Sports & Active': '#FFE0B2',
+  'Nightlife & Bars': '#E8D5F5',
+  'Wellness & Spa': '#D0F4F1',
+  'Cooking & Classes': '#FFF3CD',
+  'Shopping & Markets': '#F8D7DA',
+  'Couples Events': '#FCE4EC',
+  'Family Events': '#D5EFD5',
+  'Hotel & Staycation': '#D5E8FD',
+  'Volunteering': '#D4EDDA',
+  Custom: '#F0F0F0',
+};
+
+function getCategoryEmoji(category: string): string {
+  const cat = CATEGORIES.find((c) => c.name === category || c.id === category);
+  return cat?.emoji ?? '📍';
+}
+
+function getCategoryColor(category: string): string {
+  return CATEGORY_COLORS[category] ?? '#F0F0F0';
+}
+
+// ── Image or emoji fallback block ─────────────────────────────────────────────
+function SuggestionImage({
+  imageUrl,
+  category,
+  height = 160,
+  borderRadius,
+}: {
+  imageUrl?: string;
+  category: string;
+  height?: number;
+  borderRadius?: number;
+}) {
+  const [err, setErr] = useState(false);
+
+  if (imageUrl && !err) {
+    return (
+      <Image
+        source={{ uri: imageUrl }}
+        style={{ width: '100%', height, borderRadius }}
+        resizeMode="cover"
+        onError={() => setErr(true)}
+      />
+    );
+  }
+
+  const emoji = getCategoryEmoji(category);
+  const bg = getCategoryColor(category);
+  return (
+    <View
+      style={{
+        width: '100%',
+        height,
+        borderRadius,
+        backgroundColor: bg,
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      <Text style={{ fontSize: 48 }}>{emoji}</Text>
+    </View>
+  );
+}
+
+// ── Format event date ──────────────────────────────────────────────────────────
+function formatEventDate(dateStr: string): string {
+  try {
+    const d = new Date(dateStr);
+    return d.toLocaleDateString(undefined, {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+    }) + ' · ' + d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+  } catch {
+    return dateStr;
+  }
+}
+
 // ── Category grid card ─────────────────────────────────────────────────────────
 function CategoryGridCard({
   cat,
@@ -40,7 +134,7 @@ function CategoryGridCard({
   cat: Category;
   selected: boolean;
   onPress: () => void;
-  colors: ReturnType<typeof import('@/constants').palette>;
+  colors: any;
 }) {
   return (
     <TouchableOpacity
@@ -91,7 +185,7 @@ function CategoryGrid({
 }: {
   activeId: string | null;
   onSelect: (cat: Category | null) => void;
-  colors: ReturnType<typeof import('@/constants').palette>;
+  colors: any;
 }) {
   const rows: Category[][] = [];
   for (let i = 0; i < CATEGORIES.length; i += 2) {
@@ -128,49 +222,223 @@ function CategoryGrid({
   );
 }
 
-// ── Striped placeholder ────────────────────────────────────────────────────────
-function StripedPlaceholder({ primarySoft }: { primarySoft: string }) {
+// ── Event Detail Sheet ─────────────────────────────────────────────────────────
+function EventDetailSheet({
+  suggestion,
+  visible,
+  onClose,
+  onAdd,
+  alreadyAdded,
+  colors,
+}: {
+  suggestion: Suggestion | null;
+  visible: boolean;
+  onClose: () => void;
+  onAdd: (s: Suggestion) => void;
+  alreadyAdded: boolean;
+  colors: any;
+}) {
+  const insets = useSafeAreaInsets();
+  if (!suggestion) return null;
+
+  const priceStr = suggestion.priceLevel ? '$'.repeat(suggestion.priceLevel) : null;
+  const hasDate = !!suggestion.date;
+
   return (
-    <View style={{ height: 150, backgroundColor: primarySoft, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' }}>
-      <View style={StyleSheet.absoluteFill}>
-        {Array.from({ length: 12 }).map((_, i) => (
-          <View
-            key={i}
-            style={{
-              position: 'absolute',
-              width: 4,
-              height: 300,
-              backgroundColor: 'rgba(14,140,140,0.12)',
-              left: i * 28 - 20,
-              top: -60,
-              transform: [{ rotate: '35deg' }],
-            }}
-          />
-        ))}
+    <Modal
+      transparent
+      animationType="slide"
+      visible={visible}
+      onRequestClose={onClose}
+    >
+      <TouchableOpacity
+        style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)' }}
+        activeOpacity={1}
+        onPress={onClose}
+      />
+      <View
+        style={{
+          backgroundColor: colors.surface,
+          borderTopLeftRadius: 28,
+          borderTopRightRadius: 28,
+          maxHeight: '88%',
+          paddingBottom: insets.bottom + SPACING.xl,
+        }}
+      >
+        {/* Close button */}
+        <TouchableOpacity
+          onPress={onClose}
+          style={{
+            position: 'absolute',
+            top: SPACING.md,
+            right: SPACING.md,
+            zIndex: 10,
+            width: 34,
+            height: 34,
+            borderRadius: 17,
+            backgroundColor: colors.bg,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+        >
+          <Text style={{ color: colors.ink, fontSize: 18, lineHeight: 22 }}>×</Text>
+        </TouchableOpacity>
+
+        <ScrollView showsVerticalScrollIndicator={false}>
+          {/* Image */}
+          <View style={{ borderTopLeftRadius: 28, borderTopRightRadius: 28, overflow: 'hidden' }}>
+            <SuggestionImage
+              imageUrl={suggestion.imageUrl}
+              category={suggestion.category}
+              height={220}
+            />
+          </View>
+
+          {/* Content */}
+          <View style={{ padding: SPACING.gutter, paddingTop: SPACING.md }}>
+            {/* Category sticker */}
+            <View style={{ flexDirection: 'row', marginBottom: SPACING.sm }}>
+              <DNSticker
+                label={suggestion.category}
+                color={colors.primarySoft}
+                textColor={colors.primary}
+                rotationIndex={0}
+              />
+            </View>
+
+            {/* Name */}
+            <DNText variant="title" color={colors.ink} style={{ marginBottom: SPACING.sm }}>
+              {suggestion.name}
+            </DNText>
+
+            {/* Address */}
+            {suggestion.address && (
+              <View style={{ flexDirection: 'row', alignItems: 'flex-start', marginBottom: SPACING.sm }}>
+                <Text style={{ marginRight: 6, marginTop: 1 }}>📍</Text>
+                <DNText variant="body" color={colors.ink2} style={{ flex: 1 }}>
+                  {suggestion.address}
+                </DNText>
+              </View>
+            )}
+
+            {/* Date / time for events */}
+            {hasDate && (
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: SPACING.sm }}>
+                <Text style={{ marginRight: 6 }}>📅</Text>
+                <DNText variant="body" color={colors.ink2}>
+                  {formatEventDate(suggestion.date!)}
+                </DNText>
+              </View>
+            )}
+
+            {/* Rating + price + distance */}
+            {(suggestion.rating != null || priceStr || suggestion.distanceMiles != null) && (
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: SPACING.sm,
+                  marginBottom: SPACING.sm,
+                }}
+              >
+                {suggestion.rating != null && (
+                  <DNSticker
+                    label={`★ ${suggestion.rating.toFixed(1)}`}
+                    color={colors.limeSoft}
+                    textColor={colors.lime}
+                    rotationIndex={1}
+                  />
+                )}
+                {priceStr && (
+                  <DNSticker
+                    label={priceStr}
+                    color={colors.primarySoft}
+                    textColor={colors.primary}
+                    rotationIndex={2}
+                  />
+                )}
+                {suggestion.distanceMiles != null && (
+                  <DNText variant="secondary" color={colors.ink2}>
+                    {suggestion.distanceMiles.toFixed(1)} mi
+                  </DNText>
+                )}
+              </View>
+            )}
+
+            {/* Description */}
+            {suggestion.description ? (
+              <DNText
+                variant="body"
+                color={colors.ink2}
+                style={{ marginBottom: SPACING.md, lineHeight: 22 }}
+              >
+                {suggestion.description}
+              </DNText>
+            ) : null}
+
+            {/* External link */}
+            {suggestion.sourceUrl && (
+              <TouchableOpacity
+                onPress={() => Linking.openURL(suggestion.sourceUrl!)}
+                style={{ marginBottom: SPACING.md }}
+              >
+                <DNText variant="secondary" color={colors.primary}>
+                  View Details →{suggestion.sourceName ? ` (${suggestion.sourceName})` : ''}
+                </DNText>
+              </TouchableOpacity>
+            )}
+
+            {/* Add to Plan CTA */}
+            {alreadyAdded ? (
+              <View
+                style={{
+                  backgroundColor: colors.limeSoft,
+                  borderRadius: 20,
+                  paddingVertical: 14,
+                  alignItems: 'center',
+                }}
+              >
+                <DNText variant="buttonSm" color={colors.lime}>
+                  ✓ Added to plan
+                </DNText>
+              </View>
+            ) : (
+              <DNButton
+                label="Add to Plan"
+                variant="primary"
+                onPress={() => onAdd(suggestion)}
+              />
+            )}
+          </View>
+        </ScrollView>
       </View>
-      <Text style={[TYPE.secondary, { color: 'rgba(14,140,140,0.5)' }]}>Yelp photo</Text>
-    </View>
+    </Modal>
   );
 }
 
-// ── Suggestion Card ─────────────────────────────────────────────────────────────
-interface SuggestionCardProps {
+// ── Suggestion Card ────────────────────────────────────────────────────────────
+function SuggestionCard({
+  suggestion,
+  index,
+  alreadyAdded,
+  onPress,
+  colors,
+}: {
   suggestion: Suggestion;
   index: number;
-  hasProposalContext: boolean;
-  proposalName?: string;
   alreadyAdded: boolean;
-  onAdd: (s: Suggestion) => void;
-  colors: ReturnType<typeof import('@/constants').palette>;
-}
-
-function SuggestionCard({
-  suggestion, index, hasProposalContext, proposalName, alreadyAdded, onAdd, colors,
-}: SuggestionCardProps) {
+  onPress: () => void;
+  colors: any;
+}) {
   const radii = OPTION_RADII[index % 4];
+  const priceStr = suggestion.priceLevel ? '$'.repeat(suggestion.priceLevel) : null;
+  const hasDate = !!suggestion.date;
 
   return (
-    <View
+    <TouchableOpacity
+      onPress={onPress}
+      activeOpacity={0.85}
       style={[
         {
           backgroundColor: colors.surface,
@@ -185,8 +453,20 @@ function SuggestionCard({
       ]}
     >
       {/* Image slot */}
-      <View style={{ borderTopLeftRadius: radii.topLeft, borderTopRightRadius: radii.topRight, overflow: 'hidden' }}>
-        <StripedPlaceholder primarySoft={colors.primarySoft} />
+      <View
+        style={{
+          borderTopLeftRadius: radii.topLeft,
+          borderTopRightRadius: radii.topRight,
+          overflow: 'hidden',
+        }}
+      >
+        <SuggestionImage
+          imageUrl={suggestion.imageUrl}
+          category={suggestion.category}
+          height={160}
+        />
+
+        {/* Category sticker */}
         {suggestion.category && (
           <DNSticker
             label={suggestion.category}
@@ -195,73 +475,69 @@ function SuggestionCard({
             style={{ position: 'absolute', top: 10, left: 10, transform: [{ rotate: '-4deg' }] }}
           />
         )}
-        <DNSticker
-          label="★ 4.5"
-          color={colors.limeSoft}
-          textColor={colors.lime}
-          style={{ position: 'absolute', top: 10, right: 10, transform: [{ rotate: '4deg' }] }}
-        />
+
+        {/* Rating sticker — only if real data */}
+        {suggestion.rating != null && (
+          <DNSticker
+            label={`★ ${suggestion.rating.toFixed(1)}`}
+            color={colors.limeSoft}
+            textColor={colors.lime}
+            style={{ position: 'absolute', top: 10, right: 10, transform: [{ rotate: '4deg' }] }}
+          />
+        )}
       </View>
 
       {/* Body */}
       <View style={{ padding: SPACING.md }}>
-        <DNText variant="heading" color={colors.ink}>{suggestion.name}</DNText>
-        {suggestion.address && (
+        <DNText variant="heading" color={colors.ink}>
+          {suggestion.name}
+        </DNText>
+
+        {/* Address or event date */}
+        {hasDate ? (
+          <DNText variant="secondary" color={colors.ink2} style={{ marginTop: 2 }}>
+            {formatEventDate(suggestion.date!)}
+          </DNText>
+        ) : suggestion.address ? (
           <DNText variant="secondary" color={colors.ink2} style={{ marginTop: 2 }}>
             {suggestion.address}
           </DNText>
-        )}
+        ) : null}
 
-        {/* CTA */}
-        <View style={{ marginTop: SPACING.sm }}>
-          {hasProposalContext ? (
-            alreadyAdded ? (
-              <View
-                style={{
-                  backgroundColor: colors.limeSoft,
-                  borderRadius: 20,
-                  paddingVertical: 8,
-                  paddingHorizontal: SPACING.md,
-                  alignItems: 'center',
-                }}
-              >
-                <DNText variant="buttonSm" color={colors.lime}>
-                  ✓ In {proposalName ?? 'proposal'}
-                </DNText>
-              </View>
-            ) : (
-              <DNButton
-                label="+ Add to proposal"
-                variant="primary"
-                size="compact"
-                onPress={() => onAdd(suggestion)}
-              />
-            )
-          ) : (
-            <DNButton
-              label="+ Add"
-              variant="tonal"
-              size="compact"
-              onPress={() => onAdd(suggestion)}
-            />
+        {/* Price + distance */}
+        <View style={{ flexDirection: 'row', gap: 6, marginTop: 4 }}>
+          {priceStr && (
+            <DNText variant="secondary" color={colors.ink2}>
+              {priceStr}
+            </DNText>
+          )}
+          {suggestion.distanceMiles != null && (
+            <DNText variant="secondary" color={colors.ink2}>
+              · {suggestion.distanceMiles.toFixed(1)} mi
+            </DNText>
           )}
         </View>
+
+        {/* Already added indicator */}
+        {alreadyAdded && (
+          <View style={{ marginTop: SPACING.xs }}>
+            <DNText variant="secondary" color={colors.lime}>
+              ✓ In your plan
+            </DNText>
+          </View>
+        )}
       </View>
-    </View>
+    </TouchableOpacity>
   );
 }
 
 // ── Empty State ────────────────────────────────────────────────────────────────
 function EmptyState({
   onUseLocation,
-  onSetHomeArea,
-  onAddManually,
   colors,
 }: {
   onUseLocation: () => void;
-  onSetHomeArea: () => void;
-  onAddManually: () => void;
-  colors: ReturnType<typeof import('@/constants').palette>;
+  colors: any;
 }) {
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: SPACING.gutter }}>
@@ -281,17 +557,8 @@ function EmptyState({
           label="Use my location"
           variant="primary"
           onPress={onUseLocation}
-          style={{ width: '100%', marginBottom: SPACING.sm }}
+          style={{ width: '100%' }}
         />
-        <DNButton
-          label="Set a home area"
-          variant="secondary"
-          onPress={onSetHomeArea}
-          style={{ width: '100%', marginBottom: SPACING.md }}
-        />
-        <TouchableOpacity onPress={onAddManually}>
-          <DNText variant="secondary" color={colors.primary}>Add an option manually</DNText>
-        </TouchableOpacity>
       </DNCard>
     </View>
   );
@@ -302,6 +569,7 @@ export default function SuggestionsScreen() {
   const { colors } = useTheme();
   const navigation = useNavigation<any>();
   const route = useRoute<RouteT>();
+  const { options: planOptions, addOption, groupId: pbGroupId, setGroupId } = usePlanBuilder();
   const hasProposalContext = !!route.params?.groupId;
 
   const [activeCategory, setActiveCategory] = useState<Category | null>(null);
@@ -310,50 +578,75 @@ export default function SuggestionsScreen() {
   const [locationGranted, setLocationGranted] = useState<boolean | null>(null);
   const [city, setCity] = useState('your area');
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
-  const [addedIds, setAddedIds] = useState<Set<string>>(new Set());
-  const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [detailSuggestion, setDetailSuggestion] = useState<Suggestion | null>(null);
+  const [detailVisible, setDetailVisible] = useState(false);
 
   const PAGE_SIZE = 10;
+  // Use ref for page tracking to avoid stale closures
+  const pageRef = useRef(0);
+  const allSuggestionsRef = useRef<Suggestion[]>([]);
 
-  const fetchSuggestions = useCallback(async (lat?: number, lng?: number, category?: string, reset = true) => {
-    if (reset) setLoading(true);
-    else setLoadingMore(true);
+  // Sync groupId into PlanBuilder if coming from proposal context
+  useEffect(() => {
+    const incoming = route.params?.groupId;
+    if (incoming && incoming !== pbGroupId) {
+      setGroupId(incoming);
+    }
+  }, [route.params?.groupId]);
+
+  const fetchSuggestions = useCallback(async (
+    lat?: number,
+    lng?: number,
+    category?: string,
+    reset = true,
+  ) => {
+    if (reset) {
+      setLoading(true);
+      pageRef.current = 0;
+    } else {
+      setLoadingMore(true);
+    }
     try {
       const cat = category === 'All' ? undefined : category;
       const res = await proposalsAPI.suggestions(lat, lng, cat);
       const data: Suggestion[] = Array.isArray(res.data) ? res.data : res.data?.results ?? [];
+
       if (reset) {
+        allSuggestionsRef.current = data;
         setSuggestions(data.slice(0, PAGE_SIZE));
-        setPage(1);
+        pageRef.current = 1;
       } else {
-        setSuggestions((prev) => [...prev, ...data.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE)]);
-        setPage((p) => p + 1);
+        const page = pageRef.current;
+        setSuggestions((prev) => [
+          ...prev,
+          ...allSuggestionsRef.current.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE),
+        ]);
+        pageRef.current = page + 1;
       }
-      setHasMore(data.length > (reset ? 1 : page + 1) * PAGE_SIZE);
+      setHasMore(data.length > (reset ? 1 : pageRef.current) * PAGE_SIZE);
     } catch (e) {
       console.warn('Failed to fetch suggestions', e);
     } finally {
       setLoading(false);
       setLoadingMore(false);
     }
-  }, [page]);
+  }, []); // no stale-closure deps — uses refs
 
   const requestLocation = useCallback(async () => {
     const { status } = await Location.requestForegroundPermissionsAsync();
     if (status === 'granted') {
       setLocationGranted(true);
       try {
-        const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+        const loc = await Location.getCurrentPositionAsync({
+          accuracy: Location.Accuracy.Balanced,
+        });
         const lat = loc.coords.latitude;
         const lng = loc.coords.longitude;
         setCoords({ lat, lng });
-
-        // Reverse geocode for city name
         const [geo] = await Location.reverseGeocodeAsync({ latitude: lat, longitude: lng });
         setCity(geo.city ?? geo.region ?? 'your area');
-
         fetchSuggestions(lat, lng, activeCategory?.id);
       } catch {
         fetchSuggestions(undefined, undefined, activeCategory?.id);
@@ -372,17 +665,21 @@ export default function SuggestionsScreen() {
     fetchSuggestions(coords?.lat, coords?.lng, cat?.id, true);
   };
 
-  const handleAdd = (s: Suggestion) => {
-    const key = s.name + (s.address ?? '');
-    setAddedIds((prev) => new Set(prev).add(key));
-    // If opened from CreateProposal, navigate back with the selected suggestion
-    if (hasProposalContext && route.params?.returnTo === 'CreateProposal') {
-      navigation.navigate('CreateProposal', {
-        groupId: route.params.groupId,
-        addSuggestion: { name: s.name, category: s.category ?? 'Local Experience', address: s.address ?? '', description: s.description ?? '' },
-      });
-    }
-  };
+  const handleAdd = useCallback((s: Suggestion) => {
+    addOption({
+      name: s.name,
+      category: s.category ?? 'Local Experience',
+      address: s.address,
+      description: s.description,
+      imageUrl: s.imageUrl,
+      sourceUrl: s.sourceUrl,
+      eventDate: s.date,
+      rating: s.rating,
+      priceLevel: s.priceLevel,
+      sourceName: s.sourceName,
+    });
+    setDetailVisible(false);
+  }, [addOption]);
 
   const handleLoadMore = () => {
     if (!loadingMore && hasMore) {
@@ -390,65 +687,50 @@ export default function SuggestionsScreen() {
     }
   };
 
-  // Client-side guard: filter by active category in case the backend returned
-  // cached unfiltered results. Matches new display names AND legacy internal names.
+  // Client-side filter by active category
   const displayedSuggestions = !activeCategory
     ? suggestions
     : suggestions.filter(
         (s) =>
           !s.category ||
           s.category === activeCategory.name ||
-          activeCategory.matches.includes(s.category),
+          (activeCategory as any).matches?.includes(s.category),
       );
+
+  // Already-added key set
+  const addedKeys = new Set(planOptions.map((o) => o.name + (o.address ?? '')));
 
   const isEmpty = !loading && displayedSuggestions.length === 0;
 
   if (locationGranted === false && isEmpty) {
     return (
       <View style={{ flex: 1, backgroundColor: colors.bg }}>
-        <DNScreenHeader
-          title="Discover"
-          subtitle="📍 Allow location to find activities"
-        />
-        <EmptyState
-          onUseLocation={requestLocation}
-          onSetHomeArea={() => {}}
-          onAddManually={() => navigation.navigate('CreateProposal', { groupId: route.params?.groupId ?? '' })}
-          colors={colors}
-        />
+        <DNScreenHeader title="Discover" subtitle="📍 Allow location to find activities" />
+        <EmptyState onUseLocation={requestLocation} colors={colors} />
       </View>
     );
   }
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
-      <DNScreenHeader
-        title="Discover"
-        subtitle={`📍 Near ${city} · tonight`}
-      />
+      <DNScreenHeader title="Discover" subtitle={`📍 Near ${city} · tonight`} />
 
-      {/* Category grid + suggestion list */}
       {loading ? (
-        <ScrollView contentContainerStyle={{ padding: SPACING.gutter, paddingBottom: 120 }}>
+        <ScrollView contentContainerStyle={{ padding: SPACING.gutter, paddingBottom: 200 }}>
           <CategoryGrid activeId={activeCategory?.id ?? null} onSelect={handleCategorySelect} colors={colors} />
           <View style={{ paddingVertical: SPACING.xl, alignItems: 'center' }}>
             <ActivityIndicator color={colors.primary} size="large" />
           </View>
         </ScrollView>
       ) : isEmpty ? (
-        <ScrollView contentContainerStyle={{ padding: SPACING.gutter, paddingBottom: 120 }}>
+        <ScrollView contentContainerStyle={{ padding: SPACING.gutter, paddingBottom: 200 }}>
           <CategoryGrid activeId={activeCategory?.id ?? null} onSelect={handleCategorySelect} colors={colors} />
-          <EmptyState
-            onUseLocation={requestLocation}
-            onSetHomeArea={() => {}}
-            onAddManually={() => {}}
-            colors={colors}
-          />
+          <EmptyState onUseLocation={requestLocation} colors={colors} />
         </ScrollView>
       ) : (
         <FlatList
           data={displayedSuggestions}
-          keyExtractor={(item, i) => `${item.name}-${i}`}
+          keyExtractor={(item, i) => `${item.name}-${item.address ?? ''}-${i}`}
           ListHeaderComponent={
             <CategoryGrid activeId={activeCategory?.id ?? null} onSelect={handleCategorySelect} colors={colors} />
           }
@@ -458,22 +740,37 @@ export default function SuggestionsScreen() {
               <SuggestionCard
                 suggestion={item}
                 index={index}
-                hasProposalContext={hasProposalContext}
-                proposalName="proposal"
-                alreadyAdded={addedIds.has(key)}
-                onAdd={handleAdd}
+                alreadyAdded={addedKeys.has(key)}
+                onPress={() => {
+                  setDetailSuggestion(item);
+                  setDetailVisible(true);
+                }}
                 colors={colors}
               />
             );
           }}
-          contentContainerStyle={{ padding: SPACING.gutter, paddingBottom: 120 }}
+          contentContainerStyle={{ padding: SPACING.gutter, paddingBottom: 200 }}
           onEndReached={handleLoadMore}
           onEndReachedThreshold={0.5}
           ListFooterComponent={
-            loadingMore ? <ActivityIndicator color={colors.primary} style={{ marginVertical: 16 }} /> : null
+            loadingMore ? (
+              <ActivityIndicator color={colors.primary} style={{ marginVertical: 16 }} />
+            ) : null
           }
         />
       )}
+
+      {/* Event detail sheet */}
+      <EventDetailSheet
+        suggestion={detailSuggestion}
+        visible={detailVisible}
+        onClose={() => setDetailVisible(false)}
+        onAdd={handleAdd}
+        alreadyAdded={detailSuggestion
+          ? addedKeys.has(detailSuggestion.name + (detailSuggestion.address ?? ''))
+          : false}
+        colors={colors}
+      />
     </View>
   );
 }

@@ -29,11 +29,15 @@ export type AggregateOption = {
 export type OptionAvgAggregateOutputType = {
   latitude: number | null
   longitude: number | null
+  rating: number | null
+  priceLevel: number | null
 }
 
 export type OptionSumAggregateOutputType = {
   latitude: number | null
   longitude: number | null
+  rating: number | null
+  priceLevel: number | null
 }
 
 export type OptionMinAggregateOutputType = {
@@ -46,6 +50,12 @@ export type OptionMinAggregateOutputType = {
   latitude: number | null
   longitude: number | null
   externalRef: string | null
+  imageUrl: string | null
+  sourceUrl: string | null
+  eventDate: Date | null
+  rating: number | null
+  priceLevel: number | null
+  sourceName: string | null
   createdAt: Date | null
 }
 
@@ -59,6 +69,12 @@ export type OptionMaxAggregateOutputType = {
   latitude: number | null
   longitude: number | null
   externalRef: string | null
+  imageUrl: string | null
+  sourceUrl: string | null
+  eventDate: Date | null
+  rating: number | null
+  priceLevel: number | null
+  sourceName: string | null
   createdAt: Date | null
 }
 
@@ -72,6 +88,12 @@ export type OptionCountAggregateOutputType = {
   latitude: number
   longitude: number
   externalRef: number
+  imageUrl: number
+  sourceUrl: number
+  eventDate: number
+  rating: number
+  priceLevel: number
+  sourceName: number
   createdAt: number
   _all: number
 }
@@ -80,11 +102,15 @@ export type OptionCountAggregateOutputType = {
 export type OptionAvgAggregateInputType = {
   latitude?: true
   longitude?: true
+  rating?: true
+  priceLevel?: true
 }
 
 export type OptionSumAggregateInputType = {
   latitude?: true
   longitude?: true
+  rating?: true
+  priceLevel?: true
 }
 
 export type OptionMinAggregateInputType = {
@@ -97,6 +123,12 @@ export type OptionMinAggregateInputType = {
   latitude?: true
   longitude?: true
   externalRef?: true
+  imageUrl?: true
+  sourceUrl?: true
+  eventDate?: true
+  rating?: true
+  priceLevel?: true
+  sourceName?: true
   createdAt?: true
 }
 
@@ -110,6 +142,12 @@ export type OptionMaxAggregateInputType = {
   latitude?: true
   longitude?: true
   externalRef?: true
+  imageUrl?: true
+  sourceUrl?: true
+  eventDate?: true
+  rating?: true
+  priceLevel?: true
+  sourceName?: true
   createdAt?: true
 }
 
@@ -123,6 +161,12 @@ export type OptionCountAggregateInputType = {
   latitude?: true
   longitude?: true
   externalRef?: true
+  imageUrl?: true
+  sourceUrl?: true
+  eventDate?: true
+  rating?: true
+  priceLevel?: true
+  sourceName?: true
   createdAt?: true
   _all?: true
 }
@@ -223,6 +267,12 @@ export type OptionGroupByOutputType = {
   latitude: number | null
   longitude: number | null
   externalRef: string | null
+  imageUrl: string | null
+  sourceUrl: string | null
+  eventDate: Date | null
+  rating: number | null
+  priceLevel: number | null
+  sourceName: string | null
   createdAt: Date
   _count: OptionCountAggregateOutputType | null
   _avg: OptionAvgAggregateOutputType | null
@@ -259,6 +309,12 @@ export type OptionWhereInput = {
   latitude?: Prisma.FloatNullableFilter<"Option"> | number | null
   longitude?: Prisma.FloatNullableFilter<"Option"> | number | null
   externalRef?: Prisma.StringNullableFilter<"Option"> | string | null
+  imageUrl?: Prisma.StringNullableFilter<"Option"> | string | null
+  sourceUrl?: Prisma.StringNullableFilter<"Option"> | string | null
+  eventDate?: Prisma.DateTimeNullableFilter<"Option"> | Date | string | null
+  rating?: Prisma.FloatNullableFilter<"Option"> | number | null
+  priceLevel?: Prisma.IntNullableFilter<"Option"> | number | null
+  sourceName?: Prisma.StringNullableFilter<"Option"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Option"> | Date | string
   proposal?: Prisma.XOR<Prisma.ProposalScalarRelationFilter, Prisma.ProposalWhereInput>
   votes?: Prisma.VoteListRelationFilter
@@ -274,6 +330,12 @@ export type OptionOrderByWithRelationInput = {
   latitude?: Prisma.SortOrderInput | Prisma.SortOrder
   longitude?: Prisma.SortOrderInput | Prisma.SortOrder
   externalRef?: Prisma.SortOrderInput | Prisma.SortOrder
+  imageUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  eventDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  rating?: Prisma.SortOrderInput | Prisma.SortOrder
+  priceLevel?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceName?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   proposal?: Prisma.ProposalOrderByWithRelationInput
   votes?: Prisma.VoteOrderByRelationAggregateInput
@@ -292,6 +354,12 @@ export type OptionWhereUniqueInput = Prisma.AtLeast<{
   latitude?: Prisma.FloatNullableFilter<"Option"> | number | null
   longitude?: Prisma.FloatNullableFilter<"Option"> | number | null
   externalRef?: Prisma.StringNullableFilter<"Option"> | string | null
+  imageUrl?: Prisma.StringNullableFilter<"Option"> | string | null
+  sourceUrl?: Prisma.StringNullableFilter<"Option"> | string | null
+  eventDate?: Prisma.DateTimeNullableFilter<"Option"> | Date | string | null
+  rating?: Prisma.FloatNullableFilter<"Option"> | number | null
+  priceLevel?: Prisma.IntNullableFilter<"Option"> | number | null
+  sourceName?: Prisma.StringNullableFilter<"Option"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Option"> | Date | string
   proposal?: Prisma.XOR<Prisma.ProposalScalarRelationFilter, Prisma.ProposalWhereInput>
   votes?: Prisma.VoteListRelationFilter
@@ -307,6 +375,12 @@ export type OptionOrderByWithAggregationInput = {
   latitude?: Prisma.SortOrderInput | Prisma.SortOrder
   longitude?: Prisma.SortOrderInput | Prisma.SortOrder
   externalRef?: Prisma.SortOrderInput | Prisma.SortOrder
+  imageUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  eventDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  rating?: Prisma.SortOrderInput | Prisma.SortOrder
+  priceLevel?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceName?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.OptionCountOrderByAggregateInput
   _avg?: Prisma.OptionAvgOrderByAggregateInput
@@ -328,6 +402,12 @@ export type OptionScalarWhereWithAggregatesInput = {
   latitude?: Prisma.FloatNullableWithAggregatesFilter<"Option"> | number | null
   longitude?: Prisma.FloatNullableWithAggregatesFilter<"Option"> | number | null
   externalRef?: Prisma.StringNullableWithAggregatesFilter<"Option"> | string | null
+  imageUrl?: Prisma.StringNullableWithAggregatesFilter<"Option"> | string | null
+  sourceUrl?: Prisma.StringNullableWithAggregatesFilter<"Option"> | string | null
+  eventDate?: Prisma.DateTimeNullableWithAggregatesFilter<"Option"> | Date | string | null
+  rating?: Prisma.FloatNullableWithAggregatesFilter<"Option"> | number | null
+  priceLevel?: Prisma.IntNullableWithAggregatesFilter<"Option"> | number | null
+  sourceName?: Prisma.StringNullableWithAggregatesFilter<"Option"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Option"> | Date | string
 }
 
@@ -340,6 +420,12 @@ export type OptionCreateInput = {
   latitude?: number | null
   longitude?: number | null
   externalRef?: string | null
+  imageUrl?: string | null
+  sourceUrl?: string | null
+  eventDate?: Date | string | null
+  rating?: number | null
+  priceLevel?: number | null
+  sourceName?: string | null
   createdAt?: Date | string
   proposal: Prisma.ProposalCreateNestedOneWithoutOptionsInput
   votes?: Prisma.VoteCreateNestedManyWithoutOptionInput
@@ -355,6 +441,12 @@ export type OptionUncheckedCreateInput = {
   latitude?: number | null
   longitude?: number | null
   externalRef?: string | null
+  imageUrl?: string | null
+  sourceUrl?: string | null
+  eventDate?: Date | string | null
+  rating?: number | null
+  priceLevel?: number | null
+  sourceName?: string | null
   createdAt?: Date | string
   votes?: Prisma.VoteUncheckedCreateNestedManyWithoutOptionInput
 }
@@ -368,6 +460,12 @@ export type OptionUpdateInput = {
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   externalRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  eventDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rating?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  priceLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   proposal?: Prisma.ProposalUpdateOneRequiredWithoutOptionsNestedInput
   votes?: Prisma.VoteUpdateManyWithoutOptionNestedInput
@@ -383,6 +481,12 @@ export type OptionUncheckedUpdateInput = {
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   externalRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  eventDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rating?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  priceLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   votes?: Prisma.VoteUncheckedUpdateManyWithoutOptionNestedInput
 }
@@ -397,6 +501,12 @@ export type OptionCreateManyInput = {
   latitude?: number | null
   longitude?: number | null
   externalRef?: string | null
+  imageUrl?: string | null
+  sourceUrl?: string | null
+  eventDate?: Date | string | null
+  rating?: number | null
+  priceLevel?: number | null
+  sourceName?: string | null
   createdAt?: Date | string
 }
 
@@ -409,6 +519,12 @@ export type OptionUpdateManyMutationInput = {
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   externalRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  eventDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rating?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  priceLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -422,6 +538,12 @@ export type OptionUncheckedUpdateManyInput = {
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   externalRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  eventDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rating?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  priceLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -445,12 +567,20 @@ export type OptionCountOrderByAggregateInput = {
   latitude?: Prisma.SortOrder
   longitude?: Prisma.SortOrder
   externalRef?: Prisma.SortOrder
+  imageUrl?: Prisma.SortOrder
+  sourceUrl?: Prisma.SortOrder
+  eventDate?: Prisma.SortOrder
+  rating?: Prisma.SortOrder
+  priceLevel?: Prisma.SortOrder
+  sourceName?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
 export type OptionAvgOrderByAggregateInput = {
   latitude?: Prisma.SortOrder
   longitude?: Prisma.SortOrder
+  rating?: Prisma.SortOrder
+  priceLevel?: Prisma.SortOrder
 }
 
 export type OptionMaxOrderByAggregateInput = {
@@ -463,6 +593,12 @@ export type OptionMaxOrderByAggregateInput = {
   latitude?: Prisma.SortOrder
   longitude?: Prisma.SortOrder
   externalRef?: Prisma.SortOrder
+  imageUrl?: Prisma.SortOrder
+  sourceUrl?: Prisma.SortOrder
+  eventDate?: Prisma.SortOrder
+  rating?: Prisma.SortOrder
+  priceLevel?: Prisma.SortOrder
+  sourceName?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -476,12 +612,20 @@ export type OptionMinOrderByAggregateInput = {
   latitude?: Prisma.SortOrder
   longitude?: Prisma.SortOrder
   externalRef?: Prisma.SortOrder
+  imageUrl?: Prisma.SortOrder
+  sourceUrl?: Prisma.SortOrder
+  eventDate?: Prisma.SortOrder
+  rating?: Prisma.SortOrder
+  priceLevel?: Prisma.SortOrder
+  sourceName?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
 export type OptionSumOrderByAggregateInput = {
   latitude?: Prisma.SortOrder
   longitude?: Prisma.SortOrder
+  rating?: Prisma.SortOrder
+  priceLevel?: Prisma.SortOrder
 }
 
 export type OptionScalarRelationFilter = {
@@ -531,6 +675,14 @@ export type OptionUncheckedUpdateManyWithoutProposalNestedInput = {
   deleteMany?: Prisma.OptionScalarWhereInput | Prisma.OptionScalarWhereInput[]
 }
 
+export type NullableIntFieldUpdateOperationsInput = {
+  set?: number | null
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
+}
+
 export type OptionCreateNestedOneWithoutVotesInput = {
   create?: Prisma.XOR<Prisma.OptionCreateWithoutVotesInput, Prisma.OptionUncheckedCreateWithoutVotesInput>
   connectOrCreate?: Prisma.OptionCreateOrConnectWithoutVotesInput
@@ -554,6 +706,12 @@ export type OptionCreateWithoutProposalInput = {
   latitude?: number | null
   longitude?: number | null
   externalRef?: string | null
+  imageUrl?: string | null
+  sourceUrl?: string | null
+  eventDate?: Date | string | null
+  rating?: number | null
+  priceLevel?: number | null
+  sourceName?: string | null
   createdAt?: Date | string
   votes?: Prisma.VoteCreateNestedManyWithoutOptionInput
 }
@@ -567,6 +725,12 @@ export type OptionUncheckedCreateWithoutProposalInput = {
   latitude?: number | null
   longitude?: number | null
   externalRef?: string | null
+  imageUrl?: string | null
+  sourceUrl?: string | null
+  eventDate?: Date | string | null
+  rating?: number | null
+  priceLevel?: number | null
+  sourceName?: string | null
   createdAt?: Date | string
   votes?: Prisma.VoteUncheckedCreateNestedManyWithoutOptionInput
 }
@@ -610,6 +774,12 @@ export type OptionScalarWhereInput = {
   latitude?: Prisma.FloatNullableFilter<"Option"> | number | null
   longitude?: Prisma.FloatNullableFilter<"Option"> | number | null
   externalRef?: Prisma.StringNullableFilter<"Option"> | string | null
+  imageUrl?: Prisma.StringNullableFilter<"Option"> | string | null
+  sourceUrl?: Prisma.StringNullableFilter<"Option"> | string | null
+  eventDate?: Prisma.DateTimeNullableFilter<"Option"> | Date | string | null
+  rating?: Prisma.FloatNullableFilter<"Option"> | number | null
+  priceLevel?: Prisma.IntNullableFilter<"Option"> | number | null
+  sourceName?: Prisma.StringNullableFilter<"Option"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Option"> | Date | string
 }
 
@@ -622,6 +792,12 @@ export type OptionCreateWithoutVotesInput = {
   latitude?: number | null
   longitude?: number | null
   externalRef?: string | null
+  imageUrl?: string | null
+  sourceUrl?: string | null
+  eventDate?: Date | string | null
+  rating?: number | null
+  priceLevel?: number | null
+  sourceName?: string | null
   createdAt?: Date | string
   proposal: Prisma.ProposalCreateNestedOneWithoutOptionsInput
 }
@@ -636,6 +812,12 @@ export type OptionUncheckedCreateWithoutVotesInput = {
   latitude?: number | null
   longitude?: number | null
   externalRef?: string | null
+  imageUrl?: string | null
+  sourceUrl?: string | null
+  eventDate?: Date | string | null
+  rating?: number | null
+  priceLevel?: number | null
+  sourceName?: string | null
   createdAt?: Date | string
 }
 
@@ -664,6 +846,12 @@ export type OptionUpdateWithoutVotesInput = {
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   externalRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  eventDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rating?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  priceLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   proposal?: Prisma.ProposalUpdateOneRequiredWithoutOptionsNestedInput
 }
@@ -678,6 +866,12 @@ export type OptionUncheckedUpdateWithoutVotesInput = {
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   externalRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  eventDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rating?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  priceLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -690,6 +884,12 @@ export type OptionCreateManyProposalInput = {
   latitude?: number | null
   longitude?: number | null
   externalRef?: string | null
+  imageUrl?: string | null
+  sourceUrl?: string | null
+  eventDate?: Date | string | null
+  rating?: number | null
+  priceLevel?: number | null
+  sourceName?: string | null
   createdAt?: Date | string
 }
 
@@ -702,6 +902,12 @@ export type OptionUpdateWithoutProposalInput = {
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   externalRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  eventDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rating?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  priceLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   votes?: Prisma.VoteUpdateManyWithoutOptionNestedInput
 }
@@ -715,6 +921,12 @@ export type OptionUncheckedUpdateWithoutProposalInput = {
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   externalRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  eventDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rating?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  priceLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   votes?: Prisma.VoteUncheckedUpdateManyWithoutOptionNestedInput
 }
@@ -728,6 +940,12 @@ export type OptionUncheckedUpdateManyWithoutProposalInput = {
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   externalRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  eventDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rating?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  priceLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -772,6 +990,12 @@ export type OptionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   latitude?: boolean
   longitude?: boolean
   externalRef?: boolean
+  imageUrl?: boolean
+  sourceUrl?: boolean
+  eventDate?: boolean
+  rating?: boolean
+  priceLevel?: boolean
+  sourceName?: boolean
   createdAt?: boolean
   proposal?: boolean | Prisma.ProposalDefaultArgs<ExtArgs>
   votes?: boolean | Prisma.Option$votesArgs<ExtArgs>
@@ -788,6 +1012,12 @@ export type OptionSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   latitude?: boolean
   longitude?: boolean
   externalRef?: boolean
+  imageUrl?: boolean
+  sourceUrl?: boolean
+  eventDate?: boolean
+  rating?: boolean
+  priceLevel?: boolean
+  sourceName?: boolean
   createdAt?: boolean
   proposal?: boolean | Prisma.ProposalDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["option"]>
@@ -802,6 +1032,12 @@ export type OptionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   latitude?: boolean
   longitude?: boolean
   externalRef?: boolean
+  imageUrl?: boolean
+  sourceUrl?: boolean
+  eventDate?: boolean
+  rating?: boolean
+  priceLevel?: boolean
+  sourceName?: boolean
   createdAt?: boolean
   proposal?: boolean | Prisma.ProposalDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["option"]>
@@ -816,10 +1052,16 @@ export type OptionSelectScalar = {
   latitude?: boolean
   longitude?: boolean
   externalRef?: boolean
+  imageUrl?: boolean
+  sourceUrl?: boolean
+  eventDate?: boolean
+  rating?: boolean
+  priceLevel?: boolean
+  sourceName?: boolean
   createdAt?: boolean
 }
 
-export type OptionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "proposalId" | "name" | "category" | "description" | "address" | "latitude" | "longitude" | "externalRef" | "createdAt", ExtArgs["result"]["option"]>
+export type OptionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "proposalId" | "name" | "category" | "description" | "address" | "latitude" | "longitude" | "externalRef" | "imageUrl" | "sourceUrl" | "eventDate" | "rating" | "priceLevel" | "sourceName" | "createdAt", ExtArgs["result"]["option"]>
 export type OptionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   proposal?: boolean | Prisma.ProposalDefaultArgs<ExtArgs>
   votes?: boolean | Prisma.Option$votesArgs<ExtArgs>
@@ -848,6 +1090,12 @@ export type $OptionPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     latitude: number | null
     longitude: number | null
     externalRef: string | null
+    imageUrl: string | null
+    sourceUrl: string | null
+    eventDate: Date | null
+    rating: number | null
+    priceLevel: number | null
+    sourceName: string | null
     createdAt: Date
   }, ExtArgs["result"]["option"]>
   composites: {}
@@ -1283,6 +1531,12 @@ export interface OptionFieldRefs {
   readonly latitude: Prisma.FieldRef<"Option", 'Float'>
   readonly longitude: Prisma.FieldRef<"Option", 'Float'>
   readonly externalRef: Prisma.FieldRef<"Option", 'String'>
+  readonly imageUrl: Prisma.FieldRef<"Option", 'String'>
+  readonly sourceUrl: Prisma.FieldRef<"Option", 'String'>
+  readonly eventDate: Prisma.FieldRef<"Option", 'DateTime'>
+  readonly rating: Prisma.FieldRef<"Option", 'Float'>
+  readonly priceLevel: Prisma.FieldRef<"Option", 'Int'>
+  readonly sourceName: Prisma.FieldRef<"Option", 'String'>
   readonly createdAt: Prisma.FieldRef<"Option", 'DateTime'>
 }
     

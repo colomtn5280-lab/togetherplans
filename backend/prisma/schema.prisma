@@ -169,6 +169,13 @@ model Option {
   longitude   Float?
   // external reference (Yelp/TMDB/Google Place id) when sourced from an API
   externalRef String?
+  // Rich event data fields
+  imageUrl    String?
+  sourceUrl   String?
+  eventDate   DateTime?
+  rating      Float?
+  priceLevel  Int?
+  sourceName  String?
   createdAt   DateTime @default(now())
 
   proposal Proposal @relation(fields: [proposalId], references: [id], onDelete: Cascade)

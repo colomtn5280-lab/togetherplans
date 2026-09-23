@@ -1,351 +1,581 @@
-import { useState } from "react";
-import { useForm, useFieldArray, Controller } from "react-hook-form";
-import { useParams, Link, useNavigate, useLocation } from "react-router-dom";
+/**
+ * NewProposalPage — FINALIZE step (rewritten)
+ *
+ * Receives built options from PlanBuilderContext (or router state).
+ * Allows editing title, datetime, group, adding/removing options.
+ * Sends proposal to backend. Shows success screen with confetti.
+ */
+import { useState, useEffect, useRef } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
-import { proposalsApi } from "../api/client";
+import { proposalsApi, groupsApi } from "../api/client";
 import { AppNav } from "../components/AppNav";
-import { CATEGORIES, CUSTOM_CATEGORY } from "../constants/categories";
-import type { Proposal, Suggestion } from "../types";
+import { usePlanBuilder } from "../contexts/PlanBuilderContext";
+import type { Group, PlanBuilderOption } from "../types";
 import type { AxiosError } from "axios";
 import type { ApiError } from "../types";
 
-interface OptionInput {
-  name: string;
-  category: string;
-  description?: string;
-  address?: string;
+// ── Category helpers ─────────────────────────────────────────────────────────
+const CATEGORY_COLORS: Record<string, string> = {
+  "Restaurants & Dining": "#FDEBD0",
+  "Live Music & Concerts": "#EBD5FB",
+  "Comedy Shows": "#FEF9C3",
+  "Movies & Theater": "#D5E8FD",
+  "Art & Museums": "#FCE4EC",
+  "Outdoor Adventures": "#D4EDDA",
+  "Sports & Active": "#FFE0B2",
+  "Nightlife & Bars": "#E8D5F5",
+  "Wellness & Spa": "#D0F4F1",
+  "Cooking & Classes": "#FFF3CD",
+  Custom: "#F0F0F0",
+};
+const CATEGORY_EMOJIS: Record<string, string> = {
+  "Restaurants & Dining": "🍽️",
+  "Live Music & Concerts": "🎵",
+  "Comedy Shows": "😂",
+  "Movies & Theater": "🎬",
+  "Art & Museums": "🎨",
+  "Outdoor Adventures": "🏔️",
+  "Sports & Active": "🏃",
+  "Nightlife & Bars": "🍸",
+  "Wellness & Spa": "💆",
+  "Cooking & Classes": "🍳",
+};
+
+function getCategoryEmoji(cat: string): string { return CATEGORY_EMOJIS[cat] ?? "📍"; }
+function getCategoryColor(cat: string): string { return CATEGORY_COLORS[cat] ?? "#F0F0F0"; }
+
+function suggestTitle(opts: PlanBuilderOption[]): string {
+  if (opts.length === 0) return "";
+  const categories = opts.map((o) => o.category);
+  const dates = opts.filter((o) => o.eventDate).map((o) => o.eventDate!.slice(0, 10));
+  if (dates.length > 0 && new Set(dates).size === 1) {
+    const d = new Date(dates[0]);
+    return `Date Night · ${d.toLocaleDateString(undefined, { weekday: "long" })}`;
+  }
+  const hasDining = categories.some((c) => c.includes("Dining") || c.includes("Restaurant"));
+  const hasEntertainment = categories.some((c) =>
+    c.includes("Music") || c.includes("Theater") || c.includes("Comedy")
+  );
+  if (hasDining && hasEntertainment) {
+    const diner = opts.find((o) => o.category.includes("Dining") || o.category.includes("Restaurant"));
+    const show = opts.find((o) => o.category.includes("Music") || o.category.includes("Theater"));
+    if (diner && show) {
+      return `${diner.name.split(" ").slice(0, 2).join(" ")} + ${show.name.split(" ").slice(0, 2).join(" ")}`;
+    }
+  }
+  return `${categories[0]} Night`;
 }
 
-interface FormData {
-  title: string;
-  date: string;
-  time: string;
-  options: OptionInput[];
+// ── Confetti ─────────────────────────────────────────────────────────────────
+const CONFETTI_STYLE = `
+@keyframes confettiFall {
+  0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+.confetti-piece {
+  position: fixed;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  animation: confettiFall linear forwards;
+  pointer-events: none;
+  z-index: 9999;
+}
+`;
+const CONFETTI_COLORS = ["#0E8C8C", "#7CB518", "#2FC4C1", "#A8E04B", "#FCE44E", "#F87171"];
+
+function Confetti() {
+  const pieces = Array.from({ length: 40 }, (_, i) => ({
+    id: i,
+    left: `${Math.random() * 100}%`,
+    delay: `${Math.random() * 1.5}s`,
+    duration: `${2 + Math.random() * 2}s`,
+    color: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
+    size: `${8 + Math.floor(Math.random() * 10)}px`,
+    rotation: `${Math.random() * 360}deg`,
+  }));
+  return (
+    <>
+      <style>{CONFETTI_STYLE}</style>
+      {pieces.map((p) => (
+        <div
+          key={p.id}
+          className="confetti-piece"
+          style={{
+            left: p.left,
+            top: 0,
+            background: p.color,
+            width: p.size,
+            height: p.size,
+            animationDelay: p.delay,
+            animationDuration: p.duration,
+            transform: `rotate(${p.rotation})`,
+          }}
+        />
+      ))}
+    </>
+  );
 }
 
-const DEFAULT_CATEGORY = CATEGORIES[11].name; // Restaurants & Dining
-
-// ── Category picker grid (15 categories + Custom last) ────────────────────────
-function CategoryPicker({
-  value,
-  onChange,
-}: {
-  value: string;
-  onChange: (v: string) => void;
-}) {
-  const isKnown = CATEGORIES.some((c) => c.name === value);
-  const [customMode, setCustomMode] = useState(!isKnown && value !== "");
+// ── Option Card ───────────────────────────────────────────────────────────────
+function OptionCard({ opt, onRemove }: { opt: PlanBuilderOption; onRemove: () => void }) {
+  const [imgErr, setImgErr] = useState(false);
+  const bg = getCategoryColor(opt.category);
+  const emoji = getCategoryEmoji(opt.category);
+  const priceStr = opt.priceLevel ? "$".repeat(opt.priceLevel) : null;
 
   return (
-    <div>
-      <div
-        className="category-picker-grid"
-        style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}
-      >
-        {CATEGORIES.map((c) => {
-          const selected = !customMode && value === c.name;
-          return (
-            <button
-              key={c.id}
-              type="button"
-              onClick={() => { setCustomMode(false); onChange(c.name); }}
-              aria-pressed={selected}
-              title={c.tagline}
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: 2,
-                padding: "10px 4px",
-                borderRadius: 12,
-                cursor: "pointer",
-                border: `1.5px solid ${selected ? "var(--primary)" : "var(--line)"}`,
-                background: selected ? "var(--primary)" : "var(--surface)",
-                color: selected ? "#fff" : "var(--ink)",
-                transition: "all .15s ease",
-              }}
-            >
-              <span style={{ fontSize: 18 }}>{c.emoji}</span>
-              <span style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 11, lineHeight: 1.15, textAlign: "center" }}>
-                {c.name}
-              </span>
-            </button>
-          );
-        })}
-        {/* Custom — always LAST */}
-        <button
-          type="button"
-          onClick={() => { setCustomMode(true); onChange(""); }}
-          aria-pressed={customMode}
-          title={CUSTOM_CATEGORY.tagline}
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 14,
+        background: "var(--bg)",
+        borderRadius: 14,
+        padding: 12,
+        marginBottom: 10,
+      }}
+    >
+      {/* Thumbnail */}
+      {opt.imageUrl && !imgErr ? (
+        <img
+          src={opt.imageUrl}
+          alt=""
+          style={{ width: 60, height: 60, borderRadius: 10, objectFit: "cover", flexShrink: 0 }}
+          onError={() => setImgErr(true)}
+        />
+      ) : (
+        <div
           style={{
+            width: 60,
+            height: 60,
+            borderRadius: 10,
+            background: bg,
             display: "flex",
-            flexDirection: "column",
             alignItems: "center",
-            gap: 2,
-            padding: "10px 4px",
-            borderRadius: 12,
-            cursor: "pointer",
-            border: `1.5px ${customMode ? "solid var(--primary)" : "dashed var(--line)"}`,
-            background: customMode ? "var(--primary)" : "var(--surface)",
-            color: customMode ? "#fff" : "var(--ink)",
-            transition: "all .15s ease",
+            justifyContent: "center",
+            fontSize: 26,
+            flexShrink: 0,
           }}
         >
-          <span style={{ fontSize: 18 }}>{CUSTOM_CATEGORY.emoji}</span>
-          <span style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 11, lineHeight: 1.15, textAlign: "center" }}>
-            {CUSTOM_CATEGORY.name}
-          </span>
-        </button>
-      </div>
-      {customMode && (
-        <input
-          type="text"
-          className="dn-input"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder="Your own category, e.g. Pottery class"
-          style={{ height: 38, marginTop: 8 }}
-          autoFocus
-        />
+          {emoji}
+        </div>
       )}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontWeight: 700, fontSize: 15, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+          {opt.name}
+        </div>
+        {opt.address && (
+          <div style={{ fontSize: 13, color: "var(--ink2)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+            📍 {opt.address}
+          </div>
+        )}
+        <div style={{ display: "flex", gap: 8, marginTop: 2 }}>
+          {opt.rating != null && <span style={{ fontSize: 13, color: "#7CB518" }}>★ {opt.rating.toFixed(1)}</span>}
+          {priceStr && <span style={{ fontSize: 13, color: "var(--ink2)" }}>{priceStr}</span>}
+        </div>
+      </div>
+      <button
+        onClick={onRemove}
+        style={{
+          background: "var(--line)",
+          border: "none",
+          borderRadius: "50%",
+          width: 28,
+          height: 28,
+          cursor: "pointer",
+          fontSize: 16,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          flexShrink: 0,
+        }}
+      >
+        ×
+      </button>
     </div>
   );
 }
 
+// ── Preview Panel ─────────────────────────────────────────────────────────────
+function PreviewPanel({ opts, title, partnerName }: { opts: PlanBuilderOption[]; title: string; partnerName: string }) {
+  return (
+    <div style={{ background: "var(--surface)", borderRadius: 16, padding: 20, marginTop: 24 }}>
+      <h3 style={{ margin: "0 0 12px", fontSize: 16, color: "var(--ink2)" }}>
+        Preview — what {partnerName} sees
+      </h3>
+      <h4 style={{ margin: "0 0 12px", fontFamily: "var(--font-display)", fontSize: 20 }}>
+        {title || "Date Night"}
+      </h4>
+      {opts.map((opt) => (
+        <div
+          key={opt.id}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+            background: "var(--bg)",
+            borderRadius: 12,
+            padding: 10,
+            marginBottom: 8,
+          }}
+        >
+          <div
+            style={{
+              width: 44,
+              height: 44,
+              borderRadius: 8,
+              background: getCategoryColor(opt.category),
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 20,
+              flexShrink: 0,
+            }}
+          >
+            {getCategoryEmoji(opt.category)}
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontWeight: 600, fontSize: 14 }}>{opt.name}</div>
+            {opt.address && <div style={{ fontSize: 12, color: "var(--ink2)" }}>{opt.address}</div>}
+          </div>
+          {/* Greyed vote button */}
+          <div
+            style={{
+              width: 34,
+              height: 34,
+              borderRadius: "50%",
+              background: "var(--line)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              opacity: 0.4,
+              fontSize: 16,
+            }}
+          >
+            ♥
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ── Main Page ─────────────────────────────────────────────────────────────────
 export function NewProposalPage() {
-  const { groupId } = useParams<{ groupId: string }>();
-  const navigate = useNavigate();
   const location = useLocation();
-  const prefillSuggestion = (location.state as { suggestion?: Suggestion } | null)?.suggestion;
-  const [submitError, setSubmitError] = useState("");
+  const { options: pbOptions, clearPlan } = usePlanBuilder();
 
-  const {
-    register,
-    handleSubmit,
-    control,
-    formState: { errors },
-  } = useForm<FormData>({
-    defaultValues: {
-      title: "",
-      date: "",
-      time: "19:00",
-      options: [
-        {
-          name: prefillSuggestion?.name ?? "",
-          category: prefillSuggestion?.category ?? DEFAULT_CATEGORY,
-          description: "",
-          address: prefillSuggestion?.address ?? "",
-        },
-        { name: "", category: DEFAULT_CATEGORY, description: "", address: "" },
-        { name: "", category: DEFAULT_CATEGORY, description: "", address: "" },
-      ],
-    },
-  });
+  // Options come from router state (from PlanBuilderDock) or context
+  const stateOptions: PlanBuilderOption[] = (location.state as any)?.options ?? [];
+  const [options, setOptions] = useState<PlanBuilderOption[]>(
+    stateOptions.length > 0 ? stateOptions : pbOptions
+  );
 
-  const { fields, append, remove } = useFieldArray({ control, name: "options" });
+  // Sync from context if no router state
+  useEffect(() => {
+    if (stateOptions.length === 0) {
+      setOptions(pbOptions);
+    }
+  }, [pbOptions]);
 
-  const mutation = useMutation<Proposal, AxiosError<ApiError>, FormData>({
-    mutationFn: async (data) => {
-      const dateTime = data.time
-        ? `${data.date}T${data.time}:00`
-        : `${data.date}T19:00:00`;
-      const filledOptions = data.options.filter((o) => o.name.trim());
-      if (filledOptions.length < 3) {
-        throw new Error("Please provide at least 3 options with names.");
+  // Earliest eventDate for date pre-fill
+  const earliestEventDate = options
+    .filter((o) => o.eventDate)
+    .map((o) => new Date(o.eventDate!))
+    .sort((a, b) => a.getTime() - b.getTime())[0];
+
+  const defaultDatetime = (() => {
+    if (earliestEventDate) {
+      const d = new Date(earliestEventDate);
+      const pad = (n: number) => n.toString().padStart(2, "0");
+      return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    }
+    const d = new Date();
+    d.setDate(d.getDate() + 1);
+    d.setHours(19, 0, 0, 0);
+    const pad = (n: number) => n.toString().padStart(2, "0");
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T19:00`;
+  })();
+
+  const [title, setTitle] = useState(() => suggestTitle(options));
+  const [datetime, setDatetime] = useState(defaultDatetime);
+  const [groups, setGroups] = useState<Group[]>([]);
+  const [selectedGroupId, setSelectedGroupId] = useState<string>("");
+  const [partnerName, setPartnerName] = useState("your partner");
+  const [titleError, setTitleError] = useState("");
+  const [optionsError, setOptionsError] = useState("");
+  const [success, setSuccess] = useState(false);
+  const [createdId, setCreatedId] = useState("");
+  const [showPreview, setShowPreview] = useState(false);
+
+  // Update title suggestion when options change
+  const titleInitialized = useRef(false);
+  useEffect(() => {
+    if (!titleInitialized.current && options.length > 0) {
+      setTitle(suggestTitle(options));
+      titleInitialized.current = true;
+    }
+  }, [options]);
+
+  // Load groups
+  useEffect(() => {
+    groupsApi.list().then((res) => {
+      const gs: Group[] = Array.isArray(res.data) ? res.data : (res.data as any)?.groups ?? [];
+      setGroups(gs);
+      if (gs.length > 0) setSelectedGroupId(gs[0].id);
+      // Find partner name in 2-member group
+      const g = gs[0];
+      if (g?.members?.length === 2) {
+        const me = localStorage.getItem("userId") ?? "";
+        const partner = g.members.find((m) => m.userId !== me);
+        if (partner) setPartnerName(partner.user?.displayName ?? "your partner");
       }
+    }).catch(() => {});
+  }, []);
+
+  const removeOption = (id: string) => {
+    setOptions((prev) => prev.filter((o) => o.id !== id));
+  };
+
+  const mutation = useMutation({
+    mutationFn: async () => {
+      if (!title.trim()) { setTitleError("Title is required"); throw new Error("no title"); }
+      setTitleError("");
+      if (options.length < 1) { setOptionsError("Add at least 1 activity"); throw new Error("no options"); }
+      if (options.length > 5) { setOptionsError("Maximum 5 options"); throw new Error("too many"); }
+      setOptionsError("");
+      if (!selectedGroupId) { setOptionsError("Select a group"); throw new Error("no group"); }
+
+      const dt = new Date(datetime);
+      const apiOptions = options.map((o) => ({
+        name: o.name,
+        category: o.category,
+        description: o.description,
+        address: o.address,
+        imageUrl: o.imageUrl,
+        sourceUrl: o.sourceUrl,
+        eventDate: o.eventDate,
+        rating: o.rating,
+        priceLevel: o.priceLevel,
+        sourceName: o.sourceName,
+      }));
+
       const res = await proposalsApi.create({
-        groupId: groupId!,
-        title: data.title,
-        dateTime,
-        options: filledOptions.map((o) => ({
-          name: o.name,
-          category: o.category || "Custom",
-          description: o.description || undefined,
-          address: o.address || undefined,
-        })),
+        groupId: selectedGroupId,
+        title: title.trim(),
+        dateTime: dt.toISOString(),
+        options: apiOptions,
       });
-      return res.data;
+      return (res.data as any)?.id ?? (res.data as any)?.proposal?.id ?? "";
     },
-    onSuccess: () => {
-      navigate(`/groups/${groupId}`);
-    },
-    onError: (err) => {
-      setSubmitError((err as Error).message ?? err.response?.data?.message ?? "Failed to create proposal");
+    onSuccess: (id: string) => {
+      setCreatedId(id);
+      clearPlan();
+      setSuccess(true);
     },
   });
+
+  if (success) {
+    return (
+      <>
+        <Confetti />
+        <AppNav />
+        <main
+          style={{
+            minHeight: "80vh",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: 40,
+            textAlign: "center",
+          }}
+        >
+          <div style={{ fontSize: 80, marginBottom: 24 }}>🎉</div>
+          <h1 style={{ fontFamily: "var(--font-display)", fontSize: 36, marginBottom: 12 }}>
+            Plan sent to {partnerName}!
+          </h1>
+          <p style={{ color: "var(--ink2)", marginBottom: 32, maxWidth: 400 }}>
+            They'll vote on your options and you'll be notified when a decision is made.
+          </p>
+          <Link
+            to={`/proposals/${createdId}`}
+            className="dn-btn dn-btn--primary"
+            style={{ marginBottom: 12, minWidth: 200 }}
+          >
+            View Plan
+          </Link>
+          <Link
+            to="/discover"
+            className="dn-btn dn-btn--tonal"
+            style={{ minWidth: 200 }}
+          >
+            Keep Exploring
+          </Link>
+        </main>
+      </>
+    );
+  }
 
   return (
     <>
       <AppNav />
-      <main style={{ maxWidth: "var(--content-max)", margin: "0 auto", padding: "32px var(--gutter)" }}>
-        <div style={{ marginBottom: 24 }}>
-          <Link to={`/groups/${groupId}`} style={{ color: "var(--ink2)", fontSize: 13, fontFamily: "var(--font-display)", fontWeight: 700 }}>
-            ← Back to group
-          </Link>
-        </div>
+      <main style={{ padding: "24px 32px", maxWidth: 700, margin: "0 auto" }}>
+        <h1 style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: 32, marginBottom: 24 }}>
+          Finalize Your Plan
+        </h1>
 
-        <h1 style={{ marginBottom: 8 }}>New proposal</h1>
-        <p style={{ color: "var(--ink2)", marginBottom: 32 }}>
-          Add options for everyone to vote on.
-        </p>
+        {/* Options list */}
+        <section style={{ marginBottom: 24 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+            <h2 style={{ margin: 0, fontSize: 18, fontFamily: "var(--font-display)" }}>
+              Activities ({options.length} / 5)
+            </h2>
+          </div>
 
-        <div style={{ maxWidth: 600 }}>
-          <form
-            onSubmit={handleSubmit((d) => mutation.mutate(d))}
-            style={{ display: "flex", flexDirection: "column", gap: 20, scrollMarginTop: 80, paddingTop: 4 }}
-          >
-            {/* Title */}
-            <div>
-              <label
-                htmlFor="title"
-                style={{ display: "block", fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 12, marginBottom: 6, color: "var(--ink2)", textTransform: "uppercase", letterSpacing: "0.06em" }}
-              >
-                Proposal title
-              </label>
-              <input
-                id="title"
-                type="text"
-                className={`dn-input${errors.title ? " error" : ""}`}
-                {...register("title", { required: "Title required" })}
-                placeholder="e.g. Friday Night Plans"
-              />
-              {errors.title && <p role="alert" style={{ color: "var(--error)", fontSize: 13, marginTop: 4 }}>{errors.title.message}</p>}
-            </div>
+          {optionsError && (
+            <p style={{ color: "var(--error)", fontSize: 14, marginBottom: 8 }}>{optionsError}</p>
+          )}
 
-            {/* Date + Time row */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-              <div>
-                <label
-                  htmlFor="date"
-                  style={{ display: "block", fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 12, marginBottom: 6, color: "var(--ink2)", textTransform: "uppercase", letterSpacing: "0.06em" }}
-                >
-                  Date
-                </label>
-                <input
-                  id="date"
-                  type="date"
-                  className={`dn-input${errors.date ? " error" : ""}`}
-                  {...register("date", { required: "Date required" })}
-                  min={new Date().toISOString().split("T")[0]}
-                />
-                {errors.date && <p role="alert" style={{ color: "var(--error)", fontSize: 13, marginTop: 4 }}>{errors.date.message}</p>}
-              </div>
-              <div>
-                <label
-                  htmlFor="time"
-                  style={{ display: "block", fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 12, marginBottom: 6, color: "var(--ink2)", textTransform: "uppercase", letterSpacing: "0.06em" }}
-                >
-                  Time (optional)
-                </label>
-                <input
-                  id="time"
-                  type="time"
-                  className="dn-input"
-                  {...register("time")}
-                />
-              </div>
-            </div>
-
-            {/* Options */}
-            <div>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-                <label
-                  style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 12, color: "var(--ink2)", textTransform: "uppercase", letterSpacing: "0.06em" }}
-                >
-                  Options
-                </label>
-                <button
-                  type="button"
-                  className="dn-btn dn-btn--sm dn-btn--tonal"
-                  onClick={() => fields.length < 5 && append({ name: "", category: DEFAULT_CATEGORY, description: "", address: "" })}
-                  disabled={fields.length >= 5}
-                >
-                  + Add option
-                </button>
-              </div>
-
-              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                {fields.map((field, i) => (
-                  <div key={field.id} className="dn-card dn-card--alt1" style={{ padding: "20px 20px 16px" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-                      <span style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 13 }}>Option {i + 1}</span>
-                      {fields.length > 3 && (
-                        <button
-                          type="button"
-                          onClick={() => remove(i)}
-                          style={{ background: "none", border: "none", cursor: "pointer", color: "var(--error)", fontSize: 18, lineHeight: 1 }}
-                          aria-label="Remove option"
-                        >
-                          ×
-                        </button>
-                      )}
-                    </div>
-
-                    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                      <div>
-                        <label style={{ display: "block", fontSize: 11, color: "var(--ink2)", fontFamily: "var(--font-display)", fontWeight: 700, marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                          Name *
-                        </label>
-                        <input
-                          type="text"
-                          className={`dn-input${errors.options?.[i]?.name ? " error" : ""}`}
-                          {...register(`options.${i}.name` as const, { required: "Name required" })}
-                          placeholder="e.g. Sushi Palace"
-                          style={{ height: 38 }}
-                        />
-                        {errors.options?.[i]?.name && (
-                          <p role="alert" style={{ color: "var(--error)", fontSize: 12, marginTop: 2 }}>
-                            {errors.options[i]?.name?.message}
-                          </p>
-                        )}
-                      </div>
-                      <div>
-                        <label style={{ display: "block", fontSize: 11, color: "var(--ink2)", fontFamily: "var(--font-display)", fontWeight: 700, marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                          Category
-                        </label>
-                        <Controller
-                          control={control}
-                          name={`options.${i}.category` as const}
-                          render={({ field }) => (
-                            <CategoryPicker value={field.value} onChange={field.onChange} />
-                          )}
-                        />
-                      </div>
-                      <div>
-                        <label style={{ display: "block", fontSize: 11, color: "var(--ink2)", fontFamily: "var(--font-display)", fontWeight: 700, marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                          Address (optional)
-                        </label>
-                        <input
-                          type="text"
-                          className="dn-input"
-                          {...register(`options.${i}.address` as const)}
-                          placeholder="123 Main St"
-                          style={{ height: 38 }}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {submitError && (
-              <p role="alert" data-testid="proposal-error" style={{ color: "var(--error)", fontSize: 13 }}>
-                {submitError}
-              </p>
-            )}
-
-            <button
-              type="submit"
-              className="dn-btn"
-              disabled={mutation.isPending}
-              style={{ alignSelf: "flex-start" }}
+          {options.length === 0 && (
+            <div
+              style={{
+                border: "2px dashed var(--line)",
+                borderRadius: 16,
+                padding: 32,
+                textAlign: "center",
+                color: "var(--ink2)",
+                marginBottom: 12,
+              }}
             >
-              {mutation.isPending ? "Creating…" : "Create proposal →"}
-            </button>
-          </form>
-        </div>
+              <div style={{ fontSize: 40, marginBottom: 8 }}>🎯</div>
+              No activities yet. Browse Discover to add some!
+            </div>
+          )}
+
+          {options.map((opt) => (
+            <OptionCard key={opt.id} opt={opt} onRemove={() => removeOption(opt.id)} />
+          ))}
+
+          {options.length < 5 && (
+            <Link
+              to="/discover"
+              className="dn-btn dn-btn--tonal"
+              style={{ width: "100%", marginTop: 8, justifyContent: "center", display: "flex" }}
+            >
+              + Add another activity
+            </Link>
+          )}
+        </section>
+
+        {/* Title */}
+        <section style={{ marginBottom: 20 }}>
+          <label style={{ display: "block", fontWeight: 700, marginBottom: 6, fontSize: 14, color: "var(--ink2)" }}>
+            Title
+          </label>
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Date Night · Friday"
+            style={{
+              width: "100%",
+              padding: "12px 16px",
+              borderRadius: 12,
+              border: `1px solid ${titleError ? "var(--error)" : "var(--line)"}`,
+              fontSize: 15,
+              fontFamily: "var(--font-body)",
+              boxSizing: "border-box",
+              background: "var(--surface)",
+              color: "var(--ink)",
+            }}
+          />
+          {titleError && <p style={{ color: "var(--error)", fontSize: 13, marginTop: 4 }}>{titleError}</p>}
+        </section>
+
+        {/* Date / time */}
+        <section style={{ marginBottom: 20 }}>
+          <label style={{ display: "block", fontWeight: 700, marginBottom: 6, fontSize: 14, color: "var(--ink2)" }}>
+            When?
+          </label>
+          <input
+            type="datetime-local"
+            value={datetime}
+            onChange={(e) => setDatetime(e.target.value)}
+            style={{
+              width: "100%",
+              padding: "12px 16px",
+              borderRadius: 12,
+              border: "1px solid var(--line)",
+              fontSize: 15,
+              fontFamily: "var(--font-body)",
+              boxSizing: "border-box",
+              background: "var(--surface)",
+              color: "var(--ink)",
+              cursor: "pointer",
+            }}
+          />
+        </section>
+
+        {/* Group selector */}
+        {groups.length > 1 && (
+          <section style={{ marginBottom: 20 }}>
+            <label style={{ display: "block", fontWeight: 700, marginBottom: 6, fontSize: 14, color: "var(--ink2)" }}>
+              Send to
+            </label>
+            <select
+              value={selectedGroupId}
+              onChange={(e) => setSelectedGroupId(e.target.value)}
+              style={{
+                width: "100%",
+                padding: "12px 16px",
+                borderRadius: 12,
+                border: "1px solid var(--line)",
+                fontSize: 15,
+                fontFamily: "var(--font-body)",
+                background: "var(--surface)",
+                color: "var(--ink)",
+                cursor: "pointer",
+              }}
+            >
+              {groups.map((g) => (
+                <option key={g.id} value={g.id}>{g.name}</option>
+              ))}
+            </select>
+          </section>
+        )}
+
+        {/* Preview toggle */}
+        <button
+          className="dn-btn dn-btn--tonal"
+          style={{ width: "100%", marginBottom: 12 }}
+          onClick={() => setShowPreview((v) => !v)}
+        >
+          {showPreview ? "Hide Preview" : "Preview →"}
+        </button>
+
+        {showPreview && (
+          <PreviewPanel opts={options} title={title} partnerName={partnerName} />
+        )}
+
+        {/* Error from mutation */}
+        {mutation.isError && (
+          <p style={{ color: "var(--error)", fontSize: 14, marginTop: 12 }}>
+            {(mutation.error as AxiosError<ApiError>)?.response?.data?.error ?? "Failed to create proposal. Please try again."}
+          </p>
+        )}
+
+        {/* Submit */}
+        <button
+          className="dn-btn dn-btn--primary"
+          style={{ width: "100%", marginTop: 20, fontSize: 16 }}
+          disabled={mutation.isPending}
+          onClick={() => mutation.mutate()}
+        >
+          {mutation.isPending ? "Sending…" : `Send to ${partnerName} ♥`}
+        </button>
       </main>
     </>
   );

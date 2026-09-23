@@ -11,7 +11,7 @@ export const proposalsRouter = Router();
 
 proposalsRouter.use(requireAuth);
 
-const MIN_OPTIONS = 3;
+const MIN_OPTIONS = 1;
 const MAX_OPTIONS = 5;
 
 interface OptionInput {
@@ -22,6 +22,12 @@ interface OptionInput {
   latitude?: number;
   longitude?: number;
   externalRef?: string;
+  imageUrl?: string;
+  sourceUrl?: string;
+  eventDate?: string;
+  rating?: number;
+  priceLevel?: number;
+  sourceName?: string;
 }
 
 function validateOptions(options: unknown): string | null {
@@ -64,7 +70,10 @@ proposalsRouter.post('/', async (req: AuthRequest, res: Response, next) => {
         creatorId: req.userId as string,
         title,
         dateTime: parsedDate,
-        options: { create: (options as OptionInput[]).map((o) => ({ ...o })) },
+        options: { create: (options as OptionInput[]).map((o) => ({
+            ...o,
+            eventDate: o.eventDate ? new Date(o.eventDate) : undefined,
+          })) },
       },
       include: { options: true },
     });
@@ -108,7 +117,10 @@ proposalsRouter.post('/:id/counter', async (req: AuthRequest, res: Response, nex
           title,
           dateTime: parsedDate,
           parentId: original.id,
-          options: { create: (options as OptionInput[]).map((o: OptionInput) => ({ ...o })) },
+          options: { create: (options as OptionInput[]).map((o: OptionInput) => ({
+              ...o,
+              eventDate: o.eventDate ? new Date(o.eventDate) : undefined,
+            })) },
         },
         include: { options: true },
       }),

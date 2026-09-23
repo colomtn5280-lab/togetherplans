@@ -48,6 +48,11 @@ export interface ActivityOption {
   estimatedCost?: string;
   estimatedDuration?: string;
   imageUrl?: string;
+  sourceUrl?: string;
+  eventDate?: string;
+  rating?: number;
+  priceLevel?: number;
+  sourceName?: string;
   /** Votes nested inside each option (backend response shape) */
   votes?: { userId: string }[];
 }
@@ -94,14 +99,37 @@ export interface ConsensusResult {
   votes: { optionId: string; count: number; percentage: number }[];
 }
 
+// Plan builder option shape — used by PlanBuilderContext and CreateProposalScreen
+export interface PlanBuilderOption {
+  id: string; // uuid for local tracking
+  name: string;
+  category: string;
+  address?: string;
+  description?: string;
+  imageUrl?: string;
+  sourceUrl?: string;
+  eventDate?: string;
+  rating?: number;
+  priceLevel?: number;
+  sourceName?: string;
+}
+
 // Shape returned by GET /api/suggestions
 export interface Suggestion {
+  id?: string;
   name: string;        // API returns 'name', not 'title'
   description: string;
   category: string;
   address?: string;
   latitude?: number;
   longitude?: number;
+  imageUrl?: string;
+  sourceUrl?: string;
+  date?: string;        // ISO date string for events
+  rating?: number;
+  priceLevel?: number;
+  distanceMiles?: number;
+  sourceName?: string;
 }
 
 export type RootStackParamList = {
@@ -111,7 +139,11 @@ export type RootStackParamList = {
   Main: { groupId?: string } | undefined;
   GroupDetail: { groupId: string; groupName: string };
   ProposalDetail: { proposalId: string };
-  CreateProposal: { groupId: string; addSuggestion?: { name: string; category: string; address: string; description: string } };
+  CreateProposal: {
+    groupId: string;
+    options?: PlanBuilderOption[];
+    addSuggestion?: { name: string; category: string; address: string; description: string; imageUrl?: string; sourceUrl?: string; eventDate?: string; rating?: number; priceLevel?: number; sourceName?: string };
+  };
   CreateGroup: undefined;
   InviteMembers: { groupId: string };
   Suggestions: { groupId?: string; returnTo?: 'CreateProposal' };

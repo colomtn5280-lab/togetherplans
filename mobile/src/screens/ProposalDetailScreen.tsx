@@ -5,6 +5,8 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Animated,
+  Image,
+  Linking,
   Modal,
   ScrollView,
   StyleSheet,
@@ -30,38 +32,74 @@ import type { ActivityOption, Proposal, RootStackParamList } from '@/types';
 
 type RouteT = RouteProp<RootStackParamList, 'ProposalDetail'>;
 
-// ── Striped placeholder ────────────────────────────────────────────────────────
-function StripedPlaceholder({ primarySoft }: { primarySoft: string }) {
+// ── Category colour fallback ───────────────────────────────────────────────────
+const CATEGORY_COLORS: Record<string, string> = {
+  'Restaurants & Dining': '#FDEBD0',
+  'Live Music & Concerts': '#EBD5FB',
+  'Comedy Shows': '#FEF9C3',
+  'Movies & Theater': '#D5E8FD',
+  'Art & Museums': '#FCE4EC',
+  'Outdoor Adventures': '#D4EDDA',
+  'Sports & Active': '#FFE0B2',
+  'Nightlife & Bars': '#E8D5F5',
+  'Wellness & Spa': '#D0F4F1',
+  'Cooking & Classes': '#FFF3CD',
+  Custom: '#F0F0F0',
+};
+const CATEGORY_EMOJIS: Record<string, string> = {
+  'Restaurants & Dining': '🍽️',
+  'Live Music & Concerts': '🎵',
+  'Comedy Shows': '😂',
+  'Movies & Theater': '🎬',
+  'Art & Museums': '🎨',
+  'Outdoor Adventures': '🏔️',
+  'Sports & Active': '🏃',
+  'Nightlife & Bars': '🍸',
+  'Wellness & Spa': '💆',
+  'Cooking & Classes': '🍳',
+};
+
+function OptionImageBlock({
+  imageUrl,
+  category,
+  height = 150,
+  topLeftRadius = 0,
+  topRightRadius = 0,
+}: {
+  imageUrl?: string;
+  category?: string;
+  height?: number;
+  topLeftRadius?: number;
+  topRightRadius?: number;
+}) {
+  const [err, setErr] = useState(false);
+  const cat = category ?? '';
+  const bg = CATEGORY_COLORS[cat] ?? '#F0F0F0';
+  const emoji = CATEGORY_EMOJIS[cat] ?? '📍';
+
+  if (imageUrl && !err) {
+    return (
+      <Image
+        source={{ uri: imageUrl }}
+        style={{ width: '100%', height, borderTopLeftRadius: topLeftRadius, borderTopRightRadius: topRightRadius }}
+        resizeMode="cover"
+        onError={() => setErr(true)}
+      />
+    );
+  }
   return (
     <View
       style={{
-        height: 150,
-        backgroundColor: primarySoft,
-        overflow: 'hidden',
+        width: '100%',
+        height,
+        backgroundColor: bg,
+        borderTopLeftRadius: topLeftRadius,
+        borderTopRightRadius: topRightRadius,
         alignItems: 'center',
         justifyContent: 'center',
       }}
     >
-      {/* Diagonal stripes via rotated thin views */}
-      <View style={StyleSheet.absoluteFill}>
-        {Array.from({ length: 12 }).map((_, i) => (
-          <View
-            key={i}
-            style={{
-              position: 'absolute',
-              width: 4,
-              height: 300,
-              backgroundColor: 'rgba(14,140,140,0.12)',
-              left: i * 28 - 20,
-              top: -60,
-              transform: [{ rotate: '35deg' }],
-            }}
-          />
-        ))}
-      </View>
-      <Text style={[TYPE.secondary, { color: 'rgba(14,140,140,0.5)' }]}>
-        Yelp photo
-      </Text>
+      <Text style={{ fontSize: 40 }}>{emoji}</Text>
     </View>
   );
 }
@@ -509,7 +547,13 @@ export default function ProposalDetailScreen() {
                     height: 150,
                   }}
                 >
-                  <StripedPlaceholder primarySoft={colors.primarySoft} />
+                  <OptionImageBlock
+                    imageUrl={option.imageUrl}
+                    category={option.category}
+                    height={150}
+                    topLeftRadius={radii.topLeft}
+                    topRightRadius={radii.topRight}
+                  />
                   {/* Stickers over image */}
                   {option.category && (
                     <DNSticker
@@ -519,9 +563,9 @@ export default function ProposalDetailScreen() {
                       style={{ position: 'absolute', top: 10, left: 10, transform: [{ rotate: '-4deg' }] }}
                     />
                   )}
-                  {option.estimatedCost && (
+                  {option.rating != null && (
                     <DNSticker
-                      label={option.estimatedCost}
+                      label={`★ ${option.rating.toFixed(1)}`}
                       color={colors.limeSoft}
                       textColor={colors.lime}
                       style={{ position: 'absolute', top: 10, right: 10, transform: [{ rotate: '4deg' }] }}
@@ -534,10 +578,33 @@ export default function ProposalDetailScreen() {
                   <DNText variant="heading" color={colors.ink}>
                     {displayName}
                   </DNText>
-                  {(displayLocation || option.category) && (
+                  {displayLocation && (
                     <DNText variant="secondary" color={colors.ink2} style={{ marginTop: 4 }}>
-                      {[displayLocation, option.category].filter(Boolean).join(' · ')}
+                      📍 {displayLocation}
                     </DNText>
+                  )}
+                  {option.eventDate && (
+                    <DNText variant="secondary" color={colors.ink2} style={{ marginTop: 2 }}>
+                      📅 {new Date(option.eventDate).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })} · {new Date(option.eventDate).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
+                    </DNText>
+                  )}
+                  {(option.rating != null || option.priceLevel != null) && (
+                    <View style={{ flexDirection: 'row', gap: 8, marginTop: 4 }}>
+                      {option.rating != null && (
+                        <DNText variant="secondary" color={colors.lime}>★ {option.rating.toFixed(1)}</DNText>
+                      )}
+                      {option.priceLevel != null && (
+                        <DNText variant="secondary" color={colors.ink2}>{'$'.repeat(option.priceLevel)}</DNText>
+                      )}
+                    </View>
+                  )}
+                  {option.sourceUrl && (
+                    <TouchableOpacity
+                      onPress={() => Linking.openURL(option.sourceUrl!)}
+                      style={{ marginTop: 6 }}
+                    >
+                      <DNText variant="secondary" color={colors.primary}>View Details →</DNText>
+                    </TouchableOpacity>
                   )}
                 </View>
 

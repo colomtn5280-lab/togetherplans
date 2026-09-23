@@ -17,6 +17,8 @@ import { ProposalPage } from "./pages/ProposalPage";
 import { NewProposalPage } from "./pages/NewProposalPage";
 import { SuggestionsPage } from "./pages/SuggestionsPage";
 import { NotificationsPage, SettingsPage } from "./pages/NotificationsSettingsPage";
+import { PlanBuilderProvider } from "./contexts/PlanBuilderContext";
+import { PlanBuilderDock } from "./components/PlanBuilderDock";
 import LandingPage from "./pages/LandingPage";
 import { PrivacyPolicyPage, TermsPage, SupportPage } from "./pages/LegalPages";
 import { ForgotPasswordPage } from "./pages/ForgotPasswordPage";
@@ -80,6 +82,7 @@ function NotFoundPage() {
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
+      <PlanBuilderProvider>
       <BrowserRouter>
         <Routes>
           {/* ── Public pages — accessible to everyone ── */}
@@ -119,6 +122,10 @@ export default function App() {
               element={<NewProposalPage />}
             />
             <Route
+              path="/proposals/new"
+              element={<NewProposalPage />}
+            />
+            <Route
               path="/proposals/:proposalId"
               element={<ProposalPage />}
             />
@@ -145,6 +152,8 @@ export default function App() {
           </Route>
         </Routes>
       </BrowserRouter>
+      <PlanBuilderDock />
+      </PlanBuilderProvider>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );

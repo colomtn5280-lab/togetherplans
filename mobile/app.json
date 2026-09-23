@@ -73,7 +73,8 @@
       ],
       "expo-web-browser",
       "expo-apple-authentication",
-      "expo-font"
+      "expo-font",
+      "@react-native-community/datetimepicker"
     ],
     "extra": {
       "apiBaseUrl": "https://api.togetherplans.app",

@@ -83,6 +83,12 @@ export interface ProposalOption {
   category: string;
   description?: string;
   address?: string;
+  imageUrl?: string;
+  sourceUrl?: string;
+  eventDate?: string;
+  rating?: number;
+  priceLevel?: number;
+  sourceName?: string;
   votes: Vote[];
   // legacy fields
   status?: "pending" | "accepted" | "rejected";
@@ -126,6 +132,27 @@ export interface NewProposalOptionInput {
   category: string;
   description?: string;
   address?: string;
+  imageUrl?: string;
+  sourceUrl?: string;
+  eventDate?: string;
+  rating?: number;
+  priceLevel?: number;
+  sourceName?: string;
+}
+
+// Plan builder option (client-side, pre-submission)
+export interface PlanBuilderOption {
+  id: string; // client-side UUID
+  name: string;
+  category: string;
+  address?: string;
+  description?: string;
+  imageUrl?: string;
+  sourceUrl?: string;
+  eventDate?: string;
+  rating?: number;
+  priceLevel?: number;
+  sourceName?: string;
 }
 
 export interface CounterProposal {
@@ -154,8 +181,12 @@ export interface Suggestion {
   rating?: number;
   priceLevel?: number;
   imageUrl?: string;
+  sourceUrl?: string;
+  date?: string;
   address?: string;
   distance?: number;
+  distanceMiles?: number;
+  sourceName?: string;
   source?: "yelp" | "google" | "tmdb" | "fandango" | "internal";
   externalId?: string;
 }

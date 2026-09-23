@@ -27,6 +27,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { useDeepLink } from '@/hooks/useDeepLink';
 import { usePushToken } from '@/hooks/usePushToken';
 import { useTheme } from '@/contexts/ThemeContext';
+import { PlanBuilderProvider } from '@/contexts/PlanBuilderContext';
+import PlanBuilderStrip from '@/components/PlanBuilderStrip';
 import { COLORS, RADII, SHADOWS, SPACING, TYPE } from '@/constants';
 import { RootStackParamList } from '@/types';
 
@@ -231,8 +233,9 @@ export default function AppNavigator() {
   }
 
   return (
-    <NavigationContainer>
-      <Stack.Navigator
+    <PlanBuilderProvider>
+      <NavigationContainer>
+        <Stack.Navigator
         screenOptions={{
           headerTintColor: colors.primary,
           headerStyle: { backgroundColor: colors.surface },
@@ -318,6 +321,8 @@ export default function AppNavigator() {
         )}
       </Stack.Navigator>
       {user && <AuthenticatedHooks />}
+      <PlanBuilderStrip />
     </NavigationContainer>
+    </PlanBuilderProvider>
   );
 }
