@@ -1,5 +1,6 @@
 import axios from "axios";
 import type { AxiosInstance, AxiosResponse, AxiosError } from "axios";
+import { ALL_CATEGORIES } from "../constants/categories";
 import type {
   LoginResponse,
   SignupResponse,
@@ -328,7 +329,6 @@ export const afterDarkApi = {
 
 // Categories — unified 15-category list (+ Custom) from GET /api/categories,
 // falling back to the local constant if the request fails.
-import { ALL_CATEGORIES } from "../constants/categories";
 
 export const categoriesApi = {
   list: async (): Promise<AxiosResponse<{ id: string; name: string; emoji?: string; tagline?: string }[]>> => {
