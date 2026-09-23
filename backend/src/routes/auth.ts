@@ -56,6 +56,15 @@ authRouter.post('/register', authLimiter, async (req, res: Response, next) => {
     }
     const existing = await prisma.user.findUnique({ where: { email } });
     if (existing) {
+      if (!existing.passwordHash && existing.provider) {
+        const providerLabels: Record<string, string> = {
+          google: 'Google',
+          apple: 'Apple',
+          facebook: 'Facebook',
+        };
+        const label = providerLabels[existing.provider] ?? existing.provider;
+        return res.status(409).json({ error: `An account already exists with this email. Please sign in with ${label}.` });
+      }
       return res.status(409).json({ error: 'Email already registered' });
     }
     const passwordHash = await bcrypt.hash(password, 12);
@@ -97,6 +106,15 @@ authRouter.post('/signup', authLimiter, async (req, res: Response, next) => {
     }
     const existing = await prisma.user.findUnique({ where: { email } });
     if (existing) {
+      if (!existing.passwordHash && existing.provider) {
+        const providerLabels: Record<string, string> = {
+          google: 'Google',
+          apple: 'Apple',
+          facebook: 'Facebook',
+        };
+        const label = providerLabels[existing.provider] ?? existing.provider;
+        return res.status(409).json({ error: `An account already exists with this email. Please sign in with ${label}.` });
+      }
       return res.status(409).json({ error: 'Email already registered' });
     }
     const passwordHash = await bcrypt.hash(password, 12);
@@ -149,9 +167,16 @@ authRouter.post('/login', authLimiter, async (req, res: Response, next) => {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
     if (!user.passwordHash) {
-      // OAuth-only account — no password set
-      await cache.set(attemptsKey, String(attempts + 1), LOGIN_LOCKOUT_TTL);
-      return res.status(401).json({ error: 'This account uses social sign-in. Please sign in with Google.' });
+      // OAuth-only account — no password set; surface the correct provider
+      const providerMessages: Record<string, string> = {
+        google: 'This account uses Google Sign-In. Please use the Google button to sign in.',
+        apple: 'This account uses Apple Sign-In. Please use the Apple button to sign in.',
+        facebook: 'This account uses Facebook Sign-In. Please use the Facebook button to sign in.',
+      };
+      const providerMsg = user.provider && providerMessages[user.provider]
+        ? providerMessages[user.provider]
+        : 'This account was created with a social login. Please use the sign-in method you used originally.';
+      return res.status(400).json({ error: providerMsg });
     }
     const ok = await bcrypt.compare(password, user.passwordHash);
     if (!ok) {

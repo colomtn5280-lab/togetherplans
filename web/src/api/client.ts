@@ -142,6 +142,12 @@ export const authApi = {
   googleLogin: (idToken: string): Promise<AxiosResponse<LoginResponse>> =>
     api.post("/auth/google", { idToken }),
 
+  facebookLogin: (accessToken: string, providerId: string, email?: string, name?: string): Promise<AxiosResponse<LoginResponse>> =>
+    api.post("/auth/facebook", { accessToken, providerId, email, name }),
+
+  appleLogin: (identityToken: string, displayName?: string, email?: string): Promise<AxiosResponse<LoginResponse>> =>
+    api.post("/auth/apple", { identityToken, displayName, email }),
+
   forgotPassword: (email: string): Promise<AxiosResponse<{ message: string }>> =>
     api.post("/auth/forgot-password", { email }),
 

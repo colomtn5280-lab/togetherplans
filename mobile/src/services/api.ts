@@ -41,6 +41,8 @@ export const authAPI = {
     api.post('/api/auth/register', { email, password, displayName }),
   login: (email: string, password: string) =>
     api.post('/api/auth/login', { email, password }),
+  googleLogin: (idToken: string) =>
+    api.post('/api/auth/google', { idToken }),
   me: () => api.get('/api/auth/me'),
   deleteAccount: () => api.delete('/api/auth/me'),
 };

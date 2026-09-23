@@ -1,13 +1,15 @@
 import * as Google from 'expo-auth-session/providers/google';
 import * as WebBrowser from 'expo-web-browser';
-import { useEffect } from 'react';
-import { api } from '@/services/api';
+import { useEffect, useState } from 'react';
+import { authAPI } from '@/services/api';
 import { useAuth } from '@/hooks/useAuth';
 
 WebBrowser.maybeCompleteAuthSession();
 
 export function useGoogleAuth() {
   const { loginWithToken } = useAuth();
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   // expo-auth-session/providers/google automatically selects the correct
   // redirect URI per platform using the reverse client ID scheme for native:
@@ -30,24 +32,31 @@ export function useGoogleAuth() {
       }
       if (!id_token) {
         if (__DEV__) console.error('[GoogleAuth] No id_token in response params:', response.params);
+        setError('Google sign-in failed: no ID token returned.');
         return;
       }
-      api
-        .post('/api/auth/google', { idToken: id_token })
+      setError(null);
+      setLoading(true);
+      authAPI
+        .googleLogin(id_token)
         .then((res) => loginWithToken(res.data))
         .catch((err: unknown) => {
           const e = err as { response?: { data?: { error?: string } }; message?: string };
           const msg = e?.response?.data?.error || e?.message || 'Google sign-in failed. Please try again.';
           if (__DEV__) console.error('[GoogleAuth] Backend error:', e);
-          // Surface to caller via a thrown error so screens can catch and display
-          throw new Error(msg);
+          setError(msg);
+        })
+        .finally(() => {
+          setLoading(false);
         });
     } else if (response.type === 'error') {
       if (__DEV__) console.error('[GoogleAuth] OAuth error:', response.error);
+      setError(response.error?.message || 'Google sign-in failed. Please try again.');
     } else if (response.type === 'cancel') {
       if (__DEV__) console.log('[GoogleAuth] User cancelled.');
+      // No error on cancel — intentional
     }
   }, [response]);
 
-  return { promptAsync, request };
+  return { promptAsync, request, error, loading };
 }

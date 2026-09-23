@@ -29,7 +29,7 @@ type Props = { navigation: NativeStackNavigationProp<RootStackParamList, 'Login'
 export default function LoginScreen({ navigation }: Props) {
   const { colors } = useTheme();
   const { login } = useAuth();
-  const { promptAsync, request } = useGoogleAuth();
+  const { promptAsync, request, error: googleError } = useGoogleAuth();
   const { signIn: appleSignIn, isAvailable: appleAvailable } = useAppleAuth();
   const { promptAsync: facebookPromptAsync, request: facebookRequest, error: facebookError } = useFacebookAuth();
   const insets = useSafeAreaInsets();
@@ -39,8 +39,8 @@ export default function LoginScreen({ navigation }: Props) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Show Facebook auth errors inline
-  const displayError = error || facebookError || '';
+  // Show Google, Facebook, or local auth errors inline
+  const displayError = error || googleError || facebookError || '';
 
   const handleLogin = async () => {
     setError('');

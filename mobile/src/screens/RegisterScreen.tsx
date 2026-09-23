@@ -30,7 +30,7 @@ type Props = {
 export default function RegisterScreen({ navigation }: Props) {
   const { colors } = useTheme();
   const { register } = useAuth();
-  const { promptAsync, request } = useGoogleAuth();
+  const { promptAsync, request, error: googleError } = useGoogleAuth();
   const { signIn: appleSignIn, isAvailable: appleAvailable } = useAppleAuth();
   const { promptAsync: facebookPromptAsync, request: facebookRequest, error: facebookError } = useFacebookAuth();
   const insets = useSafeAreaInsets();
@@ -159,9 +159,9 @@ export default function RegisterScreen({ navigation }: Props) {
         />
 
         {/* General error */}
-        {(errors.general || facebookError) ? (
+        {(errors.general || googleError || facebookError) ? (
           <Text style={[TYPE.secondary, { color: colors.error, marginBottom: SPACING.sm }]}>
-            {errors.general || facebookError}
+            {errors.general || googleError || facebookError}
           </Text>
         ) : null}
 
