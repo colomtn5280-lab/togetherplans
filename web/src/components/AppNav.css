@@ -1,0 +1,246 @@
+/* ── AppNav responsive styles ─────────────────────────────── */
+
+/* Desktop: show segments, hide mobile-only elements */
+.app-nav__mobile-hamburger {
+  display: none;
+}
+
+.app-nav__bottom-bar {
+  display: none;
+}
+
+/* ── Group Picker Dropdown ────────────────────────────────── */
+.app-nav__group-picker {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 200px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+  z-index: 200;
+  overflow: hidden;
+  animation: picker-appear 120ms ease;
+}
+
+@keyframes picker-appear {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.app-nav__group-picker-item {
+  display: block;
+  width: 100%;
+  padding: 12px 16px;
+  background: none;
+  border: none;
+  text-align: left;
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--ink);
+  cursor: pointer;
+  transition: background 120ms;
+}
+
+.app-nav__group-picker-item:hover {
+  background: var(--bg);
+}
+
+.app-nav__group-picker-label {
+  padding: 8px 16px 6px;
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink2);
+}
+
+/* ── Mobile Drawer Overlay ────────────────────────────────── */
+.app-nav__drawer-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 300;
+  animation: fade-in 200ms ease;
+}
+
+.app-nav__drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(300px, 85vw);
+  background: var(--surface);
+  z-index: 301;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 20px;
+  gap: 8px;
+  box-shadow: -4px 0 24px rgba(0,0,0,0.15);
+  transform: translateX(100%);
+  transition: transform 220ms cubic-bezier(.4,0,.2,1);
+}
+
+.app-nav__drawer--open {
+  transform: translateX(0);
+}
+
+.app-nav__drawer-close {
+  align-self: flex-end;
+  background: none;
+  border: none;
+  font-size: 22px;
+  color: var(--ink2);
+  cursor: pointer;
+  padding: 4px;
+  margin-bottom: 8px;
+}
+
+.app-nav__drawer-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 12px;
+  border-radius: 10px;
+  text-decoration: none;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--ink);
+  transition: background 120ms;
+}
+
+.app-nav__drawer-link:hover,
+.app-nav__drawer-link--active {
+  background: var(--bg);
+}
+
+.app-nav__drawer-icon {
+  font-size: 20px;
+  width: 28px;
+  text-align: center;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── Mobile breakpoint ────────────────────────────────────── */
+@media (max-width: 768px) {
+  /* Hide desktop nav segments */
+  .app-nav__segments {
+    display: none !important;
+  }
+
+  /* Hide New Plan button in top nav on mobile */
+  .app-nav__new-plan-wrap {
+    display: none !important;
+  }
+
+  /* Hide bell in top bar on mobile (accessible via drawer) */
+  .app-nav__bell {
+    display: none !important;
+  }
+
+  /* Show hamburger */
+  .app-nav__mobile-hamburger {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    background: var(--bg);
+    border: none;
+    border-radius: 50%;
+    font-size: 20px;
+    cursor: pointer;
+    color: var(--ink);
+    box-shadow: var(--shadow-card);
+  }
+
+  /* Show drawer overlay */
+  .app-nav__drawer-overlay {
+    display: block;
+  }
+
+  /* Bottom tab bar */
+  .app-nav__bottom-bar {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 64px;
+    background: var(--surface);
+    border-top: 1px solid var(--line);
+    z-index: 100;
+    align-items: stretch;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  /* Push page content above bottom bar */
+  .app-nav__bottom-spacer {
+    display: block;
+    height: 64px;
+  }
+
+  .app-nav__tab {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    text-decoration: none;
+    font-family: var(--font-body);
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--ink2);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    transition: color 120ms;
+  }
+
+  .app-nav__tab--active,
+  .app-nav__tab:active {
+    color: var(--primary);
+  }
+
+  .app-nav__tab-icon {
+    font-size: 20px;
+    line-height: 1;
+  }
+
+  /* New Plan teal circle tab */
+  .app-nav__tab--new-plan {
+    position: relative;
+  }
+
+  .app-nav__tab--new-plan .app-nav__tab-icon {
+    width: 44px;
+    height: 44px;
+    background: var(--primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 22px;
+    font-weight: 700;
+    margin-top: -16px;
+    box-shadow: 0 4px 16px rgba(14,140,140,0.4);
+  }
+}
+
+/* Ensure bottom spacer is hidden on desktop */
+@media (min-width: 769px) {
+  .app-nav__bottom-spacer {
+    display: none;
+  }
+}
