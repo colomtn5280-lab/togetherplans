@@ -34,7 +34,7 @@ export default function LandingPage() {
         <div className="wrap">
           <div className="hero-eyebrow">🎉 Now on iOS &amp; Android</div>
           <h1>Stop texting<br/><span>"I don't know,<br/>what do you want to do?"</span></h1>
-          <p className="hero-sub">Propose options, vote together, lock it in. TogetherPlans turns indecision into plans in minutes.</p>
+          <p className="hero-sub">Browse real events, build a plan together, vote on options — and lock in the perfect night out. Free forever.</p>
           <div className="hero-cta">
             <a href="https://apps.apple.com/app/togetherplans/id6806890578" className="btn btn-primary">
               🍎 App Store
@@ -50,7 +50,7 @@ export default function LandingPage() {
             <span className="badge"><span className="badge-dot"/>No ads</span>
           </div>
 
-          {/* Phone mockup */}
+          {/* Phone mockup — CSS-only Discover screen */}
           <div className="phone-mockup">
             <div className="phone-frame">
               <div className="phone-screen">
@@ -58,23 +58,27 @@ export default function LandingPage() {
                   <div className="screen-status">
                     <span>9:41</span><span>●●● 100%</span>
                   </div>
-                  <div className="screen-card">
-                    <div className="screen-card-top">
-                      <span className="card-title">Friday Night Out 🌙</span>
-                      <span className="card-chip">OPEN</span>
-                    </div>
-                    <div className="card-sub">Vote for your favorite option</div>
-                    <div className="vote-row">
-                      <div className="vote-opt voted">🍽 Nobu</div>
-                      <div className="vote-opt">🎵 Jazz</div>
-                      <div className="vote-opt">😂 Comedy</div>
-                    </div>
+                  {/* Discover header */}
+                  <div className="discover-header">Discover</div>
+                  {/* Category grid 2x3 (6 of 15) */}
+                  <div className="discover-cat-grid">
+                    <div className="discover-cat" style={{background:'#FEF9C3'}}>🎤<span>Comedy</span></div>
+                    <div className="discover-cat" style={{background:'#EBD5FB'}}>🎸<span>Concerts</span></div>
+                    <div className="discover-cat" style={{background:'#D5E8FD'}}>🎬<span>Movies</span></div>
+                    <div className="discover-cat" style={{background:'#FDEBD0'}}>🍽️<span>Dining</span></div>
+                    <div className="discover-cat" style={{background:'#D4EDDA'}}>🥾<span>Hiking</span></div>
+                    <div className="discover-cat" style={{background:'#FCE4EC'}}>🎭<span>Arts</span></div>
                   </div>
-                  <div className="match-card">
-                    <div className="match-emoji">🎉</div>
-                    <div className="match-title">It's a Match!</div>
-                    <div className="match-sub">You both chose Jazz at Blue Room</div>
-                    <span className="match-btn">Add to Calendar</span>
+                  {/* Suggestion card */}
+                  <div className="discover-card">
+                    <div className="discover-card-img">
+                      <span style={{fontSize:28}}>🎤</span>
+                    </div>
+                    <div className="discover-card-body">
+                      <div className="discover-card-name">The Laugh Factory</div>
+                      <div className="discover-card-meta">🎤 Comedy · ★ 4.8 · $$</div>
+                      <button className="discover-card-btn">+ Add to Plan</button>
+                    </div>
                   </div>
                 </div>
               </div>

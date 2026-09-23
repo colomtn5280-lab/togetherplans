@@ -87,3 +87,15 @@ footer{padding:48px 0;border-top:1px solid var(--line)}
 .footer-links a{font-size:14px;color:var(--ink2)}.footer-links a:hover{color:var(--primary)}
 .footer-copy{font-size:13px;color:var(--ink2)}
 @media(max-width:640px){.nav-links{display:none}.hero{padding:60px 0 40px}.steps,.feat-grid,.reviews{grid-template-columns:1fr}.cta-box{padding:40px 24px}}
+
+/* ── Discover screen mockup (phone frame content) ── */
+.discover-header{background:linear-gradient(135deg,#0E8C8C,#086B6B);color:#fff;font-family:'Sora',sans-serif;font-weight:700;font-size:13px;padding:8px 12px;border-radius:8px 8px 0 0;margin:-0px 0 8px;letter-spacing:.02em}
+.discover-cat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:10px}
+.discover-cat{border-radius:8px;padding:6px 4px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:16px;cursor:pointer}
+.discover-cat span{font-size:8px;font-weight:600;color:#101820;text-align:center;line-height:1.2}
+.discover-card{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(16,24,32,.1)}
+.discover-card-img{background:linear-gradient(135deg,#0E8C8C,#086B6B);height:60px;display:flex;align-items:center;justify-content:center}
+.discover-card-body{padding:8px 10px}
+.discover-card-name{font-family:'Sora',sans-serif;font-weight:700;font-size:11px;color:#101820;margin-bottom:3px}
+.discover-card-meta{font-size:9px;color:#5D6B76;margin-bottom:6px}
+.discover-card-btn{background:#0E8C8C;color:#fff;border:none;border-radius:20px;padding:4px 10px;font-size:9px;font-weight:700;cursor:pointer;width:100%}

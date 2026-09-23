@@ -90,6 +90,7 @@ export default function App() {
           <Route path="/privacy" element={<PrivacyPolicyPage />} />
           <Route path="/terms" element={<TermsPage />} />
           <Route path="/support" element={<SupportPage />} />
+          <Route path="/suggestions" element={<SuggestionsPage />} />
 
           {/* ── Public-only routes (redirect authenticated users to dashboard) ── */}
           <Route element={<PublicOnlyRoute />}>
@@ -129,7 +130,6 @@ export default function App() {
               path="/proposals/:proposalId"
               element={<ProposalPage />}
             />
-            <Route path="/suggestions" element={<SuggestionsPage />} />
             <Route path="/notifications" element={<NotificationsPage />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/proposals/:proposalId/share" element={<ShareCardPage />} />

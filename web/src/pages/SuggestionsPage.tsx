@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { suggestionsApi } from "../api/client";
 import { AppNav } from "../components/AppNav";
 import { CATEGORIES } from "../constants/categories";
 import { usePlanBuilder } from "../contexts/PlanBuilderContext";
+import { useAuthStore } from "../store/auth.store";
 import type { Suggestion } from "../types";
 
 // ── Category helpers ─────────────────────────────────────────────────────────
@@ -293,6 +294,8 @@ export function SuggestionsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const categoryId = searchParams.get("category") ?? "";
   const radiusKm = parseInt(searchParams.get("radius") ?? "25", 10);
+  const navigate = useNavigate();
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
   const { coords, cityName, geoError, geoLoading, retryGeo } = useGeolocation();
   const { options: planOptions, addOption } = usePlanBuilder();
@@ -335,6 +338,35 @@ export function SuggestionsPage() {
     <>
       <AppNav />
       <main style={{ padding: "24px 32px", maxWidth: 1200, margin: "0 auto" }}>
+        {/* Guest banner */}
+        {!isAuthenticated && (
+          <div style={{
+            background: "var(--primary-soft)",
+            borderRadius: 12,
+            padding: "12px 16px",
+            marginBottom: 20,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            flexWrap: "wrap",
+            gap: 8,
+          }}>
+            <span style={{ fontSize: 14, color: "var(--primary)", fontWeight: 500 }}>
+              You're browsing as a guest · Sign up free to save plans and vote with your partner
+            </span>
+            <a href="/signup" style={{
+              background: "var(--primary)",
+              color: "var(--on-primary)",
+              borderRadius: 20,
+              padding: "6px 14px",
+              fontSize: 13,
+              fontWeight: 700,
+              textDecoration: "none",
+            }}>
+              Sign up free →
+            </a>
+          </div>
+        )}
         {/* Header */}
         <div style={{ marginBottom: 24 }}>
           <h1 style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: 32, marginBottom: 6 }}>
@@ -471,9 +503,15 @@ export function SuggestionsPage() {
                   <button
                     className={`dn-btn dn-btn--sm ${added ? "dn-btn--tonal" : "dn-btn--primary"}`}
                     style={{ marginTop: "auto", width: "100%" }}
-                    onClick={() => { setDetailSuggestion(s); }}
+                    onClick={() => {
+                      if (!isAuthenticated) {
+                        navigate("/signup");
+                        return;
+                      }
+                      setDetailSuggestion(s);
+                    }}
                   >
-                    {added ? "✓ In Plan" : "+ Add to Plan"}
+                    {added ? "✓ In Plan" : isAuthenticated ? "+ Add to Plan" : "Sign up to save your plan →"}
                   </button>
                 </div>
               );
