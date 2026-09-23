@@ -24,6 +24,8 @@ import { ResetPasswordPage } from "./pages/ResetPasswordPage";
 import { JoinPage } from "./pages/JoinPage";
 import { ShareCardPage, PublicSharePage } from "./pages/ShareCardPage";
 import { AfterDarkPage } from './pages/AfterDarkPage';
+import { FacebookCallbackPage } from './pages/FacebookCallbackPage';
+import { AppleCallbackPage } from './pages/AppleCallbackPage';
 import BusinessLandingPage from './pages/business/BusinessLandingPage';
 import { BusinessAuthPage } from './pages/business/BusinessAuthPage';
 import { BusinessLayout } from './pages/business/BusinessLayout';
@@ -92,6 +94,10 @@ export default function App() {
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/verify-email" element={<VerifyEmailPage />} />
           </Route>
+
+          {/* ── OAuth callback routes (public) ── */}
+          <Route path="/auth/facebook/callback" element={<FacebookCallbackPage />} />
+          <Route path="/auth/apple/callback" element={<AppleCallbackPage />} />
 
           {/* ── Password reset — public but not public-only ── */}
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />

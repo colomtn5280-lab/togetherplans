@@ -21,11 +21,6 @@ type FormData = z.infer<typeof schema>;
 // Facebook App ID
 const FB_APP_ID = "1748102416338228";
 
-function handleFacebookLogin() {
-  const redirectUri = encodeURIComponent(window.location.origin + "/auth/facebook/callback");
-  window.location.href = `https://www.facebook.com/dialog/oauth?client_id=${FB_APP_ID}&redirect_uri=${redirectUri}&scope=email,public_profile`;
-}
-
 // Apple Sign-In requires VITE_APPLE_SERVICE_ID to be set by Jake
 // and the Apple JS SDK loaded in index.html
 declare global {
@@ -49,6 +44,32 @@ export function LoginPage() {
   const from = (location.state as { from?: { pathname: string } })?.from?.pathname ?? "/dashboard";
 
   const [socialError, setSocialError] = useState<string | null>(null);
+
+  function handleFacebookLogin() {
+    const redirectUri = encodeURIComponent(
+      window.location.origin + "/auth/facebook/callback",
+    );
+    const fbUrl = `https://www.facebook.com/dialog/oauth?client_id=${FB_APP_ID}&redirect_uri=${redirectUri}&scope=email,public_profile&response_type=token`;
+    const popup = window.open(fbUrl, "fb-login", "width=600,height=700");
+
+    function onMessage(event: MessageEvent) {
+      if (event.origin !== window.location.origin) return;
+      if (event.data?.type === "FB_AUTH_SUCCESS") {
+        window.removeEventListener("message", onMessage);
+        const d = event.data.data;
+        const user = d.user ?? { userId: d.userId ?? "", email: d.email ?? "" };
+        const accessToken = d.accessToken || d.token || "";
+        const refreshToken = d.refreshToken || "";
+        setAuth(user, accessToken, refreshToken);
+        navigate(from, { replace: true });
+      } else if (event.data?.type === "FB_AUTH_ERROR") {
+        window.removeEventListener("message", onMessage);
+        setSocialError(event.data.error ?? "Facebook sign-in failed.");
+        popup?.close();
+      }
+    }
+    window.addEventListener("message", onMessage);
+  }
 
   const {
     register,
