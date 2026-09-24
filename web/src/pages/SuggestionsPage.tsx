@@ -173,53 +173,51 @@ function useGeolocation() {
 // Used when an API result has no imageUrl. Each URL is a specific high-quality
 // photo that fits the category. Format: ?auto=format&fit=crop&w=600&h=400&q=80
 
-// ── Unsplash Source fallback — unique per venue, relevant to category ─────────
-// source.unsplash.com returns a random photo matching keywords.
-// We append a numeric seed derived from the venue name so the same venue
-// always gets the same photo (stable across renders) but different venues
-// get different photos.  No API key required.
+// ── Picsum photo fallback — unique per venue, seeded by name ─────────────────
+// picsum.photos/seed/{seed}/600/400 returns a stable, unique landscape photo.
+// We prefix the seed with a category hint word so photos feel more contextual,
+// then append the venue name to ensure uniqueness within a category.
+// No API key required; free unlimited usage.
 
-const CATEGORY_KEYWORDS: Record<string, string> = {
-  "Dining": "restaurant,dining,food",
-  "Restaurants & Dining": "restaurant,dining,food",
-  "Live Music": "concert,live music,stage",
-  "Concerts": "concert,music festival,crowd",
-  "Comedy": "comedy club,stage spotlight,audience laughing",
-  "Movies": "movie theater,cinema,film",
-  "Theater & Plays": "theater,stage,curtain",
-  "Performing Arts": "performing arts,ballet,opera stage",
-  "Wine & Drinks": "wine,cocktail bar,winery",
-  "Outdoors": "nature,outdoor adventure,scenery",
-  "Hiking Trails": "hiking trail,mountain path,nature walk",
-  "Hotel Stays": "hotel lobby,luxury hotel,resort",
-  "Sports & Active": "sports,stadium,athletic",
-  "Local Experiences": "city experience,local culture,adventure",
-  "Local Experience": "city experience,local culture,adventure",
-  "Arts & Culture": "art gallery,museum,sculpture",
-  "Wellness & Spa": "spa,massage,wellness retreat",
-  "Streaming Night": "cozy living room,sofa,movie night",
-  "Netflix Shows": "cozy living room,home cinema,popcorn",
-  "Volunteering": "volunteering,community service,charity",
-  "Couples Events": "couple date night,romantic,together",
-  "Family Events": "family fun,children playing,park",
-  "Family": "family fun,children,park",
-  "Active": "fitness,workout,active lifestyle",
-  "Sports": "sports action,stadium,game",
-  "Couples": "romantic couple,date night,love",
-  "Day Trip": "road trip,scenic drive,travel",
-  "Hotels": "hotel room,resort,accommodation",
-  "Wellness": "spa relaxation,wellness,yoga",
-  "Unique & Quirky": "quirky fun,unique experience,colorful",
+const CATEGORY_SEED_PREFIX: Record<string, string> = {
+  "Dining": "food",
+  "Restaurants & Dining": "food",
+  "Live Music": "music",
+  "Concerts": "concert",
+  "Comedy": "stage",
+  "Movies": "cinema",
+  "Theater & Plays": "theater",
+  "Performing Arts": "arts",
+  "Wine & Drinks": "wine",
+  "Outdoors": "nature",
+  "Hiking Trails": "trail",
+  "Hotel Stays": "hotel",
+  "Hotels": "hotel",
+  "Sports & Active": "sport",
+  "Sports": "sport",
+  "Local Experiences": "city",
+  "Local Experience": "city",
+  "Arts & Culture": "art",
+  "Wellness & Spa": "spa",
+  "Wellness": "spa",
+  "Streaming Night": "cozy",
+  "Netflix Shows": "cozy",
+  "Volunteering": "community",
+  "Couples Events": "romance",
+  "Couples": "romance",
+  "Family Events": "family",
+  "Family": "family",
+  "Active": "fitness",
+  "Day Trip": "travel",
+  "Unique & Quirky": "creative",
 };
 
 function categoryFallbackPhoto(category: string, name: string): string | undefined {
-  const keywords = CATEGORY_KEYWORDS[category];
-  if (!keywords) return undefined;
-  // Deterministic seed from venue name → stable image per venue
-  let seed = 0;
-  for (let i = 0; i < name.length; i++) seed = (seed * 31 + name.charCodeAt(i)) >>> 0;
-  // Unsplash Source: keywords + seed = unique stable relevant photo
-  return `https://source.unsplash.com/featured/600x400/?${encodeURIComponent(keywords)}&sig=${seed}`;
+  const prefix = CATEGORY_SEED_PREFIX[category];
+  if (!prefix) return undefined;
+  // Combine prefix + venue name as seed → unique stable photo per venue
+  const seed = encodeURIComponent(`${prefix}-${name.toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 40)}`);
+  return `https://picsum.photos/seed/${seed}/600/400`;
 }
 
 // ── SuggestionImage — real image, curated fallback, or category emoji ─────────

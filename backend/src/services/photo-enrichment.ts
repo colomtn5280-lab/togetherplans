@@ -2,14 +2,13 @@
  * Photo Enrichment — cross-source image lookup
  *
  * For suggestions that arrive without an imageUrl (PredictHQ, Overpass,
- * seed cards, etc.), this module tries to find a real photo by searching
- * Foursquare for the venue name near the event coordinates.
+ * seed cards, etc.), this module tries to find a real venue photo.
  *
- * Strategy (all use existing env vars — no new API keys):
- *   1. Foursquare v2 venue search by name + lat/lng → /venues/{id}/photos
+ * Strategy (uses existing env vars — no new API keys):
+ *   1. Google Places API (Text Search → Place Photos) — uses GOOGLE_MAPS_API_KEY
+ *   2. Foursquare v2 venue search → /venues/{id}/photos — uses FOURSQUARE_CLIENT_ID/SECRET
  *
- * Results are cached in the same Redis/in-memory cache so a venue that
- * appears across multiple requests only triggers one photo lookup.
+ * Results are cached 24h so the same venue never triggers duplicate lookups.
  */
 
 import { logger } from '@/services/logger';
@@ -18,6 +17,7 @@ import type { Suggestion } from './sources/types';
 
 const FSQ_BASE = 'https://api.foursquare.com/v2';
 const FSQ_VERSION = '20231001';
+const GMAPS_BASE = 'https://maps.googleapis.com/maps/api';
 
 // How long to cache a resolved photo URL (24 h)
 const PHOTO_CACHE_TTL = 86_400;
@@ -25,10 +25,53 @@ const PHOTO_CACHE_TTL = 86_400;
 // Max concurrent enrichment calls per request — keeps latency bounded
 const MAX_CONCURRENT = 20;
 
-// Timeout per individual photo lookup (search + photo fetch)
+// Timeout per individual photo lookup
 const PER_VENUE_TIMEOUT_MS = 5_000;
 
-// ─── Foursquare name-search + photo ────────────────────────────────────────
+// ─── Google Places photo lookup ─────────────────────────────────────────────
+// Uses Text Search to find the place, then fetches the first photo reference.
+// Returns a direct photo URL (600px wide) or undefined on any failure.
+
+async function googlePhotoForVenue(
+  name: string,
+  lat: number,
+  lng: number,
+  apiKey: string,
+): Promise<string | undefined> {
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), PER_VENUE_TIMEOUT_MS);
+
+    // Text Search scoped to location
+    const searchUrl = new URL(`${GMAPS_BASE}/place/textsearch/json`);
+    searchUrl.searchParams.set('query', name.slice(0, 60));
+    searchUrl.searchParams.set('location', `${lat},${lng}`);
+    searchUrl.searchParams.set('radius', '500');
+    searchUrl.searchParams.set('fields', 'place_id,photos');
+    searchUrl.searchParams.set('key', apiKey);
+
+    const searchResp = await fetch(searchUrl.toString(), { signal: controller.signal });
+    if (!searchResp.ok) { clearTimeout(timer); return undefined; }
+
+    const searchData = await searchResp.json() as {
+      results?: Array<{ photos?: Array<{ photo_reference: string }> }>;
+    };
+
+    const photoRef = searchData.results?.[0]?.photos?.[0]?.photo_reference;
+    if (!photoRef) { clearTimeout(timer); return undefined; }
+
+    // Build the photo URL directly — this is a redirect URL, not a fetch
+    const photoUrl = new URL(`${GMAPS_BASE}/place/photo`);
+    photoUrl.searchParams.set('maxwidth', '600');
+    photoUrl.searchParams.set('photo_reference', photoRef);
+    photoUrl.searchParams.set('key', apiKey);
+
+    clearTimeout(timer);
+    return photoUrl.toString();
+  } catch {
+    return undefined;
+  }
+}
 
 async function fsqPhotoForVenue(
   name: string,
@@ -105,11 +148,12 @@ export async function enrichPhotos(
   userLat?: number,
   userLng?: number,
 ): Promise<void> {
-  const clientId = process.env.FOURSQUARE_CLIENT_ID;
-  const clientSecret = process.env.FOURSQUARE_CLIENT_SECRET;
+  const googleKey = process.env.GOOGLE_MAPS_API_KEY;
+  const fsqClientId = process.env.FOURSQUARE_CLIENT_ID;
+  const fsqClientSecret = process.env.FOURSQUARE_CLIENT_SECRET;
 
-  // Nothing we can do without Foursquare credentials
-  if (!clientId || !clientSecret) return;
+  // Need at least one source to enrich
+  if (!googleKey && (!fsqClientId || !fsqClientSecret)) return;
 
   // Only enrich items that need it and have enough location data
   const toEnrich = suggestions.filter(
@@ -133,14 +177,24 @@ export async function enrichPhotos(
       chunk.map(async (s) => {
         const lat = s.latitude ?? userLat!;
         const lng = s.longitude ?? userLng!;
-        const photo = await fsqPhotoForVenue(s.name, lat, lng, clientId, clientSecret);
+
+        // Try Google Places first (better quality, direct URL)
+        let photo: string | undefined;
+        if (googleKey) {
+          photo = await googlePhotoForVenue(s.name, lat, lng, googleKey);
+        }
+
+        // Fall back to Foursquare if Google didn't find one
+        if (!photo && fsqClientId && fsqClientSecret) {
+          photo = await fsqPhotoForVenue(s.name, lat, lng, fsqClientId, fsqClientSecret);
+        }
+
         if (photo) {
           s.imageUrl = photo;
           enriched++;
         }
       })
     );
-    // Log any unexpected errors (not expected — inner fn swallows them)
     results.forEach((r) => {
       if (r.status === 'rejected') logger.warn('photo enrichment chunk error', { error: r.reason });
     });
