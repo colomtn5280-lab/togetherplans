@@ -269,7 +269,7 @@ function EventDetailModal({
 export function SuggestionsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const categoryId = searchParams.get("category") ?? "";
-  const radiusKm = parseInt(searchParams.get("radius") ?? "25", 10);
+  const radius = parseInt(searchParams.get("radius") ?? "25", 10) || 25;
   const dateFilter = (searchParams.get("dateFilter") ?? "anytime") as
     | "tonight"
     | "this-weekend"
@@ -283,6 +283,31 @@ export function SuggestionsPage() {
   const { options: planOptions, addOption } = usePlanBuilder();
   const [detailSuggestion, setDetailSuggestion] = useState<Suggestion | null>(null);
   const [zipDraft, setZipDraft] = useState("");
+  const [zipInputOpen, setZipInputOpen] = useState(false);
+  const [overrideZipDraft, setOverrideZipDraft] = useState("");
+
+  // zip= present in the URL means "search that area" — it wins over geolocation
+  const zipActive = zip.length === 5;
+
+  const setRadius = (r: number) => {
+    setSearchParams((p) => {
+      if (r === 25) p.delete("radius");
+      else p.set("radius", String(r));
+      return p;
+    });
+  };
+
+  const applyZipOverride = () => {
+    if (overrideZipDraft.length !== 5) return;
+    setSearchParams((p) => { p.set("zip", overrideZipDraft); return p; });
+    setZipInputOpen(false);
+    setOverrideZipDraft("");
+  };
+
+  const clearZipOverride = () => {
+    setSearchParams((p) => { p.delete("zip"); return p; });
+    setZipInputOpen(false);
+  };
 
   const setDateFilter = (df: string) => {
     setSearchParams((p) => {
@@ -310,15 +335,22 @@ export function SuggestionsPage() {
   const { data, isLoading, isError } = useQuery({
     queryKey: [
       "suggestions",
-      { categoryId, radiusKm, lat: coords?.lat, lng: coords?.lng, dateFilter, zip: zip || undefined },
+      {
+        categoryId,
+        radius,
+        lat: zipActive ? undefined : coords?.lat,
+        lng: zipActive ? undefined : coords?.lng,
+        dateFilter,
+        zip: zipActive ? zip : undefined,
+      },
     ],
     queryFn: () =>
       suggestionsApi.list({
         category: categoryId || undefined,
-        radiusKm,
-        lat: coords?.lat,
-        lng: coords?.lng,
-        zip: !coords && zip ? zip : undefined,
+        radius,
+        lat: zipActive ? undefined : coords?.lat,
+        lng: zipActive ? undefined : coords?.lng,
+        zip: zipActive ? zip : undefined,
         dateFilter: dateFilter !== "anytime" ? dateFilter : undefined,
       }),
     enabled: true,
@@ -353,15 +385,22 @@ export function SuggestionsPage() {
   const { data: weekendData, isLoading: weekendLoading } = useQuery({
     queryKey: [
       "suggestions",
-      { categoryId, radiusKm, lat: coords?.lat, lng: coords?.lng, dateFilter: "this-weekend", zip: zip || undefined },
+      {
+        categoryId,
+        radius,
+        lat: zipActive ? undefined : coords?.lat,
+        lng: zipActive ? undefined : coords?.lng,
+        dateFilter: "this-weekend",
+        zip: zipActive ? zip : undefined,
+      },
     ],
     queryFn: () =>
       suggestionsApi.list({
         category: categoryId || undefined,
-        radiusKm,
-        lat: coords?.lat,
-        lng: coords?.lng,
-        zip: !coords && zip ? zip : undefined,
+        radius,
+        lat: zipActive ? undefined : coords?.lat,
+        lng: zipActive ? undefined : coords?.lng,
+        zip: zipActive ? zip : undefined,
         dateFilter: "this-weekend",
       }),
     enabled: tonightIsEmpty,
@@ -384,7 +423,9 @@ export function SuggestionsPage() {
   // Added key set
   const addedKeys = new Set(planOptions.map((o) => o.name + (o.address ?? "")));
 
-  const locationLabel = geoLoading
+  const locationLabel = zipActive
+    ? `📍 Showing ${zip}`
+    : geoLoading
     ? "📍 Getting location…"
     : cityName
     ? `📍 Near ${cityName}`
@@ -430,8 +471,79 @@ export function SuggestionsPage() {
           <h1 style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: 32, marginBottom: 6 }}>
             Discover
           </h1>
-          {locationLabel && (
-            <p style={{ color: "var(--ink2)", fontSize: 14, margin: 0 }}>{locationLabel}</p>
+          {(locationLabel || zipActive) && (
+            <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }} data-testid="location-row">
+              {locationLabel && (
+                <p style={{ color: "var(--ink2)", fontSize: 14, margin: 0 }}>{locationLabel}</p>
+              )}
+              {zipActive ? (
+                <button
+                  onClick={clearZipOverride}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    color: "var(--primary)",
+                    fontSize: 13,
+                    fontWeight: 600,
+                    cursor: "pointer",
+                    padding: 0,
+                  }}
+                >
+                  back to my location ×
+                </button>
+              ) : !zipInputOpen ? (
+                <button
+                  onClick={() => setZipInputOpen(true)}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    color: "var(--primary)",
+                    fontSize: 13,
+                    fontWeight: 600,
+                    cursor: "pointer",
+                    padding: 0,
+                    textDecoration: "underline",
+                  }}
+                >
+                  Change location
+                </button>
+              ) : null}
+            </div>
+          )}
+          {zipInputOpen && !zipActive && (
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 8, flexWrap: "wrap" }} data-testid="zip-override">
+              <span style={{ fontSize: 13, color: "var(--ink2)" }}>
+                Planning a getaway? Search another area:
+              </span>
+              <input
+                value={overrideZipDraft}
+                onChange={(e) => setOverrideZipDraft(e.target.value.replace(/\D/g, "").slice(0, 5))}
+                onKeyDown={(e) => { if (e.key === "Enter") applyZipOverride(); }}
+                placeholder="5-digit zip"
+                inputMode="numeric"
+                autoFocus
+                style={{
+                  width: 90,
+                  padding: "6px 10px",
+                  borderRadius: 12,
+                  border: "1.5px solid var(--line)",
+                  fontSize: 14,
+                }}
+              />
+              <button
+                className="dn-btn dn-btn--sm dn-btn--primary"
+                disabled={overrideZipDraft.length !== 5}
+                onClick={applyZipOverride}
+              >
+                Go
+              </button>
+              <button
+                className="dn-btn dn-btn--sm dn-btn--tonal"
+                onClick={() => { setZipInputOpen(false); setOverrideZipDraft(""); }}
+              >
+                Cancel
+              </button>
+            </div>
           )}
         </div>
 
@@ -489,7 +601,7 @@ export function SuggestionsPage() {
             data-testid="tonight-banner-active"
           >
             <span style={{ fontFamily: "'Sora', system-ui, sans-serif", fontWeight: 700, fontSize: 15 }}>
-              🌙 {cityName ? `Showing tonight in ${cityName}` : zip ? `Showing tonight in ${zip}` : "Showing tonight near you"}
+              🌙 {zipActive ? `Showing tonight in ${zip}` : cityName ? `Showing tonight in ${cityName}` : "Showing tonight near you"}
             </span>
             <button
               onClick={clearTonight}
@@ -585,28 +697,40 @@ export function SuggestionsPage() {
           )}
         </div>
 
+        {/* Radius chips — search area for day trips & getaways */}
+        <div style={{ display: "flex", gap: 8, marginBottom: 20, flexWrap: "wrap", alignItems: "center" }} data-testid="radius-chips">
+          <span style={{ fontSize: 12, color: "var(--ink2)", fontWeight: 600 }}>Search area</span>
+          {([
+            [10, "Nearby · 10mi"],
+            [25, "25mi"],
+            [60, "60mi"],
+            [150, "Day trip · 150mi"],
+          ] as const).map(([r, label]) => (
+            <button
+              key={r}
+              className={`dn-btn dn-btn--sm ${radius === r ? "dn-btn--primary" : "dn-btn--tonal"}`}
+              onClick={() => setRadius(r)}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
         {/* Controls row */}
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 24, flexWrap: "wrap" }}>
-          {geoError && (
+          {geoError && !zipActive && (
             <button className="dn-btn dn-btn--sm dn-btn--tonal" onClick={retryGeo}>
               Retry location
             </button>
           )}
-          <div style={{ display: "flex", alignItems: "center", gap: 6, marginLeft: "auto" }}>
-            <span style={{ fontSize: 12, color: "var(--ink2)" }}>Radius</span>
-            <input
-              type="range"
-              min={5}
-              max={80}
-              value={radiusKm}
-              onChange={(e) =>
-                setSearchParams((p) => { p.set("radius", e.target.value); return p; })
-              }
-              style={{ width: 80 }}
-            />
-            <span style={{ fontSize: 12, color: "var(--ink2)", minWidth: 40 }}>{radiusKm} km</span>
-          </div>
         </div>
+
+        {/* Day-trip copy nuance */}
+        {radius === 150 && !isLoading && !isError && (
+          <p style={{ fontSize: 13, color: "var(--ink2)", marginBottom: 16, fontWeight: 600 }} data-testid="daytrip-header">
+            Showing results within 150 mi — worth the drive 🚗
+          </p>
+        )}
 
         {/* Loading / error states */}
         <div id="discover-results" />
