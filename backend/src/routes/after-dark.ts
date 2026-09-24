@@ -1,163 +1,154 @@
+/**
+ * After Dark Routes
+ * 
+ * GET  /api/categories/after-dark          — Get category info
+ * GET  /api/after-dark/items               — Browse seed + couple ideas (paginated)
+ * POST /api/after-dark/ideas               — Create custom idea
+ * POST /api/after-dark/ideas/:id/report    — Report user-generated idea
+ */
+
 import { Router, Response } from 'express';
-import { AuthRequest, requireAuth } from '../middleware/auth';
-import { getUserPreferences, setUserPreferences } from '../models/UserPreferences';
-import {
-  filterAfterDark,
-  enrichAfterDarkMetadata,
-  scoreAfterDarkRelevance,
-  AfterDarkConfig,
-} from '../services/after-dark.service';
-import { getSuggestions } from '../services/suggestions';
+import { AfterDarkService } from '../services/after-dark.service';
+import { requireAuth, AuthRequest } from '../middleware/auth';
 
 const router = Router();
 
 /**
- * GET /api/user/preferences
- * Fetch user's After Dark and personalization preferences
+ * GET /api/categories/after-dark
+ * Display info for After Dark category card in Discover
  */
-router.get('/preferences', requireAuth, async (req: AuthRequest, res: Response) => {
+router.get('/categories/after-dark', async (_req: AuthRequest, res: Response) => {
   try {
-    const userId = req.userId;
-    if (!userId) {
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
-
-    const prefs = getUserPreferences(userId);
-    res.json(prefs);
-  } catch (error) {
-    console.error('Error fetching preferences:', error);
-    res.status(500).json({ error: 'Failed to fetch preferences' });
-  }
-});
-
-/**
- * PUT /api/user/preferences
- * Update user's preferences
- */
-router.put('/preferences', requireAuth, async (req: AuthRequest, res: Response) => {
-  try {
-    const userId = req.userId;
-    if (!userId) {
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
-
-    const updated = setUserPreferences(userId, req.body);
-    res.json(updated);
-  } catch (error) {
-    console.error('Error updating preferences:', error);
-    res.status(500).json({ error: 'Failed to update preferences' });
-  }
-});
-
-/**
- * POST /api/after-dark
- * Get After Dark filtered suggestions
- * Body: { lat, lng, radius?, nightStartsAt?, includeFamilyEvents? }
- */
-router.post('/', requireAuth, async (req: AuthRequest, res: Response) => {
-  try {
-    const userId = req.userId;
-    if (!userId) {
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
-
-    const { lat, lng, radius = 60, nightStartsAt, includeFamilyEvents } = req.body;
-
-    if (!lat || !lng) {
-      return res.status(400).json({ error: 'lat and lng required' });
-    }
-
-    // Get user preferences (allow overrides from request)
-    const userPrefs = getUserPreferences(userId);
-    const config: AfterDarkConfig = {
-      nightStartsAt: (nightStartsAt || userPrefs.nightStartsAt) as 'early' | 'standard' | 'late',
-      includeFamilyEvents: includeFamilyEvents !== undefined ? includeFamilyEvents : userPrefs.includeFamilyInAfterDark,
-      sortByTimeToEvent: true,
-    };
-
-    // Fetch base suggestions
-    const suggestions = await getSuggestions({
-      lat: parseFloat(lat),
-      lng: parseFloat(lng),
-      radiusMiles: parseFloat(radius),
-    });
-
-    // Apply After Dark filter
-    const filtered = filterAfterDark(suggestions, config);
-
-    // Enrich with time metadata (TIER 2)
-    const enriched = enrichAfterDarkMetadata(filtered);
-
-    // Score by relevance (TIER 3)
-    const scores = scoreAfterDarkRelevance(enriched, {
-      favoriteCategories: userPrefs.favoriteCategories,
-      groupSize: userPrefs.groupSize,
-    });
-
-    // Add scores to results
-    const results = enriched.map((s, i) => ({
-      ...s,
-      relevanceScore: scores[i],
-    }));
-
-    res.json(results);
-  } catch (error) {
-    console.error('Error in After Dark endpoint:', error);
-    res.status(500).json({ error: 'Failed to get After Dark suggestions' });
-  }
-});
-
-/**
- * GET /api/after-dark/stats
- * Get analytics on After Dark usage (TIER 3 enhancement)
- * Returns: trending categories, peak hours, popular times
- */
-router.get('/stats', requireAuth, async (req: AuthRequest, res: Response) => {
-  try {
-    const userId = req.userId;
-    if (!userId) {
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
-
-    // Placeholder for v1.4 ML/analytics integration
+    const info = AfterDarkService.getCategoryInfo();
+    const colors = AfterDarkService.getColorTokens();
+    
     res.json({
-      trendingNow: ['Live Music', 'Wine & Drinks', 'Comedy'],
-      peakHours: ['7-9pm', '8-10pm'],
-      topCategories: ['Live Music', 'Dining', 'Wine & Drinks'],
-      message: 'Placeholder; full analytics in v1.4',
+      ...info,
+      colors,
+      itemCount: 40, // TODO: count from DB
     });
   } catch (error) {
-    console.error('Error fetching stats:', error);
-    res.status(500).json({ error: 'Failed to fetch stats' });
+    console.error('Error fetching After Dark category info:', error);
+    res.status(500).json({ error: 'Failed to fetch category info' });
   }
 });
 
 /**
- * POST /api/after-dark/notify-me
- * Set up last-minute-deals notification (TIER 3)
- * Body: { category, maxPrice, maxDistance }
+ * GET /api/after-dark/items
+ * Browse After Dark seed catalog + couple-created ideas
+ * 
+ * Query params:
+ *   - page: number (default 1)
+ *   - limit: number (default 20)
+ *   - tier: 'ROMANTIC' | 'SPICY' | undefined for all
+ *   - groupId: string (optional, to include couple's custom ideas)
  */
-router.post('/notify-me', requireAuth, async (req: AuthRequest, res: Response) => {
+router.get('/after-dark/items', async (req: AuthRequest, res: Response) => {
   try {
-    const userId = req.userId;
-    if (!userId) {
-      return res.status(401).json({ error: 'Unauthorized' });
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 20;
+    const tier = (req.query.tier as 'ROMANTIC' | 'SPICY') || undefined;
+    const groupId = req.query.groupId as string;
+
+    // Validate pagination
+    if (page < 1 || limit < 1 || limit > 100) {
+      return res.status(400).json({ error: 'Invalid pagination parameters' });
     }
 
-    // Placeholder for v1.4 notification service
-    const { category, maxPrice, maxDistance } = req.body;
+    const result = await AfterDarkService.getItemsPaginated(
+      page,
+      limit,
+      tier,
+      groupId
+    );
 
-    res.json({
-      notificationId: `notify_${userId}_${Date.now()}`,
-      category,
-      maxPrice,
-      maxDistance,
-      status: 'active',
-      message: 'Placeholder; real notifications in v1.4',
-    });
+    res.json(result);
   } catch (error) {
-    console.error('Error setting up notification:', error);
-    res.status(500).json({ error: 'Failed to set up notification' });
+    console.error('Error fetching After Dark items:', error);
+    res.status(500).json({ error: 'Failed to fetch items' });
+  }
+});
+
+/**
+ * POST /api/after-dark/ideas
+ * Create a custom After Dark idea (couple-created)
+ * 
+ * Body:
+ *   - groupId: string
+ *   - name: string (≤40 chars)
+ *   - description: string (≤140 chars)
+ *   - tier: 'ROMANTIC' | 'SPICY'
+ *   - where: 'HOME' | 'OUT'
+ */
+router.post('/after-dark/ideas', requireAuth, async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = req.userId; // from auth middleware
+    const { groupId, name, description, tier, where } = req.body;
+
+    // Validate input
+    if (!groupId || !name || !description || !tier || !where) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    if (name.length > 40) {
+      return res.status(400).json({ error: 'Name must be ≤ 40 characters' });
+    }
+
+    if (description.length > 140) {
+      return res.status(400).json({ error: 'Description must be ≤ 140 characters' });
+    }
+
+    if (!['ROMANTIC', 'SPICY'].includes(tier)) {
+      return res.status(400).json({ error: 'Tier must be ROMANTIC or SPICY' });
+    }
+
+    if (!['HOME', 'OUT'].includes(where)) {
+      return res.status(400).json({ error: 'Where must be HOME or OUT' });
+    }
+
+    // TODO: Verify user is member of group
+    // const group = await db.getGroup(groupId);
+    // if (!group || !group.members.includes(userId)) {
+    //   return res.status(403).json({ error: 'Not a member of this group' });
+    // }
+
+    const idea = await AfterDarkService.createUserIdea(groupId, userId!, {
+      groupId,
+      name,
+      description,
+      tier,
+      where,
+    });
+
+    res.status(201).json(idea);
+  } catch (error) {
+    console.error('Error creating After Dark idea:', error);
+    res.status(500).json({ error: 'Failed to create idea' });
+  }
+});
+
+/**
+ * POST /api/after-dark/ideas/:id/report
+ * Report a user-generated idea for moderation
+ * 
+ * Body:
+ *   - reason: string (report reason)
+ */
+router.post('/after-dark/ideas/:id/report', requireAuth, async (req: AuthRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { reason } = req.body;
+
+    if (!reason) {
+      return res.status(400).json({ error: 'Reason is required' });
+    }
+
+    await AfterDarkService.reportIdea(id, reason);
+
+    res.json({ message: 'Idea reported successfully' });
+  } catch (error) {
+    console.error('Error reporting After Dark idea:', error);
+    res.status(500).json({ error: 'Failed to report idea' });
   }
 });
 
