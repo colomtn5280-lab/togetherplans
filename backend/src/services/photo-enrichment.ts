@@ -32,7 +32,6 @@ const PER_VENUE_TIMEOUT_MS = 5_000;
 // Uses Text Search to find the place, then fetches the first photo reference.
 // Returns a direct photo URL (600px wide) or undefined on any failure.
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars -- re-enable when GOOGLE_MAPS_API_KEY is renewed
 async function googlePhotoForVenue(
   name: string,
   lat: number,
@@ -182,11 +181,10 @@ export async function enrichPhotos(
         // Try Google Places first (better quality, direct URL)
         let photo: string | undefined;
         if (googleKey) {
-          // Only attempt Google if key appears valid (not expired)
-          // Skip for now — key is expired; FSQ is the active source
+          photo = await googlePhotoForVenue(s.name, lat, lng, googleKey);
         }
 
-        // Foursquare venue name search + photo
+        // Foursquare as fallback
         if (!photo && fsqClientId && fsqClientSecret) {
           photo = await fsqPhotoForVenue(s.name, lat, lng, fsqClientId, fsqClientSecret);
         }
