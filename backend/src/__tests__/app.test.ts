@@ -12,7 +12,7 @@ describe('health endpoint', () => {
     const res = await request(app).get('/health');
     expect(res.status).toBe(200);
     expect(res.body.status).toBe('ok');
-    expect(res.body.service).toBe('datenight-api');
+    expect(res.body.service).toBe('togetherplans-api');
   });
 });
 
