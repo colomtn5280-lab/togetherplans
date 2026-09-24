@@ -4,17 +4,20 @@
  */
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
+  Alert,
   Animated,
   Image,
   Linking,
   Modal,
   ScrollView,
+  Share,
   StyleSheet,
   TouchableOpacity,
   View,
   Text,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Clipboard from 'expo-clipboard';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { useTheme } from '@/contexts/ThemeContext';
 import { OPTION_RADII, SPACING, TYPE, SHADOWS } from '@/constants';
@@ -225,11 +228,70 @@ export default function ProposalDetailScreen() {
   const route = useRoute<RouteT>();
   const { user } = useAuth();
   const { proposalId } = route.params;
+  const openInvite = route.params.openInvite ?? false;
   const [proposal, setProposal] = useState<Proposal | null>(null);
   const [myVotedOptionId, setMyVotedOptionId] = useState<string | null>(null);
   const [showDecision, setShowDecision] = useState(false);
   const [loading, setLoading] = useState(true);
   const [partnerName, setPartnerName] = useState('Partner');
+
+  // Guest-vote share link state
+  const shareUrlRef = useRef<string | null>(null);
+  const [sharing, setSharing] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [showGuestHint, setShowGuestHint] = useState(false);
+  const autoInviteFiredRef = useRef(false);
+
+  /** Fetch (and cache) the guest-vote share URL. Returns null on failure. */
+  const fetchShareUrl = useCallback(async (): Promise<string | null> => {
+    if (shareUrlRef.current) return shareUrlRef.current;
+    try {
+      const res = await proposalsAPI.getShareLink(proposalId);
+      const url = res.data?.shareUrl ?? null;
+      shareUrlRef.current = url;
+      return url;
+    } catch (e: any) {
+      const status = e?.response?.status;
+      Alert.alert(
+        'Couldn\u2019t create the link',
+        status === 403
+          ? 'Only group members can create an invite link for this plan.'
+          : 'Check your connection and try again.',
+      );
+      return null;
+    }
+  }, [proposalId]);
+
+  /** Open the native share sheet with the guest-vote link. */
+  const handleInviteToVote = useCallback(async (fromAutoFlow = false) => {
+    if (sharing) return;
+    setSharing(true);
+    try {
+      const url = await fetchShareUrl();
+      if (!url) return;
+      const result = await Share.share({
+        message: `Help us pick! Vote on our plan — no account needed: ${url}`,
+      });
+      if (fromAutoFlow && result.action !== Share.dismissedAction) {
+        setShowGuestHint(true);
+      }
+    } catch {
+      // User cancelled or share sheet unavailable — nothing to do
+    } finally {
+      setSharing(false);
+    }
+  }, [sharing, fetchShareUrl]);
+
+  /** Copy the guest-vote link to the clipboard. */
+  const handleCopyLink = useCallback(async () => {
+    const url = await fetchShareUrl();
+    if (!url) return;
+    try {
+      await Clipboard.setStringAsync(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {}
+  }, [fetchShareUrl]);
 
   // Load proposal
   const loadProposal = useCallback(async () => {
@@ -281,6 +343,14 @@ export default function ProposalDetailScreen() {
   }, [proposalId, user]);
 
   useEffect(() => { loadProposal(); }, [loadProposal]);
+
+  // Solo-start auto-flow: open the share sheet once when navigated with openInvite
+  useEffect(() => {
+    if (openInvite && proposal && !autoInviteFiredRef.current && proposal.status === 'OPEN') {
+      autoInviteFiredRef.current = true;
+      handleInviteToVote(true);
+    }
+  }, [openInvite, proposal, handleInviteToVote]);
 
   const dismissDecision = async () => {
     if (proposal) {
@@ -395,6 +465,7 @@ export default function ProposalDetailScreen() {
   const waitingForMe = partnerVoted && !iVoted;
 
   const isDecided = proposal.status === 'DECIDED' || (proposal.status === 'ACCEPTED' && proposal.consensus?.reached);
+  const isOpen = proposal.status === 'OPEN' || proposal.status === 'ACTIVE';
 
   // Winning option name for the overlay
   const winningOption = proposal.options.find(
@@ -464,6 +535,56 @@ export default function ProposalDetailScreen() {
             {votedCount} of {totalMembers} voted
           </DNText>
 
+          {/* Invite someone to vote (guest voting share link) */}
+          {isOpen && (
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: SPACING.sm, marginBottom: SPACING.md }}>
+              <DNButton
+                label={sharing ? 'Opening…' : '🗳 Invite someone to vote'}
+                variant="primary"
+                onPress={() => handleInviteToVote(false)}
+                style={{ flex: 1 }}
+              />
+              <TouchableOpacity
+                onPress={handleCopyLink}
+                accessibilityLabel="Copy invite link"
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                style={{
+                  width: 48,
+                  height: 48,
+                  borderRadius: 14,
+                  backgroundColor: colors.surface,
+                  borderWidth: 1.5,
+                  borderColor: colors.line,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  ...SHADOWS.card,
+                }}
+              >
+                <Text style={{ fontSize: 18 }}>{copied ? '✓' : '📋'}</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+          {isOpen && copied && (
+            <DNText variant="secondary" color={colors.primary} style={{ marginTop: -SPACING.sm, marginBottom: SPACING.md }}>
+              Link copied!
+            </DNText>
+          )}
+          {isOpen && showGuestHint && (
+            <View
+              style={{
+                backgroundColor: colors.primarySoft,
+                borderRadius: 14,
+                paddingVertical: 10,
+                paddingHorizontal: SPACING.md,
+                marginBottom: SPACING.md,
+              }}
+            >
+              <DNText variant="secondary" color={colors.primary}>
+                Anyone with the link can vote — you'll see their votes come in here.
+              </DNText>
+            </View>
+          )}
+
           {/* Status banners */}
           {waitingForMe && (
             <View
@@ -521,6 +642,9 @@ export default function ProposalDetailScreen() {
             const votedByPartner = partnerVotedOptionId === option.id;
             const displayName = option.name ?? option.title ?? '';
             const displayLocation = option.address ?? option.location ?? '';
+            const tallyEntry = proposal.tally?.find((t) => t.optionId === option.id);
+            const memberVotes = tallyEntry?.votes ?? option.votes?.length ?? 0;
+            const guestVotes = tallyEntry?.guestVotes ?? option.guestVoteCount ?? 0;
 
             return (
               <View
@@ -605,6 +729,12 @@ export default function ProposalDetailScreen() {
                     >
                       <DNText variant="secondary" color={colors.primary}>View Details →</DNText>
                     </TouchableOpacity>
+                  )}
+                  {(memberVotes > 0 || guestVotes > 0) && (
+                    <DNText variant="secondary" color={colors.ink2} style={{ marginTop: 6, opacity: 0.8 }}>
+                      {memberVotes} {memberVotes === 1 ? 'vote' : 'votes'}
+                      {guestVotes > 0 ? ` · +${guestVotes} guest` : ''}
+                    </DNText>
                   )}
                 </View>
 

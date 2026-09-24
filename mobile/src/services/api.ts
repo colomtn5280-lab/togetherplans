@@ -102,6 +102,9 @@ export const proposalsAPI = {
     api.delete(`/api/proposals/${proposalId}/votes`),
   counter: (proposalId: string, title: string, description?: string) =>
     api.post(`/api/proposals/${proposalId}/counter`, { title, description }),
+  /** Get/create the public guest-vote share link for an OPEN proposal */
+  getShareLink: (id: string) =>
+    api.post<{ shareToken: string; shareUrl: string }>(`/api/proposals/${id}/share-link`),
   suggestions: (lat?: number, lng?: number, category?: string) =>
     api.get('/api/suggestions', { params: { lat, lng, category } }),
 };

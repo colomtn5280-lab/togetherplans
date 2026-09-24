@@ -55,12 +55,16 @@ export interface ActivityOption {
   sourceName?: string;
   /** Votes nested inside each option (backend response shape) */
   votes?: { userId: string }[];
+  /** Advisory guest vote count via public share link */
+  guestVoteCount?: number;
 }
 
 export interface TallyEntry {
   optionId: string;
   votes: number;
   consensus: boolean;
+  /** Advisory guest votes via public share link (guests advise, members decide) */
+  guestVotes?: number;
 }
 
 export interface Proposal {
@@ -140,7 +144,7 @@ export type RootStackParamList = {
   Onboarding: undefined;
   Main: { groupId?: string } | undefined;
   GroupDetail: { groupId: string; groupName: string };
-  ProposalDetail: { proposalId: string };
+  ProposalDetail: { proposalId: string; openInvite?: boolean };
   CreateProposal: {
     groupId: string;
     options?: PlanBuilderOption[];
