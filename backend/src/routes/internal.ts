@@ -200,3 +200,39 @@ internalRouter.post('/reminders/run', async (_req: Request, res: Response, next:
     return next(err);
   }
 });
+
+/**
+ * GET /api/internal/photo-test
+ * Tests Google Places API photo lookup for a known venue.
+ * Returns raw API response for debugging.
+ */
+internalRouter.get('/photo-test', async (_req: Request, res: Response) => {
+  const key = process.env.GOOGLE_MAPS_API_KEY;
+  if (!key) return res.json({ error: 'GOOGLE_MAPS_API_KEY not set', env_keys: Object.keys(process.env).filter(k => k.includes('GOOGLE') || k.includes('FSQ') || k.includes('FOURSQUARE')) });
+
+  try {
+    const url = new URL('https://maps.googleapis.com/maps/api/place/textsearch/json');
+    url.searchParams.set('query', 'Starbucks');
+    url.searchParams.set('location', '38.627,-90.199');
+    url.searchParams.set('radius', '500');
+    url.searchParams.set('key', key);
+
+    const resp = await fetch(url.toString());
+    const data = await resp.json() as any;
+
+    return res.json({
+      key_set: true,
+      key_prefix: key.slice(0, 8) + '...',
+      status: data.status,
+      error_message: data.error_message,
+      results_count: data.results?.length ?? 0,
+      first_place: data.results?.[0] ? {
+        name: data.results[0].name,
+        has_photos: !!data.results[0].photos?.length,
+        photo_ref: data.results[0].photos?.[0]?.photo_reference?.slice(0, 40) + '...',
+      } : null,
+    });
+  } catch (err) {
+    return res.json({ error: String(err) });
+  }
+});
