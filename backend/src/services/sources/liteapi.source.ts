@@ -110,7 +110,12 @@ export async function fetchLiteApiHotels(
   if (!key) return [];
 
   const effectiveRadiusMiles = Math.max(radiusMiles, 40);
-  const radiusMeters = Math.round(effectiveRadiusMiles * 1609.34);
+  // LiteAPI latency cliff (measured live): radius ≤ ~120km answers in <0.4s,
+  // but ≥ ~160km takes ~7s and blows the 6s budget. Cap the query radius at
+  // 75mi — plenty for a weekend getaway — and let the local haversine filter
+  // handle the rest.
+  const queryRadiusMiles = Math.min(effectiveRadiusMiles, 75);
+  const radiusMeters = Math.round(queryRadiusMiles * 1609.34);
 
   try {
     const url = new URL(LITEAPI_BASE);
