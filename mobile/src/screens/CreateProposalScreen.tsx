@@ -31,6 +31,7 @@ import {
   DNText,
 } from '@/components/ui';
 import { proposalsAPI, groupsAPI } from '@/services/api';
+import { useAuth } from '@/hooks/useAuth';
 import type { ActivityOption, Group, PlanBuilderOption, RootStackParamList } from '@/types';
 
 type RouteT = RouteProp<RootStackParamList, 'CreateProposal'>;
@@ -275,6 +276,7 @@ export default function CreateProposalScreen() {
   const { colors } = useTheme();
   const navigation = useNavigation<any>();
   const route = useRoute<RouteT>();
+  const { user } = useAuth();
   const { options: pbOptions, addOption, removeOption, clearPlan, groupId: pbGroupId } = usePlanBuilder();
 
   const routeGroupId = route.params?.groupId ?? pbGroupId ?? '';
@@ -347,6 +349,10 @@ export default function CreateProposalScreen() {
   const [titleError, setTitleError] = useState('');
   const [optionsError, setOptionsError] = useState('');
 
+  // Solo-start: zero-group users get a personal space auto-created on send
+  const isSoloStart = groupsLoaded && groups.length === 0 && !selectedGroupId;
+  const firstName = user?.displayName?.trim().split(/\s+/)[0] || '';
+
   // Update title suggestion when options change
   useEffect(() => {
     if (!title || title === suggestTitle([])) {
@@ -413,7 +419,7 @@ export default function CreateProposalScreen() {
       setOptionsError('Maximum 5 options');
       valid = false;
     } else setOptionsError('');
-    if (!selectedGroupId) {
+    if (!selectedGroupId && !isSoloStart) {
       setOptionsError('Select a group to send to');
       valid = false;
     }
@@ -424,6 +430,19 @@ export default function CreateProposalScreen() {
     if (!validate()) return;
     setSubmitting(true);
     try {
+      let groupId = selectedGroupId;
+      let solo = false;
+      if (!groupId && isSoloStart) {
+        // Solo-start: transparently create a personal space — no group wall
+        const groupName = firstName ? `${firstName}'s plans` : 'My plans';
+        const groupRes = await groupsAPI.create(groupName);
+        groupId = groupRes.data?.id ?? groupRes.data?.group?.id ?? '';
+        if (!groupId) {
+          setOptionsError('Could not set up your space. Please try again.');
+          return;
+        }
+        solo = true;
+      }
       const apiOptions = localOptions.map((o) => ({
         name: o.name,
         category: o.category,
@@ -437,16 +456,24 @@ export default function CreateProposalScreen() {
         sourceName: o.sourceName,
       }));
       const res = await proposalsAPI.create(
-        selectedGroupId,
+        groupId,
         title.trim(),
         selectedDate.toISOString(),
         apiOptions,
       );
-      setCreatedProposalId(res.data.id);
       clearPlan();
+      if (solo) {
+        // Land on the proposal with the guest-vote share sheet auto-opened
+        navigation.replace
+          ? navigation.replace('ProposalDetail', { proposalId: res.data.id, openInvite: true })
+          : navigation.navigate('ProposalDetail', { proposalId: res.data.id, openInvite: true });
+        return;
+      }
+      setCreatedProposalId(res.data.id);
       setSuccessVisible(true);
     } catch (e) {
       console.warn('Failed to create proposal', e);
+      setOptionsError('Could not send the plan. Check your connection and try again.');
     } finally {
       setSubmitting(false);
     }
@@ -628,6 +655,22 @@ export default function CreateProposalScreen() {
           )}
 
           {/* ── Group selector ──────────────────────────────────────────── */}
+          {isSoloStart && (
+            <View
+              style={{
+                backgroundColor: colors.primarySoft,
+                borderRadius: 16,
+                padding: SPACING.md,
+                marginTop: SPACING.sm,
+                marginBottom: SPACING.sm,
+              }}
+            >
+              <DNText variant="secondary" color={colors.primary}>
+                ✨ We'll start a personal space for you — then you can send a link to whoever
+                you're planning with, and they can vote without an account.
+              </DNText>
+            </View>
+          )}
           {groups.length > 1 && (
             <>
               <DNText variant="section" color={colors.ink2} style={{ marginBottom: SPACING.sm, marginTop: SPACING.sm }}>
@@ -681,7 +724,7 @@ export default function CreateProposalScreen() {
             style={{ marginBottom: 4 }}
           />
           <DNButton
-            label={`Send to ${partnerName} ♥`}
+            label={isSoloStart ? 'Create plan & get share link →' : `Send to ${partnerName} ♥`}
             variant="primary"
             onPress={handleSubmit}
             loading={submitting}
