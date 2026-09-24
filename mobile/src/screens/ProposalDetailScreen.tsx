@@ -749,6 +749,23 @@ export default function ProposalDetailScreen() {
               </View>
             );
           })}
+
+          {/* DECIDED: gentle next-step nudge (share stays primary in the header) */}
+          {isDecided && (
+            <View style={{ alignItems: 'center', marginTop: SPACING.sm, marginBottom: SPACING.md }}>
+              <DNText variant="secondary" color={colors.ink2} style={{ textAlign: 'center', marginBottom: SPACING.xs }}>
+                Relive it later — the plan stays right here.
+              </DNText>
+              <TouchableOpacity
+                onPress={() => navigation.navigate('Suggestions', {})}
+                style={{ minHeight: 44, justifyContent: 'center' }}
+              >
+                <DNText variant="secondary" color={colors.primary} style={{ textAlign: 'center', fontWeight: '700' }}>
+                  Ready for the next one? →
+                </DNText>
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
       </ScrollView>
 

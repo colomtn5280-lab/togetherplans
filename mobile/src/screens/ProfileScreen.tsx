@@ -2,7 +2,7 @@
  * ProfileScreen — 3k
  * HANDOFF_README spec: full redesign
  */
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Modal,
   ScrollView,
@@ -25,6 +25,8 @@ import {
 } from '@/components/ui';
 import { authAPI } from '@/services/api';
 import { useAuth } from '@/hooks/useAuth';
+import { FavCategoryChips, loadFavCategories, saveFavCategories } from '@/components/FavCategories';
+import { CATEGORIES } from '@/constants/categories';
 
 type ThemeOverride = 'system' | 'light' | 'dark';
 
@@ -211,6 +213,24 @@ export default function ProfileScreen() {
   const [notifReminders, setNotifReminders] = useState(false);
   const [showDeleteSheet, setShowDeleteSheet] = useState(false);
 
+  // Favorite categories (AsyncStorage tp.favCategories)
+  const [favIds, setFavIds] = useState<string[]>([]);
+  const [favPickerOpen, setFavPickerOpen] = useState(false);
+  useEffect(() => {
+    loadFavCategories().then(setFavIds);
+  }, []);
+  const handleFavChange = (ids: string[]) => {
+    setFavIds(ids);
+    saveFavCategories(ids);
+  };
+  const favSummary =
+    favIds.length > 0
+      ? favIds
+          .map((id) => CATEGORIES.find((c) => c.id === id)?.emoji ?? '')
+          .filter(Boolean)
+          .join(' ')
+      : 'None yet';
+
   const handleDeleteConfirm = async () => {
     try {
       await authAPI.deleteAccount();
@@ -294,6 +314,18 @@ export default function ProfileScreen() {
               onPress={() => {}}
               right={<Text style={[TYPE.secondary, { color: colors.ink2 }]}>›</Text>}
             />
+            <SettingRow
+              label="Favorite categories"
+              icon="💚"
+              subtitle={favSummary}
+              onPress={() => setFavPickerOpen((v) => !v)}
+              right={<Text style={[TYPE.secondary, { color: colors.ink2 }]}>{favPickerOpen ? '⌄' : '›'}</Text>}
+            />
+            {favPickerOpen && (
+              <View style={{ paddingVertical: SPACING.sm }}>
+                <FavCategoryChips selected={favIds} onChange={handleFavChange} />
+              </View>
+            )}
             <SettingRow
               label="Appearance"
               right={

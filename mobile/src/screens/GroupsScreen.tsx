@@ -327,6 +327,14 @@ export default function GroupsScreen() {
           variant="primary"
           style={{ width: '100%' }}
         />
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Suggestions', {})}
+          style={{ marginTop: SPACING.md, minHeight: 44, justifyContent: 'center' }}
+        >
+          <DNText variant="secondary" color={colors.primary} style={{ textAlign: 'center', fontWeight: '700' }}>
+            Or browse tonight's ideas →
+          </DNText>
+        </TouchableOpacity>
       </ScrollView>
     );
   }

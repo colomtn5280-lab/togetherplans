@@ -50,19 +50,25 @@ const CATEGORY_EMOJI: Record<string, string> = {
 // ── Countdown to 21:00 ────────────────────────────────────────────────────────
 function Countdown({ minutes }: { minutes: number }) {
   const { colors } = useTheme();
+  const navigation = useNavigation<any>();
   const h = Math.floor(minutes / 60);
   const m = minutes % 60;
-  const label = h > 0 ? `${h}h ${m}m` : `${m}m`;
+  const toGo = h > 0 ? `${h}h ${m}m to go` : `${m}m to go`;
 
   return (
     <View style={{ alignItems: 'center', paddingVertical: SPACING.lg }}>
       <Text style={{ fontSize: 48, marginBottom: SPACING.sm }}>🌆</Text>
       <DNText variant="title" color={colors.ink} style={{ textAlign: 'center', marginBottom: SPACING.xs }}>
-        After Dark in {label}
+        After Dark wakes up at 9pm 🌙
       </DNText>
-      <DNText variant="secondary" color={colors.ink2} style={{ textAlign: 'center' }}>
-        Come back at 9 PM for late-night mode
+      <DNText variant="secondary" color={colors.ink2} style={{ textAlign: 'center', marginBottom: SPACING.md }}>
+        {toGo} — late-night mode is worth the wait
       </DNText>
+      <DNButton
+        label="Meanwhile, plan something for tonight →"
+        variant="secondary"
+        onPress={() => navigation.navigate('Suggestions', {})}
+      />
     </View>
   );
 }

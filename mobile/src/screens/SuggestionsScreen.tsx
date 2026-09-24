@@ -4,7 +4,7 @@
  * Flow: Category grid → tap category → event list loads inline →
  *       tap event card → EventDetailSheet → "Add to Plan"
  */
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -26,6 +26,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { usePlanBuilder } from '@/contexts/PlanBuilderContext';
 import { OPTION_RADII, SHADOWS, SPACING, TYPE } from '@/constants';
 import { CATEGORIES, Category, getCategoryColorById } from '@/constants/categories';
+import { loadFavCategories, orderCategoriesByFavorites } from '@/components/FavCategories';
 import {
   DNButton,
   DNCard,
@@ -112,11 +113,13 @@ function CategoryGridCard({
   selected,
   onPress,
   colors,
+  isFav,
 }: {
   cat: Category;
   selected: boolean;
   onPress: () => void;
   colors: any;
+  isFav?: boolean;
 }) {
   return (
     <TouchableOpacity
@@ -128,7 +131,7 @@ function CategoryGridCard({
           backgroundColor: selected ? colors.primary : colors.surface,
           borderRadius: 16,
           borderWidth: 1.5,
-          borderColor: selected ? colors.primary : colors.line,
+          borderColor: selected ? colors.primary : isFav ? colors.primary : colors.line,
           paddingVertical: SPACING.sm + 2,
           paddingHorizontal: SPACING.sm,
           alignItems: 'center',
@@ -138,6 +141,9 @@ function CategoryGridCard({
         SHADOWS.card,
       ]}
     >
+      {isFav && !selected && (
+        <Text style={{ position: 'absolute', top: 6, right: 8, fontSize: 11, color: colors.primary }}>★</Text>
+      )}
       <Text style={{ fontSize: 24, marginBottom: 4 }}>{cat.emoji}</Text>
       <DNText
         variant="rowLabel"
@@ -164,14 +170,18 @@ function CategoryGrid({
   activeId,
   onSelect,
   colors,
+  categories,
+  favIds,
 }: {
   activeId: string | null;
   onSelect: (cat: Category | null) => void;
   colors: any;
+  categories: Category[];
+  favIds: string[];
 }) {
   const rows: Category[][] = [];
-  for (let i = 0; i < CATEGORIES.length; i += 2) {
-    rows.push(CATEGORIES.slice(i, i + 2));
+  for (let i = 0; i < categories.length; i += 2) {
+    rows.push(categories.slice(i, i + 2));
   }
   return (
     <View style={{ marginBottom: SPACING.md }}>
@@ -193,6 +203,7 @@ function CategoryGrid({
               key={cat.id}
               cat={cat}
               selected={activeId === cat.id}
+              isFav={favIds.includes(cat.id)}
               onPress={() => onSelect(activeId === cat.id ? null : cat)}
               colors={colors}
             />
@@ -929,6 +940,18 @@ export default function SuggestionsScreen() {
   const radiusRef = useRef(25);
   const zipRef = useRef<string | null>(null);
 
+  // Favorite categories (AsyncStorage) — grid shows favourites first.
+  // Reloaded on every focus so Profile edits show up immediately.
+  const [favIds, setFavIds] = useState<string[]>([]);
+  useEffect(() => {
+    const unsub = navigation.addListener('focus', () => {
+      loadFavCategories().then(setFavIds);
+    });
+    loadFavCategories().then(setFavIds);
+    return unsub;
+  }, [navigation]);
+  const orderedCategories = useMemo(() => orderCategoriesByFavorites(favIds), [favIds]);
+
   const PAGE_SIZE = 10;
   // Use ref for page tracking to avoid stale closures
   const pageRef = useRef(0);
@@ -1202,7 +1225,7 @@ export default function SuggestionsScreen() {
         <ScrollView contentContainerStyle={{ padding: SPACING.gutter, paddingBottom: 200 }}>
           <TonightBanner active={tonightActive} weekendFallback={weekendFallback} city={city} onActivate={activateTonight} onClear={clearTonight} colors={colors} />
           <AreaControls radius={radius} onRadius={handleRadiusChange} zipOverride={zipOverride} onApplyZip={handleApplyZip} onClearZip={handleClearZip} colors={colors} />
-          <CategoryGrid activeId={activeCategory?.id ?? null} onSelect={handleCategorySelect} colors={colors} />
+          <CategoryGrid activeId={activeCategory?.id ?? null} onSelect={handleCategorySelect} colors={colors} categories={orderedCategories} favIds={favIds} />
           <View style={{ paddingVertical: SPACING.xl, alignItems: 'center' }}>
             <ActivityIndicator color={colors.primary} size="large" />
           </View>
@@ -1211,7 +1234,7 @@ export default function SuggestionsScreen() {
         <ScrollView contentContainerStyle={{ padding: SPACING.gutter, paddingBottom: 200 }}>
           <TonightBanner active={tonightActive} weekendFallback={weekendFallback} city={city} onActivate={activateTonight} onClear={clearTonight} colors={colors} />
           <AreaControls radius={radius} onRadius={handleRadiusChange} zipOverride={zipOverride} onApplyZip={handleApplyZip} onClearZip={handleClearZip} colors={colors} />
-          <CategoryGrid activeId={activeCategory?.id ?? null} onSelect={handleCategorySelect} colors={colors} />
+          <CategoryGrid activeId={activeCategory?.id ?? null} onSelect={handleCategorySelect} colors={colors} categories={orderedCategories} favIds={favIds} />
           <EmptyState onUseLocation={requestLocation} colors={colors} />
         </ScrollView>
       ) : (
@@ -1222,7 +1245,7 @@ export default function SuggestionsScreen() {
             <>
               <TonightBanner active={tonightActive} weekendFallback={weekendFallback} city={city} onActivate={activateTonight} onClear={clearTonight} colors={colors} />
               <AreaControls radius={radius} onRadius={handleRadiusChange} zipOverride={zipOverride} onApplyZip={handleApplyZip} onClearZip={handleClearZip} colors={colors} />
-              <CategoryGrid activeId={activeCategory?.id ?? null} onSelect={handleCategorySelect} colors={colors} />
+              <CategoryGrid activeId={activeCategory?.id ?? null} onSelect={handleCategorySelect} colors={colors} categories={orderedCategories} favIds={favIds} />
             </>
           }
           renderItem={({ item, index }) => {

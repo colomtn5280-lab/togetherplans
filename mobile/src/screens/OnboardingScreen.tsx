@@ -18,6 +18,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/contexts/ThemeContext';
 import { TYPE, SPACING, SHADOWS, CARD_RADII } from '@/constants';
 import { DNButton, DNText, DNCard, DNSticker, DNInput } from '@/components/ui';
+import { FavCategoryChips, saveFavCategories } from '@/components/FavCategories';
 import { groupsAPI } from '@/services/api';
 import { RootStackParamList } from '@/types';
 
@@ -195,15 +196,23 @@ export default function OnboardingScreen({ navigation }: Props) {
   const [slide, setSlide] = useState(0);
   const slideAnim = useRef(new Animated.Value(0)).current;
 
-  // Slide 3 state
+  // Slide 3 state — favorite categories (fully skippable)
+  const [favIds, setFavIds] = useState<string[]>([]);
+
+  // Slide 4 state
   const [selectedGroup, setSelectedGroup] = useState<GroupType>('Couple');
   const [groupName, setGroupName] = useState('');
   const [groupLoading, setGroupLoading] = useState(false);
   const [groupError, setGroupError] = useState('');
 
-  const TOTAL = 3;
+  const TOTAL = 4;
+
+  const persistFavs = async () => {
+    if (favIds.length > 0) await saveFavCategories(favIds);
+  };
 
   const skip = async () => {
+    await persistFavs();
     await markOnboarded();
     navigation.replace('Main', undefined);
   };
@@ -223,6 +232,7 @@ export default function OnboardingScreen({ navigation }: Props) {
     setGroupLoading(true);
     setGroupError('');
     try {
+      await persistFavs();
       const typeMap: Record<GroupType, string> = {
         Couple: 'COUPLE',
         Friends: 'FRIENDS',
@@ -286,6 +296,23 @@ export default function OnboardingScreen({ navigation }: Props) {
       )}
 
       {slide === 2 && (
+        <View style={styles.slideContent}>
+          <DNText variant="title" style={{ textAlign: 'center', marginBottom: SPACING.sm }}>
+            What are you two into?
+          </DNText>
+          <DNText variant="body" color={colors.ink2} style={{ textAlign: 'center', marginBottom: SPACING.lg }}>
+            Pick up to 5 favourites and we'll put them front and centre on Discover. Totally optional.
+          </DNText>
+          <FavCategoryChips selected={favIds} onChange={setFavIds} />
+          <DNButton
+            label={favIds.length > 0 ? 'Save favourites' : 'Skip for now'}
+            onPress={goNext}
+            style={{ marginTop: SPACING.lg }}
+          />
+        </View>
+      )}
+
+      {slide === 3 && (
         <View style={[styles.slideContent, { gap: 0 }]}>
           <DNText variant="title" style={{ textAlign: 'center', marginBottom: SPACING.lg }}>
             Who do you plan with most?
