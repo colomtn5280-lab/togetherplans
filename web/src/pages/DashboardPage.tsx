@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueries } from "@tanstack/react-query";
 import { groupsApi } from "../api/client";
 import { useAuthStore } from "../store/auth.store";
 import { AppNav } from "../components/AppNav";
@@ -61,20 +61,23 @@ export function DashboardPage() {
     navigate("/suggestions", { replace: true });
   }, [showOnboarding, isLoading, groups, navigate]);
 
-  // Fetch proposals for ALL groups in parallel
+  // Fetch proposals for ALL groups in parallel.
+  // useQueries (not useQuery-in-a-loop) — the group count changes between
+  // renders as the groups query resolves, and calling hooks in a variable-
+  // length loop violates the Rules of Hooks (React #310: blank dashboard
+  // for every user with ≥1 group).
   const groupIds = (groups ?? []).map((g: Group) => g.id);
 
-  const proposalQueries = groupIds.map((gid: string) =>
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    useQuery<Proposal[]>({
+  const proposalQueries = useQueries({
+    queries: groupIds.map((gid: string) => ({
       queryKey: ["proposals", gid],
-      queryFn: async () => {
+      queryFn: async (): Promise<Proposal[]> => {
         const res = await groupsApi.proposals(gid);
         return res.data;
       },
       enabled: !!gid,
-    })
-  );
+    })),
+  });
 
   // Collect all open proposals where the user hasn't voted, across all groups
   const pendingVotes: Array<{ group: Group; proposal: Proposal }> = [];
