@@ -220,11 +220,13 @@ export async function fetchPredictHQ(
     const FAMILY_LABELS = new Set(['family', 'family-friendly', 'kids', 'children', 'family-fun']);
     const FAMILY_TITLE_RE = /\b(family|kids?|child(ren)?|toddler|story\s?time|puppet|magic show|circus|zoo|aquarium|petting|pumpkin|trick.or.treat|sing.along)\b/i;
     if (categoryFilter === 'Family') {
-      events = events.filter((ev) =>
-        ev.category === 'school-holidays' ||
+      const isFamily = (ev: PhqEvent) =>
         (ev.labels ?? []).some((l) => FAMILY_LABELS.has(l.toLowerCase().replace(/\s+/g, '-'))) ||
-        FAMILY_TITLE_RE.test(ev.title ?? ''),
-      );
+        FAMILY_TITLE_RE.test(ev.title ?? '');
+      // school-holidays are useful planning context but not activities — cap at 2
+      // so they don't crowd out real family events.
+      const holidays = events.filter((ev) => ev.category === 'school-holidays' && !isFamily(ev)).slice(0, 2);
+      events = [...events.filter(isFamily), ...holidays];
     } else if (categoryFilter === 'Couples') {
       const nonSports = events.filter((ev) => ev.category !== 'sports');
       const isEvening = (ev: PhqEvent) => {
