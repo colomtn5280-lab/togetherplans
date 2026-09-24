@@ -14,9 +14,9 @@ import { notificationsRouter } from '@/routes/notifications';
 import { categoriesRouter } from '@/routes/categories';
 import { usersRouter } from '@/routes/users';
 import { internalRouter } from '@/routes/internal';
+import afterDarkRouter from '@/routes/after-dark';
 import { shareCardsRouter } from '@/routes/share-cards';
 import { shareRouter } from '@/routes/share';
-import { afterDarkRouter } from '@/routes/after-dark';
 import { safetyRouter } from '@/routes/safety';
 import { businessRouter } from '@/routes/business';
 
