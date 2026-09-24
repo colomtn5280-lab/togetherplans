@@ -119,7 +119,11 @@ export async function fetchTicketmaster(
     // Sports & Active mode: request the Sports segment explicitly and label results 'Sports'
     const sportsMode = categoryFilter === 'Sports';
     if (familyMode) {
-      url.searchParams.set('includeFamily', 'only');
+      // includeFamily=only filters on the per-classification `family: true` flag,
+      // which Ticketmaster rarely sets (0 of 200 Denver events carry it) — it
+      // returned ZERO results for whole metros. classificationName=Family matches
+      // the Family *genre/segment* taxonomy instead (63 Denver events, verified).
+      url.searchParams.set('classificationName', 'Family');
     } else if (couplesMode) {
       // General events; sports excluded post-fetch, evening events preferred
     } else if (sportsMode) {

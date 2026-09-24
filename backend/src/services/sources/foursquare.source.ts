@@ -55,8 +55,10 @@ const FSQ_CATEGORY_RULES: Array<{
   { ids: ['4bf58dd8d48988d1e0931735'], category: 'Dining', costTier: '$', durationMinutes: 60 },             // Bakery
   { ids: ['4d4b7105d754a06376d81259'], category: 'Outdoors', costTier: 'free', durationMinutes: 90 },       // Outdoors & Recreation
   { ids: ['4bf58dd8d48988d163941735'], category: 'Outdoors', costTier: 'free', durationMinutes: 90 },       // Park
+  { ids: ['4bf58dd8d48988d159941735'], category: 'Outdoors', costTier: 'free', durationMinutes: 120 },      // Hiking Trail (verified)
+  { ids: ['4bf58dd8d48988d165941735'], category: 'Outdoors', costTier: 'free', durationMinutes: 60 },       // Scenic Lookout (verified)
   { ids: ['4d4b7105d754a06377d81259'], category: 'Arts & Culture', costTier: '$', durationMinutes: 120 },   // Arts & Entertainment
-  { ids: ['4bf58dd8d48988d182941735'], category: 'Arts & Culture', costTier: '$', durationMinutes: 120 },   // Museum
+  { ids: ['4bf58dd8d48988d181941735'], category: 'Arts & Culture', costTier: '$', durationMinutes: 120 },   // Museum (verified — d182 is Amusement Park, was mislabeled)
   { ids: ['4bf58dd8d48988d1e2931735'], category: 'Arts & Culture', costTier: 'free', durationMinutes: 75 }, // Art Gallery
   { ids: ['4bf58dd8d48988d137941735'], category: 'Theater & Plays', costTier: '$$', durationMinutes: 150 }, // Theater
   { ids: ['4bf58dd8d48988d17f941735'], category: 'Movies', costTier: '$', durationMinutes: 150 },           // Movie Theater
@@ -66,30 +68,47 @@ const FSQ_CATEGORY_RULES: Array<{
   { ids: ['50327c8591d4c4b30a586d5d'], category: 'Wine & Drinks', costTier: '$$', durationMinutes: 90 },    // Cocktail Bar
   { ids: ['4bf58dd8d48988d1d8941735'], category: 'Wine & Drinks', costTier: '$$', durationMinutes: 120 },   // Winery / Vineyard
   { ids: ['50327c8591d4c4b30a586d5d', '4bf58dd8d48988d11e941735'], category: 'Wine & Drinks', costTier: '$$', durationMinutes: 90 }, // Brewery
-  { ids: ['4bf58dd8d48988d166941735'], category: 'Active', costTier: '$', durationMinutes: 120 },           // Bowling Alley
+  { ids: ['4bf58dd8d48988d1e4931735'], category: 'Active', costTier: '$', durationMinutes: 120 },           // Bowling Alley (verified — d166 is Sculpture Garden)
   { ids: ['4bf58dd8d48988d1e6941735'], category: 'Sports', costTier: '$$', durationMinutes: 240 },          // Golf Course
-  { ids: ['4bf58dd8d48988d1e7941735'], category: 'Sports', costTier: '$', durationMinutes: 90 },            // Mini Golf
+  { ids: ['52e81612bcbc57f1066b79eb'], category: 'Sports', costTier: '$', durationMinutes: 90 },            // Mini Golf Course (verified — d1e7 is Playground)
   { ids: ['58daa1558bbb0b01f18ec1b0'], category: 'Sports', costTier: '$', durationMinutes: 90 },            // Golf Driving Range
-  { ids: ['4bf58dd8d48988d15e941735'], category: 'Sports', costTier: '$$', durationMinutes: 240 },          // Golf (legacy generic)
   { ids: ['4bf58dd8d48988d1e4931735'], category: 'Sports', costTier: '$', durationMinutes: 90 },            // Bowling Alley
   { ids: ['503289d391d4c4b30a586d6a'], category: 'Sports', costTier: '$$', durationMinutes: 120 },          // Climbing Gym
   { ids: ['4bf58dd8d48988d168941735'], category: 'Sports', costTier: '$', durationMinutes: 90 },            // Skating Rink
+  // Family — every ID verified against live /v2/venues/categories taxonomy
+  { ids: ['4bf58dd8d48988d17b941735'], category: 'Family', costTier: '$$', durationMinutes: 180 },          // Zoo
+  { ids: ['4fceea171983d5d06c3e9823'], category: 'Family', costTier: '$$', durationMinutes: 150 },          // Aquarium
+  { ids: ['4bf58dd8d48988d182941735'], category: 'Family', costTier: '$$$', durationMinutes: 300 },         // Amusement Park
+  { ids: ['4bf58dd8d48988d1e7941735'], category: 'Family', costTier: 'free', durationMinutes: 90 },         // Playground
+  { ids: ['4bf58dd8d48988d193941735'], category: 'Family', costTier: '$$', durationMinutes: 240 },          // Water Park
+  { ids: ['4bf58dd8d48988d1e1931735'], category: 'Family', costTier: '$', durationMinutes: 90 },            // Arcade
+  { ids: ['4bf58dd8d48988d191941735'], category: 'Family', costTier: '$', durationMinutes: 150 },           // Science Museum
+  { ids: ['4bf58dd8d48988d1e4931735'], category: 'Family', costTier: '$', durationMinutes: 90 },            // Bowling Alley (also under Sports; filter-aware match handles overlap)
   { ids: ['4bf58dd8d48988d1ed941735'], category: 'Wellness', costTier: '$$', durationMinutes: 120 },        // Spa
-  { ids: ['52f2ab2ebcbc57f1066b8b3c'], category: 'Wellness', costTier: '$$', durationMinutes: 90 },         // Massage Studio
+  { ids: ['52f2ab2ebcbc57f1066b8b3c'], category: 'Wellness', costTier: '$$', durationMinutes: 90 },         // Massage Clinic
   { ids: ['4bf58dd8d48988d102941735'], category: 'Wellness', costTier: '$', durationMinutes: 75 },          // Yoga Studio
-  { ids: ['52f2ab2ebcbc57f1066b8b42'], category: 'Wellness', costTier: '$', durationMinutes: 90 },          // Sauna
+  { ids: ['58daa1558bbb0b01f18ec1ae'], category: 'Wellness', costTier: '$$', durationMinutes: 90 },         // Sauna (verified — 52f2...8b42 is Big Box Store, was mislabeled)
+  { ids: ['4bf58dd8d48988d160941735'], category: 'Wellness', costTier: '$$', durationMinutes: 180 },        // Hot Spring (verified)
+  { ids: ['5744ccdfe4b0c0459246b4b2'], category: 'Wellness', costTier: '$$', durationMinutes: 75 },         // Pilates Studio (verified)
+  { ids: ['52e81612bcbc57f1066b7a27'], category: 'Wellness', costTier: '$$', durationMinutes: 120 },        // Bath House (verified)
   { ids: ['4bf58dd8d48988d1f1931735'], category: 'Local Experience', costTier: '$$', durationMinutes: 120 }, // General Entertainment
 ];
 
-function matchCategory(venue: FsqVenue): { category: SuggestionCategory; costTier: Suggestion['costTier']; durationMinutes: number } | null {
+function matchCategory(venue: FsqVenue, categoryFilter?: string): { category: SuggestionCategory; costTier: Suggestion['costTier']; durationMinutes: number } | null {
   const ids = (venue.categories ?? []).map((c) => c.id);
-  for (const rule of FSQ_CATEGORY_RULES) {
+  // When a category filter is active, prefer rules for that category first —
+  // some IDs (e.g. Bowling Alley) legitimately appear under multiple categories.
+  const ordered = categoryFilter
+    ? [...FSQ_CATEGORY_RULES.filter((r) => r.category === categoryFilter),
+       ...FSQ_CATEGORY_RULES.filter((r) => r.category !== categoryFilter)]
+    : FSQ_CATEGORY_RULES;
+  for (const rule of ordered) {
     if (rule.ids.some((id) => ids.includes(id))) return rule;
   }
   // Try top-level category prefix match (first 4 chars of ID)
   for (const catId of ids) {
     const prefix = catId.slice(0, 20);
-    for (const rule of FSQ_CATEGORY_RULES) {
+    for (const rule of ordered) {
       if (rule.ids.some((id) => id.startsWith(prefix.slice(0, 16)))) return rule;
     }
   }
@@ -133,9 +152,16 @@ export async function fetchFoursquare(
     ? FSQ_CATEGORY_RULES.filter((r) => r.category === categoryFilter).flatMap((r) => r.ids)
     : [];
 
-  // Build category-specific queries or a general one
+  // Build category-specific queries or a general one.
+  // Chunk filtered IDs into batches of 5 so deep categories (Family, Wellness)
+  // aren't silently truncated to the first 6 IDs.
+  const chunk = <T,>(arr: T[], n: number): T[][] => {
+    const out: T[][] = [];
+    for (let i = 0; i < arr.length; i += n) out.push(arr.slice(i, i + n));
+    return out;
+  };
   const queries = wantCategories.length
-    ? [wantCategories.slice(0, 6)] // max 6 IDs per request
+    ? chunk([...new Set(wantCategories)], 5)
     : [
         ['4d4b7105d754a06374d81259'], // Food
         ['4d4b7105d754a06377d81259'], // Arts & Entertainment
@@ -151,7 +177,7 @@ export async function fetchFoursquare(
         const url = new URL(`${FSQ_BASE}/venues/search`);
         url.searchParams.set('ll', `${lat},${lng}`);
         url.searchParams.set('radius', String(radiusM));
-        url.searchParams.set('limit', '20');
+        url.searchParams.set('limit', '50');
         url.searchParams.set('categoryId', catIds.join(','));
         url.searchParams.set('client_id', clientId);
         url.searchParams.set('client_secret', clientSecret);
@@ -179,7 +205,7 @@ export async function fetchFoursquare(
     if (seen.has(venue.id)) continue;
     seen.add(venue.id);
 
-    const match = matchCategory(venue);
+    const match = matchCategory(venue, categoryFilter && categoryFilter !== 'All' ? categoryFilter : undefined);
     if (!match) continue;
 
     const vLat = venue.location?.lat;

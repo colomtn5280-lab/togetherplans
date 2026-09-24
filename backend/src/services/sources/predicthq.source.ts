@@ -137,7 +137,7 @@ function phqCategories(categoryFilter?: string): string {
     'Local Experience':'community,expos,festivals,conferences',
     'Unique & Quirky': 'community,expos',
     'Wine & Drinks':   'festivals,community',
-    'Family':          'community,festivals,performing-arts',
+    'Family':          'community,festivals,performing-arts,school-holidays',
     'Couples':         'concerts,performing-arts,festivals,community',
   };
   return map[categoryFilter] ?? 'concerts,festivals,performing-arts,community,expos,sports';
@@ -212,11 +212,18 @@ export async function fetchPredictHQ(
     const data = (await resp.json()) as PhqResponse;
     let events = data.results ?? [];
 
-    // Family: keep only events carrying family-friendly labels; Couples: prefer evening, non-sports
+    // Family: keep events with family-friendly labels, family-keyword titles, or
+    // school-holidays category. NOTE: label data is NOT included in event responses
+    // on our current PHQ subscription (verified live — no `labels` field at all),
+    // so a labels-only filter silently dropped 100% of events. Title keywords +
+    // school-holidays are the reliable signals available on this plan.
     const FAMILY_LABELS = new Set(['family', 'family-friendly', 'kids', 'children', 'family-fun']);
+    const FAMILY_TITLE_RE = /\b(family|kids?|child(ren)?|toddler|story\s?time|puppet|magic show|circus|zoo|aquarium|petting|pumpkin|trick.or.treat|sing.along)\b/i;
     if (categoryFilter === 'Family') {
       events = events.filter((ev) =>
-        (ev.labels ?? []).some((l) => FAMILY_LABELS.has(l.toLowerCase().replace(/\s+/g, '-'))),
+        ev.category === 'school-holidays' ||
+        (ev.labels ?? []).some((l) => FAMILY_LABELS.has(l.toLowerCase().replace(/\s+/g, '-'))) ||
+        FAMILY_TITLE_RE.test(ev.title ?? ''),
       );
     } else if (categoryFilter === 'Couples') {
       const nonSports = events.filter((ev) => ev.category !== 'sports');
