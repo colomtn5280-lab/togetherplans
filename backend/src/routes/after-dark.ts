@@ -70,7 +70,7 @@ router.post('/', requireAuth, async (req: AuthRequest, res: Response) => {
     // Get user preferences (allow overrides from request)
     const userPrefs = getUserPreferences(userId);
     const config: AfterDarkConfig = {
-      nightStartsAt: (nightStartsAt || userPrefs.nightStartsAt) as any,
+      nightStartsAt: (nightStartsAt || userPrefs.nightStartsAt) as 'early' | 'standard' | 'late',
       includeFamilyEvents: includeFamilyEvents !== undefined ? includeFamilyEvents : userPrefs.includeFamilyInAfterDark,
       sortByTimeToEvent: true,
     };

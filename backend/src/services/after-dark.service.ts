@@ -236,7 +236,8 @@ export function scoreAfterDarkRelevance(
     }
 
     // Boost for imminent events
-    if ((s as any).timeUntilEvent !== undefined && (s as any).timeUntilEvent < 120) {
+    const enrichedSuggestion = s as Suggestion & { timeUntilEvent?: number };
+    if (enrichedSuggestion.timeUntilEvent !== undefined && enrichedSuggestion.timeUntilEvent < 120) {
       score += 0.15;
     }
 
