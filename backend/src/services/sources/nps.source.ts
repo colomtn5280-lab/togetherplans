@@ -74,7 +74,10 @@ async function getAllParks(key: string): Promise<NpsPark[]> {
   return parks;
 }
 
-/** Fetch parks near a lat/lng within radius miles */
+/** Fetch parks near a lat/lng within radius miles.
+ *  National parks are destination trips — people happily drive 1-2 hours for
+ *  Rocky Mountain NP — so we apply a floor of 100 miles regardless of the
+ *  user's browse radius. Distance is shown on the card so users can judge. */
 export async function fetchNpsParks(
   lat: number,
   lng: number,
@@ -82,6 +85,8 @@ export async function fetchNpsParks(
 ): Promise<Suggestion[]> {
   const key = process.env.NPS_API_KEY;
   if (!key) return [];
+
+  const effectiveRadius = Math.max(radiusMiles, 100);
 
   try {
     const parks = await getAllParks(key);
@@ -93,12 +98,14 @@ export async function fetchNpsParks(
         if (isNaN(pLat) || isNaN(pLng)) return null;
 
         const dist = haversineMiles(lat, lng, pLat, pLng);
-        if (dist > radiusMiles) return null;
+        if (dist > effectiveRadius) return null;
 
         const acts = activityList(park.activities);
         const free = isFree(park.entranceFees);
         const addr = park.addresses?.[0];
-        const category = dist > 45 ? 'Day Trip' as const : 'Outdoors' as const;
+        // Always 'Outdoors' — a distance-based 'Day Trip' relabel made distant
+        // parks vanish from hiking-trails queries (category filter mismatch).
+        const category = 'Outdoors' as const;
 
         return {
           id: `nps:${park.id}`,
@@ -148,7 +155,7 @@ export async function fetchNpsEvents(
         const pLat = parseFloat(p.latitude);
         const pLng = parseFloat(p.longitude);
         if (isNaN(pLat) || isNaN(pLng) || !p.parkCode) return false;
-        return haversineMiles(lat, lng, pLat, pLng) <= Math.max(radiusMiles, 60);
+        return haversineMiles(lat, lng, pLat, pLng) <= Math.max(radiusMiles, 100);
       })
       .map((p) => p.parkCode as string)
       .slice(0, 10);

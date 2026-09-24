@@ -27,7 +27,7 @@ const VALID_DATE_FILTERS = new Set(['tonight', 'this-weekend', 'this-week', 'any
  *   lng        float   User longitude
  *   zip        string  US zip code (alternative to lat/lng)
  *   category   string  One of the 14 categories above, or 'All'
- *   radius     number  Search radius in miles (default 25, max 60)
+ *   radius     number  Search radius in miles (default 25, max 150 — day trips & getaways)
  *   dateFilter string  'tonight' | 'this-weekend' | 'this-week' | 'anytime'
  *
  * Returns: Suggestion[]
@@ -61,9 +61,9 @@ suggestionsRouter.get('/', async (req: Request, res: Response, next: NextFunctio
       });
     }
 
-    // Validate radius
+    // Validate radius — up to 150 mi so users can plan day trips & getaways
     const radiusMiles = rawRadius
-      ? Math.min(Math.max(rawRadius, 1), 60)
+      ? Math.min(Math.max(rawRadius, 1), 150)
       : 25;
 
     // Validate dateFilter
