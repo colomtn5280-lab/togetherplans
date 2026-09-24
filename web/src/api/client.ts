@@ -268,6 +268,8 @@ export const suggestionsApi = {
     lat?: number;
     lng?: number;
     radius?: number;
+    zip?: string;
+    dateFilter?: "tonight" | "this-weekend" | "this-week" | "anytime";
     // legacy aliases accepted too
     categoryId?: string;
     radiusKm?: number;
@@ -277,8 +279,10 @@ export const suggestionsApi = {
       params: {
         lat: params.lat,
         lng: params.lng,
+        zip: params.zip,
         category: params.category ?? params.categoryId,
         radius: params.radius ?? params.radiusKm,
+        dateFilter: params.dateFilter,
       },
     }),
 };

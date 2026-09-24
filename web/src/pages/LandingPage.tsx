@@ -44,6 +44,9 @@ export default function LandingPage() {
             </a>
             <a href="/signup" className="btn btn-lime">Try on web →</a>
           </div>
+          <a href="/suggestions?dateFilter=tonight" className="hero-tonight-cta">
+            🌙 See what's on tonight →
+          </a>
           <div className="hero-badge">
             <span className="badge"><span className="badge-dot"/>Free forever</span>
             <span className="badge"><span className="badge-dot"/>iOS &amp; Android</span>

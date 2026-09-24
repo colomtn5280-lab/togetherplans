@@ -270,21 +270,56 @@ export function SuggestionsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const categoryId = searchParams.get("category") ?? "";
   const radiusKm = parseInt(searchParams.get("radius") ?? "25", 10);
+  const dateFilter = (searchParams.get("dateFilter") ?? "anytime") as
+    | "tonight"
+    | "this-weekend"
+    | "this-week"
+    | "anytime";
+  const zip = searchParams.get("zip") ?? "";
   const navigate = useNavigate();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
   const { coords, cityName, geoError, geoLoading, retryGeo } = useGeolocation();
   const { options: planOptions, addOption } = usePlanBuilder();
   const [detailSuggestion, setDetailSuggestion] = useState<Suggestion | null>(null);
+  const [zipDraft, setZipDraft] = useState("");
+
+  const setDateFilter = (df: string) => {
+    setSearchParams((p) => {
+      if (df === "anytime") p.delete("dateFilter");
+      else p.set("dateFilter", df);
+      return p;
+    });
+  };
+
+  const activateTonight = () => {
+    setSearchParams((p) => {
+      p.set("dateFilter", "tonight");
+      p.delete("category"); // Tonight starts from All categories
+      return p;
+    });
+    if (!coords && !zip) retryGeo(); // (re)request geolocation
+    // Scroll to results once the state settles
+    setTimeout(() => {
+      document.getElementById("discover-results")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 120);
+  };
+
+  const clearTonight = () => setDateFilter("anytime");
 
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["suggestions", { categoryId, radiusKm, lat: coords?.lat, lng: coords?.lng }],
+    queryKey: [
+      "suggestions",
+      { categoryId, radiusKm, lat: coords?.lat, lng: coords?.lng, dateFilter, zip: zip || undefined },
+    ],
     queryFn: () =>
       suggestionsApi.list({
         category: categoryId || undefined,
         radiusKm,
         lat: coords?.lat,
         lng: coords?.lng,
+        zip: !coords && zip ? zip : undefined,
+        dateFilter: dateFilter !== "anytime" ? dateFilter : undefined,
       }),
     enabled: true,
   });
@@ -310,6 +345,41 @@ export function SuggestionsPage() {
   // isIdea may be absent on old cached responses — treat absent as a real result.
   const realResults = displayed.filter((s: Suggestion) => s.isIdea !== true);
   const ideas = displayed.filter((s: Suggestion) => s.isIdea === true);
+
+  // ── Empty-tonight fallback: quietly fetch this weekend instead ──────────────
+  const tonightIsEmpty =
+    dateFilter === "tonight" && !isLoading && !isError && realResults.length === 0;
+
+  const { data: weekendData, isLoading: weekendLoading } = useQuery({
+    queryKey: [
+      "suggestions",
+      { categoryId, radiusKm, lat: coords?.lat, lng: coords?.lng, dateFilter: "this-weekend", zip: zip || undefined },
+    ],
+    queryFn: () =>
+      suggestionsApi.list({
+        category: categoryId || undefined,
+        radiusKm,
+        lat: coords?.lat,
+        lng: coords?.lng,
+        zip: !coords && zip ? zip : undefined,
+        dateFilter: "this-weekend",
+      }),
+    enabled: tonightIsEmpty,
+  });
+
+  const weekendRaw = weekendData?.data as unknown;
+  const weekendAll: Suggestion[] = Array.isArray(weekendRaw)
+    ? weekendRaw
+    : [
+        ...(((weekendRaw as any)?.results ?? []) as Suggestion[]),
+        ...((((weekendRaw as any)?.ideas ?? []) as Suggestion[]).map((s) => ({ ...s, isIdea: true }))),
+      ];
+  const weekendResults = weekendAll.filter((s) => s.isIdea !== true);
+
+  const tonightActive = dateFilter === "tonight";
+  const showWeekendFallback = tonightIsEmpty && weekendResults.length > 0;
+  // What actually renders in the main grid
+  const gridResults = showWeekendFallback ? weekendResults : realResults;
 
   // Added key set
   const addedKeys = new Set(planOptions.map((o) => o.name + (o.address ?? "")));
@@ -365,6 +435,109 @@ export function SuggestionsPage() {
           )}
         </div>
 
+        {/* 🌙 Tonight near me — hero shortcut */}
+        {!tonightActive ? (
+          <button
+            onClick={activateTonight}
+            style={{
+              width: "100%",
+              border: "none",
+              cursor: "pointer",
+              background: "linear-gradient(100deg, #0E8C8C 0%, #0A6B72 55%, #123A4A 100%)",
+              color: "#fff",
+              borderRadius: 20,
+              padding: "18px 22px",
+              marginBottom: 20,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 12,
+              textAlign: "left",
+              boxShadow: "0 6px 18px rgba(14,140,140,0.25)",
+            }}
+            data-testid="tonight-banner"
+          >
+            <span style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <span style={{ fontSize: 28 }}>🌙</span>
+              <span>
+                <span style={{ display: "block", fontFamily: "'Sora', system-ui, sans-serif", fontWeight: 800, fontSize: 18 }}>
+                  Tonight near me
+                </span>
+                <span style={{ display: "block", fontSize: 13, opacity: 0.85 }}>
+                  Events happening today, close by
+                </span>
+              </span>
+            </span>
+            <span style={{ fontSize: 20, opacity: 0.9 }}>→</span>
+          </button>
+        ) : (
+          <div
+            style={{
+              width: "100%",
+              background: "linear-gradient(100deg, #0E8C8C 0%, #0A6B72 55%, #123A4A 100%)",
+              color: "#fff",
+              borderRadius: 20,
+              padding: "14px 22px",
+              marginBottom: 20,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 12,
+              flexWrap: "wrap",
+              boxShadow: "0 6px 18px rgba(14,140,140,0.25)",
+            }}
+            data-testid="tonight-banner-active"
+          >
+            <span style={{ fontFamily: "'Sora', system-ui, sans-serif", fontWeight: 700, fontSize: 15 }}>
+              🌙 {cityName ? `Showing tonight in ${cityName}` : zip ? `Showing tonight in ${zip}` : "Showing tonight near you"}
+            </span>
+            <button
+              onClick={clearTonight}
+              style={{
+                background: "rgba(255,255,255,0.16)",
+                border: "none",
+                color: "#fff",
+                borderRadius: 16,
+                padding: "6px 14px",
+                fontSize: 13,
+                fontWeight: 700,
+                cursor: "pointer",
+              }}
+            >
+              clear ×
+            </button>
+          </div>
+        )}
+
+        {/* Zip fallback when geolocation is denied */}
+        {tonightActive && geoError && !coords && !zip && (
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
+            <span style={{ fontSize: 13, color: "var(--ink2)" }}>
+              Location blocked — enter a zip instead:
+            </span>
+            <input
+              value={zipDraft}
+              onChange={(e) => setZipDraft(e.target.value.replace(/\D/g, "").slice(0, 5))}
+              placeholder="e.g. 80202"
+              inputMode="numeric"
+              style={{
+                width: 90,
+                padding: "6px 10px",
+                borderRadius: 12,
+                border: "1.5px solid var(--line)",
+                fontSize: 14,
+              }}
+            />
+            <button
+              className="dn-btn dn-btn--sm dn-btn--primary"
+              disabled={zipDraft.length !== 5}
+              onClick={() => setSearchParams((p) => { p.set("zip", zipDraft); return p; })}
+            >
+              Go
+            </button>
+          </div>
+        )}
+
         {/* Category grid */}
         <div
           className="category-grid"
@@ -387,6 +560,29 @@ export function SuggestionsPage() {
               {cat.emoji} {cat.name}
             </button>
           ))}
+        </div>
+
+        {/* Date-filter chips */}
+        <div style={{ display: "flex", gap: 8, marginBottom: 20, flexWrap: "wrap" }} data-testid="date-chips">
+          {([
+            ["tonight", "🌙 Tonight"],
+            ["this-weekend", "This weekend"],
+            ["this-week", "This week"],
+            ["anytime", "Anytime"],
+          ] as const).map(([df, label]) => (
+            <button
+              key={df}
+              className={`dn-btn dn-btn--sm ${dateFilter === df ? "dn-btn--primary" : "dn-btn--tonal"}`}
+              onClick={() => setDateFilter(df)}
+            >
+              {label}
+            </button>
+          ))}
+          {dateFilter === "tonight" && (
+            <span style={{ fontSize: 12, color: "var(--ink2)", alignSelf: "center" }}>
+              Only events dated today
+            </span>
+          )}
         </div>
 
         {/* Controls row */}
@@ -413,7 +609,8 @@ export function SuggestionsPage() {
         </div>
 
         {/* Loading / error states */}
-        {isLoading && (
+        <div id="discover-results" />
+        {(isLoading || (tonightIsEmpty && weekendLoading)) && (
           <div style={{ textAlign: "center", padding: "60px 0", color: "var(--ink2)" }}>
             Loading…
           </div>
@@ -423,7 +620,26 @@ export function SuggestionsPage() {
             Failed to load suggestions.
           </div>
         )}
-        {!isLoading && !isError && displayed.length === 0 && (
+
+        {/* Warm weekend fallback banner when tonight came up empty */}
+        {showWeekendFallback && (
+          <div
+            style={{
+              background: "var(--primary-soft)",
+              borderRadius: 16,
+              padding: "14px 18px",
+              marginBottom: 20,
+              fontSize: 14,
+              color: "var(--primary)",
+              fontWeight: 600,
+            }}
+            data-testid="tonight-fallback"
+          >
+            🌙 Quiet night out there — here's this weekend instead
+          </div>
+        )}
+
+        {!isLoading && !isError && !weekendLoading && displayed.length === 0 && !showWeekendFallback && (
           <div style={{ textAlign: "center", padding: "60px 0", color: "var(--ink2)" }}>
             <div style={{ fontSize: 56, marginBottom: 16 }}>🧭</div>
             <h2 style={{ marginBottom: 8 }}>Nothing here yet</h2>
@@ -432,13 +648,13 @@ export function SuggestionsPage() {
         )}
 
         {/* Suggestions 4-up grid — real listings only */}
-        {realResults.length > 0 && (
+        {gridResults.length > 0 && !isLoading && (
           <div
             style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 20 }}
             data-testid="suggestions-list"
             className="suggestions-grid"
           >
-            {realResults.map((s: Suggestion, i: number) => {
+            {gridResults.map((s: Suggestion, i: number) => {
               const key = s.name + (s.address ?? "");
               const added = addedKeys.has(key);
               const priceStr = s.priceLevel ? "$".repeat(s.priceLevel) : null;
