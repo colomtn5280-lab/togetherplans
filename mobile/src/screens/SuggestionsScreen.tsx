@@ -15,6 +15,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
@@ -747,6 +748,159 @@ function TonightBanner({
   );
 }
 
+// ── Search area controls — radius pills + zip override ────────────────────────
+const RADIUS_OPTIONS: Array<{ value: number; label: string }> = [
+  { value: 10, label: 'Nearby 10' },
+  { value: 25, label: '25' },
+  { value: 60, label: '60' },
+  { value: 150, label: 'Day trip 150' },
+];
+
+function AreaControls({
+  radius,
+  onRadius,
+  zipOverride,
+  onApplyZip,
+  onClearZip,
+  colors,
+}: {
+  radius: number;
+  onRadius: (r: number) => void;
+  zipOverride: string | null;
+  onApplyZip: (zip: string) => void;
+  onClearZip: () => void;
+  colors: any;
+}) {
+  const [zipInputOpen, setZipInputOpen] = useState(false);
+  const [zipDraft, setZipDraft] = useState('');
+
+  return (
+    <View style={{ marginBottom: SPACING.md }}>
+      {/* Radius pills */}
+      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+        <View style={{ flexDirection: 'row', gap: SPACING.xs, alignItems: 'center' }}>
+          <DNText variant="secondary" color={colors.ink2} style={{ marginRight: 4 }}>
+            Search area
+          </DNText>
+          {RADIUS_OPTIONS.map((opt) => {
+            const selected = radius === opt.value;
+            return (
+              <TouchableOpacity
+                key={opt.value}
+                onPress={() => onRadius(opt.value)}
+                style={{
+                  backgroundColor: selected ? colors.primary : colors.surface,
+                  borderWidth: 1.5,
+                  borderColor: selected ? colors.primary : colors.line,
+                  borderRadius: 16,
+                  paddingVertical: 6,
+                  paddingHorizontal: 12,
+                }}
+              >
+                <Text
+                  style={{
+                    color: selected ? colors.onPrimary : colors.ink,
+                    fontSize: 13,
+                    fontWeight: '700',
+                  }}
+                >
+                  {opt.label}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+          <DNText variant="secondary" color={colors.ink2} style={{ marginLeft: 2 }}>
+            mi
+          </DNText>
+        </View>
+      </ScrollView>
+
+      {/* Zip override affordance */}
+      {zipOverride ? (
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: SPACING.xs }}>
+          <DNText variant="secondary" color={colors.ink2}>
+            📍 Showing {zipOverride} ·{' '}
+          </DNText>
+          <TouchableOpacity onPress={onClearZip} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+            <DNText variant="secondary" color={colors.primary} style={{ fontWeight: '700' }}>
+              back to my location ×
+            </DNText>
+          </TouchableOpacity>
+        </View>
+      ) : !zipInputOpen ? (
+        <TouchableOpacity
+          onPress={() => setZipInputOpen(true)}
+          style={{ marginTop: SPACING.xs, alignSelf: 'flex-start' }}
+          hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+        >
+          <DNText
+            variant="secondary"
+            color={colors.primary}
+            style={{ textDecorationLine: 'underline' }}
+          >
+            Search another area
+          </DNText>
+        </TouchableOpacity>
+      ) : (
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: SPACING.xs, marginTop: SPACING.xs, flexWrap: 'wrap' }}>
+          <DNText variant="secondary" color={colors.ink2}>
+            Planning a getaway?
+          </DNText>
+          <TextInput
+            value={zipDraft}
+            onChangeText={(t) => setZipDraft(t.replace(/\D/g, '').slice(0, 5))}
+            placeholder="5-digit zip"
+            placeholderTextColor={colors.ink2}
+            keyboardType="number-pad"
+            maxLength={5}
+            autoFocus
+            style={{
+              borderWidth: 1.5,
+              borderColor: colors.line,
+              borderRadius: 12,
+              paddingVertical: 6,
+              paddingHorizontal: 10,
+              width: 100,
+              fontSize: 14,
+              color: colors.ink,
+              backgroundColor: colors.surface,
+            }}
+          />
+          <TouchableOpacity
+            disabled={zipDraft.length !== 5}
+            onPress={() => {
+              onApplyZip(zipDraft);
+              setZipInputOpen(false);
+              setZipDraft('');
+            }}
+            style={{
+              backgroundColor: zipDraft.length === 5 ? colors.primary : colors.line,
+              borderRadius: 14,
+              paddingVertical: 6,
+              paddingHorizontal: 14,
+            }}
+          >
+            <DNText variant="buttonSm" color={colors.onPrimary}>
+              Go
+            </DNText>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              setZipInputOpen(false);
+              setZipDraft('');
+            }}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          >
+            <DNText variant="secondary" color={colors.ink2}>
+              Cancel
+            </DNText>
+          </TouchableOpacity>
+        </View>
+      )}
+    </View>
+  );
+}
+
 // ── Main Screen ───────────────────────────────────────────────────────────────
 export default function SuggestionsScreen() {
   const { colors } = useTheme();
@@ -768,6 +922,12 @@ export default function SuggestionsScreen() {
   // 🌙 Tonight near me shortcut — pseudo-selection 'All · Tonight'
   const [tonightActive, setTonightActive] = useState(false);
   const [weekendFallback, setWeekendFallback] = useState(false);
+  // Search area: radius (miles) + optional zip override for getaways.
+  // Refs mirror state so the ref-based fetch callbacks never read stale values.
+  const [radius, setRadiusState] = useState(25);
+  const [zipOverride, setZipOverrideState] = useState<string | null>(null);
+  const radiusRef = useRef(25);
+  const zipRef = useRef<string | null>(null);
 
   const PAGE_SIZE = 10;
   // Use ref for page tracking to avoid stale closures
@@ -796,7 +956,14 @@ export default function SuggestionsScreen() {
     }
     try {
       const cat = category === 'All' ? undefined : category;
-      const res = await proposalsAPI.suggestions(lat, lng, cat);
+      const zip = zipRef.current ?? undefined;
+      const res = await proposalsAPI.suggestions(
+        zip ? undefined : lat,
+        zip ? undefined : lng,
+        cat,
+        radiusRef.current,
+        zip,
+      );
       const data: Suggestion[] = Array.isArray(res.data) ? res.data : res.data?.results ?? [];
 
       if (reset) {
@@ -828,7 +995,16 @@ export default function SuggestionsScreen() {
     pageRef.current = 0;
     try {
       const load = async (dateFilter: 'tonight' | 'this-weekend') => {
-        const res = await api.get('/api/suggestions', { params: { lat, lng, dateFilter } });
+        const zip = zipRef.current ?? undefined;
+        const res = await api.get('/api/suggestions', {
+          params: {
+            lat: zip ? undefined : lat,
+            lng: zip ? undefined : lng,
+            dateFilter,
+            radius: radiusRef.current,
+            zip,
+          },
+        });
         const data: Suggestion[] = Array.isArray(res.data) ? res.data : res.data?.results ?? [];
         return data;
       };
@@ -886,6 +1062,33 @@ export default function SuggestionsScreen() {
     setWeekendFallback(false);
     fetchSuggestions(coords?.lat, coords?.lng, undefined, true);
   }, [coords, fetchSuggestions]);
+
+  // ── Search area handlers — update ref first so refetches see fresh values ──
+  const refetchCurrent = useCallback(() => {
+    if (tonightActive) {
+      fetchTonight(coords?.lat, coords?.lng);
+    } else {
+      fetchSuggestions(coords?.lat, coords?.lng, activeCategory?.id, true);
+    }
+  }, [tonightActive, coords, activeCategory, fetchTonight, fetchSuggestions]);
+
+  const handleRadiusChange = useCallback((r: number) => {
+    radiusRef.current = r;
+    setRadiusState(r);
+    refetchCurrent();
+  }, [refetchCurrent]);
+
+  const handleApplyZip = useCallback((zip: string) => {
+    zipRef.current = zip;
+    setZipOverrideState(zip);
+    refetchCurrent();
+  }, [refetchCurrent]);
+
+  const handleClearZip = useCallback(() => {
+    zipRef.current = null;
+    setZipOverrideState(null);
+    refetchCurrent();
+  }, [refetchCurrent]);
 
   const requestLocation = useCallback(async () => {
     const { status } = await Location.requestForegroundPermissionsAsync();
@@ -973,7 +1176,7 @@ export default function SuggestionsScreen() {
 
   const isEmpty = !loading && displayedSuggestions.length === 0;
 
-  if (locationGranted === false && isEmpty) {
+  if (locationGranted === false && isEmpty && !zipOverride) {
     return (
       <View style={{ flex: 1, backgroundColor: colors.bg }}>
         <DNScreenHeader title="Discover" subtitle="📍 Allow location to find activities" />
@@ -986,12 +1189,19 @@ export default function SuggestionsScreen() {
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
       <DNScreenHeader
         title={tonightActive ? 'Tonight near you' : 'Discover'}
-        subtitle={tonightActive ? '🌙 Events happening today' : `📍 Near ${city} · tonight`}
+        subtitle={
+          tonightActive
+            ? '🌙 Events happening today'
+            : zipOverride
+            ? `📍 Searching ${zipOverride} · ${radius} mi`
+            : `📍 Near ${city} · tonight`
+        }
       />
 
       {loading ? (
         <ScrollView contentContainerStyle={{ padding: SPACING.gutter, paddingBottom: 200 }}>
           <TonightBanner active={tonightActive} weekendFallback={weekendFallback} city={city} onActivate={activateTonight} onClear={clearTonight} colors={colors} />
+          <AreaControls radius={radius} onRadius={handleRadiusChange} zipOverride={zipOverride} onApplyZip={handleApplyZip} onClearZip={handleClearZip} colors={colors} />
           <CategoryGrid activeId={activeCategory?.id ?? null} onSelect={handleCategorySelect} colors={colors} />
           <View style={{ paddingVertical: SPACING.xl, alignItems: 'center' }}>
             <ActivityIndicator color={colors.primary} size="large" />
@@ -1000,6 +1210,7 @@ export default function SuggestionsScreen() {
       ) : isEmpty ? (
         <ScrollView contentContainerStyle={{ padding: SPACING.gutter, paddingBottom: 200 }}>
           <TonightBanner active={tonightActive} weekendFallback={weekendFallback} city={city} onActivate={activateTonight} onClear={clearTonight} colors={colors} />
+          <AreaControls radius={radius} onRadius={handleRadiusChange} zipOverride={zipOverride} onApplyZip={handleApplyZip} onClearZip={handleClearZip} colors={colors} />
           <CategoryGrid activeId={activeCategory?.id ?? null} onSelect={handleCategorySelect} colors={colors} />
           <EmptyState onUseLocation={requestLocation} colors={colors} />
         </ScrollView>
@@ -1010,6 +1221,7 @@ export default function SuggestionsScreen() {
           ListHeaderComponent={
             <>
               <TonightBanner active={tonightActive} weekendFallback={weekendFallback} city={city} onActivate={activateTonight} onClear={clearTonight} colors={colors} />
+              <AreaControls radius={radius} onRadius={handleRadiusChange} zipOverride={zipOverride} onApplyZip={handleApplyZip} onClearZip={handleClearZip} colors={colors} />
               <CategoryGrid activeId={activeCategory?.id ?? null} onSelect={handleCategorySelect} colors={colors} />
             </>
           }
