@@ -28,6 +28,7 @@ import { fetchPredictHQ } from './sources/predicthq.source';
 import { fetchMobilize } from './sources/mobilize.source';
 import { fetchViator } from './sources/viator.source';
 import { fetchLiteApiHotels } from './sources/liteapi.source';
+import { enrichPhotos } from './photo-enrichment';
 
 export type { Suggestion, SuggestionCategory, SuggestionQuery };
 
@@ -377,6 +378,10 @@ export async function getSuggestions(query: SuggestionQuery): Promise<Suggestion
   }
 
   logger.info(`Suggestions assembled: ${final.length} total [${sourceSummary.join(', ')}]`);
+
+  // Enrich photos for any results still missing imageUrl (PredictHQ, Overpass,
+  // seed cards, etc.) — uses Foursquare venue name search, cached 24h.
+  await enrichPhotos(final, lat, lng);
 
   // Cache it
   await cache.set(key, JSON.stringify(final), cacheTtl(final));

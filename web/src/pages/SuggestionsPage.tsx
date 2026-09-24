@@ -272,6 +272,45 @@ const CATEGORY_FALLBACK_PHOTOS: Record<string, string[]> = {
     "https://images.unsplash.com/photo-1516627145497-ae6968895b40?auto=format&fit=crop&w=600&h=400&q=80",
     "https://images.unsplash.com/photo-1511895426328-dc8714191011?auto=format&fit=crop&w=600&h=400&q=80",
   ],
+  "Family": [
+    "https://images.unsplash.com/photo-1516627145497-ae6968895b40?auto=format&fit=crop&w=600&h=400&q=80",
+    "https://images.unsplash.com/photo-1511895426328-dc8714191011?auto=format&fit=crop&w=600&h=400&q=80",
+  ],
+  "Active": [
+    "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=600&h=400&q=80",
+    "https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=600&h=400&q=80",
+    "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=600&h=400&q=80",
+  ],
+  "Sports": [
+    "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&w=600&h=400&q=80",
+    "https://images.unsplash.com/photo-1504450758481-7338eba7524a?auto=format&fit=crop&w=600&h=400&q=80",
+    "https://images.unsplash.com/photo-1607619056574-7b8d3ee536b2?auto=format&fit=crop&w=600&h=400&q=80",
+  ],
+  "Couples": [
+    "https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?auto=format&fit=crop&w=600&h=400&q=80",
+    "https://images.unsplash.com/photo-1529634806980-85c3dd6d34ac?auto=format&fit=crop&w=600&h=400&q=80",
+    "https://images.unsplash.com/photo-1474552226712-ac0f0961a954?auto=format&fit=crop&w=600&h=400&q=80",
+  ],
+  "Day Trip": [
+    "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=600&h=400&q=80",
+    "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=600&h=400&q=80",
+    "https://images.unsplash.com/photo-1504609773096-104ff2c73ba4?auto=format&fit=crop&w=600&h=400&q=80",
+  ],
+  "Hotels": [
+    "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=600&h=400&q=80",
+    "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=600&h=400&q=80",
+    "https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&fit=crop&w=600&h=400&q=80",
+  ],
+  "Wellness": [
+    "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&w=600&h=400&q=80",
+    "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=600&h=400&q=80",
+    "https://images.unsplash.com/photo-1536856136534-bb679c52a9aa?auto=format&fit=crop&w=600&h=400&q=80",
+  ],
+  "Unique & Quirky": [
+    "https://images.unsplash.com/photo-1533461502717-83546f485d24?auto=format&fit=crop&w=600&h=400&q=80",
+    "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=600&h=400&q=80",
+    "https://images.unsplash.com/photo-1516912481808-3406841bd33c?auto=format&fit=crop&w=600&h=400&q=80",
+  ],
 };
 
 // Pick a fallback photo deterministically by name so the same venue always
