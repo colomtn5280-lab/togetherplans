@@ -124,6 +124,7 @@ export default function App() {
           <Route path="/terms" element={<TermsPage />} />
           <Route path="/support" element={<SupportPage />} />
           <Route path="/suggestions" element={<SuggestionsPage />} />
+          <Route path="/discover" element={<SuggestionsPage />} />
 
           {/* ── Public-only routes (redirect authenticated users to dashboard) ── */}
           <Route element={<PublicOnlyRoute />}>
