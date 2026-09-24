@@ -17,7 +17,7 @@ const router = Router();
  * GET /api/categories/after-dark
  * Display info for After Dark category card in Discover
  */
-router.get('/categories/after-dark', async (_req: AuthRequest, res: Response) => {
+router.get('/categories/after-dark', requireAuth, async (_req: AuthRequest, res: Response) => {
   try {
     const info = AfterDarkService.getCategoryInfo();
     const colors = AfterDarkService.getColorTokens();
@@ -43,7 +43,7 @@ router.get('/categories/after-dark', async (_req: AuthRequest, res: Response) =>
  *   - tier: 'ROMANTIC' | 'SPICY' | undefined for all
  *   - groupId: string (optional, to include couple's custom ideas)
  */
-router.get('/after-dark/items', async (req: AuthRequest, res: Response) => {
+router.get('/after-dark/items', requireAuth, async (req: AuthRequest, res: Response) => {
   try {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 20;
