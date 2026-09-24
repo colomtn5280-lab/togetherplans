@@ -215,6 +215,17 @@ export async function fetchMobilize(
       .map((ev): Suggestion | null => {
         if (!ev.title?.trim()) return null; // named only
         if (ev.is_virtual) return null;
+        // On-brand filter: partisan organizing shifts (canvasses, phone/text
+        // banks, rallies) dominate Mobilize inventory in election seasons and
+        // read as politics, not "volunteering," to a couples/friends plans app.
+        // Keep community-flavored types; drop electoral fieldwork.
+        const OFF_BRAND_TYPES = new Set([
+          'CANVASS', 'PHONE_BANK', 'TEXT_BANK', 'RALLY', 'FUNDRAISER',
+          'MEET_GREET', 'DEBATE_WATCH_PARTY', 'VOTER_REG', 'PETITION',
+          'LETTER_WRITING', 'LITERATURE_DROP_OFF', 'VISIBILITY_EVENT',
+          'FRIEND_TO_FRIEND_OUTREACH', 'BALLOT_CURING',
+        ]);
+        if (ev.event_type && OFF_BRAND_TYPES.has(ev.event_type)) return null;
 
         const slot = firstUpcomingTimeslot(ev.timeslots);
         if (!slot) return null; // upcoming only
