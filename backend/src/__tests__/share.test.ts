@@ -14,6 +14,7 @@
  *
  * NOT exercised (needs a real DB): actual SQL constraints/migration.
  */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 process.env.NODE_ENV = 'test';
 process.env.JWT_SECRET = 'test-secret';
