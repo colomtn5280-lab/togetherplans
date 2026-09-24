@@ -3,7 +3,8 @@ import { Expo } from 'expo-server-sdk';
 import { prisma } from '@/services/db';
 import { requireAuth, AuthRequest } from '@/middleware/auth';
 import { getSuggestions, SuggestionCategory } from '@/services/suggestions';
-import { sendVoteReminderEmail, sendItsAMatchEmail, sendTake2Email } from '@/services/email';
+import { sendVoteReminderEmail, sendTake2Email } from '@/services/email';
+import { checkProposalConsensus } from '@/services/consensus';
 import { logger } from '@/services/logger';
 import { cache } from '@/services/cache';
 import { generateShareToken } from '@/routes/share';
@@ -269,36 +270,10 @@ proposalsRouter.post('/:id/vote', async (req: AuthRequest, res: Response, next) 
       data: { optionId, userId: req.userId as string },
     });
 
-    // Consensus: ALL members voted AND one option has strict majority
-    const memberCount = await prisma.groupMember.count({ where: { groupId: option.proposal.groupId } });
-    const allOptions = await prisma.option.findMany({
-      where: { proposalId: option.proposalId },
-      include: { votes: true },
-    });
-    // Count distinct voters across all options on this proposal
-    const distinctVoters = await prisma.vote.groupBy({
-      by: ['userId'],
-      where: { option: { proposalId: option.proposalId } },
-    });
-    const allVoted = distinctVoters.length >= memberCount;
-    const winner = allOptions.find((o) => o.votes.length > memberCount / 2);
-    let decided = false;
-    // Require at least 2 members to trigger consensus — single-member groups stay OPEN
-    if (memberCount >= 2 && allVoted && winner) {
-      await prisma.proposal.update({ where: { id: option.proposalId }, data: { status: 'DECIDED' } });
-      decided = true;
-      // Notify all group members of the match
-      const matchMembers = await prisma.groupMember.findMany({
-        where: { groupId: option.proposal.groupId },
-        include: { user: { select: { email: true } } },
-      });
-      for (const m of matchMembers) {
-        if (m.user.email) {
-          void sendItsAMatchEmail(m.user.email, m.user.email, option.proposalId, option.proposal.title);
-        }
-      }
-    }
-    return res.status(201).json({ vote, decided, voteCount: winner ? winner.votes.length : 0, memberCount, winnerId: winner?.id });
+    // Consensus: ALL members voted AND one option has strict majority.
+    // Shared path — also used by guest→member vote conversion.
+    const { decided, winnerId, voteCount, memberCount } = await checkProposalConsensus(option.proposalId);
+    return res.status(201).json({ vote, decided, voteCount, memberCount, winnerId });
   } catch (err) {
     return next(err);
   }

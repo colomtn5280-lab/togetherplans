@@ -330,6 +330,47 @@ describe('GET /api/proposals/:id — guest tallies for members', () => {
   });
 });
 
+// ── OG preview + image for /vote links ────────────────────────────────────────
+
+describe('GET /api/share/:shareToken/preview and /og', () => {
+  it('serves crawler-readable HTML with OG tags + human redirect', async () => {
+    const { proposal } = seedProposal();
+    const res = await request(app).get(`/api/share/${proposal.shareToken}/preview`);
+    expect(res.status).toBe(200);
+    expect(res.headers['content-type']).toContain('text/html');
+    expect(res.text).toContain('og:title');
+    expect(res.text).toContain('Sarah proposed: Friday night out');
+    expect(res.text).toContain('2 options · Tap to vote — no account needed ·');
+    expect(res.text).toContain('summary_large_image');
+    expect(res.text).toContain(`/vote/${proposal.shareToken}`);
+    expect(res.text).toContain('http-equiv="refresh"');
+    // no private data
+    expect(res.text).not.toContain('@example.com');
+  });
+
+  it('serves a branded SVG OG image for OPEN proposals', async () => {
+    const { proposal } = seedProposal();
+    const res = await request(app)
+      .get(`/api/share/${proposal.shareToken}/og`)
+      .buffer(true)
+      .parse((r, cb) => {
+        const chunks: Buffer[] = [];
+        r.on('data', (c: Buffer) => chunks.push(c));
+        r.on('end', () => cb(null, Buffer.concat(chunks)));
+      });
+    expect(res.status).toBe(200);
+    expect(res.headers['content-type']).toContain('image/svg+xml');
+    const svg = (res.body as Buffer).toString('utf8');
+    expect(svg).toContain('Vote now — no account needed');
+    expect(svg).toContain('TogetherPlans');
+  });
+
+  it('404s preview for unknown tokens', async () => {
+    const res = await request(app).get('/api/share/tok_doesnotexist9999/preview');
+    expect(res.status).toBe(404);
+  });
+});
+
 // ── Solo-start: 1-member group + proposal ─────────────────────────────────────
 
 describe('solo-start backend flow', () => {

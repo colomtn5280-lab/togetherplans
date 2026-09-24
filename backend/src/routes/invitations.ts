@@ -2,6 +2,8 @@ import { Router, Response } from 'express';
 import { prisma } from '@/services/db';
 import { requireAuth, AuthRequest } from '@/middleware/auth';
 import { sendGroupInviteEmail } from '@/services/email';
+import { claimGuestVotes } from '@/services/guest-claim';
+import { logger } from '@/services/logger';
 
 export const invitationsRouter = Router();
 
@@ -117,7 +119,21 @@ invitationsRouter.post('/accept/:token', async (req: AuthRequest, res: Response,
         data: { status: 'ACCEPTED' },
       }),
     ]);
-    return res.status(201).json(member);
+
+    // Guest→member vote carryover: if the joiner voted as a guest before
+    // signing up, convert those guest votes now that they're a member.
+    // Optional guestId comes from the web client's localStorage.
+    const { guestId } = (req.body as { guestId?: string }) || {};
+    let claim: { converted: number; pending: number } | undefined;
+    if (guestId && typeof guestId === 'string' && /^[A-Za-z0-9-]{8,64}$/.test(guestId)) {
+      try {
+        claim = await claimGuestVotes(req.userId as string, guestId);
+      } catch (err) {
+        logger.error('Guest vote conversion failed on invitation accept', { err });
+      }
+    }
+
+    return res.status(201).json({ ...member, ...(claim ? { guestVotesClaimed: claim } : {}) });
   } catch (err) {
     return next(err);
   }

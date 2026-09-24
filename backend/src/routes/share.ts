@@ -181,3 +181,135 @@ shareRouter.post('/:shareToken/vote', guestVoteLimiter, async (req: Request, res
     return next(err);
   }
 });
+
+// ─── Rich link previews (OG) for /vote/<token> links ─────────────────────────
+//
+// Social crawlers (iMessage, WhatsApp, Facebook, Twitter, Slack, …) don't run
+// the SPA's JS, so OG tags must come from a server. A Cloudflare Pages Function
+// (web/functions/vote/[token].ts) proxies known crawler user-agents to
+// GET /api/share/:token/preview; humans who land here directly are instantly
+// redirected to the SPA voting page.
+
+const APP_URL = process.env.APP_URL || 'https://togetherplans.app';
+const API_URL = process.env.API_URL || 'https://api.togetherplans.app';
+
+function escHtml(s: string): string {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function escXml(s: string): string {
+  return escHtml(s);
+}
+
+function formatShareDate(dt: Date): string {
+  return dt.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+}
+
+/**
+ * GET /api/share/:shareToken/preview
+ * Crawler-readable HTML with OG tags + instant redirect to the SPA for humans.
+ */
+shareRouter.get('/:shareToken/preview', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { shareToken } = req.params;
+    if (!TOKEN_RE.test(shareToken)) return res.status(404).send('Not found');
+
+    const proposal = await loadByToken(shareToken);
+    if (!proposal || (proposal.status !== 'OPEN' && proposal.status !== 'DECIDED')) {
+      return res.status(404).send('Not found');
+    }
+
+    const spaUrl = `${APP_URL}/vote/${shareToken}`;
+    const proposer = proposal.creator.displayName || proposal.group.name;
+    const optionCount = proposal.options.length;
+    const ogTitle = `${proposer} proposed: ${proposal.title}`;
+    const ogDescription = `${optionCount} option${optionCount !== 1 ? 's' : ''} · Tap to vote — no account needed · ${formatShareDate(proposal.dateTime)}`;
+    const ogImage = `${API_URL}/api/share/${shareToken}/og`;
+
+    const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>${escHtml(ogTitle)}</title>
+<meta name="description" content="${escHtml(ogDescription)}">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="TogetherPlans">
+<meta property="og:title" content="${escHtml(ogTitle)}">
+<meta property="og:description" content="${escHtml(ogDescription)}">
+<meta property="og:image" content="${escHtml(ogImage)}">
+<meta property="og:url" content="${escHtml(spaUrl)}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="${escHtml(ogTitle)}">
+<meta name="twitter:description" content="${escHtml(ogDescription)}">
+<meta name="twitter:image" content="${escHtml(ogImage)}">
+<meta http-equiv="refresh" content="0;url=${escHtml(spaUrl)}">
+<script>window.location.replace(${JSON.stringify(spaUrl)});</script>
+</head>
+<body>
+<p>Redirecting to <a href="${escHtml(spaUrl)}">${escHtml(spaUrl)}</a>…</p>
+</body>
+</html>`;
+
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.setHeader('Cache-Control', 'public, max-age=300');
+    return res.send(html);
+  } catch (err) {
+    return next(err);
+  }
+});
+
+/**
+ * GET /api/share/:shareToken/og
+ * Branded OG image for OPEN (and DECIDED) proposals — teal card, title, date,
+ * option count, CTA, wordmark. Served as SVG (same pipeline as the decided
+ * share cards — no raster deps in package.json).
+ */
+shareRouter.get('/:shareToken/og', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { shareToken } = req.params;
+    if (!TOKEN_RE.test(shareToken)) return res.status(404).json({ error: 'Not found' });
+
+    const proposal = await loadByToken(shareToken);
+    if (!proposal || (proposal.status !== 'OPEN' && proposal.status !== 'DECIDED')) {
+      return res.status(404).json({ error: 'Not found' });
+    }
+
+    const title = proposal.title.length > 34 ? proposal.title.slice(0, 32) + '…' : proposal.title;
+    const date = formatShareDate(proposal.dateTime);
+    const optionCount = proposal.options.length;
+    const subtitle = `${optionCount} option${optionCount !== 1 ? 's' : ''} · ${date}`;
+    const cta = proposal.status === 'OPEN'
+      ? 'Vote now — no account needed'
+      : 'The group decided — see the plan';
+
+    const svg = `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0E8C8C;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#065f5f;stop-opacity:1"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <circle cx="1050" cy="100" r="200" fill="#7CB518" fill-opacity="0.15"/>
+  <circle cx="100" cy="550" r="150" fill="#ffffff" fill-opacity="0.05"/>
+  <text x="60" y="80" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="28" font-weight="800" fill="#D9F1F0" letter-spacing="0.5">TogetherPlans</text>
+  <text x="60" y="200" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="80">🗳️</text>
+  <text x="60" y="310" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="56" font-weight="800" fill="#ffffff" letter-spacing="-1">${escXml(title)}</text>
+  <text x="60" y="375" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="32" fill="#D9F1F0">${escXml(subtitle)}</text>
+  <rect x="60" y="430" rx="16" width="560" height="72" fill="#7CB518"/>
+  <text x="90" y="477" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="30" font-weight="800" fill="#0F1519">${escXml(cta)}</text>
+  <text x="60" y="580" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="20" fill="#7CB518" letter-spacing="0.3">Plan together. Go together. — togetherplans.app</text>
+</svg>`;
+
+    res.setHeader('Content-Type', 'image/svg+xml');
+    res.setHeader('Cache-Control', 'public, max-age=3600');
+    return res.send(svg);
+  } catch (err) {
+    return next(err);
+  }
+});

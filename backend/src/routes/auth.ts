@@ -10,6 +10,7 @@ import { verifyGoogleToken } from '@/services/oauth';
 import { verifyAppleToken } from '@/services/apple';
 import { logger } from '@/services/logger';
 import { cache } from '@/services/cache';
+import { claimGuestVotes } from '@/services/guest-claim';
 
 export const authRouter = Router();
 
@@ -384,6 +385,24 @@ authRouter.post('/logout', async (req: AuthRequest, res: Response, next: NextFun
       });
     }
     return res.json({ message: 'Logged out' });
+  } catch (err) {
+    return next(err);
+  }
+});
+
+// POST /api/auth/claim-guest-votes — convert guest votes to member votes.
+// Body: { guestId } (the browser-local guest id from localStorage 'tp.guestId').
+// Guest votes on proposals in groups the user belongs to become real Votes
+// (member vote wins if one already exists); votes in other groups stay pending
+// and are converted when the user joins that group (invitation accept flow).
+authRouter.post('/claim-guest-votes', requireAuth, async (req: AuthRequest, res: Response, next) => {
+  try {
+    const { guestId } = req.body || {};
+    if (!guestId || typeof guestId !== 'string' || !/^[A-Za-z0-9-]{8,64}$/.test(guestId)) {
+      return res.status(400).json({ error: 'A valid guestId is required' });
+    }
+    const result = await claimGuestVotes(req.userId as string, guestId);
+    return res.json(result);
   } catch (err) {
     return next(err);
   }
