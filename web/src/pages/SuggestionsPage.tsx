@@ -901,6 +901,13 @@ export function SuggestionsPage() {
             onClick={() => setSearchParams((p) => { p.set("category", "wine-drinks"); return p; })}>
             <span className="tp-dot" aria-hidden={true} />Wine &amp; Drinks
           </button>
+
+          {/* After Dark → after-dark */}
+          <button className="tp-tile" role="radio" aria-checked={categoryId === "after-dark" ? true : false}
+            onClick={() => navigate("/after-dark")}
+            style={{ background: categoryId === "after-dark" ? "#101820" : undefined, color: categoryId === "after-dark" ? "#fff" : undefined }}>
+            <span className="tp-dot" aria-hidden={true} style={{ background: "#B2485E" }} />🌙 After Dark
+          </button>
         </div>
 
         {/* When + How far segmented controls */}

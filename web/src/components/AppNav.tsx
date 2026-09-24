@@ -235,33 +235,6 @@ export function AppNav() {
                 </Link>
               );
             })}
-
-            {/* After Dark — desktop only in segments */}
-            <Link
-              to="/after-dark"
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 6,
-                padding: "8px 16px",
-                borderRadius: 20,
-                fontFamily: "var(--font-display)",
-                fontWeight: 700,
-                fontSize: 13,
-                textDecoration: "none",
-                background:
-                  location.pathname === "/after-dark"
-                    ? "var(--primary)"
-                    : "transparent",
-                color:
-                  location.pathname === "/after-dark"
-                    ? "var(--on-primary)"
-                    : "var(--ink2)",
-                transition: "background 150ms, color 150ms",
-              }}
-            >
-              🌙 After Dark
-            </Link>
           </div>
         )}
 
@@ -487,14 +460,6 @@ export function AppNav() {
             >
               <span className="app-nav__drawer-icon">⚙️</span>
               Settings
-            </Link>
-
-            <Link
-              to="/after-dark"
-              className={`app-nav__drawer-link${location.pathname === "/after-dark" ? " app-nav__drawer-link--active" : ""}`}
-            >
-              <span className="app-nav__drawer-icon">🌙</span>
-              After Dark
             </Link>
           </aside>
         </>
