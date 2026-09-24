@@ -2,12 +2,21 @@
  * Foursquare Places API v2 source.
  * Uses Client ID + Client Secret (free, no rate limit concerns at our scale).
  * Covers: restaurants, bars, wineries, breweries, parks, museums, entertainment venues.
+ *
+ * Photo enrichment: v2 /venues/search omits photos; we batch-fetch them via
+ * /venues/{id}/photos after the search, capped at PHOTO_ENRICH_LIMIT venues
+ * to keep latency sane.
  */
 
 import { Suggestion, SuggestionCategory, haversineMiles } from './types';
+import { logger } from '@/services/logger';
 
 const FSQ_BASE = 'https://api.foursquare.com/v2';
 const FSQ_VERSION = '20231001';
+
+// Fetch real venue photos for at most this many results per search.
+// Each takes ~1 network call; they run in parallel.
+const PHOTO_ENRICH_LIMIT = 30;
 
 interface FsqCategory {
   id: string;
@@ -127,7 +136,38 @@ function costTierFromPrice(price?: { tier: number }): Suggestion['costTier'] {
 function venueImage(photos?: FsqVenue['photos']): string | undefined {
   const item = photos?.groups?.[0]?.items?.[0];
   if (!item) return undefined;
-  return `${item.prefix}400x300${item.suffix}`;
+  return `${item.prefix}600x400${item.suffix}`;
+}
+
+/**
+ * Fetch a single photo URL for a venue via /venues/{id}/photos.
+ * Returns undefined on any error so callers can skip gracefully.
+ */
+async function fetchVenuePhoto(
+  venueId: string,
+  clientId: string,
+  clientSecret: string,
+): Promise<string | undefined> {
+  try {
+    const url = new URL(`${FSQ_BASE}/venues/${venueId}/photos`);
+    url.searchParams.set('client_id', clientId);
+    url.searchParams.set('client_secret', clientSecret);
+    url.searchParams.set('v', FSQ_VERSION);
+    url.searchParams.set('group', 'venue');
+    url.searchParams.set('limit', '1');
+
+    const resp = await fetch(url.toString(), { signal: AbortSignal.timeout(4000) });
+    if (!resp.ok) return undefined;
+    const data = await resp.json() as {
+      meta?: { code: number };
+      response?: { photos?: { items?: Array<{ prefix: string; suffix: string }> } };
+    };
+    const item = data.response?.photos?.items?.[0];
+    if (!item) return undefined;
+    return `${item.prefix}600x400${item.suffix}`;
+  } catch {
+    return undefined;
+  }
 }
 
 function venueDescription(venue: FsqVenue, category: SuggestionCategory): string {
@@ -237,6 +277,22 @@ export async function fetchFoursquare(
       externalId: venue.id,
       attribution: 'Venue data © Foursquare',
     });
+  }
+
+  // Enrich up to PHOTO_ENRICH_LIMIT results with real venue photos in parallel.
+  // v2 /venues/search doesn't return photos; /venues/{id}/photos gives the real deal.
+  const toEnrich = results.slice(0, PHOTO_ENRICH_LIMIT).filter((r) => !r.imageUrl);
+  if (toEnrich.length > 0) {
+    const photoResults = await Promise.allSettled(
+      toEnrich.map((r) => fetchVenuePhoto(r.externalId!, clientId, clientSecret)),
+    );
+    photoResults.forEach((res, i) => {
+      if (res.status === 'fulfilled' && res.value) {
+        toEnrich[i].imageUrl = res.value;
+      }
+    });
+    const fetched = photoResults.filter((r) => r.status === 'fulfilled' && (r as PromiseFulfilledResult<string|undefined>).value).length;
+    logger.info(`Foursquare photo enrichment: ${fetched}/${toEnrich.length} photos fetched`);
   }
 
   return results;
