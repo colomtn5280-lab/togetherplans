@@ -64,7 +64,12 @@ export async function fetchAiIdeas(
   count = 8,
 ): Promise<Suggestion[]> {
   const key = process.env.GEMINI_API_KEY;
-  if (!key) return [];
+  if (!key) {
+    logger.warn('Gemini AI ideas: GEMINI_API_KEY not set, skipping');
+    return [];
+  }
+
+  logger.info(`Gemini AI ideas: calling for ${category} near ${city}, ${state}`);
 
   const categoryDesc = CATEGORY_PROMPTS[category] ?? `${category} activities`;
   const locationStr = city && state ? `in or near ${city}, ${state}` : 'in a typical US city';
