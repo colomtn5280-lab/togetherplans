@@ -20,18 +20,16 @@ const router = Router();
 // ── Rate limiters ──────────────────────────────────────────────────────────
 
 const createIdeaLimiter = rateLimit({
-  windowMs: 60 * 1000, // 1 minute
-  max: 5, // 5 ideas per minute per user
+  windowMs: 60 * 1000,
+  max: 5,
   message: 'Too many ideas created, please try again later',
-  keyGenerator: (req) => (req as AuthRequest).userId || req.ip || 'unknown',
-  skip: (req) => !((req as AuthRequest).userId), // Skip if not authenticated
+  skip: (req) => !((req as AuthRequest).userId),
 });
 
 const reportLimiter = rateLimit({
-  windowMs: 60 * 1000, // 1 minute
-  max: 10, // 10 reports per minute per user
+  windowMs: 60 * 1000,
+  max: 10,
   message: 'Too many reports, please try again later',
-  keyGenerator: (req) => (req as AuthRequest).userId || req.ip || 'unknown',
   skip: (req) => !((req as AuthRequest).userId),
 });
 
