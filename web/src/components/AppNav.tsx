@@ -208,6 +208,13 @@ export function AppNav() {
                 <Link
                   key={link.to}
                   to={link.to}
+                  onClick={() => {
+                    if (link.to === "/dashboard") {
+                      // User explicitly chose Home — stop the empty-dashboard
+                      // → Discover redirect from bouncing them back.
+                      localStorage.setItem("dn.skipDiscoverRedirect", "1");
+                    }
+                  }}
                   style={{
                     display: "flex",
                     alignItems: "center",
@@ -499,6 +506,7 @@ export function AppNav() {
           {/* Home */}
           <Link
             to="/dashboard"
+            onClick={() => localStorage.setItem("dn.skipDiscoverRedirect", "1")}
             className={`app-nav__tab${location.pathname === "/dashboard" ? " app-nav__tab--active" : ""}`}
           >
             <span className="app-nav__tab-icon">⌂</span>

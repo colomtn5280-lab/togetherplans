@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { groupsApi } from "../api/client";
@@ -49,6 +49,17 @@ export function DashboardPage() {
       return res.data;
     },
   });
+
+  // First-session flow: a user with zero groups lands in Discover instead of
+  // an empty dashboard — unless they explicitly navigated here from the nav
+  // (dn.skipDiscoverRedirect) or the onboarding modal is still open.
+  useEffect(() => {
+    if (showOnboarding) return;
+    if (isLoading || !groups) return;
+    if (groups.length > 0) return;
+    if (localStorage.getItem("dn.skipDiscoverRedirect")) return;
+    navigate("/suggestions", { replace: true });
+  }, [showOnboarding, isLoading, groups, navigate]);
 
   // Fetch proposals for ALL groups in parallel
   const groupIds = (groups ?? []).map((g: Group) => g.id);
@@ -328,11 +339,11 @@ export function DashboardPage() {
                     flexWrap: "wrap",
                   }}
                 >
-                  <Link to="/groups" className="dn-btn">
-                    Create a group
+                  <Link to="/suggestions" className="dn-btn">
+                    Browse tonight's ideas →
                   </Link>
-                  <Link to="/suggestions" className="dn-btn dn-btn--secondary">
-                    Browse activities
+                  <Link to="/groups" className="dn-btn dn-btn--secondary">
+                    Create a group
                   </Link>
                 </div>
               </div>
