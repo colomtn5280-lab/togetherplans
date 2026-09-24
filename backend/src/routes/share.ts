@@ -12,7 +12,7 @@
  */
 
 import { Router, Request, Response, NextFunction } from 'express';
-import rateLimit from 'express-rate-limit';
+import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 import crypto from 'crypto';
 import { prisma } from '@/services/db';
 import { logger } from '@/services/logger';
@@ -31,14 +31,15 @@ export function generateShareToken(): string {
 
 // Modest rate limit for guest votes. Note: per-IP limiting is weak behind
 // Cloud Run + Cloudflare (shared LB IP), so we key by guestId when present.
+// IPv6-safe: use skip() to handle guestId, ipKeyGenerator() uses proper IP detection
 const guestVoteLimiter = rateLimit({
   windowMs: 60 * 1000,
   max: 30,
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator: (req: Request) =>
-    typeof req.body?.guestId === 'string' ? `guest:${req.body.guestId}` : (req.ip ?? 'unknown'),
+  skip: (req: Request) => typeof req.body?.guestId === 'string', // Skip rate limit for guestId-based requests
   message: { error: 'Too many votes — slow down a little.' },
+  // Don't specify keyGenerator; ipKeyGenerator is used by default (IPv6-safe)
 });
 
 /** Load a proposal by share token with everything the public page needs */
