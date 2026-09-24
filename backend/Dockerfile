@@ -8,7 +8,7 @@ COPY prisma ./prisma
 COPY prisma.config.ts tsconfig.json ./
 RUN npm ci
 COPY src ./src
-RUN npx prisma generate && npm run build && cp -r src/emails dist/emails
+RUN npx prisma generate && npm run build && cp -r src/emails dist/emails && cp -r src/assets dist/assets
 
 FROM node:22-slim AS production
 WORKDIR /app

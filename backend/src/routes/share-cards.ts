@@ -16,6 +16,7 @@ import { prisma } from '@/services/db';
 import { requireAuth, AuthRequest } from '@/middleware/auth';
 import { logger } from '@/services/logger';
 import crypto from 'crypto';
+import { rasterizeOgSvgCached } from '@/services/og-image';
 
 export const shareCardsRouter = Router();
 
@@ -297,9 +298,19 @@ shareCardsRouter.get('/:proposalId/og-image', async (req: Request, res: Response
   <text x="60" y="580" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="20" fill="#7CB518" letter-spacing="0.3">Plan together. Go together. — togetherplans.app</text>
 </svg>`;
 
-    res.setHeader('Content-Type', 'image/svg+xml');
+    if (req.query.format === 'svg') {
+      // Debugging escape hatch — raw SVG
+      res.setHeader('Content-Type', 'image/svg+xml');
+      res.setHeader('Cache-Control', 'public, max-age=3600');
+      return res.send(svg);
+    }
+
+    // Raster PNG — this URL is used as card.og.image (native share sheets +
+    // web share modal), and WhatsApp/iMessage/Facebook won't render SVG.
+    const png = rasterizeOgSvgCached(`share-card:${req.params.proposalId}`, svg);
+    res.setHeader('Content-Type', 'image/png');
     res.setHeader('Cache-Control', 'public, max-age=3600');
-    return res.send(svg);
+    return res.send(png);
   } catch (err) {
     return next(err);
   }
