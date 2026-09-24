@@ -80,6 +80,16 @@ describe('getSuggestions', () => {
     }
   }, 60_000);
 
+  it('hotel-stays resolves to Hotels (LiteAPI-backed, no longer seed-only)', async () => {
+    for (const raw of ['hotel-stays', 'Hotel Stays']) {
+      const result = await getSuggestions({ category: raw, lat: 39.7392, lng: -104.9903 });
+      expect(result.length).toBeGreaterThan(0);
+      for (const s of result) {
+        expect(s.category).toBe('Hotels');
+      }
+    }
+  }, 60_000);
+
   it('seed suggestions carry isIdea and sort after real results', async () => {
     const result = await getSuggestions({ category: 'Streaming Night' });
     let seenSeed = false;

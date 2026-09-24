@@ -26,6 +26,8 @@ import { fetchFoursquare } from './sources/foursquare.source';
 import { fetchNpsParks, fetchNpsEvents } from './sources/nps.source';
 import { fetchPredictHQ } from './sources/predicthq.source';
 import { fetchMobilize } from './sources/mobilize.source';
+import { fetchViator } from './sources/viator.source';
+import { fetchLiteApiHotels } from './sources/liteapi.source';
 
 export type { Suggestion, SuggestionCategory, SuggestionQuery };
 
@@ -43,7 +45,7 @@ const NEW_TO_INTERNAL: Record<string, SuggestionCategory | null> = {
   'sports-active': 'Sports',
   'golf': 'Sports', // backward-compat alias — shipped clients still send the old 'golf' slug
   'hiking-trails': 'Outdoors',
-  'hotel-stays': null,
+  'hotel-stays': 'Hotels',
   'local-experiences': 'Local Experience',
   'movies': 'Movies',
   'netflix-shows': 'Streaming Night',
@@ -60,7 +62,7 @@ const NEW_TO_INTERNAL: Record<string, SuggestionCategory | null> = {
   'Sports & Active': 'Sports',
   'Golf': 'Sports', // backward-compat alias — old proposal options / shipped clients send 'Golf'
   'Hiking Trails': 'Outdoors',
-  'Hotel Stays': null,
+  'Hotel Stays': 'Hotels',
   'Local Experiences': 'Local Experience',
   'Netflix Shows': 'Streaming Night',
   'Performing Arts': 'Theater & Plays',
@@ -285,6 +287,14 @@ export async function getSuggestions(query: SuggestionQuery): Promise<Suggestion
       // Mobilize only covers volunteering — skip the network call for anything else
       ...(category === 'Volunteering'
         ? [{ name: 'mobilize', fetch: () => fetchMobilize(lat!, lng!, radiusMiles) }]
+        : []),
+      // Viator (affiliate) covers bookable tours/experiences — only for these categories
+      ...(category === 'Local Experience' || category === 'Couples' || category === 'Wine & Drinks'
+        ? [{ name: 'viator', fetch: () => fetchViator(lat!, lng!, radiusMiles, category) }]
+        : []),
+      // LiteAPI only covers hotel stays — skip the network call for anything else
+      ...(category === 'Hotels'
+        ? [{ name: 'liteapi', fetch: () => fetchLiteApiHotels(lat!, lng!, radiusMiles) }]
         : []),
     ] : []),
     { name: 'tmdb', fetch: () => fetchTmdb(category) },

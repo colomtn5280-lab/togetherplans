@@ -20,6 +20,7 @@ export type SuggestionCategory =
   | 'Couples'
   | 'Local Experience'
   | 'Volunteering'
+  | 'Hotels'
   | 'Unique & Quirky';
 
 export type CostTier = 'free' | '$' | '$$' | '$$$';
@@ -32,6 +33,8 @@ export type SourceName =
   | 'predicthq'
   | 'overpass'
   | 'mobilize'
+  | 'viator'
+  | 'liteapi'
   | 'seed'
   | 'scraped';
 
@@ -49,6 +52,7 @@ export interface Suggestion {
   timeStart?: string;              // e.g. "7:30 PM"
   price?: string;                  // human string e.g. "$15–$45"
   costTier: CostTier;
+  rating?: number;                 // source rating (e.g. Viator combinedAverageRating, 0–5)
   imageUrl?: string;
   ticketUrl?: string;
   dateFriendly: boolean;

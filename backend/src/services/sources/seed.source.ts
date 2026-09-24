@@ -145,6 +145,12 @@ const SEEDS: SeedEntry[] = [
   { name: 'Evening concert for two', category: 'Couples', shortDescription: 'Pick a show neither of you knows. Shared discovery beats a sure thing.', costTier: '$$', dateFriendly: true, groupFriendly: false, durationMinutes: 180 },
   { name: 'Late-night dessert crawl', category: 'Couples', shortDescription: 'Skip dinner, go straight to two or three dessert spots.', costTier: '$', dateFriendly: true, groupFriendly: false, durationMinutes: 120 },
   { name: 'Rooftop drinks at golden hour', category: 'Couples', shortDescription: 'One drink, one view, no agenda.', costTier: '$$', dateFriendly: true, groupFriendly: false, durationMinutes: 90 },
+
+  // ── Hotels ────────────────────────────────────────────────────────
+  { name: 'Downtown staycation', category: 'Hotels', shortDescription: 'Book a night in your own city. Room service, robe, zero commute.', costTier: '$$', dateFriendly: true, groupFriendly: false, durationMinutes: 720 },
+  { name: 'Mountain lodge weekend', category: 'Hotels', shortDescription: 'Fireplace, big windows, nothing on the calendar. Worth the drive.', costTier: '$$$', dateFriendly: true, groupFriendly: true, durationMinutes: 720 },
+  { name: 'Cozy bed & breakfast', category: 'Hotels', shortDescription: 'Small inn, homemade breakfast, a town you\'ve never explored.', costTier: '$$', dateFriendly: true, groupFriendly: false, durationMinutes: 720 },
+  { name: 'Hot springs resort night', category: 'Hotels', shortDescription: 'Soak under the stars, sleep in, soak again before checkout.', costTier: '$$$', dateFriendly: true, groupFriendly: true, durationMinutes: 720 },
 ];
 
 export function getSeedSuggestions(
