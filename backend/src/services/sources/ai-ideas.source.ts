@@ -14,7 +14,7 @@ import { Suggestion, SuggestionCategory } from './types';
 import { logger } from '@/services/logger';
 
 const GEMINI_BASE = 'https://generativelanguage.googleapis.com/v1beta';
-const GEMINI_MODEL = 'gemini-1.5-flash-latest';
+const GEMINI_MODEL = 'gemini-flash-latest';
 
 // Category-specific prompts for better idea quality
 const CATEGORY_PROMPTS: Partial<Record<SuggestionCategory | string, string>> = {
@@ -87,10 +87,13 @@ Rules:
 
   try {
     const resp = await fetch(
-      `${GEMINI_BASE}/models/${GEMINI_MODEL}:generateContent?key=${key}`,
+      `${GEMINI_BASE}/models/${GEMINI_MODEL}:generateContent`,
       {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-goog-api-key': key,
+        },
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
           generationConfig: {
