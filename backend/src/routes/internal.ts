@@ -219,7 +219,7 @@ internalRouter.get('/photo-test', async (_req: Request, res: Response) => {
     url.searchParams.set('key', key);
 
     const resp = await fetch(url.toString());
-    const data = await resp.json() as any;
+    const data = await resp.json() as { status?: string; error_message?: string; results?: Array<{ name?: string; photos?: Array<{ photo_reference: string }> }> };
 
     return res.json({
       key_set: true,

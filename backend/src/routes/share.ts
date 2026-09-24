@@ -12,7 +12,7 @@
  */
 
 import { Router, Request, Response, NextFunction } from 'express';
-import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
+import rateLimit from 'express-rate-limit';
 import crypto from 'crypto';
 import { prisma } from '@/services/db';
 import { logger } from '@/services/logger';

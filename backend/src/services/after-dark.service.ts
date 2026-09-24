@@ -18,7 +18,7 @@
  */
 
 import { prisma as db } from '@/services/db';
-import { AfterDarkItem, AfterDarkTier, AfterDarkWhere, CreateAfterDarkIdeaInput } from '../models/AfterDarkModels';
+import { AfterDarkItem, AfterDarkTier, CreateAfterDarkIdeaInput } from '../models/AfterDarkModels';
 import { logger } from '@/services/logger';
 
 export class AfterDarkService {
@@ -36,7 +36,7 @@ export class AfterDarkService {
     page = Math.max(1, Math.min(page, 1000));
     limit = Math.max(1, Math.min(limit, 100));
 
-    const where: any = {
+    const where: Record<string, unknown> = {
       OR: [
         { createdBy: null }, // Public seed items (visible to all)
         { groupId }, // Couple's custom ideas (if groupId provided)
@@ -220,7 +220,7 @@ export class AfterDarkService {
   static async getSeedCatalog(
     tier?: AfterDarkTier
   ): Promise<AfterDarkItem[]> {
-    const where: any = { createdBy: null }; // Only seed items
+    const where: Record<string, unknown> = { createdBy: null }; // Only seed items
 
     if (tier && ['ROMANTIC', 'SPICY'].includes(tier)) {
       where.tier = tier;

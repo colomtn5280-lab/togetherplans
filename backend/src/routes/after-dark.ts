@@ -75,7 +75,7 @@ router.get('/items', requireAuth, async (req: AuthRequest, res: Response) => {
     const validPage = Math.max(1, Math.min(page, 1000));
     const validLimit = Math.max(1, Math.min(limit, 100));
 
-    const result = await AfterDarkService.getItems(groupId, tier as any, validPage, validLimit);
+    const result = await AfterDarkService.getItems(groupId, tier as import('../models/AfterDarkModels').AfterDarkTier | undefined, validPage, validLimit);
 
     res.json({
       items: result.items,

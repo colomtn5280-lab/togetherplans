@@ -105,7 +105,7 @@ suggestionsRouter.get('/photo-debug', async (_req: import('express').Request, re
     url.searchParams.set('key', key);
 
     const resp = await fetch(url.toString());
-    const data = await resp.json() as any;
+    const data = await resp.json() as { status?: string; error_message?: string; results?: Array<{ name?: string; photos?: Array<{ photo_reference?: string }> }> };
 
     return res.json({
       key_prefix: key.slice(0, 10) + '...',
