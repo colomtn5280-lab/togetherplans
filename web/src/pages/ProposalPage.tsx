@@ -163,7 +163,7 @@ function ShareModal({ proposalId, onClose }: ShareModalProps) {
             <div
               style={{
                 background: "var(--bg)",
-                borderRadius: 12,
+                borderRadius: 20,
                 padding: "10px 14px",
                 marginBottom: 12,
                 display: "flex",
@@ -522,12 +522,12 @@ export function ProposalPage() {
                 <img
                   src={winningOption.imageUrl}
                   alt={winningOption.name}
-                  style={{ width: 120, height: 90, objectFit: "cover", borderRadius: 12, flexShrink: 0 }}
+                  style={{ width: 120, height: 90, objectFit: "cover", borderRadius: 20, flexShrink: 0 }}
                   onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
                 />
               ) : (
                 <div style={{
-                  width: 120, height: 90, borderRadius: 12, flexShrink: 0,
+                  width: 120, height: 90, borderRadius: 20, flexShrink: 0,
                   background: getCategoryColor(winningOption.category),
                   display: "flex", alignItems: "center", justifyContent: "center", fontSize: 32,
                 }}>

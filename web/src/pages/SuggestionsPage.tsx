@@ -534,7 +534,7 @@ export function SuggestionsPage() {
         {!isAuthenticated && (
           <div style={{
             background: "var(--primary-soft)",
-            borderRadius: 12,
+            borderRadius: 20,
             padding: "12px 16px",
             marginBottom: 20,
             display: "flex",
@@ -618,7 +618,7 @@ export function SuggestionsPage() {
                 style={{
                   width: 90,
                   padding: "6px 10px",
-                  borderRadius: 12,
+                  borderRadius: 20,
                   border: "1.5px solid var(--line)",
                   fontSize: 14,
                 }}
@@ -728,7 +728,7 @@ export function SuggestionsPage() {
               style={{
                 width: 90,
                 padding: "6px 10px",
-                borderRadius: 12,
+                borderRadius: 20,
                 border: "1.5px solid var(--line)",
                 fontSize: 14,
               }}

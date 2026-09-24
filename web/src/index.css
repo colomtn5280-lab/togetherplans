@@ -266,7 +266,32 @@ a:hover { text-decoration: underline; }
   transform: rotate(-2deg);
 }
 
-/* Pulse animation for YOUR TURN card */
+/* ── Global border-radius: everything is a bubble, nothing is a rectangle ── */
+
+/* All native inputs, selects, textareas */
+input, textarea, select {
+  border-radius: 14px !important;
+}
+
+/* All buttons that aren't already using .dn-btn */
+button:not(.dn-btn):not(.app-nav__mobile-hamburger):not(.app-nav__drawer-close):not(.app-nav__group-picker-item):not(.app-nav__tab):not(.app-nav__tab--new-plan) {
+  border-radius: 100px !important;
+}
+
+/* Legacy .btn classes from LandingPage */
+.btn { border-radius: 100px !important; }
+.btn-sm { border-radius: 100px !important; }
+
+/* Inline-style overrides: bump up any hard-coded small radii at the CSS layer */
+/* Cards and surfaces that use inline borderRadius: 8 / 10 / 12 / 16 */
+.dn-card, [style*="border-radius: 8"], [style*="border-radius: 10"], [style*="border-radius: 12"] {
+  border-radius: 20px !important;
+}
+
+/* Progress bars — keep them pill-shaped but small */
+[style*="border-radius: 3"], [style*="border-radius: 4"] {
+  border-radius: 99px !important;
+}
 @keyframes dn-pulse {
   0%, 100% { box-shadow: 0 0 0 0 rgba(14,140,140,.45); }
   50% { box-shadow: 0 0 0 10px rgba(14,140,140,0); }

@@ -138,7 +138,7 @@
   padding: 10px 20px;
   background: var(--accent);
   color: #fff !important;
-  border-radius: 8px;
+  border-radius: 16px;
   font-weight: 600;
   font-size: 15px;
   text-decoration: none !important;
@@ -156,7 +156,7 @@
 
 .support-faq__item {
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 20px;
   overflow: hidden;
 }
 

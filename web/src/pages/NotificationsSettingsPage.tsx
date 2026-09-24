@@ -61,7 +61,7 @@ export function NotificationsPage() {
               style={{
                 padding: "14px 16px",
                 marginBottom: 8,
-                borderRadius: 8,
+                borderRadius: 16,
                 background: notif.read ? "#f9f9f9" : "#fff8e1",
                 border: `1px solid ${notif.read ? "#eee" : "#ffe082"}`,
                 display: "flex",
@@ -85,7 +85,7 @@ export function NotificationsPage() {
                   style={{
                     padding: "4px 10px",
                     fontSize: "0.8em",
-                    borderRadius: 6,
+                    borderRadius: 14,
                     border: "1px solid #ddd",
                     cursor: "pointer",
                     whiteSpace: "nowrap",
@@ -172,7 +172,7 @@ export function SettingsPage() {
       <h1>Settings</h1>
 
       {/* Account info */}
-      <section style={{ marginBottom: 32, padding: 20, background: "#f9f9f9", borderRadius: 8 }}>
+      <section style={{ marginBottom: 32, padding: 20, background: "#f9f9f9", borderRadius: 16 }}>
         <h2 style={{ marginTop: 0, fontSize: "1.1rem" }}>Account</h2>
         <p style={{ margin: "4px 0", color: "#444" }}>
           <strong>Email:</strong> {user?.email ?? "—"}
@@ -213,7 +213,7 @@ export function SettingsPage() {
                     style={{
                       flex: 1,
                       height: 8,
-                      borderRadius: 4,
+                      borderRadius: 14,
                       background: "#eee",
                       overflow: "hidden",
                     }}
@@ -223,7 +223,7 @@ export function SettingsPage() {
                         height: "100%",
                         width: `${Math.round(cat.score * 100)}%`,
                         background: cat.score > 0.5 ? "#28a745" : "#dc3545",
-                        borderRadius: 4,
+                        borderRadius: 14,
                         transition: "width 0.3s",
                       }}
                     />
@@ -284,7 +284,7 @@ export function SettingsPage() {
         style={{
           padding: 20,
           background: "var(--primary-soft, #e8f5f5)",
-          borderRadius: 8,
+          borderRadius: 16,
           border: "1px solid var(--primary, #0E8C8C)",
         }}
       >

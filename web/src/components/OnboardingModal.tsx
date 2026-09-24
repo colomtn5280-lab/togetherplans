@@ -186,7 +186,7 @@ export function OnboardingModal({ onClose }: OnboardingModalProps) {
               style={{
                 width: i === step ? 24 : 8,
                 height: 8,
-                borderRadius: 4,
+                borderRadius: 14,
                 border: "none",
                 cursor: "pointer",
                 background: i === step ? "var(--primary)" : "var(--line)",

@@ -502,7 +502,7 @@ export function DashboardPage() {
                     gap: 10,
                     background: "var(--ink)",
                     color: "#fff",
-                    borderRadius: 12,
+                    borderRadius: 20,
                     padding: "10px 14px",
                     cursor: "pointer",
                   }}
@@ -536,7 +536,7 @@ export function DashboardPage() {
                     gap: 10,
                     background: "var(--ink)",
                     color: "#fff",
-                    borderRadius: 12,
+                    borderRadius: 20,
                     padding: "10px 14px",
                     cursor: "pointer",
                   }}

@@ -76,7 +76,7 @@ export function BusinessLayout() {
               to={item.to}
               style={({ isActive }) => ({
                 display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px',
-                borderRadius: 10, textDecoration: 'none', fontSize: 14,
+                borderRadius: 20, textDecoration: 'none', fontSize: 14,
                 fontFamily: "'Sora', sans-serif", fontWeight: 600,
                 background: isActive ? '#D9F1F0' : 'transparent',
                 color: isActive ? '#086B6B' : '#5D6B76',
@@ -90,7 +90,7 @@ export function BusinessLayout() {
 
           <div style={{
             display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px',
-            borderRadius: 10, fontSize: 14, fontFamily: "'Sora', sans-serif", fontWeight: 600,
+            borderRadius: 20, fontSize: 14, fontFamily: "'Sora', sans-serif", fontWeight: 600,
             color: '#5D6B76', cursor: 'default', marginTop: 4,
           }}>
             <span style={{ fontSize: 16 }}>💳</span>
@@ -103,7 +103,7 @@ export function BusinessLayout() {
             onClick={signOut}
             style={{
               display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px',
-              borderRadius: 10, fontSize: 14, fontFamily: "'Sora', sans-serif", fontWeight: 600,
+              borderRadius: 20, fontSize: 14, fontFamily: "'Sora', sans-serif", fontWeight: 600,
               color: '#5D6B76', background: 'transparent', border: 'none', cursor: 'pointer', width: '100%',
             }}
           >

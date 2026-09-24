@@ -58,12 +58,12 @@ function VoteBar({
           {voteCount} {voteCount === 1 ? "vote" : "votes"}
         </span>
       </div>
-      <div style={{ height: 8, background: "var(--line)", borderRadius: 4, overflow: "hidden" }}>
+      <div style={{ height: 8, background: "var(--line)", borderRadius: 14, overflow: "hidden" }}>
         <div style={{
           height: "100%",
           width: `${width}%`,
           background: isWinner ? "var(--lime)" : "var(--primary-soft)",
-          borderRadius: 4,
+          borderRadius: 14,
           transition: "width 0.7s ease",
         }} />
       </div>
@@ -305,7 +305,7 @@ export function ShareCardPage() {
               </h3>
               <div style={{
                 border: "1px solid var(--line)",
-                borderRadius: 12,
+                borderRadius: 20,
                 overflow: "hidden",
                 fontSize: 13,
               }}>

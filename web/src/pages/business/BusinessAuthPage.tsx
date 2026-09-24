@@ -38,7 +38,7 @@ const styles: Record<string, React.CSSProperties> = {
   sub: { color: '#5D6B76', fontSize: 14, marginBottom: 28 },
   label: { display: 'block', fontSize: 13, fontWeight: 600, color: '#101820', marginBottom: 6 },
   input: {
-    width: '100%', height: 44, borderRadius: 10, border: '1.5px solid #DDE3E8',
+    width: '100%', height: 44, borderRadius: 20, border: '1.5px solid #DDE3E8',
     padding: '0 14px', fontSize: 15, fontFamily: "'DM Sans', sans-serif", color: '#101820',
     outline: 'none', boxSizing: 'border-box' as const, background: '#fff',
   },
@@ -49,7 +49,7 @@ const styles: Record<string, React.CSSProperties> = {
     background: '#0E8C8C', color: '#fff', border: 'none', cursor: 'pointer',
     fontFamily: "'Sora', sans-serif", fontWeight: 700, fontSize: 16, marginTop: 8,
   },
-  error: { background: '#fee2e2', color: '#991b1b', padding: '10px 14px', borderRadius: 8, fontSize: 14, marginBottom: 16 },
+  error: { background: '#fee2e2', color: '#991b1b', padding: '10px 14px', borderRadius: 16, fontSize: 14, marginBottom: 16 },
   toggle: { textAlign: 'center' as const, marginTop: 20, fontSize: 14, color: '#5D6B76' },
 };
 

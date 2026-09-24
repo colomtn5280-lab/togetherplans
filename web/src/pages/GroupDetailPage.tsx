@@ -528,7 +528,7 @@ export function GroupDetailPage() {
                 data-testid="invite-result"
                 style={{
                   background: "var(--success-soft)",
-                  borderRadius: 12,
+                  borderRadius: 20,
                   padding: 12,
                 }}
               >
@@ -566,7 +566,7 @@ export function GroupDetailPage() {
                 <div
                   style={{
                     background: "var(--success-soft)",
-                    borderRadius: 10,
+                    borderRadius: 20,
                     padding: "8px 12px",
                     marginBottom: 12,
                     fontSize: 13,
@@ -658,7 +658,7 @@ export function GroupDetailPage() {
                               fontSize: 18,
                               color: "var(--ink2)",
                               padding: "2px 6px",
-                              borderRadius: 6,
+                              borderRadius: 14,
                               lineHeight: 1,
                             }}
                             title="Member options"
@@ -674,7 +674,7 @@ export function GroupDetailPage() {
                                 top: "calc(100% + 4px)",
                                 background: "var(--surface)",
                                 border: "1px solid var(--line)",
-                                borderRadius: 12,
+                                borderRadius: 20,
                                 boxShadow: "var(--shadow-card)",
                                 zIndex: 10,
                                 minWidth: 160,

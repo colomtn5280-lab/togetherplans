@@ -104,11 +104,11 @@ function GuestOptionCard({
             src={opt.imageUrl}
             alt=""
             onError={() => setImgErr(true)}
-            style={{ width: 64, height: 64, borderRadius: 12, objectFit: "cover", flexShrink: 0 }}
+            style={{ width: 64, height: 64, borderRadius: 20, objectFit: "cover", flexShrink: 0 }}
           />
         ) : (
           <div style={{
-            width: 64, height: 64, borderRadius: 12, flexShrink: 0,
+            width: 64, height: 64, borderRadius: 20, flexShrink: 0,
             background: "var(--bg)", display: "flex",
             alignItems: "center", justifyContent: "center", fontSize: 28,
           }}>
@@ -156,12 +156,12 @@ function GuestOptionCard({
             <span>{opt.totalVotes} {opt.totalVotes === 1 ? "vote" : "votes"}</span>
             {isMyVote && <span style={{ color: "var(--primary)", fontWeight: 700 }}>Your pick</span>}
           </div>
-          <div style={{ height: 7, background: "var(--line)", borderRadius: 4, overflow: "hidden" }}>
+          <div style={{ height: 7, background: "var(--line)", borderRadius: 14, overflow: "hidden" }}>
             <div style={{
               height: "100%",
               width: `${pct}%`,
               background: isMyVote ? "var(--primary)" : "var(--lime)",
-              borderRadius: 4,
+              borderRadius: 14,
               transition: "width .5s ease",
             }} />
           </div>
@@ -316,7 +316,7 @@ export function GuestVotePage() {
           maxLength={60}
           style={{
             width: "100%", boxSizing: "border-box", padding: "11px 16px",
-            borderRadius: 12, border: "1.5px solid var(--line)", fontSize: 14,
+            borderRadius: 20, border: "1.5px solid var(--line)", fontSize: 14,
             marginBottom: 16, background: "var(--surface)", color: "var(--ink)",
             fontFamily: "inherit",
           }}

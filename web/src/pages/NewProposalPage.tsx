@@ -143,7 +143,7 @@ function OptionCard({ opt, onRemove }: { opt: PlanBuilderOption; onRemove: () =>
         <img
           src={opt.imageUrl}
           alt=""
-          style={{ width: 60, height: 60, borderRadius: 10, objectFit: "cover", flexShrink: 0 }}
+          style={{ width: 60, height: 60, borderRadius: 20, objectFit: "cover", flexShrink: 0 }}
           onError={() => setImgErr(true)}
         />
       ) : (
@@ -151,7 +151,7 @@ function OptionCard({ opt, onRemove }: { opt: PlanBuilderOption; onRemove: () =>
           style={{
             width: 60,
             height: 60,
-            borderRadius: 10,
+            borderRadius: 20,
             background: bg,
             display: "flex",
             alignItems: "center",
@@ -217,7 +217,7 @@ function PreviewPanel({ opts, title, partnerName }: { opts: PlanBuilderOption[];
             alignItems: "center",
             gap: 12,
             background: "var(--bg)",
-            borderRadius: 12,
+            borderRadius: 20,
             padding: 10,
             marginBottom: 8,
           }}
@@ -226,7 +226,7 @@ function PreviewPanel({ opts, title, partnerName }: { opts: PlanBuilderOption[];
             style={{
               width: 44,
               height: 44,
-              borderRadius: 8,
+              borderRadius: 16,
               background: getCategoryColor(opt.category),
               display: "flex",
               alignItems: "center",
@@ -510,7 +510,7 @@ export function NewProposalPage() {
             style={{
               width: "100%",
               padding: "12px 16px",
-              borderRadius: 12,
+              borderRadius: 20,
               border: `1px solid ${titleError ? "var(--error)" : "var(--line)"}`,
               fontSize: 15,
               fontFamily: "var(--font-body)",
@@ -534,7 +534,7 @@ export function NewProposalPage() {
             style={{
               width: "100%",
               padding: "12px 16px",
-              borderRadius: 12,
+              borderRadius: 20,
               border: "1px solid var(--line)",
               fontSize: 15,
               fontFamily: "var(--font-body)",
@@ -558,7 +558,7 @@ export function NewProposalPage() {
               style={{
                 width: "100%",
                 padding: "12px 16px",
-                borderRadius: 12,
+                borderRadius: 20,
                 border: "1px solid var(--line)",
                 fontSize: 15,
                 fontFamily: "var(--font-body)",

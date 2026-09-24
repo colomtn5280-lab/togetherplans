@@ -55,7 +55,7 @@ function OptionCard({ opt, onRemove }: { opt: PlanBuilderOption; onRemove: () =>
         <img
           src={opt.imageUrl}
           alt={opt.name}
-          style={{ width: 50, height: 50, borderRadius: 8, objectFit: "cover", flexShrink: 0 }}
+          style={{ width: 50, height: 50, borderRadius: 16, objectFit: "cover", flexShrink: 0 }}
           onError={() => setImgErr(true)}
         />
       ) : (
@@ -63,7 +63,7 @@ function OptionCard({ opt, onRemove }: { opt: PlanBuilderOption; onRemove: () =>
           style={{
             width: 50,
             height: 50,
-            borderRadius: 8,
+            borderRadius: 16,
             backgroundColor: bg,
             display: "flex",
             alignItems: "center",
