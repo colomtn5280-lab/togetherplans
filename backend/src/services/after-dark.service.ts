@@ -22,6 +22,16 @@ const DAYTIME_CATEGORIES = new Set([
   'Day Trip',
 ]);
 
+/** ROMANTIC FOCUS: Categories that drive spontaneous date nights */
+const ROMANTIC_CATEGORIES = new Set([
+  'Wine & Drinks',
+  'Dining',
+  'Live Music',
+  'Theater & Plays',
+  'Comedy',
+  'Couples',
+]);
+
 /** Parse ISO date string to hour (0-23) */
 function getHourFromISODate(isoString: string): number | null {
   try {
@@ -206,7 +216,7 @@ export function enrichAfterDarkMetadata(
 
 /**
  * TIER 3: Score suggestions based on user preferences & trends
- * (Placeholder for ML integration in v1.4)
+ * ROMANTIC FOCUS: Boost date-night-friendly categories (Wine, Dining, Live Music, Theater, Comedy)
  */
 export function scoreAfterDarkRelevance(
   suggestions: Suggestion[],
@@ -222,12 +232,17 @@ export function scoreAfterDarkRelevance(
   return suggestions.map((s) => {
     let score = 0.5;
 
+    // ROMANTIC FOCUS: Strongly boost date-night categories
+    if (ROMANTIC_CATEGORIES.has(s.category)) {
+      score += 0.3; // Major boost for romantic activities
+    }
+
     // Boost score if in favorite category
     if (userPreferences.favoriteCategories?.includes(s.category)) {
       score += 0.2;
     }
 
-    // Boost for couple-friendly activities
+    // Boost for couple-friendly activities (already romantic above, so this is secondary)
     if (
       userPreferences.groupSize === 'couple' &&
       ['Wine & Drinks', 'Dining', 'Live Music', 'Theater & Plays'].includes(s.category)

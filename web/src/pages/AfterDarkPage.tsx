@@ -45,7 +45,9 @@ export const AfterDarkPage: React.FC<AfterDarkPageProps> = ({ lat, lng, onClose 
 
         if (response.ok) {
           const data = await response.json();
-          setEvents(data);
+          // Sort by relevance score (romantic-boosted)
+          const sorted = data.sort((a: any, b: any) => (b.relevanceScore || 0) - (a.relevanceScore || 0));
+          setEvents(sorted);
         }
       } catch (error) {
         console.error('Failed to load After Dark events:', error);
@@ -79,8 +81,8 @@ export const AfterDarkPage: React.FC<AfterDarkPageProps> = ({ lat, lng, onClose 
   return (
     <div className="after-dark-page">
       <div className="page-header">
-        <h1>🌙 After Dark</h1>
-        <p>Your guide to the best evening activities right now</p>
+        <h1>💕 Plan a Spontaneous Date</h1>
+        <p>Find what's happening tonight — just for the two of you</p>
         {onClose && (
           <button className="close-btn" onClick={onClose}>
             ✕
@@ -97,10 +99,10 @@ export const AfterDarkPage: React.FC<AfterDarkPageProps> = ({ lat, lng, onClose 
         onFamilyToggle={setIncludeFamilyEvents}
       />
 
-      {/* TIER 3: Stats and trending */}
+      {/* TIER 3: Stats and trending — romantic focus */}
       {isEnabled && stats && (
         <div className="after-dark-stats">
-          <h3>🔥 Trending Now</h3>
+          <h3>💃 Trending for Couples Tonight</h3>
           <div className="trending-tags">
             {stats.trendingNow?.map((tag: string) => (
               <span key={tag} className="trending-tag">
@@ -112,16 +114,16 @@ export const AfterDarkPage: React.FC<AfterDarkPageProps> = ({ lat, lng, onClose 
         </div>
       )}
 
-      {/* Events Grid */}
+      {/* Events Grid — sorted by romantic relevance */}
       {isEnabled && (
         <div className="events-section">
           <h2>
-            {loading ? '⏳ Finding your perfect night...' : `✨ ${events.length} Events Tonight`}
+            {loading ? '⏳ Finding your perfect night...' : `✨ ${events.length} Perfect Moments Tonight`}
           </h2>
 
           {events.length === 0 && !loading && (
             <div className="empty-state">
-              <p>🌙 No events found. Try expanding your radius or choosing a different night start time.</p>
+              <p>💭 Nothing found yet. Try expanding the time window or distance radius.</p>
             </div>
           )}
 
@@ -131,8 +133,9 @@ export const AfterDarkPage: React.FC<AfterDarkPageProps> = ({ lat, lng, onClose 
                 key={event.id}
                 event={event}
                 onSelect={(e) => {
-                  console.log('Selected event:', e);
-                  // TODO: Navigate to event details
+                  console.log('Selected event for proposal:', e);
+                  // TODO: Navigate to proposal builder with this event pre-selected
+                  // This should open the "Plan this" flow from the product review
                 }}
               />
             ))}
@@ -142,10 +145,10 @@ export const AfterDarkPage: React.FC<AfterDarkPageProps> = ({ lat, lng, onClose 
 
       {!isEnabled && (
         <div className="welcome-message">
-          <h2>✨ Ready for a spontaneous night out?</h2>
-          <p>Enable After Dark to see the best evening activities happening now in your area.</p>
+          <h2>🌹 The perfect night is waiting</h2>
+          <p>Discover romantic activities happening tonight — Wine tastings, live music, dinner dates, comedy shows, and more.</p>
           <button onClick={() => setIsEnabled(true)} className="enable-btn">
-            Explore Tonight 🌙
+            Find Tonight's Vibe 💕
           </button>
         </div>
       )}
@@ -155,6 +158,8 @@ export const AfterDarkPage: React.FC<AfterDarkPageProps> = ({ lat, lng, onClose 
           padding: 16px;
           max-width: 1200px;
           margin: 0 auto;
+          background: linear-gradient(135deg, #faf8f3 0%, #f5eee8 100%);
+          min-height: 100vh;
         }
 
         .page-header {
@@ -167,7 +172,7 @@ export const AfterDarkPage: React.FC<AfterDarkPageProps> = ({ lat, lng, onClose 
           margin: 0 0 8px 0;
           font-size: 32px;
           font-weight: 700;
-          background: linear-gradient(135deg, #ffd700 0%, #ffaa00 100%);
+          background: linear-gradient(135deg, #d4617f 0%, #8b5a7d 100%);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           background-clip: text;
@@ -176,7 +181,7 @@ export const AfterDarkPage: React.FC<AfterDarkPageProps> = ({ lat, lng, onClose 
         .page-header p {
           margin: 0;
           font-size: 14px;
-          color: #666;
+          color: #8b5a7d;
         }
 
         .close-btn {
@@ -185,7 +190,7 @@ export const AfterDarkPage: React.FC<AfterDarkPageProps> = ({ lat, lng, onClose 
           right: 0;
           padding: 8px 12px;
           border: none;
-          background: #f0f0f0;
+          background: rgba(255, 255, 255, 0.8);
           border-radius: 6px;
           cursor: pointer;
           font-size: 16px;
@@ -193,22 +198,23 @@ export const AfterDarkPage: React.FC<AfterDarkPageProps> = ({ lat, lng, onClose 
         }
 
         .close-btn:hover {
-          background: #e0e0e0;
+          background: rgba(255, 255, 255, 1);
         }
 
-        /* TIER 3: Stats section */
+        /* TIER 3: Romantic stats section */
         .after-dark-stats {
-          background: linear-gradient(135deg, #fff8e7 0%, #fff0d9 100%);
+          background: linear-gradient(135deg, #fff5f0 0%, #ffe8e0 100%);
           border-radius: 12px;
           padding: 16px;
           margin-bottom: 24px;
-          border-left: 4px solid #ffd700;
+          border-left: 4px solid #d4617f;
         }
 
         .after-dark-stats h3 {
           margin: 0 0 12px 0;
           font-size: 16px;
           font-weight: 600;
+          color: #8b5a7d;
         }
 
         .trending-tags {
@@ -221,8 +227,8 @@ export const AfterDarkPage: React.FC<AfterDarkPageProps> = ({ lat, lng, onClose 
         .trending-tag {
           display: inline-block;
           padding: 6px 12px;
-          background: #ffd700;
-          color: #000;
+          background: #d4617f;
+          color: #fff;
           border-radius: 20px;
           font-size: 12px;
           font-weight: 600;
@@ -231,7 +237,7 @@ export const AfterDarkPage: React.FC<AfterDarkPageProps> = ({ lat, lng, onClose 
         .peak-hours {
           margin: 0;
           font-size: 12px;
-          color: #666;
+          color: #8b5a7d;
         }
 
         .events-section {
@@ -242,6 +248,7 @@ export const AfterDarkPage: React.FC<AfterDarkPageProps> = ({ lat, lng, onClose 
           margin: 0 0 16px 0;
           font-size: 18px;
           font-weight: 600;
+          color: #222;
         }
 
         .events-grid {
@@ -253,7 +260,7 @@ export const AfterDarkPage: React.FC<AfterDarkPageProps> = ({ lat, lng, onClose 
         .empty-state {
           text-align: center;
           padding: 40px 20px;
-          background: #f9f9f9;
+          background: #fff;
           border-radius: 12px;
           color: #666;
         }
@@ -270,30 +277,39 @@ export const AfterDarkPage: React.FC<AfterDarkPageProps> = ({ lat, lng, onClose 
 
         .welcome-message h2 {
           margin: 0 0 12px 0;
-          font-size: 24px;
+          font-size: 28px;
           font-weight: 600;
+          background: linear-gradient(135deg, #d4617f 0%, #8b5a7d 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
         }
 
         .welcome-message p {
           margin: 0 0 24px 0;
           font-size: 14px;
           color: #666;
+          max-width: 500px;
+          margin-left: auto;
+          margin-right: auto;
         }
 
         .enable-btn {
-          padding: 12px 24px;
+          padding: 14px 32px;
           border: none;
           border-radius: 8px;
-          background: linear-gradient(135deg, #ffd700 0%, #ffaa00 100%);
-          color: #000;
+          background: linear-gradient(135deg, #d4617f 0%, #8b5a7d 100%);
+          color: #fff;
           font-size: 14px;
           font-weight: 600;
           cursor: pointer;
-          transition: transform 0.2s ease;
+          transition: transform 0.2s ease, box-shadow 0.2s ease;
+          box-shadow: 0 4px 12px rgba(212, 97, 127, 0.3);
         }
 
         .enable-btn:hover {
           transform: scale(1.05);
+          box-shadow: 0 6px 16px rgba(212, 97, 127, 0.4);
         }
 
         @media (max-width: 768px) {
@@ -303,6 +319,14 @@ export const AfterDarkPage: React.FC<AfterDarkPageProps> = ({ lat, lng, onClose 
 
           .page-header h1 {
             font-size: 24px;
+          }
+
+          .welcome-message {
+            padding: 40px 20px;
+          }
+
+          .welcome-message h2 {
+            font-size: 22px;
           }
         }
       `}</style>
