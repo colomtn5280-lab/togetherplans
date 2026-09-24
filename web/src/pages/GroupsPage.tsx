@@ -214,6 +214,14 @@ export function GroupsPage() {
             <h2 style={{ marginBottom: 8 }}>No groups yet</h2>
             <p style={{ color: "var(--ink2)", marginBottom: 24 }}>Create a group to start planning with your partner or friends.</p>
             <button className="dn-btn" onClick={() => setShowCreate(true)}>Create your first group →</button>
+            <p style={{ marginTop: 16 }}>
+              <Link
+                to="/suggestions?dateFilter=tonight"
+                style={{ color: "var(--primary)", fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 14 }}
+              >
+                Or browse tonight's ideas →
+              </Link>
+            </p>
           </div>
         )}
 

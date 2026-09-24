@@ -31,11 +31,19 @@ const CATEGORY_EMOJI: Record<string, string> = {
 function Countdown({ minutes }: { minutes: number }) {
   const h = Math.floor(minutes / 60);
   const m = minutes % 60;
+  const toGo = h > 0 ? `${h}h ${m}m to go` : `${m}m to go`;
   return (
     <div style={{ textAlign: "center", padding: "48px 32px" }}>
       <div style={{ fontSize: 56, marginBottom: 16 }}>🌆</div>
-      <h2 style={{ marginBottom: 8 }}>After Dark in {h > 0 ? `${h}h ${m}m` : `${m}m`}</h2>
-      <p style={{ color: "var(--ink2)" }}>Come back at 9 PM for late-night mode.</p>
+      <h2 style={{ marginBottom: 8 }}>After Dark wakes up at 9pm 🌙</h2>
+      <p style={{ color: "var(--ink2)", marginBottom: 20 }}>{toGo} — late-night mode is worth the wait.</p>
+      <Link
+        to="/suggestions?dateFilter=tonight"
+        className="dn-btn dn-btn--secondary"
+        style={{ display: "inline-block", textDecoration: "none" }}
+      >
+        Meanwhile, plan something for tonight →
+      </Link>
     </div>
   );
 }

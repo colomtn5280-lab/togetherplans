@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { suggestionsApi } from "../api/client";
 import { AppNav } from "../components/AppNav";
 import { CATEGORIES, findCategory } from "../constants/categories";
+import { loadFavCategories, orderCategoriesByFavorites } from "../components/FavCategories";
 import { usePlanBuilder } from "../contexts/PlanBuilderContext";
 import { useAuthStore } from "../store/auth.store";
 import type { Suggestion } from "../types";
@@ -281,6 +282,11 @@ export function SuggestionsPage() {
 
   const { coords, cityName, geoError, geoLoading, retryGeo } = useGeolocation();
   const { options: planOptions, addOption } = usePlanBuilder();
+
+  // Favorite categories (localStorage) — grid shows favourites first
+  const [favIds] = useState<string[]>(() => loadFavCategories());
+  const orderedCategories = useMemo(() => orderCategoriesByFavorites(favIds), [favIds]);
+
   const [detailSuggestion, setDetailSuggestion] = useState<Suggestion | null>(null);
   const [zipDraft, setZipDraft] = useState("");
   const [zipInputOpen, setZipInputOpen] = useState(false);
@@ -661,17 +667,22 @@ export function SuggestionsPage() {
           >
             All categories
           </button>
-          {CATEGORIES.map((cat) => (
-            <button
-              key={cat.id}
-              className={`dn-btn dn-btn--sm ${categoryId === cat.id ? "dn-btn--primary" : "dn-btn--tonal"}`}
-              onClick={() =>
-                setSearchParams((p) => { p.set("category", cat.id); return p; })
-              }
-            >
-              {cat.emoji} {cat.name}
-            </button>
-          ))}
+          {orderedCategories.map((cat) => {
+            const isFav = favIds.includes(cat.id);
+            return (
+              <button
+                key={cat.id}
+                className={`dn-btn dn-btn--sm ${categoryId === cat.id ? "dn-btn--primary" : "dn-btn--tonal"}`}
+                onClick={() =>
+                  setSearchParams((p) => { p.set("category", cat.id); return p; })
+                }
+                style={isFav && categoryId !== cat.id ? { boxShadow: "inset 0 0 0 1.5px var(--primary)" } : undefined}
+                title={isFav ? "One of your favourites" : undefined}
+              >
+                {cat.emoji} {cat.name}{isFav ? " ★" : ""}
+              </button>
+            );
+          })}
         </div>
 
         {/* Date-filter chips */}

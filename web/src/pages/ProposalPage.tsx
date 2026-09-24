@@ -555,6 +555,12 @@ export function ProposalPage() {
                 >
                   Share this plan 🎉
                 </button>
+                <p style={{ fontSize: 13, color: "var(--ink2)", margin: "14px 0 0", lineHeight: 1.5 }}>
+                  Relive it later — the plan stays right here.{" "}
+                  <Link to="/suggestions" style={{ color: "var(--primary)", fontFamily: "var(--font-display)", fontWeight: 700 }}>
+                    Ready for the next one? →
+                  </Link>
+                </p>
               </div>
             </div>
           </div>

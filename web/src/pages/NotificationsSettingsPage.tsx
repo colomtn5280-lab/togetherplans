@@ -3,6 +3,8 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { notificationsApi, usersApi, authApi, groupsApi } from "../api/client";
 import { useAuthStore } from "../store/auth.store";
 import { Link } from "react-router-dom";
+import { FavCategoryChips, loadFavCategories, saveFavCategories } from "../components/FavCategories";
+import { findCategory } from "../constants/categories";
 
 interface CategoryPref {
   categoryId: string;
@@ -46,7 +48,10 @@ export function NotificationsPage() {
       {notifications.length === 0 ? (
         <div style={{ textAlign: "center", padding: 48, color: "#666" }}>
           <p style={{ fontSize: "2rem" }}>🔔</p>
-          <p>No notifications yet. When your group votes or locks in a date night, you'll see it here.</p>
+          <p style={{ marginBottom: 20 }}>Quiet for now — share a plan to change that</p>
+          <Link to="/dashboard" className="dn-btn" style={{ display: "inline-block", textDecoration: "none" }}>
+            Share a plan →
+          </Link>
         </div>
       ) : (
         <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
@@ -102,6 +107,13 @@ export function NotificationsPage() {
 export function SettingsPage() {
   const { user, clearAuth } = useAuthStore();
   const [exportStatus, setExportStatus] = useState<"idle" | "loading" | "done">("idle");
+  const [favIds, setFavIds] = useState<string[]>(() => loadFavCategories());
+  const [favPickerOpen, setFavPickerOpen] = useState(false);
+
+  const handleFavChange = (ids: string[]) => {
+    setFavIds(ids);
+    saveFavCategories(ids);
+  };
 
   const { data: preferences } = useQuery({
     queryKey: ["preferences"],
@@ -227,6 +239,35 @@ export function SettingsPage() {
           </p>
         </section>
       )}
+
+      {/* Favorite categories */}
+      <section style={{ marginBottom: 32 }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <h2 style={{ fontSize: "1.1rem", margin: 0 }}>Favorite categories</h2>
+          <button
+            className="dn-btn dn-btn--secondary"
+            onClick={() => setFavPickerOpen((v) => !v)}
+            style={{ fontSize: 13, padding: "6px 14px" }}
+          >
+            {favPickerOpen ? "Done" : "Edit"}
+          </button>
+        </div>
+        <p style={{ color: "#666", fontSize: "0.9em", marginTop: 6 }}>
+          {favIds.length > 0
+            ? favIds
+                .map((id) => {
+                  const cat = findCategory(id);
+                  return cat ? `${cat.emoji} ${cat.name}` : id;
+                })
+                .join(" · ")
+            : "None picked yet — favourites float to the top of Discover."}
+        </p>
+        {favPickerOpen && (
+          <div style={{ marginTop: 12 }}>
+            <FavCategoryChips selected={favIds} onChange={handleFavChange} />
+          </div>
+        )}
+      </section>
 
       {/* Navigation */}
       <section style={{ marginBottom: 32 }}>

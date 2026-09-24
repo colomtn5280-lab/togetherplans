@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { FavCategoryChips, loadFavCategories, saveFavCategories } from "./FavCategories";
 
 interface OnboardingModalProps {
   onClose: () => void;
@@ -37,15 +38,29 @@ const STEPS = [
     body: "Browse the Discover tab to find restaurants, events, experiences, and more near you. Add favourites to your plan and send it to your group to vote.",
     cta: { label: "Browse activities →", route: "/suggestions" },
   },
+  {
+    emoji: "💚",
+    title: "What are you two into?",
+    illustration: (
+      <div style={{ fontSize: 56, marginBottom: 16, lineHeight: 1, display: "flex", gap: 4, justifyContent: "center" }}>
+        <span>🍷</span><span>🥾</span><span>🎸</span>
+      </div>
+    ),
+    body: "Pick up to 5 favourites and we'll put them front and centre on Discover. Totally optional — skip if you'd rather wander.",
+    cta: null,
+  },
 ];
 
 export function OnboardingModal({ onClose }: OnboardingModalProps) {
   const [step, setStep] = useState(0);
+  const [favIds, setFavIds] = useState<string[]>(() => loadFavCategories());
   const navigate = useNavigate();
 
   const current = STEPS[step];
+  const isFavStep = step === STEPS.length - 1;
 
   const handleClose = () => {
+    if (favIds.length > 0) saveFavCategories(favIds);
     localStorage.setItem("tp_onboarded", "1");
     onClose();
   };
@@ -127,9 +142,15 @@ export function OnboardingModal({ onClose }: OnboardingModalProps) {
         </span>
 
         <h2 style={{ marginBottom: 12 }}>{current.title}</h2>
-        <p style={{ color: "var(--ink2)", marginBottom: 28, lineHeight: 1.6 }}>
+        <p style={{ color: "var(--ink2)", marginBottom: isFavStep ? 20 : 28, lineHeight: 1.6 }}>
           {current.body}
         </p>
+
+        {isFavStep && (
+          <div style={{ marginBottom: 24, maxHeight: 260, overflowY: "auto" }}>
+            <FavCategoryChips selected={favIds} onChange={setFavIds} />
+          </div>
+        )}
 
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           {current.cta && (
@@ -141,7 +162,11 @@ export function OnboardingModal({ onClose }: OnboardingModalProps) {
             onClick={handleNext}
             className={`dn-btn${current.cta ? " dn-btn--secondary" : ""}`}
           >
-            {step < STEPS.length - 1 ? "Next →" : "Get started ♥"}
+            {step < STEPS.length - 1
+              ? "Next →"
+              : favIds.length > 0
+                ? "Save & get started ♥"
+                : "Get started ♥"}
           </button>
         </div>
 
