@@ -26,6 +26,7 @@ import { Calendar, Compass, User } from 'lucide-react-native';
 import { useAuth } from '@/hooks/useAuth';
 import { useDeepLink } from '@/hooks/useDeepLink';
 import { usePushToken } from '@/hooks/usePushToken';
+import { useNotificationTap } from '@/hooks/useNotificationTap';
 import { useTheme } from '@/contexts/ThemeContext';
 import { PlanBuilderProvider } from '@/contexts/PlanBuilderContext';
 import PlanBuilderStrip from '@/components/PlanBuilderStrip';
@@ -197,6 +198,7 @@ function TabNavigator() {
 function AuthenticatedHooks() {
   useDeepLink();
   usePushToken();
+  useNotificationTap();
   return null;
 }
 
