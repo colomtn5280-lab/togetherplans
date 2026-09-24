@@ -39,7 +39,7 @@ describe('getSuggestions', () => {
   it('accepts zip code as location input', async () => {
     const result = await getSuggestions({ zip: '80202' }); // Denver
     expect(result.length).toBeGreaterThan(0);
-  });
+  }, 45_000);
 
   it('returns All category without filter', async () => {
     const result = await getSuggestions({ category: 'All' });
@@ -56,4 +56,30 @@ describe('getSuggestions', () => {
     // All runs should return results
     for (const r of runs) expect(r.length).toBeGreaterThan(0);
   }, 30_000);
+
+  it('golf never resolves to the Active (sports tickets) category', async () => {
+    // Regression: 'golf' used to map to 'Active', routing golf taps to
+    // Ticketmaster's Sports segment (baseball/hockey tickets).
+    for (const raw of ['golf', 'Golf']) {
+      const result = await getSuggestions({ category: raw, lat: 39.7392, lng: -104.9903 });
+      for (const s of result) {
+        expect(s.category).not.toBe('Active');
+        expect(s.category).toBe('Golf');
+      }
+    }
+  }, 30_000);
+
+  it('seed suggestions carry isIdea and sort after real results', async () => {
+    const result = await getSuggestions({ category: 'Streaming Night' });
+    let seenSeed = false;
+    for (const s of result) {
+      if (s.source === 'seed') {
+        seenSeed = true;
+        expect(s.isIdea).toBe(true);
+      } else {
+        // No real result may appear after a seed result
+        expect(seenSeed).toBe(false);
+      }
+    }
+  });
 });

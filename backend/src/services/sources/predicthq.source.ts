@@ -119,7 +119,7 @@ function classify(ev: PhqEvent): SuggestionCategory {
 // ---------------------------------------------------------------------------
 // Skip categories PHQ doesn't help with (places, not events)
 // ---------------------------------------------------------------------------
-const SKIP_CATEGORIES = new Set<string>(['Dining', 'Streaming Night', 'Movies']);
+const SKIP_CATEGORIES = new Set<string>(['Dining', 'Streaming Night', 'Movies', 'Golf', 'Wellness']);
 
 // PHQ categories to request per our category filter
 function phqCategories(categoryFilter?: string): string {
@@ -136,6 +136,8 @@ function phqCategories(categoryFilter?: string): string {
     'Local Experience':'community,expos,festivals,conferences',
     'Unique & Quirky': 'community,expos',
     'Wine & Drinks':   'festivals,community',
+    'Family':          'community,festivals,performing-arts',
+    'Couples':         'concerts,performing-arts,festivals,community',
   };
   return map[categoryFilter] ?? 'concerts,festivals,performing-arts,community,expos,sports';
 }
@@ -207,7 +209,23 @@ export async function fetchPredictHQ(
     }
 
     const data = (await resp.json()) as PhqResponse;
-    const events = data.results ?? [];
+    let events = data.results ?? [];
+
+    // Family: keep only events carrying family-friendly labels; Couples: prefer evening, non-sports
+    const FAMILY_LABELS = new Set(['family', 'family-friendly', 'kids', 'children', 'family-fun']);
+    if (categoryFilter === 'Family') {
+      events = events.filter((ev) =>
+        (ev.labels ?? []).some((l) => FAMILY_LABELS.has(l.toLowerCase().replace(/\s+/g, '-'))),
+      );
+    } else if (categoryFilter === 'Couples') {
+      const nonSports = events.filter((ev) => ev.category !== 'sports');
+      const isEvening = (ev: PhqEvent) => {
+        const t = ev.start?.includes('T') ? ev.start.split('T')[1] : undefined;
+        return !t || t >= '17:00';
+      };
+      events = [...nonSports.filter(isEvening), ...nonSports.filter((ev) => !isEvening(ev))];
+    }
+
     const results: Suggestion[] = [];
 
     for (const ev of events) {
@@ -233,7 +251,10 @@ export async function fetchPredictHQ(
           })
         : undefined;
 
-      const category = classify(ev);
+      const category: SuggestionCategory =
+        categoryFilter === 'Family' ? 'Family'
+        : categoryFilter === 'Couples' ? 'Couples'
+        : classify(ev);
       const costTier = formatCostTier(ev);
 
       const descText = ev.description?.replace(/\s+/g, ' ').slice(0, 150);

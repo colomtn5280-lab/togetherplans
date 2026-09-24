@@ -113,8 +113,15 @@ export async function fetchTicketmaster(
     // Only future events
     url.searchParams.set('startDateTime', new Date().toISOString().replace(/\.\d{3}Z$/, 'Z'));
 
-    // Map our category to TM classification
-    if (categoryFilter && categoryFilter !== 'All') {
+    // Family mode: Ticketmaster Discovery supports includeFamily=only
+    const familyMode = categoryFilter === 'Family';
+    const couplesMode = categoryFilter === 'Couples';
+    if (familyMode) {
+      url.searchParams.set('includeFamily', 'only');
+    } else if (couplesMode) {
+      // General events; sports excluded post-fetch, evening events preferred
+    } else if (categoryFilter && categoryFilter !== 'All') {
+      // Map our category to TM classification
       const segmentFilter: Record<string, string> = {
         'Live Music': 'Music',
         'Comedy': 'Arts & Theatre',
@@ -131,7 +138,21 @@ export async function fetchTicketmaster(
     if (!resp.ok) return [];
 
     const data = (await resp.json()) as TmResponse;
-    const events = data._embedded?.events ?? [];
+    let events = data._embedded?.events ?? [];
+
+    if (couplesMode) {
+      // Couples: prefer non-sports, evening events (localTime >= 17:00 when present)
+      const nonSports = events.filter(
+        (ev) => ev.classifications?.[0]?.segment?.name !== 'Sports',
+      );
+      const isEvening = (ev: TmEvent) => {
+        const t = ev.dates?.start?.localTime;
+        return !t || t >= '17:00';
+      };
+      const evening = nonSports.filter(isEvening);
+      const daytime = nonSports.filter((ev) => !isEvening(ev));
+      events = [...evening, ...daytime];
+    }
 
     return events.map((ev): Suggestion => {
       const venue = ev._embedded?.venues?.[0];
@@ -145,7 +166,11 @@ export async function fetchTicketmaster(
 
       const dateStr = ev.dates?.start?.localDate;
       const timeStr = ev.dates?.start?.localTime;
-      const category = classifyTm(ev.classifications);
+      const category: SuggestionCategory = familyMode
+        ? 'Family'
+        : couplesMode
+        ? 'Couples'
+        : classifyTm(ev.classifications);
       const { price, costTier } = formatPrice(ev.priceRanges);
 
       const timeFormatted = timeStr

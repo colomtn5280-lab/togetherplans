@@ -112,6 +112,30 @@ const SEEDS: SeedEntry[] = [
   { name: 'Vintage shopping day', category: 'Unique & Quirky', shortDescription: 'Thrift stores and vintage shops. Budget $20 each, see who finds the best thing.', costTier: '$', dateFriendly: true, groupFriendly: false, durationMinutes: 180 },
   { name: 'Flea market Saturday', category: 'Unique & Quirky', shortDescription: 'Treasure hunting in the organized chaos. Coffee in hand is required.', costTier: 'free', dateFriendly: true, groupFriendly: true, durationMinutes: 150 },
   { name: 'Observatory night viewing', category: 'Unique & Quirky', shortDescription: 'Many public observatories do free public nights through a telescope.', costTier: 'free', dateFriendly: true, groupFriendly: false, durationMinutes: 120 },
+
+  // ── Golf ──────────────────────────────────────────────────────────
+  { name: 'Nine holes at a local course', category: 'Golf', shortDescription: 'Twilight rates make weeknight nine-hole rounds surprisingly affordable.', costTier: '$$', dateFriendly: true, groupFriendly: true, durationMinutes: 150 },
+  { name: 'Driving range date', category: 'Golf', shortDescription: 'Bucket of balls, zero pressure, plenty of time to talk between swings.', costTier: '$', dateFriendly: true, groupFriendly: true, durationMinutes: 90 },
+  { name: 'Mini golf showdown', category: 'Golf', shortDescription: 'Eighteen holes of windmills and bridges. Loser buys ice cream.', costTier: '$', dateFriendly: true, groupFriendly: true, durationMinutes: 90 },
+  { name: 'Topgolf-style range bay', category: 'Golf', shortDescription: 'Climate-controlled bays, food and drinks, games for every skill level.', costTier: '$$', dateFriendly: true, groupFriendly: true, durationMinutes: 120 },
+
+  // ── Wellness ──────────────────────────────────────────────────────
+  { name: 'Couples massage', category: 'Wellness', shortDescription: 'Side-by-side massages. The rare treat that is exactly as good as it sounds.', costTier: '$$$', dateFriendly: true, groupFriendly: false, durationMinutes: 90 },
+  { name: 'Day spa afternoon', category: 'Wellness', shortDescription: 'Sauna, soak, robes, cucumber water. Leave your phones in the locker.', costTier: '$$$', dateFriendly: true, groupFriendly: false, durationMinutes: 180 },
+  { name: 'Hot springs soak', category: 'Wellness', shortDescription: 'Natural mineral pools if you have them nearby — worth the drive if not.', costTier: '$$', dateFriendly: true, groupFriendly: true, durationMinutes: 180 },
+  { name: 'Beginner yoga class together', category: 'Wellness', shortDescription: 'Most studios have drop-in classes. More laughing than expected.', costTier: '$', dateFriendly: true, groupFriendly: true, durationMinutes: 75 },
+
+  // ── Family ────────────────────────────────────────────────────────
+  { name: 'Zoo or aquarium day', category: 'Family', shortDescription: 'A classic for a reason. Check for member evenings and feeding times.', costTier: '$$', dateFriendly: true, groupFriendly: true, durationMinutes: 240 },
+  { name: 'Children\'s museum visit', category: 'Family', shortDescription: 'Hands-on exhibits the kids will talk about all week.', costTier: '$', dateFriendly: false, groupFriendly: true, durationMinutes: 180 },
+  { name: 'Family game night out', category: 'Family', shortDescription: 'Arcade, bowling, or a board game cafe — something for every age.', costTier: '$', dateFriendly: false, groupFriendly: true, durationMinutes: 150 },
+  { name: 'Matinee movie with the kids', category: 'Family', shortDescription: 'Cheaper tickets, earlier bedtime, everybody wins.', costTier: '$', dateFriendly: false, groupFriendly: true, durationMinutes: 150 },
+
+  // ── Couples ───────────────────────────────────────────────────────
+  { name: 'Sunset dinner date', category: 'Couples', shortDescription: 'Book a west-facing patio table an hour before sunset.', costTier: '$$', dateFriendly: true, groupFriendly: false, durationMinutes: 120 },
+  { name: 'Evening concert for two', category: 'Couples', shortDescription: 'Pick a show neither of you knows. Shared discovery beats a sure thing.', costTier: '$$', dateFriendly: true, groupFriendly: false, durationMinutes: 180 },
+  { name: 'Late-night dessert crawl', category: 'Couples', shortDescription: 'Skip dinner, go straight to two or three dessert spots.', costTier: '$', dateFriendly: true, groupFriendly: false, durationMinutes: 120 },
+  { name: 'Rooftop drinks at golden hour', category: 'Couples', shortDescription: 'One drink, one view, no agenda.', costTier: '$$', dateFriendly: true, groupFriendly: false, durationMinutes: 90 },
 ];
 
 export function getSeedSuggestions(
@@ -137,5 +161,6 @@ export function getSeedSuggestions(
     durationMinutes: s.durationMinutes,
     source: 'seed' as const,
     externalId: `seed-${i}`,
+    isIdea: true,
   }));
 }

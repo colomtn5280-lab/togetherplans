@@ -16,6 +16,7 @@
 
 import { cache } from '@/services/cache';
 import { logger } from '@/services/logger';
+import { recordSourceAttempt, recordSourceSuccess, recordSourceError } from '@/services/source-health';
 import { Suggestion, SuggestionCategory, SuggestionQuery, haversineMiles } from './sources/types';
 import { getSeedSuggestions } from './sources/seed.source';
 import { fetchOverpass } from './sources/overpass.source';
@@ -36,9 +37,9 @@ const NEW_TO_INTERNAL: Record<string, SuggestionCategory | null> = {
   // slug ids
   'comedy': 'Comedy',
   'concerts': 'Live Music',
-  'couples-events': null,
-  'family-events': null,
-  'golf': 'Active',
+  'couples-events': 'Couples',
+  'family-events': 'Family',
+  'golf': 'Golf',
   'hiking-trails': 'Outdoors',
   'hotel-stays': null,
   'local-experiences': 'Local Experience',
@@ -47,14 +48,14 @@ const NEW_TO_INTERNAL: Record<string, SuggestionCategory | null> = {
   'performing-arts': 'Theater & Plays',
   'restaurants-dining': 'Dining',
   'volunteering': null,
-  'wellness-spa': null,
+  'wellness-spa': 'Wellness',
   'wine-drinks': 'Wine & Drinks',
   'custom': null,
   // display names (mobile/web send these on option.category)
   'Concerts': 'Live Music',
-  'Couples Events': null,
-  'Family Events': null,
-  'Golf': 'Active',
+  'Couples Events': 'Couples',
+  'Family Events': 'Family',
+  'Golf': 'Golf',
   'Hiking Trails': 'Outdoors',
   'Hotel Stays': null,
   'Local Experiences': 'Local Experience',
@@ -62,7 +63,7 @@ const NEW_TO_INTERNAL: Record<string, SuggestionCategory | null> = {
   'Performing Arts': 'Theater & Plays',
   'Restaurants & Dining': 'Dining',
   'Volunteering': null,
-  'Wellness & Spa': null,
+  'Wellness & Spa': 'Wellness',
   'Custom': null,
   // 'Comedy', 'Movies', 'Wine & Drinks' are already valid internal categories
 };
@@ -109,9 +110,63 @@ const ZIP_PREFIX_COORDS: Record<string, [number, number]> = {
   '971': [37.3382, -121.8863],  // San Jose
 };
 
-function zipToLatLng(zip: string): [number, number] {
+function zipToLatLngStatic(zip: string): [number, number] | null {
   const prefix = zip.slice(0, 3);
-  return ZIP_PREFIX_COORDS[prefix] ?? [39.8283, -98.5795]; // geographic center of US
+  return ZIP_PREFIX_COORDS[prefix] ?? null;
+}
+
+// In-memory zip → coords cache (persists for the life of the instance)
+const zipMemory = new Map<string, [number, number]>();
+
+/**
+ * Resolve a US zip to lat/lng.
+ * Order: static metro-prefix table (instant) → in-memory cache → cache service →
+ * zippopotam.us lookup → geographic center of US as last resort.
+ */
+export async function zipToLatLng(zip: string): Promise<[number, number]> {
+  const staticHit = zipToLatLngStatic(zip);
+  if (staticHit) return staticHit;
+
+  const mem = zipMemory.get(zip);
+  if (mem) return mem;
+
+  const cacheK = `zipgeo:us:${zip}`;
+  try {
+    const cached = await cache.get(cacheK);
+    if (cached) {
+      const [la, ln] = JSON.parse(cached) as [number, number];
+      if (typeof la === 'number' && typeof ln === 'number') {
+        zipMemory.set(zip, [la, ln]);
+        return [la, ln];
+      }
+    }
+  } catch {
+    // corrupted cache entry — fall through to live lookup
+  }
+
+  try {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 4000);
+    const resp = await fetch(`https://api.zippopotam.us/us/${encodeURIComponent(zip)}`, {
+      signal: ctrl.signal,
+    });
+    clearTimeout(timer);
+    if (resp.ok) {
+      const data = (await resp.json()) as { places?: Array<{ latitude: string; longitude: string }> };
+      const place = data.places?.[0];
+      const la = place ? parseFloat(place.latitude) : NaN;
+      const ln = place ? parseFloat(place.longitude) : NaN;
+      if (!isNaN(la) && !isNaN(ln)) {
+        zipMemory.set(zip, [la, ln]);
+        await cache.set(cacheK, JSON.stringify([la, ln]), 30 * 86400).catch(() => undefined);
+        return [la, ln];
+      }
+    }
+  } catch (err) {
+    logger.warn(`zipToLatLng: zippopotam lookup failed for ${zip}: ${err instanceof Error ? err.message : err}`);
+  }
+
+  return [39.8283, -98.5795]; // geographic center of US — last resort only
 }
 
 // ---------------------------------------------------------------------------
@@ -139,6 +194,10 @@ function deduplicate(suggestions: Suggestion[]): Suggestion[] {
 // ---------------------------------------------------------------------------
 function sortSuggestions(suggestions: Suggestion[], _userLat?: number, _userLng?: number): Suggestion[] {
   return [...suggestions].sort((a, b) => {
+    // Seed "ideas" always sort last, after every real result
+    const aSeed = a.source === 'seed';
+    const bSeed = b.source === 'seed';
+    if (aSeed !== bSeed) return aSeed ? 1 : -1;
     // Events with a date sort first, chronologically
     if (a.date && b.date) return a.date.localeCompare(b.date);
     if (a.date) return -1;
@@ -149,9 +208,6 @@ function sortSuggestions(suggestions: Suggestion[], _userLat?: number, _userLng?
     }
     if (a.distanceMiles !== undefined) return -1;
     if (b.distanceMiles !== undefined) return 1;
-    // Seed last
-    if (a.source === 'seed' && b.source !== 'seed') return 1;
-    if (b.source === 'seed' && a.source !== 'seed') return -1;
     return 0;
   });
 }
@@ -167,7 +223,8 @@ function cacheKey(query: SuggestionQuery): string {
     : 'noloc';
   const cat = query.category ?? 'All';
   const rad = query.radiusMiles ?? 25;
-  return `suggestions:v2:${loc}:${cat}:${rad}`;
+  const date = query.dateFilter ?? 'anytime';
+  return `suggestions:v3:${loc}:${cat}:${rad}:${date}`;
 }
 
 // Events expire sooner; places cached longer
@@ -180,11 +237,11 @@ function cacheTtl(suggestions: Suggestion[]): number {
 // Main export
 // ---------------------------------------------------------------------------
 export async function getSuggestions(query: SuggestionQuery): Promise<Suggestion[]> {
-  // Resolve coordinates
+  // Resolve coordinates (zip resolution may hit zippopotam.us — async)
   let lat = query.lat;
   let lng = query.lng;
   if ((!lat || !lng) && query.zip) {
-    [lat, lng] = zipToLatLng(query.zip);
+    [lat, lng] = await zipToLatLng(query.zip);
   }
 
   const radiusMiles = query.radiusMiles ?? 25;
@@ -213,20 +270,32 @@ export async function getSuggestions(query: SuggestionQuery): Promise<Suggestion
   const hasLocation = typeof lat === 'number' && typeof lng === 'number';
   logger.info(`Suggestions fetch: ${key} hasLocation=${hasLocation}`);
 
-  // Run all sources in parallel — each fails gracefully
-  const sourceResults = await Promise.allSettled([
-    // Location-dependent sources
+  // Run all sources in parallel — each fails gracefully; per-source health is tracked
+  const namedFetches: Array<{ name: string; fetch: () => Promise<Suggestion[]> }> = [
     ...(hasLocation ? [
-      fetchTicketmaster(lat!, lng!, radiusMiles, category),
-      fetchFoursquare(lat!, lng!, radiusMiles, category),
-      fetchPredictHQ(lat!, lng!, radiusMiles, category),
-      fetchNpsParks(lat!, lng!, radiusMiles),
-      fetchNpsEvents(lat!, lng!, radiusMiles),
-      fetchOverpass(lat!, lng!, Math.min(radiusMiles, 30), category),
+      { name: 'ticketmaster', fetch: () => fetchTicketmaster(lat!, lng!, radiusMiles, category) },
+      { name: 'foursquare', fetch: () => fetchFoursquare(lat!, lng!, radiusMiles, category) },
+      { name: 'predicthq', fetch: () => fetchPredictHQ(lat!, lng!, radiusMiles, category) },
+      { name: 'nps-parks', fetch: () => fetchNpsParks(lat!, lng!, radiusMiles) },
+      { name: 'nps-events', fetch: () => fetchNpsEvents(lat!, lng!, radiusMiles) },
+      { name: 'overpass', fetch: () => fetchOverpass(lat!, lng!, Math.min(radiusMiles, 30), category) },
     ] : []),
-    // Location-independent sources
-    fetchTmdb(category),
-  ]);
+    { name: 'tmdb', fetch: () => fetchTmdb(category) },
+  ];
+
+  const sourceResults = await Promise.allSettled(
+    namedFetches.map(async ({ name, fetch }) => {
+      recordSourceAttempt(name);
+      try {
+        const results = await fetch();
+        recordSourceSuccess(name, results.length);
+        return results;
+      } catch (err) {
+        recordSourceError(name, err);
+        throw err;
+      }
+    }),
+  );
 
   // Collect all results
   const allResults: Suggestion[] = [];
@@ -268,7 +337,7 @@ export async function getSuggestions(query: SuggestionQuery): Promise<Suggestion
     const satStr = new Date(now.getTime() + daysToSat * 86400000).toISOString().split('T')[0];
     const sunStr = new Date(now.getTime() + (daysToSat + 1) * 86400000).toISOString().split('T')[0];
 
-    filtered = allResults.filter((s) => {
+    filtered = filtered.filter((s) => {
       if (!s.date) return query.dateFilter !== 'tonight'; // non-events visible except tonight filter
       if (query.dateFilter === 'tonight') return s.date === todayStr;
       if (query.dateFilter === 'this-weekend') return s.date === satStr || s.date === sunStr;

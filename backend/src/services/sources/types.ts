@@ -14,6 +14,10 @@ export type SuggestionCategory =
   | 'Wine & Drinks'
   | 'Arts & Culture'
   | 'Active'
+  | 'Golf'
+  | 'Wellness'
+  | 'Family'
+  | 'Couples'
   | 'Local Experience'
   | 'Unique & Quirky';
 
@@ -52,6 +56,8 @@ export interface Suggestion {
   externalId: string;
   expiresAt?: string;              // ISO — drives cache TTL for events
   attribution?: string;            // e.g. 'Photo via Yelp' | 'Poster via TMDB'
+  /** true = hand-curated seed "idea", not a real venue/event from an external source */
+  isIdea?: boolean;
 }
 
 export interface SuggestionQuery {
