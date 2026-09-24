@@ -113,6 +113,13 @@ const SEEDS: SeedEntry[] = [
   { name: 'Flea market Saturday', category: 'Unique & Quirky', shortDescription: 'Treasure hunting in the organized chaos. Coffee in hand is required.', costTier: 'free', dateFriendly: true, groupFriendly: true, durationMinutes: 150 },
   { name: 'Observatory night viewing', category: 'Unique & Quirky', shortDescription: 'Many public observatories do free public nights through a telescope.', costTier: 'free', dateFriendly: true, groupFriendly: false, durationMinutes: 120 },
 
+  // ── Volunteering ──────────────────────────────────────────────────
+  { name: 'Food bank volunteer shift', category: 'Volunteering', shortDescription: 'Sort and pack donations together -- most food banks welcome walk-in pairs.', costTier: 'free', dateFriendly: true, groupFriendly: true, durationMinutes: 150 },
+  { name: 'Animal shelter dog walking', category: 'Volunteering', shortDescription: 'Shelters always need dog walkers. A feel-good date with wagging tails.', costTier: 'free', dateFriendly: true, groupFriendly: true, durationMinutes: 90 },
+  { name: 'Park or trail cleanup day', category: 'Volunteering', shortDescription: 'Join a local cleanup crew -- gloves and bags usually provided.', costTier: 'free', dateFriendly: true, groupFriendly: true, durationMinutes: 120 },
+  { name: 'Habitat for Humanity build day', category: 'Volunteering', shortDescription: 'Swing a hammer for a good cause. No construction experience needed.', costTier: 'free', dateFriendly: true, groupFriendly: true, durationMinutes: 300 },
+  { name: 'Community garden work session', category: 'Volunteering', shortDescription: 'Plant, weed, and harvest with neighbors at a local community garden.', costTier: 'free', dateFriendly: true, groupFriendly: true, durationMinutes: 120 },
+
   // ── Sports (watch & play) ─────────────────────────────────────────
   { name: 'Nine holes at a local course', category: 'Sports', shortDescription: 'Twilight rates make weeknight nine-hole rounds surprisingly affordable.', costTier: '$$', dateFriendly: true, groupFriendly: true, durationMinutes: 150 },
   { name: 'Driving range date', category: 'Sports', shortDescription: 'Bucket of balls, zero pressure, plenty of time to talk between swings.', costTier: '$', dateFriendly: true, groupFriendly: true, durationMinutes: 90 },

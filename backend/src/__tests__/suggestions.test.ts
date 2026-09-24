@@ -70,6 +70,16 @@ describe('getSuggestions', () => {
     }
   }, 60_000);
 
+  it('volunteering resolves to Volunteering (Mobilize-backed, no longer seed-only)', async () => {
+    for (const raw of ['volunteering', 'Volunteering']) {
+      const result = await getSuggestions({ category: raw, lat: 39.7392, lng: -104.9903 });
+      expect(result.length).toBeGreaterThan(0);
+      for (const s of result) {
+        expect(s.category).toBe('Volunteering');
+      }
+    }
+  }, 60_000);
+
   it('seed suggestions carry isIdea and sort after real results', async () => {
     const result = await getSuggestions({ category: 'Streaming Night' });
     let seenSeed = false;

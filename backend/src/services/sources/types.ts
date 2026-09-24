@@ -19,6 +19,7 @@ export type SuggestionCategory =
   | 'Family'
   | 'Couples'
   | 'Local Experience'
+  | 'Volunteering'
   | 'Unique & Quirky';
 
 export type CostTier = 'free' | '$' | '$$' | '$$$';
@@ -30,6 +31,7 @@ export type SourceName =
   | 'eventbrite'
   | 'predicthq'
   | 'overpass'
+  | 'mobilize'
   | 'seed'
   | 'scraped';
 

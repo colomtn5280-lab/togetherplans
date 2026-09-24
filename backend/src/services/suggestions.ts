@@ -25,6 +25,7 @@ import { fetchTicketmaster } from './sources/ticketmaster.source';
 import { fetchFoursquare } from './sources/foursquare.source';
 import { fetchNpsParks, fetchNpsEvents } from './sources/nps.source';
 import { fetchPredictHQ } from './sources/predicthq.source';
+import { fetchMobilize } from './sources/mobilize.source';
 
 export type { Suggestion, SuggestionCategory, SuggestionQuery };
 
@@ -48,7 +49,7 @@ const NEW_TO_INTERNAL: Record<string, SuggestionCategory | null> = {
   'netflix-shows': 'Streaming Night',
   'performing-arts': 'Theater & Plays',
   'restaurants-dining': 'Dining',
-  'volunteering': null,
+  'volunteering': 'Volunteering',
   'wellness-spa': 'Wellness',
   'wine-drinks': 'Wine & Drinks',
   'custom': null,
@@ -64,7 +65,7 @@ const NEW_TO_INTERNAL: Record<string, SuggestionCategory | null> = {
   'Netflix Shows': 'Streaming Night',
   'Performing Arts': 'Theater & Plays',
   'Restaurants & Dining': 'Dining',
-  'Volunteering': null,
+  'Volunteering': 'Volunteering',
   'Wellness & Spa': 'Wellness',
   'Custom': null,
   // 'Comedy', 'Movies', 'Wine & Drinks' are already valid internal categories
@@ -281,6 +282,10 @@ export async function getSuggestions(query: SuggestionQuery): Promise<Suggestion
       { name: 'nps-parks', fetch: () => fetchNpsParks(lat!, lng!, radiusMiles) },
       { name: 'nps-events', fetch: () => fetchNpsEvents(lat!, lng!, radiusMiles) },
       { name: 'overpass', fetch: () => fetchOverpass(lat!, lng!, Math.min(radiusMiles, 30), category) },
+      // Mobilize only covers volunteering — skip the network call for anything else
+      ...(category === 'Volunteering'
+        ? [{ name: 'mobilize', fetch: () => fetchMobilize(lat!, lng!, radiusMiles) }]
+        : []),
     ] : []),
     { name: 'tmdb', fetch: () => fetchTmdb(category) },
   ];
