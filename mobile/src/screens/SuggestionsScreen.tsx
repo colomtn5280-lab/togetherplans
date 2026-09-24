@@ -33,7 +33,7 @@ import {
   DNSticker,
   DNText,
 } from '@/components/ui';
-import { proposalsAPI } from '@/services/api';
+import { proposalsAPI, api } from '@/services/api';
 import type { RootStackParamList, Suggestion } from '@/types';
 
 type RouteT = RouteProp<RootStackParamList, 'Suggestions'>;
@@ -648,6 +648,105 @@ function EmptyState({
   );
 }
 
+// ── 🌙 Tonight near me banner ──────────────────────────────────────────────────
+function TonightBanner({
+  active,
+  weekendFallback,
+  city,
+  onActivate,
+  onClear,
+  colors,
+}: {
+  active: boolean;
+  weekendFallback: boolean;
+  city: string;
+  onActivate: () => void;
+  onClear: () => void;
+  colors: any;
+}) {
+  if (active) {
+    return (
+      <View style={{ marginBottom: SPACING.md }}>
+        <View
+          style={[
+            {
+              backgroundColor: '#0A6B72',
+              borderRadius: 18,
+              paddingVertical: SPACING.sm + 4,
+              paddingHorizontal: SPACING.md,
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            },
+            SHADOWS.card,
+          ]}
+        >
+          <Text style={{ color: '#fff', fontSize: 14, fontWeight: '700', flex: 1 }} numberOfLines={1}>
+            🌙 Showing tonight {city !== 'your area' ? `in ${city}` : 'near you'}
+          </Text>
+          <TouchableOpacity
+            onPress={onClear}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            style={{
+              backgroundColor: 'rgba(255,255,255,0.18)',
+              borderRadius: 14,
+              paddingVertical: 4,
+              paddingHorizontal: 12,
+              marginLeft: SPACING.sm,
+            }}
+          >
+            <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700' }}>clear ×</Text>
+          </TouchableOpacity>
+        </View>
+        {weekendFallback && (
+          <View
+            style={{
+              backgroundColor: colors.primarySoft,
+              borderRadius: 14,
+              padding: SPACING.sm + 2,
+              marginTop: SPACING.xs,
+            }}
+          >
+            <DNText variant="secondary" color={colors.primary}>
+              🌙 Quiet night out there — here's this weekend instead
+            </DNText>
+          </View>
+        )}
+      </View>
+    );
+  }
+  return (
+    <TouchableOpacity
+      onPress={onActivate}
+      activeOpacity={0.85}
+      style={[
+        {
+          backgroundColor: '#0E8C8C',
+          borderRadius: 18,
+          paddingVertical: SPACING.md,
+          paddingHorizontal: SPACING.md,
+          marginBottom: SPACING.md,
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        },
+        SHADOWS.card,
+      ]}
+    >
+      <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+        <Text style={{ fontSize: 26, marginRight: SPACING.sm + 2 }}>🌙</Text>
+        <View style={{ flex: 1 }}>
+          <Text style={{ color: '#fff', fontSize: 17, fontWeight: '800' }}>Tonight near me</Text>
+          <Text style={{ color: 'rgba(255,255,255,0.85)', fontSize: 12, marginTop: 1 }}>
+            Events happening today, close by
+          </Text>
+        </View>
+      </View>
+      <Text style={{ color: '#fff', fontSize: 18 }}>→</Text>
+    </TouchableOpacity>
+  );
+}
+
 // ── Main Screen ───────────────────────────────────────────────────────────────
 export default function SuggestionsScreen() {
   const { colors } = useTheme();
@@ -666,6 +765,9 @@ export default function SuggestionsScreen() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [detailSuggestion, setDetailSuggestion] = useState<Suggestion | null>(null);
   const [detailVisible, setDetailVisible] = useState(false);
+  // 🌙 Tonight near me shortcut — pseudo-selection 'All · Tonight'
+  const [tonightActive, setTonightActive] = useState(false);
+  const [weekendFallback, setWeekendFallback] = useState(false);
 
   const PAGE_SIZE = 10;
   // Use ref for page tracking to avoid stale closures
@@ -718,6 +820,73 @@ export default function SuggestionsScreen() {
     }
   }, []); // no stale-closure deps — uses refs
 
+  // 🌙 Fetch tonight (dateFilter=tonight, All categories). Empty → warm
+  // this-weekend fallback instead of a dead end.
+  const fetchTonight = useCallback(async (lat?: number, lng?: number) => {
+    setLoading(true);
+    setWeekendFallback(false);
+    pageRef.current = 0;
+    try {
+      const load = async (dateFilter: 'tonight' | 'this-weekend') => {
+        const res = await api.get('/api/suggestions', { params: { lat, lng, dateFilter } });
+        const data: Suggestion[] = Array.isArray(res.data) ? res.data : res.data?.results ?? [];
+        return data;
+      };
+      let data = await load('tonight');
+      // Backend 'tonight' keeps only events dated today (undated places are
+      // excluded) — a quiet night can legitimately return only seed ideas.
+      if (data.filter((s) => s.isIdea !== true).length === 0) {
+        const weekend = await load('this-weekend');
+        if (weekend.filter((s) => s.isIdea !== true).length > 0) {
+          data = weekend;
+          setWeekendFallback(true);
+        }
+      }
+      allSuggestionsRef.current = data;
+      setSuggestions(data.slice(0, PAGE_SIZE));
+      pageRef.current = 1;
+      setHasMore(data.length > PAGE_SIZE);
+    } catch (e) {
+      console.warn('Failed to fetch tonight suggestions', e);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const activateTonight = useCallback(async () => {
+    setTonightActive(true);
+    setActiveCategory(null); // pseudo-selection: All · Tonight
+    if (coords) {
+      fetchTonight(coords.lat, coords.lng);
+      return;
+    }
+    // Run the existing expo-location flow, then fetch tonight
+    const { status } = await Location.requestForegroundPermissionsAsync();
+    if (status === 'granted') {
+      setLocationGranted(true);
+      try {
+        const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+        const lat = loc.coords.latitude;
+        const lng = loc.coords.longitude;
+        setCoords({ lat, lng });
+        const [geo] = await Location.reverseGeocodeAsync({ latitude: lat, longitude: lng });
+        setCity(geo.city ?? geo.region ?? 'your area');
+        fetchTonight(lat, lng);
+      } catch {
+        fetchTonight();
+      }
+    } else {
+      setLocationGranted(false);
+      fetchTonight();
+    }
+  }, [coords, fetchTonight]);
+
+  const clearTonight = useCallback(() => {
+    setTonightActive(false);
+    setWeekendFallback(false);
+    fetchSuggestions(coords?.lat, coords?.lng, undefined, true);
+  }, [coords, fetchSuggestions]);
+
   const requestLocation = useCallback(async () => {
     const { status } = await Location.requestForegroundPermissionsAsync();
     if (status === 'granted') {
@@ -745,6 +914,10 @@ export default function SuggestionsScreen() {
   }, []); // eslint-disable-line
 
   const handleCategorySelect = (cat: Category | null) => {
+    if (tonightActive) {
+      setTonightActive(false);
+      setWeekendFallback(false);
+    }
     setActiveCategory(cat);
     fetchSuggestions(coords?.lat, coords?.lng, cat?.id, true);
   };
@@ -766,9 +939,19 @@ export default function SuggestionsScreen() {
   }, [addOption]);
 
   const handleLoadMore = () => {
-    if (!loadingMore && hasMore) {
-      fetchSuggestions(coords?.lat, coords?.lng, activeCategory?.id, false);
+    if (loadingMore || !hasMore) return;
+    if (tonightActive) {
+      // Tonight data is fully in allSuggestionsRef — paginate locally
+      const page = pageRef.current;
+      setSuggestions((prev) => [
+        ...prev,
+        ...allSuggestionsRef.current.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE),
+      ]);
+      pageRef.current = page + 1;
+      setHasMore(allSuggestionsRef.current.length > (page + 1) * PAGE_SIZE);
+      return;
     }
+    fetchSuggestions(coords?.lat, coords?.lng, activeCategory?.id, false);
   };
 
   // Client-side filter by active category
@@ -801,10 +984,14 @@ export default function SuggestionsScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
-      <DNScreenHeader title="Discover" subtitle={`📍 Near ${city} · tonight`} />
+      <DNScreenHeader
+        title={tonightActive ? 'Tonight near you' : 'Discover'}
+        subtitle={tonightActive ? '🌙 Events happening today' : `📍 Near ${city} · tonight`}
+      />
 
       {loading ? (
         <ScrollView contentContainerStyle={{ padding: SPACING.gutter, paddingBottom: 200 }}>
+          <TonightBanner active={tonightActive} weekendFallback={weekendFallback} city={city} onActivate={activateTonight} onClear={clearTonight} colors={colors} />
           <CategoryGrid activeId={activeCategory?.id ?? null} onSelect={handleCategorySelect} colors={colors} />
           <View style={{ paddingVertical: SPACING.xl, alignItems: 'center' }}>
             <ActivityIndicator color={colors.primary} size="large" />
@@ -812,6 +999,7 @@ export default function SuggestionsScreen() {
         </ScrollView>
       ) : isEmpty ? (
         <ScrollView contentContainerStyle={{ padding: SPACING.gutter, paddingBottom: 200 }}>
+          <TonightBanner active={tonightActive} weekendFallback={weekendFallback} city={city} onActivate={activateTonight} onClear={clearTonight} colors={colors} />
           <CategoryGrid activeId={activeCategory?.id ?? null} onSelect={handleCategorySelect} colors={colors} />
           <EmptyState onUseLocation={requestLocation} colors={colors} />
         </ScrollView>
@@ -820,7 +1008,10 @@ export default function SuggestionsScreen() {
           data={realResults}
           keyExtractor={(item, i) => `${item.name}-${item.address ?? ''}-${i}`}
           ListHeaderComponent={
-            <CategoryGrid activeId={activeCategory?.id ?? null} onSelect={handleCategorySelect} colors={colors} />
+            <>
+              <TonightBanner active={tonightActive} weekendFallback={weekendFallback} city={city} onActivate={activateTonight} onClear={clearTonight} colors={colors} />
+              <CategoryGrid activeId={activeCategory?.id ?? null} onSelect={handleCategorySelect} colors={colors} />
+            </>
           }
           renderItem={({ item, index }) => {
             const key = item.name + (item.address ?? '');
