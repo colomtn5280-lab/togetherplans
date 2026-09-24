@@ -172,156 +172,54 @@ function useGeolocation() {
 // ── Per-category curated Unsplash fallback photos ────────────────────────────
 // Used when an API result has no imageUrl. Each URL is a specific high-quality
 // photo that fits the category. Format: ?auto=format&fit=crop&w=600&h=400&q=80
-const CATEGORY_FALLBACK_PHOTOS: Record<string, string[]> = {
-  "Dining": [
-    "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=600&h=400&q=80",
-    "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=600&h=400&q=80",
-    "https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=600&h=400&q=80",
-  ],
-  "Restaurants & Dining": [
-    "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=600&h=400&q=80",
-    "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=600&h=400&q=80",
-    "https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=600&h=400&q=80",
-  ],
-  "Live Music": [
-    "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?auto=format&fit=crop&w=600&h=400&q=80",
-    "https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&w=600&h=400&q=80",
-    "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=600&h=400&q=80",
-  ],
-  "Concerts": [
-    "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=600&h=400&q=80",
-    "https://images.unsplash.com/photo-1429962714451-bb934ecdc4ec?auto=format&fit=crop&w=600&h=400&q=80",
-    "https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=600&h=400&q=80",
-  ],
-  "Comedy": [
-    "https://images.unsplash.com/photo-1527224857830-43a7acc85260?auto=format&fit=crop&w=600&h=400&q=80",
-    "https://images.unsplash.com/photo-1595266753008-2e87e7f7c3b5?auto=format&fit=crop&w=600&h=400&q=80",
-    "https://images.unsplash.com/photo-1612539465862-0c0b1d1bcca5?auto=format&fit=crop&w=600&h=400&q=80",
-  ],
-  "Movies": [
-    "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=600&h=400&q=80",
-    "https://images.unsplash.com/photo-1524985069026-dd778a71c7b4?auto=format&fit=crop&w=600&h=400&q=80",
-    "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?auto=format&fit=crop&w=600&h=400&q=80",
-  ],
-  "Theater & Plays": [
-    "https://images.unsplash.com/photo-1507676184212-d03ab07a01bf?auto=format&fit=crop&w=600&h=400&q=80",
-    "https://images.unsplash.com/photo-1503095396549-807759245b35?auto=format&fit=crop&w=600&h=400&q=80",
-    "https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=600&h=400&q=80",
-  ],
-  "Performing Arts": [
-    "https://images.unsplash.com/photo-1574271143515-5cddf8da19be?auto=format&fit=crop&w=600&h=400&q=80",
-    "https://images.unsplash.com/photo-1547153760-18fc86324498?auto=format&fit=crop&w=600&h=400&q=80",
-  ],
-  "Wine & Drinks": [
-    "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=600&h=400&q=80",
-    "https://images.unsplash.com/photo-1547595628-c61a29f496f0?auto=format&fit=crop&w=600&h=400&q=80",
-    "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=600&h=400&q=80",
-  ],
-  "Outdoors": [
-    "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=600&h=400&q=80",
-    "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=600&h=400&q=80",
-    "https://images.unsplash.com/photo-1533240332313-0db49b459ad6?auto=format&fit=crop&w=600&h=400&q=80",
-  ],
-  "Hiking Trails": [
-    "https://images.unsplash.com/photo-1551632811-561732d1e306?auto=format&fit=crop&w=600&h=400&q=80",
-    "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=600&h=400&q=80",
-  ],
-  "Hotel Stays": [
-    "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=600&h=400&q=80",
-    "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=600&h=400&q=80",
-    "https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&fit=crop&w=600&h=400&q=80",
-  ],
-  "Sports & Active": [
-    "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&w=600&h=400&q=80",
-    "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=600&h=400&q=80",
-    "https://images.unsplash.com/photo-1526676037777-05a232554f77?auto=format&fit=crop&w=600&h=400&q=80",
-  ],
-  "Local Experiences": [
-    "https://images.unsplash.com/photo-1501854140801-50d01698950b?auto=format&fit=crop&w=600&h=400&q=80",
-    "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=600&h=400&q=80",
-  ],
-  "Local Experience": [
-    "https://images.unsplash.com/photo-1501854140801-50d01698950b?auto=format&fit=crop&w=600&h=400&q=80",
-    "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=600&h=400&q=80",
-  ],
-  "Arts & Culture": [
-    "https://images.unsplash.com/photo-1561839561-b13bcfe95249?auto=format&fit=crop&w=600&h=400&q=80",
-    "https://images.unsplash.com/photo-1518998053901-5348d3961a04?auto=format&fit=crop&w=600&h=400&q=80",
-    "https://images.unsplash.com/photo-1515405295579-ba7b45403062?auto=format&fit=crop&w=600&h=400&q=80",
-  ],
-  "Wellness & Spa": [
-    "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&w=600&h=400&q=80",
-    "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=600&h=400&q=80",
-  ],
-  "Streaming Night": [
-    "https://images.unsplash.com/photo-1522869635100-9f4c5e86aa37?auto=format&fit=crop&w=600&h=400&q=80",
-    "https://images.unsplash.com/photo-1593642632559-0c6d3fc62b89?auto=format&fit=crop&w=600&h=400&q=80",
-  ],
-  "Netflix Shows": [
-    "https://images.unsplash.com/photo-1522869635100-9f4c5e86aa37?auto=format&fit=crop&w=600&h=400&q=80",
-    "https://images.unsplash.com/photo-1593642632559-0c6d3fc62b89?auto=format&fit=crop&w=600&h=400&q=80",
-  ],
-  "Volunteering": [
-    "https://images.unsplash.com/photo-1559027615-cd4628902d4a?auto=format&fit=crop&w=600&h=400&q=80",
-    "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&w=600&h=400&q=80",
-  ],
-  "Couples Events": [
-    "https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?auto=format&fit=crop&w=600&h=400&q=80",
-    "https://images.unsplash.com/photo-1529634806980-85c3dd6d34ac?auto=format&fit=crop&w=600&h=400&q=80",
-  ],
-  "Family Events": [
-    "https://images.unsplash.com/photo-1516627145497-ae6968895b40?auto=format&fit=crop&w=600&h=400&q=80",
-    "https://images.unsplash.com/photo-1511895426328-dc8714191011?auto=format&fit=crop&w=600&h=400&q=80",
-  ],
-  "Family": [
-    "https://images.unsplash.com/photo-1516627145497-ae6968895b40?auto=format&fit=crop&w=600&h=400&q=80",
-    "https://images.unsplash.com/photo-1511895426328-dc8714191011?auto=format&fit=crop&w=600&h=400&q=80",
-  ],
-  "Active": [
-    "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=600&h=400&q=80",
-    "https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=600&h=400&q=80",
-    "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=600&h=400&q=80",
-  ],
-  "Sports": [
-    "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&w=600&h=400&q=80",
-    "https://images.unsplash.com/photo-1504450758481-7338eba7524a?auto=format&fit=crop&w=600&h=400&q=80",
-    "https://images.unsplash.com/photo-1607619056574-7b8d3ee536b2?auto=format&fit=crop&w=600&h=400&q=80",
-  ],
-  "Couples": [
-    "https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?auto=format&fit=crop&w=600&h=400&q=80",
-    "https://images.unsplash.com/photo-1529634806980-85c3dd6d34ac?auto=format&fit=crop&w=600&h=400&q=80",
-    "https://images.unsplash.com/photo-1474552226712-ac0f0961a954?auto=format&fit=crop&w=600&h=400&q=80",
-  ],
-  "Day Trip": [
-    "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=600&h=400&q=80",
-    "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=600&h=400&q=80",
-    "https://images.unsplash.com/photo-1504609773096-104ff2c73ba4?auto=format&fit=crop&w=600&h=400&q=80",
-  ],
-  "Hotels": [
-    "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=600&h=400&q=80",
-    "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=600&h=400&q=80",
-    "https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&fit=crop&w=600&h=400&q=80",
-  ],
-  "Wellness": [
-    "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&w=600&h=400&q=80",
-    "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=600&h=400&q=80",
-    "https://images.unsplash.com/photo-1536856136534-bb679c52a9aa?auto=format&fit=crop&w=600&h=400&q=80",
-  ],
-  "Unique & Quirky": [
-    "https://images.unsplash.com/photo-1533461502717-83546f485d24?auto=format&fit=crop&w=600&h=400&q=80",
-    "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=600&h=400&q=80",
-    "https://images.unsplash.com/photo-1516912481808-3406841bd33c?auto=format&fit=crop&w=600&h=400&q=80",
-  ],
+
+// ── Unsplash Source fallback — unique per venue, relevant to category ─────────
+// source.unsplash.com returns a random photo matching keywords.
+// We append a numeric seed derived from the venue name so the same venue
+// always gets the same photo (stable across renders) but different venues
+// get different photos.  No API key required.
+
+const CATEGORY_KEYWORDS: Record<string, string> = {
+  "Dining": "restaurant,dining,food",
+  "Restaurants & Dining": "restaurant,dining,food",
+  "Live Music": "concert,live music,stage",
+  "Concerts": "concert,music festival,crowd",
+  "Comedy": "comedy club,stage spotlight,audience laughing",
+  "Movies": "movie theater,cinema,film",
+  "Theater & Plays": "theater,stage,curtain",
+  "Performing Arts": "performing arts,ballet,opera stage",
+  "Wine & Drinks": "wine,cocktail bar,winery",
+  "Outdoors": "nature,outdoor adventure,scenery",
+  "Hiking Trails": "hiking trail,mountain path,nature walk",
+  "Hotel Stays": "hotel lobby,luxury hotel,resort",
+  "Sports & Active": "sports,stadium,athletic",
+  "Local Experiences": "city experience,local culture,adventure",
+  "Local Experience": "city experience,local culture,adventure",
+  "Arts & Culture": "art gallery,museum,sculpture",
+  "Wellness & Spa": "spa,massage,wellness retreat",
+  "Streaming Night": "cozy living room,sofa,movie night",
+  "Netflix Shows": "cozy living room,home cinema,popcorn",
+  "Volunteering": "volunteering,community service,charity",
+  "Couples Events": "couple date night,romantic,together",
+  "Family Events": "family fun,children playing,park",
+  "Family": "family fun,children,park",
+  "Active": "fitness,workout,active lifestyle",
+  "Sports": "sports action,stadium,game",
+  "Couples": "romantic couple,date night,love",
+  "Day Trip": "road trip,scenic drive,travel",
+  "Hotels": "hotel room,resort,accommodation",
+  "Wellness": "spa relaxation,wellness,yoga",
+  "Unique & Quirky": "quirky fun,unique experience,colorful",
 };
 
-// Pick a fallback photo deterministically by name so the same venue always
-// shows the same photo (no flicker on re-render).
 function categoryFallbackPhoto(category: string, name: string): string | undefined {
-  const pool = CATEGORY_FALLBACK_PHOTOS[category];
-  if (!pool?.length) return undefined;
-  let hash = 0;
-  for (let i = 0; i < name.length; i++) hash = (hash * 31 + name.charCodeAt(i)) >>> 0;
-  return pool[hash % pool.length];
+  const keywords = CATEGORY_KEYWORDS[category];
+  if (!keywords) return undefined;
+  // Deterministic seed from venue name → stable image per venue
+  let seed = 0;
+  for (let i = 0; i < name.length; i++) seed = (seed * 31 + name.charCodeAt(i)) >>> 0;
+  // Unsplash Source: keywords + seed = unique stable relevant photo
+  return `https://source.unsplash.com/featured/600x400/?${encodeURIComponent(keywords)}&sig=${seed}`;
 }
 
 // ── SuggestionImage — real image, curated fallback, or category emoji ─────────
