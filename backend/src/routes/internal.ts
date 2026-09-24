@@ -4,6 +4,7 @@ import { Expo } from 'expo-server-sdk';
 import { prisma } from '@/services/db';
 import { sendVoteReminderEmail } from '@/services/email';
 import { logger } from '@/services/logger';
+import { getSourceHealth } from '@/services/source-health';
 
 export const internalRouter = Router();
 
@@ -24,6 +25,18 @@ function requireInternalKey(req: Request, res: Response, next: NextFunction): vo
 }
 
 internalRouter.use(requireInternalKey);
+
+const INSTANCE_STARTED_AT = new Date().toISOString();
+
+/**
+ * GET /api/internal/source-health
+ * In-memory per-source health snapshot for the suggestion engine:
+ * last attempt time, last success time, last result count, last error.
+ * Guarded by requireInternalKey like all internal routes.
+ */
+internalRouter.get('/source-health', (_req: Request, res: Response) => {
+  return res.json({ sources: getSourceHealth(), instanceStartedAt: INSTANCE_STARTED_AT });
+});
 
 /**
  * POST /api/internal/reminders/run
