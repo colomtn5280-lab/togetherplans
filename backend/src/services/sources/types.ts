@@ -35,6 +35,7 @@ export type SourceName =
   | 'mobilize'
   | 'viator'
   | 'liteapi'
+  | 'places'
   | 'seed'
   | 'scraped';
 

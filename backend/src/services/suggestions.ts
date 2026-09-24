@@ -20,6 +20,7 @@ import { recordSourceAttempt, recordSourceSuccess, recordSourceError } from '@/s
 import { Suggestion, SuggestionCategory, SuggestionQuery, haversineMiles } from './sources/types';
 import { getSeedSuggestions } from './sources/seed.source';
 import { fetchOverpass } from './sources/overpass.source';
+import { fetchPlacesWellness } from './sources/places.source';
 import { fetchTmdb } from './sources/tmdb.source';
 import { fetchTicketmaster } from './sources/ticketmaster.source';
 import { fetchViator } from './sources/viator.source';
@@ -229,7 +230,7 @@ function cacheKey(query: SuggestionQuery): string {
   const cat = query.category ?? 'All';
   const rad = query.radiusMiles ?? 25;
   const date = query.dateFilter ?? 'anytime';
-  return `suggestions:v12:${loc}:${cat}:${rad}:${date}`;
+  return `suggestions:v13:${loc}:${cat}:${rad}:${date}`;
 }
 
 // Events expire sooner; places cached longer
@@ -281,6 +282,10 @@ export async function getSuggestions(query: SuggestionQuery): Promise<Suggestion
       { name: 'ticketmaster', fetch: () => fetchTicketmaster(lat!, lng!, radiusMiles, category) },
       { name: 'predicthq', fetch: () => fetchPredictHQ(lat!, lng!, radiusMiles, category) },
       { name: 'overpass', fetch: () => fetchOverpass(lat!, lng!, Math.min(radiusMiles, 30), category) },
+      // Google Places text search fallback for Wellness (OSM is sparse for spas in suburbs)
+      ...((category === 'Wellness' || !category) && hasLocation
+        ? [{ name: 'places', fetch: () => fetchPlacesWellness(lat!, lng!, radiusMiles) }]
+        : []),
       // Mobilize only covers volunteering — skip the network call for anything else
       ...(category === 'Volunteering'
         ? [{ name: 'mobilize', fetch: () => fetchMobilize(lat!, lng!, radiusMiles) }]
