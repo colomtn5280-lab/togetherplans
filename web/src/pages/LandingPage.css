@@ -17,7 +17,7 @@ h1,h2,h3{font-family:'Sora',sans-serif;line-height:1.15;letter-spacing:-.02em}
 .nav-links a{font-weight:500;color:var(--ink2);transition:color .15s}
 .nav-links a:hover{color:var(--primary)}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 28px;border-radius:100px;font-weight:600;font-size:15px;cursor:pointer;transition:all .18s;border:none;text-decoration:none}
-.btn-primary{background:var(--primary);color:#fff}.btn-primary:hover{background:var(--primary-deep);color:#fff;transform:translateY(-1px);box-shadow:0 6px 20px rgba(14,140,140,.35)}
+.btn-primary{background:var(--primary);color:#fff !important}.btn-primary:hover{background:var(--primary-deep);color:#fff !important;transform:translateY(-1px);box-shadow:0 6px 20px rgba(14,140,140,.35)}
 .btn-lime{background:var(--lime);color:#fff}.btn-lime:hover{background:#689e14;color:#fff;transform:translateY(-1px)}
 .btn-outline{background:transparent;color:var(--primary);border:2px solid var(--primary)}.btn-outline:hover{background:var(--primary-soft)}
 .btn-sm{padding:10px 20px;font-size:14px}
