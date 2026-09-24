@@ -91,6 +91,10 @@ const FSQ_CATEGORY_RULES: Array<{
   { ids: ['4bf58dd8d48988d160941735'], category: 'Wellness', costTier: '$$', durationMinutes: 180 },        // Hot Spring (verified)
   { ids: ['5744ccdfe4b0c0459246b4b2'], category: 'Wellness', costTier: '$$', durationMinutes: 75 },         // Pilates Studio (verified)
   { ids: ['52e81612bcbc57f1066b7a27'], category: 'Wellness', costTier: '$$', durationMinutes: 120 },        // Bath House (verified)
+  // Volunteering — IDs verified live in the v2 taxonomy Sept 2026
+  { ids: ['50328a8e91d4c4b30a586d6c'], category: 'Volunteering', costTier: 'free', durationMinutes: 120 },  // Non-Profit Organization (verified)
+  { ids: ['52e81612bcbc57f1066b7a34'], category: 'Volunteering', costTier: 'free', durationMinutes: 120 },  // Community Center (verified)
+  { ids: ['69d41dd556ec6a4ded8e8266'], category: 'Volunteering', costTier: 'free', durationMinutes: 120 },  // Community Garden (verified)
   { ids: ['4bf58dd8d48988d1f1931735'], category: 'Local Experience', costTier: '$$', durationMinutes: 120 }, // General Entertainment
 ];
 
