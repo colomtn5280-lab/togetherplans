@@ -231,7 +231,7 @@ function cacheKey(query: SuggestionQuery): string {
   const cat = query.category ?? 'All';
   const rad = query.radiusMiles ?? 25;
   const date = query.dateFilter ?? 'anytime';
-  return `suggestions:v7:${loc}:${cat}:${rad}:${date}`;
+  return `suggestions:v8:${loc}:${cat}:${rad}:${date}`;
 }
 
 // Events expire sooner; places cached longer
@@ -399,7 +399,7 @@ export async function getSuggestions(query: SuggestionQuery): Promise<Suggestion
     } else if (lat && lng) {
       aiCity = `${lat.toFixed(2)},${lng.toFixed(2)}`;
     }
-    const aiIdeas = await fetchAiIdeas(category ?? 'Local Experience', aiCity, aiState, 8);
+    const aiIdeas = await fetchAiIdeas(category ?? 'Local Experience', aiCity, aiState, 5);
     if (aiIdeas.length) {
       final = deduplicate([...final, ...aiIdeas]);
       logger.info(`AI ideas appended: ${aiIdeas.length} for ${category} near ${aiCity}`);

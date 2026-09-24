@@ -71,12 +71,12 @@ export async function fetchAiIdeas(
 
   const prompt = `Generate ${count} specific, actionable ${categoryDesc} ${locationStr}.
 
-Return ONLY a JSON array. No markdown, no explanation. Each item:
+Return ONLY a JSON array of exactly ${count} items. No markdown, no explanation, no truncation. Each item:
 {
   "name": "Short activity name (max 6 words)",
-  "description": "One engaging sentence describing why this is a great date/outing idea (max 120 chars)",
+  "description": "One engaging sentence (max 100 chars)",
   "cost": "free" | "$" | "$$" | "$$$",
-  "duration": number of minutes (e.g. 90)
+  "duration": minutes as a number
 }
 
 Rules:
@@ -98,7 +98,7 @@ Rules:
           contents: [{ parts: [{ text: prompt }] }],
           generationConfig: {
             temperature: 0.8,
-            maxOutputTokens: 1024,
+            maxOutputTokens: 2048,
             responseMimeType: 'application/json',
           },
         }),
