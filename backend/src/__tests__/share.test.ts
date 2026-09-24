@@ -96,6 +96,10 @@ jest.mock('@/services/db', () => ({
       findMany: jest.fn(async () => []),
     },
     guestVote: {
+      findUnique: jest.fn(async ({ where }: any) => {
+        const { proposalId, guestId } = where.proposalId_guestId;
+        return state.guestVotes.find((x) => x.proposalId === proposalId && x.guestId === guestId) ?? null;
+      }),
       upsert: jest.fn(async ({ where, create, update }: any) => {
         const { proposalId, guestId } = where.proposalId_guestId;
         let gv = state.guestVotes.find((x) => x.proposalId === proposalId && x.guestId === guestId);
@@ -348,10 +352,46 @@ describe('GET /api/share/:shareToken/preview and /og', () => {
     expect(res.text).not.toContain('@example.com');
   });
 
-  it('serves a branded SVG OG image for OPEN proposals', async () => {
+  it('serves a raster PNG OG image (1200x630) for OPEN proposals', async () => {
     const { proposal } = seedProposal();
     const res = await request(app)
       .get(`/api/share/${proposal.shareToken}/og`)
+      .buffer(true)
+      .parse((r, cb) => {
+        const chunks: Buffer[] = [];
+        r.on('data', (c: Buffer) => chunks.push(c));
+        r.on('end', () => cb(null, Buffer.concat(chunks)));
+      });
+    expect(res.status).toBe(200);
+    expect(res.headers['content-type']).toContain('image/png');
+    const png = res.body as Buffer;
+    // PNG magic bytes
+    expect(png.subarray(0, 8)).toEqual(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]));
+    // IHDR: width @ byte 16, height @ byte 20 (big-endian)
+    expect(png.readUInt32BE(16)).toBe(1200);
+    expect(png.readUInt32BE(20)).toBe(630);
+  });
+
+  it('serves a cached identical PNG on repeat crawler hits', async () => {
+    const { proposal } = seedProposal();
+    const get = () => request(app)
+      .get(`/api/share/${proposal.shareToken}/og`)
+      .buffer(true)
+      .parse((r, cb) => {
+        const chunks: Buffer[] = [];
+        r.on('data', (c: Buffer) => chunks.push(c));
+        r.on('end', () => cb(null, Buffer.concat(chunks)));
+      });
+    const first = await get();
+    const second = await get();
+    expect(second.status).toBe(200);
+    expect(Buffer.compare(first.body as Buffer, second.body as Buffer)).toBe(0);
+  });
+
+  it('still serves the branded SVG with ?format=svg (debug escape hatch)', async () => {
+    const { proposal } = seedProposal();
+    const res = await request(app)
+      .get(`/api/share/${proposal.shareToken}/og?format=svg`)
       .buffer(true)
       .parse((r, cb) => {
         const chunks: Buffer[] = [];
@@ -363,6 +403,15 @@ describe('GET /api/share/:shareToken/preview and /og', () => {
     const svg = (res.body as Buffer).toString('utf8');
     expect(svg).toContain('Vote now — no account needed');
     expect(svg).toContain('TogetherPlans');
+  });
+
+  it('declares og:image dimensions in the preview HTML', async () => {
+    const { proposal } = seedProposal();
+    const res = await request(app).get(`/api/share/${proposal.shareToken}/preview`);
+    expect(res.status).toBe(200);
+    expect(res.text).toContain('og:image:width" content="1200"');
+    expect(res.text).toContain('og:image:height" content="630"');
+    expect(res.text).toContain('og:image:type" content="image/png"');
   });
 
   it('404s preview for unknown tokens', async () => {

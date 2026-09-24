@@ -5,6 +5,7 @@ import { prisma } from '@/services/db';
 import { sendVoteReminderEmail } from '@/services/email';
 import { logger } from '@/services/logger';
 import { getSourceHealth } from '@/services/source-health';
+import { runTomorrowReminders } from '@/services/notification-triggers';
 
 export const internalRouter = Router();
 
@@ -191,6 +192,9 @@ internalRouter.post('/reminders/run', async (_req: Request, res: Response, next:
     return res.json({
       remindersSent,
       proposalsProcessed: proposals.length,
+      // "Plan is tomorrow" hype push for DECIDED proposals 20-28h out —
+      // rides this same Cloud Scheduler invocation (no new job).
+      tomorrow: await runTomorrowReminders(),
     });
   } catch (err) {
     return next(err);

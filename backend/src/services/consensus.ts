@@ -12,6 +12,8 @@
 
 import { prisma } from '@/services/db';
 import { sendItsAMatchEmail } from '@/services/email';
+import { checkHoldoutAndNotify } from '@/services/notification-triggers';
+import { logger } from '@/services/logger';
 
 export interface ConsensusResult {
   decided: boolean;
@@ -58,6 +60,16 @@ export async function checkProposalConsensus(proposalId: string): Promise<Consen
         void sendItsAMatchEmail(m.user.email, m.user.email, proposalId, proposal.title);
       }
     }
+  }
+
+  // "You're the holdout" nudge — exactly one member's vote still missing.
+  // Fire-and-forget: never let a notification failure break the vote flow.
+  // Covers both member votes and converted guest votes (all callers of this
+  // function share this path).
+  if (!decided) {
+    void checkHoldoutAndNotify(proposalId).catch((err) =>
+      logger.error('Holdout notification check failed', { proposalId, err }),
+    );
   }
 
   return { decided, winnerId: winner?.id, voteCount: winner ? winner.votes.length : 0, memberCount };

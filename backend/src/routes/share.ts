@@ -15,6 +15,9 @@ import { Router, Request, Response, NextFunction } from 'express';
 import rateLimit from 'express-rate-limit';
 import crypto from 'crypto';
 import { prisma } from '@/services/db';
+import { logger } from '@/services/logger';
+import { notifyCreatorOfGuestVote } from '@/services/notification-triggers';
+import { rasterizeOgSvgCached } from '@/services/og-image';
 
 export const shareRouter = Router();
 
@@ -156,6 +159,12 @@ shareRouter.post('/:shareToken/vote', guestVoteLimiter, async (req: Request, res
 
     const trimmedName = typeof guestName === 'string' && guestName.trim() ? guestName.trim() : undefined;
 
+    // Was there already a vote by this guest? (distinguish CREATE from change-vote)
+    const existingGuestVote = await prisma.guestVote.findUnique({
+      where: { proposalId_guestId: { proposalId: proposal.id, guestId } },
+      select: { id: true },
+    });
+
     const vote = await prisma.guestVote.upsert({
       where: { proposalId_guestId: { proposalId: proposal.id, guestId } },
       create: {
@@ -169,6 +178,14 @@ shareRouter.post('/:shareToken/vote', guestVoteLimiter, async (req: Request, res
         ...(trimmedName ? { guestName: trimmedName } : {}),
       },
     });
+
+    // New guest vote (not a change) → tell the creator. Fire-and-forget,
+    // rate-limited inside (1 push / proposal / 30 min).
+    if (!existingGuestVote) {
+      void notifyCreatorOfGuestVote(proposal.id, trimmedName).catch((err) =>
+        logger.error('Guest-vote notification failed', { proposalId: proposal.id, err }),
+      );
+    }
 
     // Return the fresh public snapshot so the client can show live tallies
     const fresh = await loadByToken(shareToken);
@@ -241,6 +258,9 @@ shareRouter.get('/:shareToken/preview', async (req: Request, res: Response, next
 <meta property="og:title" content="${escHtml(ogTitle)}">
 <meta property="og:description" content="${escHtml(ogDescription)}">
 <meta property="og:image" content="${escHtml(ogImage)}">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
 <meta property="og:url" content="${escHtml(spaUrl)}">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="${escHtml(ogTitle)}">
@@ -265,8 +285,9 @@ shareRouter.get('/:shareToken/preview', async (req: Request, res: Response, next
 /**
  * GET /api/share/:shareToken/og
  * Branded OG image for OPEN (and DECIDED) proposals — teal card, title, date,
- * option count, CTA, wordmark. Served as SVG (same pipeline as the decided
- * share cards — no raster deps in package.json).
+ * option count, CTA, wordmark. Served as raster PNG (1200x630) because
+ * WhatsApp/iMessage/Facebook crawlers don't render SVG og:images.
+ * ?format=svg keeps the raw SVG available for debugging.
  */
 shareRouter.get('/:shareToken/og', async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -297,18 +318,27 @@ shareRouter.get('/:shareToken/og', async (req: Request, res: Response, next: Nex
   <rect width="1200" height="630" fill="url(#bg)"/>
   <circle cx="1050" cy="100" r="200" fill="#7CB518" fill-opacity="0.15"/>
   <circle cx="100" cy="550" r="150" fill="#ffffff" fill-opacity="0.05"/>
-  <text x="60" y="80" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="28" font-weight="800" fill="#D9F1F0" letter-spacing="0.5">TogetherPlans</text>
-  <text x="60" y="200" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="80">🗳️</text>
-  <text x="60" y="310" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="56" font-weight="800" fill="#ffffff" letter-spacing="-1">${escXml(title)}</text>
-  <text x="60" y="375" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="32" fill="#D9F1F0">${escXml(subtitle)}</text>
-  <rect x="60" y="430" rx="16" width="560" height="72" fill="#7CB518"/>
-  <text x="90" y="477" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="30" font-weight="800" fill="#0F1519">${escXml(cta)}</text>
+  <text x="60" y="90" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="34" font-weight="800" fill="#D9F1F0" letter-spacing="0.5">TogetherPlans</text>
+  <text x="60" y="290" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="56" font-weight="800" fill="#ffffff" letter-spacing="-1">${escXml(title)}</text>
+  <text x="60" y="365" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="32" fill="#D9F1F0">${escXml(subtitle)}</text>
+  <rect x="60" y="425" rx="16" width="600" height="76" fill="#7CB518"/>
+  <text x="92" y="475" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="30" font-weight="800" fill="#0F1519">${escXml(cta)}</text>
   <text x="60" y="580" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="20" fill="#7CB518" letter-spacing="0.3">Plan together. Go together. — togetherplans.app</text>
 </svg>`;
 
-    res.setHeader('Content-Type', 'image/svg+xml');
+    if (req.query.format === 'svg') {
+      // Debugging escape hatch — raw SVG
+      res.setHeader('Content-Type', 'image/svg+xml');
+      res.setHeader('Cache-Control', 'public, max-age=3600');
+      return res.send(svg);
+    }
+
+    // Rasterize to PNG — WhatsApp/iMessage/Facebook require raster og:images.
+    // Cache key includes status so an OPEN→DECIDED flip refreshes the CTA.
+    const png = rasterizeOgSvgCached(`share:${shareToken}:${proposal.status}`, svg);
+    res.setHeader('Content-Type', 'image/png');
     res.setHeader('Cache-Control', 'public, max-age=3600');
-    return res.send(svg);
+    return res.send(png);
   } catch (err) {
     return next(err);
   }
