@@ -87,3 +87,35 @@ suggestionsRouter.get('/', async (req: Request, res: Response, next: NextFunctio
     return next(err);
   }
 });
+
+// ── Temporary debug: test Google Places API from production ──────────────────
+suggestionsRouter.get('/photo-debug', async (_req: import('express').Request, res: import('express').Response) => {
+  const key = process.env.GOOGLE_MAPS_API_KEY;
+  const fsqId = process.env.FOURSQUARE_CLIENT_ID;
+
+  if (!key) {
+    return res.json({ error: 'GOOGLE_MAPS_API_KEY not set', foursquare_set: !!fsqId });
+  }
+
+  try {
+    const url = new URL('https://maps.googleapis.com/maps/api/place/textsearch/json');
+    url.searchParams.set('query', 'Starbucks St Louis');
+    url.searchParams.set('location', '38.627,-90.199');
+    url.searchParams.set('radius', '500');
+    url.searchParams.set('key', key);
+
+    const resp = await fetch(url.toString());
+    const data = await resp.json() as any;
+
+    return res.json({
+      key_prefix: key.slice(0, 10) + '...',
+      foursquare_set: !!fsqId,
+      places_status: data.status,
+      places_error: data.error_message ?? null,
+      results: data.results?.length ?? 0,
+      first_has_photo: !!data.results?.[0]?.photos?.length,
+    });
+  } catch (err) {
+    return res.json({ fetch_error: String(err) });
+  }
+});

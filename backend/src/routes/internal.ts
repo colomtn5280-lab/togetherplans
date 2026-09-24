@@ -205,6 +205,7 @@ internalRouter.post('/reminders/run', async (_req: Request, res: Response, next:
  * GET /api/internal/photo-test
  * Tests Google Places API photo lookup for a known venue.
  * Returns raw API response for debugging.
+ * NOTE: remove after debugging
  */
 internalRouter.get('/photo-test', async (_req: Request, res: Response) => {
   const key = process.env.GOOGLE_MAPS_API_KEY;
