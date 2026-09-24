@@ -909,7 +909,14 @@ export function SuggestionsPage() {
                         addOption({
                           name: s.name,
                           category: s.category,
-                          description: s.description,
+                          address: s.address,
+                          description: s.shortDescription || s.description,
+                          imageUrl: s.imageUrl,
+                          sourceUrl: s.sourceUrl,
+                          eventDate: s.eventDate || s.date,
+                          rating: s.rating,
+                          priceLevel: s.priceLevel,
+                          sourceName: s.sourceName || s.source,
                         });
                       }}
                     >

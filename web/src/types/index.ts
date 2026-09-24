@@ -206,19 +206,24 @@ export interface Suggestion {
   name: string;
   category: string;
   description?: string;
+  shortDescription?: string;  // Foursquare API uses this
   rating?: number;
   priceLevel?: number;
+  costTier?: string;  // Foursquare API uses this ($$, $$$, etc.)
   imageUrl?: string;
   sourceUrl?: string;
   date?: string;
+  eventDate?: string;  // Some APIs use this
   address?: string;
   distance?: number;
   distanceMiles?: number;
   sourceName?: string;
-  source?: "yelp" | "google" | "tmdb" | "fandango" | "internal";
+  source?: "yelp" | "google" | "tmdb" | "fandango" | "foursquare" | "internal";
   externalId?: string;
   /** True for seed-catalog idea prompts (no real listing behind them). Absent on older responses. */
   isIdea?: boolean;
+  /** Venue name (Foursquare compatibility) */
+  venue?: string;
 }
 
 export interface Category {
