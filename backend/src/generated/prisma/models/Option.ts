@@ -318,6 +318,7 @@ export type OptionWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"Option"> | Date | string
   proposal?: Prisma.XOR<Prisma.ProposalScalarRelationFilter, Prisma.ProposalWhereInput>
   votes?: Prisma.VoteListRelationFilter
+  guestVotes?: Prisma.GuestVoteListRelationFilter
 }
 
 export type OptionOrderByWithRelationInput = {
@@ -339,6 +340,7 @@ export type OptionOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   proposal?: Prisma.ProposalOrderByWithRelationInput
   votes?: Prisma.VoteOrderByRelationAggregateInput
+  guestVotes?: Prisma.GuestVoteOrderByRelationAggregateInput
 }
 
 export type OptionWhereUniqueInput = Prisma.AtLeast<{
@@ -363,6 +365,7 @@ export type OptionWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"Option"> | Date | string
   proposal?: Prisma.XOR<Prisma.ProposalScalarRelationFilter, Prisma.ProposalWhereInput>
   votes?: Prisma.VoteListRelationFilter
+  guestVotes?: Prisma.GuestVoteListRelationFilter
 }, "id">
 
 export type OptionOrderByWithAggregationInput = {
@@ -429,6 +432,7 @@ export type OptionCreateInput = {
   createdAt?: Date | string
   proposal: Prisma.ProposalCreateNestedOneWithoutOptionsInput
   votes?: Prisma.VoteCreateNestedManyWithoutOptionInput
+  guestVotes?: Prisma.GuestVoteCreateNestedManyWithoutOptionInput
 }
 
 export type OptionUncheckedCreateInput = {
@@ -449,6 +453,7 @@ export type OptionUncheckedCreateInput = {
   sourceName?: string | null
   createdAt?: Date | string
   votes?: Prisma.VoteUncheckedCreateNestedManyWithoutOptionInput
+  guestVotes?: Prisma.GuestVoteUncheckedCreateNestedManyWithoutOptionInput
 }
 
 export type OptionUpdateInput = {
@@ -469,6 +474,7 @@ export type OptionUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   proposal?: Prisma.ProposalUpdateOneRequiredWithoutOptionsNestedInput
   votes?: Prisma.VoteUpdateManyWithoutOptionNestedInput
+  guestVotes?: Prisma.GuestVoteUpdateManyWithoutOptionNestedInput
 }
 
 export type OptionUncheckedUpdateInput = {
@@ -489,6 +495,7 @@ export type OptionUncheckedUpdateInput = {
   sourceName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   votes?: Prisma.VoteUncheckedUpdateManyWithoutOptionNestedInput
+  guestVotes?: Prisma.GuestVoteUncheckedUpdateManyWithoutOptionNestedInput
 }
 
 export type OptionCreateManyInput = {
@@ -683,6 +690,20 @@ export type NullableIntFieldUpdateOperationsInput = {
   divide?: number
 }
 
+export type OptionCreateNestedOneWithoutGuestVotesInput = {
+  create?: Prisma.XOR<Prisma.OptionCreateWithoutGuestVotesInput, Prisma.OptionUncheckedCreateWithoutGuestVotesInput>
+  connectOrCreate?: Prisma.OptionCreateOrConnectWithoutGuestVotesInput
+  connect?: Prisma.OptionWhereUniqueInput
+}
+
+export type OptionUpdateOneRequiredWithoutGuestVotesNestedInput = {
+  create?: Prisma.XOR<Prisma.OptionCreateWithoutGuestVotesInput, Prisma.OptionUncheckedCreateWithoutGuestVotesInput>
+  connectOrCreate?: Prisma.OptionCreateOrConnectWithoutGuestVotesInput
+  upsert?: Prisma.OptionUpsertWithoutGuestVotesInput
+  connect?: Prisma.OptionWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.OptionUpdateToOneWithWhereWithoutGuestVotesInput, Prisma.OptionUpdateWithoutGuestVotesInput>, Prisma.OptionUncheckedUpdateWithoutGuestVotesInput>
+}
+
 export type OptionCreateNestedOneWithoutVotesInput = {
   create?: Prisma.XOR<Prisma.OptionCreateWithoutVotesInput, Prisma.OptionUncheckedCreateWithoutVotesInput>
   connectOrCreate?: Prisma.OptionCreateOrConnectWithoutVotesInput
@@ -714,6 +735,7 @@ export type OptionCreateWithoutProposalInput = {
   sourceName?: string | null
   createdAt?: Date | string
   votes?: Prisma.VoteCreateNestedManyWithoutOptionInput
+  guestVotes?: Prisma.GuestVoteCreateNestedManyWithoutOptionInput
 }
 
 export type OptionUncheckedCreateWithoutProposalInput = {
@@ -733,6 +755,7 @@ export type OptionUncheckedCreateWithoutProposalInput = {
   sourceName?: string | null
   createdAt?: Date | string
   votes?: Prisma.VoteUncheckedCreateNestedManyWithoutOptionInput
+  guestVotes?: Prisma.GuestVoteUncheckedCreateNestedManyWithoutOptionInput
 }
 
 export type OptionCreateOrConnectWithoutProposalInput = {
@@ -783,6 +806,102 @@ export type OptionScalarWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"Option"> | Date | string
 }
 
+export type OptionCreateWithoutGuestVotesInput = {
+  id?: string
+  name: string
+  category: string
+  description?: string | null
+  address?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  externalRef?: string | null
+  imageUrl?: string | null
+  sourceUrl?: string | null
+  eventDate?: Date | string | null
+  rating?: number | null
+  priceLevel?: number | null
+  sourceName?: string | null
+  createdAt?: Date | string
+  proposal: Prisma.ProposalCreateNestedOneWithoutOptionsInput
+  votes?: Prisma.VoteCreateNestedManyWithoutOptionInput
+}
+
+export type OptionUncheckedCreateWithoutGuestVotesInput = {
+  id?: string
+  proposalId: string
+  name: string
+  category: string
+  description?: string | null
+  address?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  externalRef?: string | null
+  imageUrl?: string | null
+  sourceUrl?: string | null
+  eventDate?: Date | string | null
+  rating?: number | null
+  priceLevel?: number | null
+  sourceName?: string | null
+  createdAt?: Date | string
+  votes?: Prisma.VoteUncheckedCreateNestedManyWithoutOptionInput
+}
+
+export type OptionCreateOrConnectWithoutGuestVotesInput = {
+  where: Prisma.OptionWhereUniqueInput
+  create: Prisma.XOR<Prisma.OptionCreateWithoutGuestVotesInput, Prisma.OptionUncheckedCreateWithoutGuestVotesInput>
+}
+
+export type OptionUpsertWithoutGuestVotesInput = {
+  update: Prisma.XOR<Prisma.OptionUpdateWithoutGuestVotesInput, Prisma.OptionUncheckedUpdateWithoutGuestVotesInput>
+  create: Prisma.XOR<Prisma.OptionCreateWithoutGuestVotesInput, Prisma.OptionUncheckedCreateWithoutGuestVotesInput>
+  where?: Prisma.OptionWhereInput
+}
+
+export type OptionUpdateToOneWithWhereWithoutGuestVotesInput = {
+  where?: Prisma.OptionWhereInput
+  data: Prisma.XOR<Prisma.OptionUpdateWithoutGuestVotesInput, Prisma.OptionUncheckedUpdateWithoutGuestVotesInput>
+}
+
+export type OptionUpdateWithoutGuestVotesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  externalRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  eventDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rating?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  priceLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  proposal?: Prisma.ProposalUpdateOneRequiredWithoutOptionsNestedInput
+  votes?: Prisma.VoteUpdateManyWithoutOptionNestedInput
+}
+
+export type OptionUncheckedUpdateWithoutGuestVotesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  proposalId?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  externalRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  eventDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rating?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  priceLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  votes?: Prisma.VoteUncheckedUpdateManyWithoutOptionNestedInput
+}
+
 export type OptionCreateWithoutVotesInput = {
   id?: string
   name: string
@@ -800,6 +919,7 @@ export type OptionCreateWithoutVotesInput = {
   sourceName?: string | null
   createdAt?: Date | string
   proposal: Prisma.ProposalCreateNestedOneWithoutOptionsInput
+  guestVotes?: Prisma.GuestVoteCreateNestedManyWithoutOptionInput
 }
 
 export type OptionUncheckedCreateWithoutVotesInput = {
@@ -819,6 +939,7 @@ export type OptionUncheckedCreateWithoutVotesInput = {
   priceLevel?: number | null
   sourceName?: string | null
   createdAt?: Date | string
+  guestVotes?: Prisma.GuestVoteUncheckedCreateNestedManyWithoutOptionInput
 }
 
 export type OptionCreateOrConnectWithoutVotesInput = {
@@ -854,6 +975,7 @@ export type OptionUpdateWithoutVotesInput = {
   sourceName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   proposal?: Prisma.ProposalUpdateOneRequiredWithoutOptionsNestedInput
+  guestVotes?: Prisma.GuestVoteUpdateManyWithoutOptionNestedInput
 }
 
 export type OptionUncheckedUpdateWithoutVotesInput = {
@@ -873,6 +995,7 @@ export type OptionUncheckedUpdateWithoutVotesInput = {
   priceLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  guestVotes?: Prisma.GuestVoteUncheckedUpdateManyWithoutOptionNestedInput
 }
 
 export type OptionCreateManyProposalInput = {
@@ -910,6 +1033,7 @@ export type OptionUpdateWithoutProposalInput = {
   sourceName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   votes?: Prisma.VoteUpdateManyWithoutOptionNestedInput
+  guestVotes?: Prisma.GuestVoteUpdateManyWithoutOptionNestedInput
 }
 
 export type OptionUncheckedUpdateWithoutProposalInput = {
@@ -929,6 +1053,7 @@ export type OptionUncheckedUpdateWithoutProposalInput = {
   sourceName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   votes?: Prisma.VoteUncheckedUpdateManyWithoutOptionNestedInput
+  guestVotes?: Prisma.GuestVoteUncheckedUpdateManyWithoutOptionNestedInput
 }
 
 export type OptionUncheckedUpdateManyWithoutProposalInput = {
@@ -956,10 +1081,12 @@ export type OptionUncheckedUpdateManyWithoutProposalInput = {
 
 export type OptionCountOutputType = {
   votes: number
+  guestVotes: number
 }
 
 export type OptionCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   votes?: boolean | OptionCountOutputTypeCountVotesArgs
+  guestVotes?: boolean | OptionCountOutputTypeCountGuestVotesArgs
 }
 
 /**
@@ -977,6 +1104,13 @@ export type OptionCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Exten
  */
 export type OptionCountOutputTypeCountVotesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.VoteWhereInput
+}
+
+/**
+ * OptionCountOutputType without action
+ */
+export type OptionCountOutputTypeCountGuestVotesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.GuestVoteWhereInput
 }
 
 
@@ -999,6 +1133,7 @@ export type OptionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   createdAt?: boolean
   proposal?: boolean | Prisma.ProposalDefaultArgs<ExtArgs>
   votes?: boolean | Prisma.Option$votesArgs<ExtArgs>
+  guestVotes?: boolean | Prisma.Option$guestVotesArgs<ExtArgs>
   _count?: boolean | Prisma.OptionCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["option"]>
 
@@ -1065,6 +1200,7 @@ export type OptionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
 export type OptionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   proposal?: boolean | Prisma.ProposalDefaultArgs<ExtArgs>
   votes?: boolean | Prisma.Option$votesArgs<ExtArgs>
+  guestVotes?: boolean | Prisma.Option$guestVotesArgs<ExtArgs>
   _count?: boolean | Prisma.OptionCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type OptionIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1079,6 +1215,7 @@ export type $OptionPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
   objects: {
     proposal: Prisma.$ProposalPayload<ExtArgs>
     votes: Prisma.$VotePayload<ExtArgs>[]
+    guestVotes: Prisma.$GuestVotePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1493,6 +1630,7 @@ export interface Prisma__OptionClient<T, Null = never, ExtArgs extends runtime.T
   readonly [Symbol.toStringTag]: "PrismaPromise"
   proposal<T extends Prisma.ProposalDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProposalDefaultArgs<ExtArgs>>): Prisma.Prisma__ProposalClient<runtime.Types.Result.GetResult<Prisma.$ProposalPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   votes<T extends Prisma.Option$votesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Option$votesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$VotePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  guestVotes<T extends Prisma.Option$guestVotesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Option$guestVotesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$GuestVotePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1960,6 +2098,30 @@ export type Option$votesArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
   take?: number
   skip?: number
   distinct?: Prisma.VoteScalarFieldEnum | Prisma.VoteScalarFieldEnum[]
+}
+
+/**
+ * Option.guestVotes
+ */
+export type Option$guestVotesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the GuestVote
+   */
+  select?: Prisma.GuestVoteSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the GuestVote
+   */
+  omit?: Prisma.GuestVoteOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.GuestVoteInclude<ExtArgs> | null
+  where?: Prisma.GuestVoteWhereInput
+  orderBy?: Prisma.GuestVoteOrderByWithRelationInput | Prisma.GuestVoteOrderByWithRelationInput[]
+  cursor?: Prisma.GuestVoteWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.GuestVoteScalarFieldEnum | Prisma.GuestVoteScalarFieldEnum[]
 }
 
 /**

@@ -58,6 +58,11 @@ export type Proposal = Prisma.ProposalModel
  */
 export type Option = Prisma.OptionModel
 /**
+ * Model GuestVote
+ * 
+ */
+export type GuestVote = Prisma.GuestVoteModel
+/**
  * Model Vote
  * 
  */

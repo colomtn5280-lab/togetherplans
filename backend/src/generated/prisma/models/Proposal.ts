@@ -31,6 +31,7 @@ export type ProposalMinAggregateOutputType = {
   title: string | null
   dateTime: Date | null
   status: $Enums.ProposalStatus | null
+  shareToken: string | null
   parentId: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -44,6 +45,7 @@ export type ProposalMaxAggregateOutputType = {
   title: string | null
   dateTime: Date | null
   status: $Enums.ProposalStatus | null
+  shareToken: string | null
   parentId: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -57,6 +59,7 @@ export type ProposalCountAggregateOutputType = {
   title: number
   dateTime: number
   status: number
+  shareToken: number
   parentId: number
   createdAt: number
   updatedAt: number
@@ -72,6 +75,7 @@ export type ProposalMinAggregateInputType = {
   title?: true
   dateTime?: true
   status?: true
+  shareToken?: true
   parentId?: true
   createdAt?: true
   updatedAt?: true
@@ -85,6 +89,7 @@ export type ProposalMaxAggregateInputType = {
   title?: true
   dateTime?: true
   status?: true
+  shareToken?: true
   parentId?: true
   createdAt?: true
   updatedAt?: true
@@ -98,6 +103,7 @@ export type ProposalCountAggregateInputType = {
   title?: true
   dateTime?: true
   status?: true
+  shareToken?: true
   parentId?: true
   createdAt?: true
   updatedAt?: true
@@ -184,6 +190,7 @@ export type ProposalGroupByOutputType = {
   title: string
   dateTime: Date
   status: $Enums.ProposalStatus
+  shareToken: string | null
   parentId: string | null
   createdAt: Date
   updatedAt: Date
@@ -218,6 +225,7 @@ export type ProposalWhereInput = {
   title?: Prisma.StringFilter<"Proposal"> | string
   dateTime?: Prisma.DateTimeFilter<"Proposal"> | Date | string
   status?: Prisma.EnumProposalStatusFilter<"Proposal"> | $Enums.ProposalStatus
+  shareToken?: Prisma.StringNullableFilter<"Proposal"> | string | null
   parentId?: Prisma.StringNullableFilter<"Proposal"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Proposal"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Proposal"> | Date | string
@@ -227,6 +235,7 @@ export type ProposalWhereInput = {
   parent?: Prisma.XOR<Prisma.ProposalNullableScalarRelationFilter, Prisma.ProposalWhereInput> | null
   counters?: Prisma.ProposalListRelationFilter
   options?: Prisma.OptionListRelationFilter
+  guestVotes?: Prisma.GuestVoteListRelationFilter
 }
 
 export type ProposalOrderByWithRelationInput = {
@@ -236,6 +245,7 @@ export type ProposalOrderByWithRelationInput = {
   title?: Prisma.SortOrder
   dateTime?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  shareToken?: Prisma.SortOrderInput | Prisma.SortOrder
   parentId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -245,10 +255,12 @@ export type ProposalOrderByWithRelationInput = {
   parent?: Prisma.ProposalOrderByWithRelationInput
   counters?: Prisma.ProposalOrderByRelationAggregateInput
   options?: Prisma.OptionOrderByRelationAggregateInput
+  guestVotes?: Prisma.GuestVoteOrderByRelationAggregateInput
 }
 
 export type ProposalWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  shareToken?: string
   AND?: Prisma.ProposalWhereInput | Prisma.ProposalWhereInput[]
   OR?: Prisma.ProposalWhereInput[]
   NOT?: Prisma.ProposalWhereInput | Prisma.ProposalWhereInput[]
@@ -266,7 +278,8 @@ export type ProposalWhereUniqueInput = Prisma.AtLeast<{
   parent?: Prisma.XOR<Prisma.ProposalNullableScalarRelationFilter, Prisma.ProposalWhereInput> | null
   counters?: Prisma.ProposalListRelationFilter
   options?: Prisma.OptionListRelationFilter
-}, "id">
+  guestVotes?: Prisma.GuestVoteListRelationFilter
+}, "id" | "shareToken">
 
 export type ProposalOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -275,6 +288,7 @@ export type ProposalOrderByWithAggregationInput = {
   title?: Prisma.SortOrder
   dateTime?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  shareToken?: Prisma.SortOrderInput | Prisma.SortOrder
   parentId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -294,6 +308,7 @@ export type ProposalScalarWhereWithAggregatesInput = {
   title?: Prisma.StringWithAggregatesFilter<"Proposal"> | string
   dateTime?: Prisma.DateTimeWithAggregatesFilter<"Proposal"> | Date | string
   status?: Prisma.EnumProposalStatusWithAggregatesFilter<"Proposal"> | $Enums.ProposalStatus
+  shareToken?: Prisma.StringNullableWithAggregatesFilter<"Proposal"> | string | null
   parentId?: Prisma.StringNullableWithAggregatesFilter<"Proposal"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Proposal"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Proposal"> | Date | string
@@ -305,6 +320,7 @@ export type ProposalCreateInput = {
   title: string
   dateTime: Date | string
   status?: $Enums.ProposalStatus
+  shareToken?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   remindedAt?: Date | string | null
@@ -313,6 +329,7 @@ export type ProposalCreateInput = {
   parent?: Prisma.ProposalCreateNestedOneWithoutCountersInput
   counters?: Prisma.ProposalCreateNestedManyWithoutParentInput
   options?: Prisma.OptionCreateNestedManyWithoutProposalInput
+  guestVotes?: Prisma.GuestVoteCreateNestedManyWithoutProposalInput
 }
 
 export type ProposalUncheckedCreateInput = {
@@ -322,12 +339,14 @@ export type ProposalUncheckedCreateInput = {
   title: string
   dateTime: Date | string
   status?: $Enums.ProposalStatus
+  shareToken?: string | null
   parentId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   remindedAt?: Date | string | null
   counters?: Prisma.ProposalUncheckedCreateNestedManyWithoutParentInput
   options?: Prisma.OptionUncheckedCreateNestedManyWithoutProposalInput
+  guestVotes?: Prisma.GuestVoteUncheckedCreateNestedManyWithoutProposalInput
 }
 
 export type ProposalUpdateInput = {
@@ -335,6 +354,7 @@ export type ProposalUpdateInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   dateTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumProposalStatusFieldUpdateOperationsInput | $Enums.ProposalStatus
+  shareToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   remindedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -343,6 +363,7 @@ export type ProposalUpdateInput = {
   parent?: Prisma.ProposalUpdateOneWithoutCountersNestedInput
   counters?: Prisma.ProposalUpdateManyWithoutParentNestedInput
   options?: Prisma.OptionUpdateManyWithoutProposalNestedInput
+  guestVotes?: Prisma.GuestVoteUpdateManyWithoutProposalNestedInput
 }
 
 export type ProposalUncheckedUpdateInput = {
@@ -352,12 +373,14 @@ export type ProposalUncheckedUpdateInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   dateTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumProposalStatusFieldUpdateOperationsInput | $Enums.ProposalStatus
+  shareToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   remindedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   counters?: Prisma.ProposalUncheckedUpdateManyWithoutParentNestedInput
   options?: Prisma.OptionUncheckedUpdateManyWithoutProposalNestedInput
+  guestVotes?: Prisma.GuestVoteUncheckedUpdateManyWithoutProposalNestedInput
 }
 
 export type ProposalCreateManyInput = {
@@ -367,6 +390,7 @@ export type ProposalCreateManyInput = {
   title: string
   dateTime: Date | string
   status?: $Enums.ProposalStatus
+  shareToken?: string | null
   parentId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -378,6 +402,7 @@ export type ProposalUpdateManyMutationInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   dateTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumProposalStatusFieldUpdateOperationsInput | $Enums.ProposalStatus
+  shareToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   remindedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -390,6 +415,7 @@ export type ProposalUncheckedUpdateManyInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   dateTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumProposalStatusFieldUpdateOperationsInput | $Enums.ProposalStatus
+  shareToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -418,6 +444,7 @@ export type ProposalCountOrderByAggregateInput = {
   title?: Prisma.SortOrder
   dateTime?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  shareToken?: Prisma.SortOrder
   parentId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -431,6 +458,7 @@ export type ProposalMaxOrderByAggregateInput = {
   title?: Prisma.SortOrder
   dateTime?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  shareToken?: Prisma.SortOrder
   parentId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -444,6 +472,7 @@ export type ProposalMinOrderByAggregateInput = {
   title?: Prisma.SortOrder
   dateTime?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  shareToken?: Prisma.SortOrder
   parentId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -615,11 +644,26 @@ export type ProposalUpdateOneRequiredWithoutOptionsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ProposalUpdateToOneWithWhereWithoutOptionsInput, Prisma.ProposalUpdateWithoutOptionsInput>, Prisma.ProposalUncheckedUpdateWithoutOptionsInput>
 }
 
+export type ProposalCreateNestedOneWithoutGuestVotesInput = {
+  create?: Prisma.XOR<Prisma.ProposalCreateWithoutGuestVotesInput, Prisma.ProposalUncheckedCreateWithoutGuestVotesInput>
+  connectOrCreate?: Prisma.ProposalCreateOrConnectWithoutGuestVotesInput
+  connect?: Prisma.ProposalWhereUniqueInput
+}
+
+export type ProposalUpdateOneRequiredWithoutGuestVotesNestedInput = {
+  create?: Prisma.XOR<Prisma.ProposalCreateWithoutGuestVotesInput, Prisma.ProposalUncheckedCreateWithoutGuestVotesInput>
+  connectOrCreate?: Prisma.ProposalCreateOrConnectWithoutGuestVotesInput
+  upsert?: Prisma.ProposalUpsertWithoutGuestVotesInput
+  connect?: Prisma.ProposalWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProposalUpdateToOneWithWhereWithoutGuestVotesInput, Prisma.ProposalUpdateWithoutGuestVotesInput>, Prisma.ProposalUncheckedUpdateWithoutGuestVotesInput>
+}
+
 export type ProposalCreateWithoutCreatorInput = {
   id?: string
   title: string
   dateTime: Date | string
   status?: $Enums.ProposalStatus
+  shareToken?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   remindedAt?: Date | string | null
@@ -627,6 +671,7 @@ export type ProposalCreateWithoutCreatorInput = {
   parent?: Prisma.ProposalCreateNestedOneWithoutCountersInput
   counters?: Prisma.ProposalCreateNestedManyWithoutParentInput
   options?: Prisma.OptionCreateNestedManyWithoutProposalInput
+  guestVotes?: Prisma.GuestVoteCreateNestedManyWithoutProposalInput
 }
 
 export type ProposalUncheckedCreateWithoutCreatorInput = {
@@ -635,12 +680,14 @@ export type ProposalUncheckedCreateWithoutCreatorInput = {
   title: string
   dateTime: Date | string
   status?: $Enums.ProposalStatus
+  shareToken?: string | null
   parentId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   remindedAt?: Date | string | null
   counters?: Prisma.ProposalUncheckedCreateNestedManyWithoutParentInput
   options?: Prisma.OptionUncheckedCreateNestedManyWithoutProposalInput
+  guestVotes?: Prisma.GuestVoteUncheckedCreateNestedManyWithoutProposalInput
 }
 
 export type ProposalCreateOrConnectWithoutCreatorInput = {
@@ -679,6 +726,7 @@ export type ProposalScalarWhereInput = {
   title?: Prisma.StringFilter<"Proposal"> | string
   dateTime?: Prisma.DateTimeFilter<"Proposal"> | Date | string
   status?: Prisma.EnumProposalStatusFilter<"Proposal"> | $Enums.ProposalStatus
+  shareToken?: Prisma.StringNullableFilter<"Proposal"> | string | null
   parentId?: Prisma.StringNullableFilter<"Proposal"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Proposal"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Proposal"> | Date | string
@@ -690,6 +738,7 @@ export type ProposalCreateWithoutGroupInput = {
   title: string
   dateTime: Date | string
   status?: $Enums.ProposalStatus
+  shareToken?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   remindedAt?: Date | string | null
@@ -697,6 +746,7 @@ export type ProposalCreateWithoutGroupInput = {
   parent?: Prisma.ProposalCreateNestedOneWithoutCountersInput
   counters?: Prisma.ProposalCreateNestedManyWithoutParentInput
   options?: Prisma.OptionCreateNestedManyWithoutProposalInput
+  guestVotes?: Prisma.GuestVoteCreateNestedManyWithoutProposalInput
 }
 
 export type ProposalUncheckedCreateWithoutGroupInput = {
@@ -705,12 +755,14 @@ export type ProposalUncheckedCreateWithoutGroupInput = {
   title: string
   dateTime: Date | string
   status?: $Enums.ProposalStatus
+  shareToken?: string | null
   parentId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   remindedAt?: Date | string | null
   counters?: Prisma.ProposalUncheckedCreateNestedManyWithoutParentInput
   options?: Prisma.OptionUncheckedCreateNestedManyWithoutProposalInput
+  guestVotes?: Prisma.GuestVoteUncheckedCreateNestedManyWithoutProposalInput
 }
 
 export type ProposalCreateOrConnectWithoutGroupInput = {
@@ -744,6 +796,7 @@ export type ProposalCreateWithoutCountersInput = {
   title: string
   dateTime: Date | string
   status?: $Enums.ProposalStatus
+  shareToken?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   remindedAt?: Date | string | null
@@ -751,6 +804,7 @@ export type ProposalCreateWithoutCountersInput = {
   creator: Prisma.UserCreateNestedOneWithoutProposalsInput
   parent?: Prisma.ProposalCreateNestedOneWithoutCountersInput
   options?: Prisma.OptionCreateNestedManyWithoutProposalInput
+  guestVotes?: Prisma.GuestVoteCreateNestedManyWithoutProposalInput
 }
 
 export type ProposalUncheckedCreateWithoutCountersInput = {
@@ -760,11 +814,13 @@ export type ProposalUncheckedCreateWithoutCountersInput = {
   title: string
   dateTime: Date | string
   status?: $Enums.ProposalStatus
+  shareToken?: string | null
   parentId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   remindedAt?: Date | string | null
   options?: Prisma.OptionUncheckedCreateNestedManyWithoutProposalInput
+  guestVotes?: Prisma.GuestVoteUncheckedCreateNestedManyWithoutProposalInput
 }
 
 export type ProposalCreateOrConnectWithoutCountersInput = {
@@ -777,6 +833,7 @@ export type ProposalCreateWithoutParentInput = {
   title: string
   dateTime: Date | string
   status?: $Enums.ProposalStatus
+  shareToken?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   remindedAt?: Date | string | null
@@ -784,6 +841,7 @@ export type ProposalCreateWithoutParentInput = {
   creator: Prisma.UserCreateNestedOneWithoutProposalsInput
   counters?: Prisma.ProposalCreateNestedManyWithoutParentInput
   options?: Prisma.OptionCreateNestedManyWithoutProposalInput
+  guestVotes?: Prisma.GuestVoteCreateNestedManyWithoutProposalInput
 }
 
 export type ProposalUncheckedCreateWithoutParentInput = {
@@ -793,11 +851,13 @@ export type ProposalUncheckedCreateWithoutParentInput = {
   title: string
   dateTime: Date | string
   status?: $Enums.ProposalStatus
+  shareToken?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   remindedAt?: Date | string | null
   counters?: Prisma.ProposalUncheckedCreateNestedManyWithoutParentInput
   options?: Prisma.OptionUncheckedCreateNestedManyWithoutProposalInput
+  guestVotes?: Prisma.GuestVoteUncheckedCreateNestedManyWithoutProposalInput
 }
 
 export type ProposalCreateOrConnectWithoutParentInput = {
@@ -826,6 +886,7 @@ export type ProposalUpdateWithoutCountersInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   dateTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumProposalStatusFieldUpdateOperationsInput | $Enums.ProposalStatus
+  shareToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   remindedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -833,6 +894,7 @@ export type ProposalUpdateWithoutCountersInput = {
   creator?: Prisma.UserUpdateOneRequiredWithoutProposalsNestedInput
   parent?: Prisma.ProposalUpdateOneWithoutCountersNestedInput
   options?: Prisma.OptionUpdateManyWithoutProposalNestedInput
+  guestVotes?: Prisma.GuestVoteUpdateManyWithoutProposalNestedInput
 }
 
 export type ProposalUncheckedUpdateWithoutCountersInput = {
@@ -842,11 +904,13 @@ export type ProposalUncheckedUpdateWithoutCountersInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   dateTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumProposalStatusFieldUpdateOperationsInput | $Enums.ProposalStatus
+  shareToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   remindedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   options?: Prisma.OptionUncheckedUpdateManyWithoutProposalNestedInput
+  guestVotes?: Prisma.GuestVoteUncheckedUpdateManyWithoutProposalNestedInput
 }
 
 export type ProposalUpsertWithWhereUniqueWithoutParentInput = {
@@ -870,6 +934,7 @@ export type ProposalCreateWithoutOptionsInput = {
   title: string
   dateTime: Date | string
   status?: $Enums.ProposalStatus
+  shareToken?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   remindedAt?: Date | string | null
@@ -877,6 +942,7 @@ export type ProposalCreateWithoutOptionsInput = {
   creator: Prisma.UserCreateNestedOneWithoutProposalsInput
   parent?: Prisma.ProposalCreateNestedOneWithoutCountersInput
   counters?: Prisma.ProposalCreateNestedManyWithoutParentInput
+  guestVotes?: Prisma.GuestVoteCreateNestedManyWithoutProposalInput
 }
 
 export type ProposalUncheckedCreateWithoutOptionsInput = {
@@ -886,11 +952,13 @@ export type ProposalUncheckedCreateWithoutOptionsInput = {
   title: string
   dateTime: Date | string
   status?: $Enums.ProposalStatus
+  shareToken?: string | null
   parentId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   remindedAt?: Date | string | null
   counters?: Prisma.ProposalUncheckedCreateNestedManyWithoutParentInput
+  guestVotes?: Prisma.GuestVoteUncheckedCreateNestedManyWithoutProposalInput
 }
 
 export type ProposalCreateOrConnectWithoutOptionsInput = {
@@ -914,6 +982,7 @@ export type ProposalUpdateWithoutOptionsInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   dateTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumProposalStatusFieldUpdateOperationsInput | $Enums.ProposalStatus
+  shareToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   remindedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -921,6 +990,7 @@ export type ProposalUpdateWithoutOptionsInput = {
   creator?: Prisma.UserUpdateOneRequiredWithoutProposalsNestedInput
   parent?: Prisma.ProposalUpdateOneWithoutCountersNestedInput
   counters?: Prisma.ProposalUpdateManyWithoutParentNestedInput
+  guestVotes?: Prisma.GuestVoteUpdateManyWithoutProposalNestedInput
 }
 
 export type ProposalUncheckedUpdateWithoutOptionsInput = {
@@ -930,11 +1000,93 @@ export type ProposalUncheckedUpdateWithoutOptionsInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   dateTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumProposalStatusFieldUpdateOperationsInput | $Enums.ProposalStatus
+  shareToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   remindedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   counters?: Prisma.ProposalUncheckedUpdateManyWithoutParentNestedInput
+  guestVotes?: Prisma.GuestVoteUncheckedUpdateManyWithoutProposalNestedInput
+}
+
+export type ProposalCreateWithoutGuestVotesInput = {
+  id?: string
+  title: string
+  dateTime: Date | string
+  status?: $Enums.ProposalStatus
+  shareToken?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  remindedAt?: Date | string | null
+  group: Prisma.GroupCreateNestedOneWithoutProposalsInput
+  creator: Prisma.UserCreateNestedOneWithoutProposalsInput
+  parent?: Prisma.ProposalCreateNestedOneWithoutCountersInput
+  counters?: Prisma.ProposalCreateNestedManyWithoutParentInput
+  options?: Prisma.OptionCreateNestedManyWithoutProposalInput
+}
+
+export type ProposalUncheckedCreateWithoutGuestVotesInput = {
+  id?: string
+  groupId: string
+  creatorId: string
+  title: string
+  dateTime: Date | string
+  status?: $Enums.ProposalStatus
+  shareToken?: string | null
+  parentId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  remindedAt?: Date | string | null
+  counters?: Prisma.ProposalUncheckedCreateNestedManyWithoutParentInput
+  options?: Prisma.OptionUncheckedCreateNestedManyWithoutProposalInput
+}
+
+export type ProposalCreateOrConnectWithoutGuestVotesInput = {
+  where: Prisma.ProposalWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProposalCreateWithoutGuestVotesInput, Prisma.ProposalUncheckedCreateWithoutGuestVotesInput>
+}
+
+export type ProposalUpsertWithoutGuestVotesInput = {
+  update: Prisma.XOR<Prisma.ProposalUpdateWithoutGuestVotesInput, Prisma.ProposalUncheckedUpdateWithoutGuestVotesInput>
+  create: Prisma.XOR<Prisma.ProposalCreateWithoutGuestVotesInput, Prisma.ProposalUncheckedCreateWithoutGuestVotesInput>
+  where?: Prisma.ProposalWhereInput
+}
+
+export type ProposalUpdateToOneWithWhereWithoutGuestVotesInput = {
+  where?: Prisma.ProposalWhereInput
+  data: Prisma.XOR<Prisma.ProposalUpdateWithoutGuestVotesInput, Prisma.ProposalUncheckedUpdateWithoutGuestVotesInput>
+}
+
+export type ProposalUpdateWithoutGuestVotesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  dateTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  status?: Prisma.EnumProposalStatusFieldUpdateOperationsInput | $Enums.ProposalStatus
+  shareToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  remindedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  group?: Prisma.GroupUpdateOneRequiredWithoutProposalsNestedInput
+  creator?: Prisma.UserUpdateOneRequiredWithoutProposalsNestedInput
+  parent?: Prisma.ProposalUpdateOneWithoutCountersNestedInput
+  counters?: Prisma.ProposalUpdateManyWithoutParentNestedInput
+  options?: Prisma.OptionUpdateManyWithoutProposalNestedInput
+}
+
+export type ProposalUncheckedUpdateWithoutGuestVotesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  groupId?: Prisma.StringFieldUpdateOperationsInput | string
+  creatorId?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  dateTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  status?: Prisma.EnumProposalStatusFieldUpdateOperationsInput | $Enums.ProposalStatus
+  shareToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  remindedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  counters?: Prisma.ProposalUncheckedUpdateManyWithoutParentNestedInput
+  options?: Prisma.OptionUncheckedUpdateManyWithoutProposalNestedInput
 }
 
 export type ProposalCreateManyCreatorInput = {
@@ -943,6 +1095,7 @@ export type ProposalCreateManyCreatorInput = {
   title: string
   dateTime: Date | string
   status?: $Enums.ProposalStatus
+  shareToken?: string | null
   parentId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -954,6 +1107,7 @@ export type ProposalUpdateWithoutCreatorInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   dateTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumProposalStatusFieldUpdateOperationsInput | $Enums.ProposalStatus
+  shareToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   remindedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -961,6 +1115,7 @@ export type ProposalUpdateWithoutCreatorInput = {
   parent?: Prisma.ProposalUpdateOneWithoutCountersNestedInput
   counters?: Prisma.ProposalUpdateManyWithoutParentNestedInput
   options?: Prisma.OptionUpdateManyWithoutProposalNestedInput
+  guestVotes?: Prisma.GuestVoteUpdateManyWithoutProposalNestedInput
 }
 
 export type ProposalUncheckedUpdateWithoutCreatorInput = {
@@ -969,12 +1124,14 @@ export type ProposalUncheckedUpdateWithoutCreatorInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   dateTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumProposalStatusFieldUpdateOperationsInput | $Enums.ProposalStatus
+  shareToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   remindedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   counters?: Prisma.ProposalUncheckedUpdateManyWithoutParentNestedInput
   options?: Prisma.OptionUncheckedUpdateManyWithoutProposalNestedInput
+  guestVotes?: Prisma.GuestVoteUncheckedUpdateManyWithoutProposalNestedInput
 }
 
 export type ProposalUncheckedUpdateManyWithoutCreatorInput = {
@@ -983,6 +1140,7 @@ export type ProposalUncheckedUpdateManyWithoutCreatorInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   dateTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumProposalStatusFieldUpdateOperationsInput | $Enums.ProposalStatus
+  shareToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -995,6 +1153,7 @@ export type ProposalCreateManyGroupInput = {
   title: string
   dateTime: Date | string
   status?: $Enums.ProposalStatus
+  shareToken?: string | null
   parentId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1006,6 +1165,7 @@ export type ProposalUpdateWithoutGroupInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   dateTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumProposalStatusFieldUpdateOperationsInput | $Enums.ProposalStatus
+  shareToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   remindedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1013,6 +1173,7 @@ export type ProposalUpdateWithoutGroupInput = {
   parent?: Prisma.ProposalUpdateOneWithoutCountersNestedInput
   counters?: Prisma.ProposalUpdateManyWithoutParentNestedInput
   options?: Prisma.OptionUpdateManyWithoutProposalNestedInput
+  guestVotes?: Prisma.GuestVoteUpdateManyWithoutProposalNestedInput
 }
 
 export type ProposalUncheckedUpdateWithoutGroupInput = {
@@ -1021,12 +1182,14 @@ export type ProposalUncheckedUpdateWithoutGroupInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   dateTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumProposalStatusFieldUpdateOperationsInput | $Enums.ProposalStatus
+  shareToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   remindedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   counters?: Prisma.ProposalUncheckedUpdateManyWithoutParentNestedInput
   options?: Prisma.OptionUncheckedUpdateManyWithoutProposalNestedInput
+  guestVotes?: Prisma.GuestVoteUncheckedUpdateManyWithoutProposalNestedInput
 }
 
 export type ProposalUncheckedUpdateManyWithoutGroupInput = {
@@ -1035,6 +1198,7 @@ export type ProposalUncheckedUpdateManyWithoutGroupInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   dateTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumProposalStatusFieldUpdateOperationsInput | $Enums.ProposalStatus
+  shareToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1048,6 +1212,7 @@ export type ProposalCreateManyParentInput = {
   title: string
   dateTime: Date | string
   status?: $Enums.ProposalStatus
+  shareToken?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   remindedAt?: Date | string | null
@@ -1058,6 +1223,7 @@ export type ProposalUpdateWithoutParentInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   dateTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumProposalStatusFieldUpdateOperationsInput | $Enums.ProposalStatus
+  shareToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   remindedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1065,6 +1231,7 @@ export type ProposalUpdateWithoutParentInput = {
   creator?: Prisma.UserUpdateOneRequiredWithoutProposalsNestedInput
   counters?: Prisma.ProposalUpdateManyWithoutParentNestedInput
   options?: Prisma.OptionUpdateManyWithoutProposalNestedInput
+  guestVotes?: Prisma.GuestVoteUpdateManyWithoutProposalNestedInput
 }
 
 export type ProposalUncheckedUpdateWithoutParentInput = {
@@ -1074,11 +1241,13 @@ export type ProposalUncheckedUpdateWithoutParentInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   dateTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumProposalStatusFieldUpdateOperationsInput | $Enums.ProposalStatus
+  shareToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   remindedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   counters?: Prisma.ProposalUncheckedUpdateManyWithoutParentNestedInput
   options?: Prisma.OptionUncheckedUpdateManyWithoutProposalNestedInput
+  guestVotes?: Prisma.GuestVoteUncheckedUpdateManyWithoutProposalNestedInput
 }
 
 export type ProposalUncheckedUpdateManyWithoutParentInput = {
@@ -1088,6 +1257,7 @@ export type ProposalUncheckedUpdateManyWithoutParentInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   dateTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumProposalStatusFieldUpdateOperationsInput | $Enums.ProposalStatus
+  shareToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   remindedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1101,11 +1271,13 @@ export type ProposalUncheckedUpdateManyWithoutParentInput = {
 export type ProposalCountOutputType = {
   counters: number
   options: number
+  guestVotes: number
 }
 
 export type ProposalCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   counters?: boolean | ProposalCountOutputTypeCountCountersArgs
   options?: boolean | ProposalCountOutputTypeCountOptionsArgs
+  guestVotes?: boolean | ProposalCountOutputTypeCountGuestVotesArgs
 }
 
 /**
@@ -1132,6 +1304,13 @@ export type ProposalCountOutputTypeCountOptionsArgs<ExtArgs extends runtime.Type
   where?: Prisma.OptionWhereInput
 }
 
+/**
+ * ProposalCountOutputType without action
+ */
+export type ProposalCountOutputTypeCountGuestVotesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.GuestVoteWhereInput
+}
+
 
 export type ProposalSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1140,6 +1319,7 @@ export type ProposalSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   title?: boolean
   dateTime?: boolean
   status?: boolean
+  shareToken?: boolean
   parentId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1149,6 +1329,7 @@ export type ProposalSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   parent?: boolean | Prisma.Proposal$parentArgs<ExtArgs>
   counters?: boolean | Prisma.Proposal$countersArgs<ExtArgs>
   options?: boolean | Prisma.Proposal$optionsArgs<ExtArgs>
+  guestVotes?: boolean | Prisma.Proposal$guestVotesArgs<ExtArgs>
   _count?: boolean | Prisma.ProposalCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["proposal"]>
 
@@ -1159,6 +1340,7 @@ export type ProposalSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   title?: boolean
   dateTime?: boolean
   status?: boolean
+  shareToken?: boolean
   parentId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1175,6 +1357,7 @@ export type ProposalSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   title?: boolean
   dateTime?: boolean
   status?: boolean
+  shareToken?: boolean
   parentId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1191,19 +1374,21 @@ export type ProposalSelectScalar = {
   title?: boolean
   dateTime?: boolean
   status?: boolean
+  shareToken?: boolean
   parentId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   remindedAt?: boolean
 }
 
-export type ProposalOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "groupId" | "creatorId" | "title" | "dateTime" | "status" | "parentId" | "createdAt" | "updatedAt" | "remindedAt", ExtArgs["result"]["proposal"]>
+export type ProposalOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "groupId" | "creatorId" | "title" | "dateTime" | "status" | "shareToken" | "parentId" | "createdAt" | "updatedAt" | "remindedAt", ExtArgs["result"]["proposal"]>
 export type ProposalInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   group?: boolean | Prisma.GroupDefaultArgs<ExtArgs>
   creator?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   parent?: boolean | Prisma.Proposal$parentArgs<ExtArgs>
   counters?: boolean | Prisma.Proposal$countersArgs<ExtArgs>
   options?: boolean | Prisma.Proposal$optionsArgs<ExtArgs>
+  guestVotes?: boolean | Prisma.Proposal$guestVotesArgs<ExtArgs>
   _count?: boolean | Prisma.ProposalCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ProposalIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1225,6 +1410,7 @@ export type $ProposalPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     parent: Prisma.$ProposalPayload<ExtArgs> | null
     counters: Prisma.$ProposalPayload<ExtArgs>[]
     options: Prisma.$OptionPayload<ExtArgs>[]
+    guestVotes: Prisma.$GuestVotePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1233,6 +1419,7 @@ export type $ProposalPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     title: string
     dateTime: Date
     status: $Enums.ProposalStatus
+    shareToken: string | null
     parentId: string | null
     createdAt: Date
     updatedAt: Date
@@ -1636,6 +1823,7 @@ export interface Prisma__ProposalClient<T, Null = never, ExtArgs extends runtime
   parent<T extends Prisma.Proposal$parentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Proposal$parentArgs<ExtArgs>>): Prisma.Prisma__ProposalClient<runtime.Types.Result.GetResult<Prisma.$ProposalPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   counters<T extends Prisma.Proposal$countersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Proposal$countersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProposalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   options<T extends Prisma.Proposal$optionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Proposal$optionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  guestVotes<T extends Prisma.Proposal$guestVotesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Proposal$guestVotesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$GuestVotePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1671,6 +1859,7 @@ export interface ProposalFieldRefs {
   readonly title: Prisma.FieldRef<"Proposal", 'String'>
   readonly dateTime: Prisma.FieldRef<"Proposal", 'DateTime'>
   readonly status: Prisma.FieldRef<"Proposal", 'ProposalStatus'>
+  readonly shareToken: Prisma.FieldRef<"Proposal", 'String'>
   readonly parentId: Prisma.FieldRef<"Proposal", 'String'>
   readonly createdAt: Prisma.FieldRef<"Proposal", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Proposal", 'DateTime'>
@@ -2140,6 +2329,30 @@ export type Proposal$optionsArgs<ExtArgs extends runtime.Types.Extensions.Intern
   take?: number
   skip?: number
   distinct?: Prisma.OptionScalarFieldEnum | Prisma.OptionScalarFieldEnum[]
+}
+
+/**
+ * Proposal.guestVotes
+ */
+export type Proposal$guestVotesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the GuestVote
+   */
+  select?: Prisma.GuestVoteSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the GuestVote
+   */
+  omit?: Prisma.GuestVoteOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.GuestVoteInclude<ExtArgs> | null
+  where?: Prisma.GuestVoteWhereInput
+  orderBy?: Prisma.GuestVoteOrderByWithRelationInput | Prisma.GuestVoteOrderByWithRelationInput[]
+  cursor?: Prisma.GuestVoteWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.GuestVoteScalarFieldEnum | Prisma.GuestVoteScalarFieldEnum[]
 }
 
 /**

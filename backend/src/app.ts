@@ -15,6 +15,7 @@ import { categoriesRouter } from '@/routes/categories';
 import { usersRouter } from '@/routes/users';
 import { internalRouter } from '@/routes/internal';
 import { shareCardsRouter } from '@/routes/share-cards';
+import { shareRouter } from '@/routes/share';
 import { afterDarkRouter } from '@/routes/after-dark';
 import { safetyRouter } from '@/routes/safety';
 import { businessRouter } from '@/routes/business';
@@ -56,6 +57,7 @@ export function createApp(): express.Express {
   app.use('/api/users', usersRouter);
   app.use('/api/internal', internalRouter);
   app.use('/api/share-cards', shareCardsRouter);
+  app.use('/api/share', shareRouter);
   app.use('/api/after-dark', afterDarkRouter);
   app.use('/api/safety', safetyRouter);
   app.use('/api/business', businessRouter);

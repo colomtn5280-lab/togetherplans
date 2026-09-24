@@ -59,6 +59,7 @@ export const ModelName = {
   Invitation: 'Invitation',
   Proposal: 'Proposal',
   Option: 'Option',
+  GuestVote: 'GuestVote',
   Vote: 'Vote',
   RefreshToken: 'RefreshToken',
   Business: 'Business',
@@ -171,6 +172,7 @@ export const ProposalScalarFieldEnum = {
   title: 'title',
   dateTime: 'dateTime',
   status: 'status',
+  shareToken: 'shareToken',
   parentId: 'parentId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
@@ -200,6 +202,18 @@ export const OptionScalarFieldEnum = {
 } as const
 
 export type OptionScalarFieldEnum = (typeof OptionScalarFieldEnum)[keyof typeof OptionScalarFieldEnum]
+
+
+export const GuestVoteScalarFieldEnum = {
+  id: 'id',
+  proposalId: 'proposalId',
+  optionId: 'optionId',
+  guestId: 'guestId',
+  guestName: 'guestName',
+  createdAt: 'createdAt'
+} as const
+
+export type GuestVoteScalarFieldEnum = (typeof GuestVoteScalarFieldEnum)[keyof typeof GuestVoteScalarFieldEnum]
 
 
 export const VoteScalarFieldEnum = {

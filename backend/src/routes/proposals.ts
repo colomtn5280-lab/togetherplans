@@ -6,6 +6,7 @@ import { getSuggestions, SuggestionCategory } from '@/services/suggestions';
 import { sendVoteReminderEmail, sendItsAMatchEmail, sendTake2Email } from '@/services/email';
 import { logger } from '@/services/logger';
 import { cache } from '@/services/cache';
+import { generateShareToken } from '@/routes/share';
 
 export const proposalsRouter = Router();
 
@@ -148,7 +149,7 @@ proposalsRouter.get('/:id', async (req: AuthRequest, res: Response, next) => {
     const proposal = await prisma.proposal.findUnique({
       where: { id: req.params.id },
       include: {
-        options: { include: { votes: true } },
+        options: { include: { votes: true, guestVotes: { select: { guestId: true, guestName: true } } } },
         counters: true,
       },
     });
@@ -164,9 +165,43 @@ proposalsRouter.get('/:id', async (req: AuthRequest, res: Response, next) => {
       optionId: o.id,
       name: o.name,
       votes: o.votes.length,
+      guestVotes: o.guestVotes.length,
       consensus: memberCount > 0 && o.votes.length > memberCount / 2,
     }));
-    return res.json({ ...proposal, memberCount, tally });
+    // Strip raw guestId tokens from the response; expose counts only
+    const options = proposal.options.map((o) => ({
+      ...o,
+      guestVotes: undefined,
+      guestVoteCount: o.guestVotes.length,
+    }));
+    return res.json({ ...proposal, options, memberCount, tally });
+  } catch (err) {
+    return next(err);
+  }
+});
+
+// POST /api/proposals/:id/share-link — get/create the public guest-vote link
+// Any group member. Token generated lazily on first request, stable afterwards.
+proposalsRouter.post('/:id/share-link', async (req: AuthRequest, res: Response, next) => {
+  try {
+    const proposal = await prisma.proposal.findUnique({
+      where: { id: req.params.id },
+      select: { id: true, groupId: true, status: true, shareToken: true },
+    });
+    if (!proposal) return res.status(404).json({ error: 'Proposal not found' });
+
+    const membership = await prisma.groupMember.findFirst({
+      where: { groupId: proposal.groupId, userId: req.userId },
+    });
+    if (!membership) return res.status(403).json({ error: 'Not a member of this group' });
+
+    let shareToken = proposal.shareToken;
+    if (!shareToken) {
+      shareToken = generateShareToken();
+      await prisma.proposal.update({ where: { id: proposal.id }, data: { shareToken } });
+    }
+    const appUrl = process.env.APP_URL || 'https://togetherplans.app';
+    return res.json({ shareToken, shareUrl: `${appUrl}/vote/${shareToken}` });
   } catch (err) {
     return next(err);
   }

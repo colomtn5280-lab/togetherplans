@@ -143,6 +143,8 @@ model Proposal {
   // proposed date/time of the outing
   dateTime   DateTime
   status     ProposalStatus @default(OPEN)
+  // public share token for guest voting links — generated lazily on first share
+  shareToken String?        @unique
   // if this proposal is a counter-proposal, link to the original
   parentId   String?
   createdAt  DateTime       @default(now())
@@ -151,9 +153,10 @@ model Proposal {
 
   group    Group      @relation(fields: [groupId], references: [id], onDelete: Cascade)
   creator  User       @relation(fields: [creatorId], references: [id], onDelete: Cascade)
-  parent   Proposal?  @relation("CounterProposals", fields: [parentId], references: [id])
-  counters Proposal[] @relation("CounterProposals")
-  options  Option[]
+  parent     Proposal?   @relation("CounterProposals", fields: [parentId], references: [id])
+  counters   Proposal[]  @relation("CounterProposals")
+  options    Option[]
+  guestVotes GuestVote[]
 
   @@index([groupId])
 }
@@ -178,8 +181,27 @@ model Option {
   sourceName  String?
   createdAt   DateTime @default(now())
 
+  proposal   Proposal    @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+  votes      Vote[]
+  guestVotes GuestVote[]
+}
+
+// Guest votes: anonymous voters via public share link — advisory only,
+// never counted toward member consensus / match logic.
+model GuestVote {
+  id         String   @id @default(uuid())
+  proposalId String
+  optionId   String
+  // random client-generated token (UUID persisted in the guest's browser)
+  guestId    String
+  guestName  String?
+  createdAt  DateTime @default(now())
+
   proposal Proposal @relation(fields: [proposalId], references: [id], onDelete: Cascade)
-  votes    Vote[]
+  option   Option   @relation(fields: [optionId], references: [id], onDelete: Cascade)
+
+  @@unique([proposalId, guestId])
+  @@index([optionId])
 }
 
 model Vote {

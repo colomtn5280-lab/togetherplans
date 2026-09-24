@@ -405,6 +405,7 @@ export const ModelName = {
   Invitation: 'Invitation',
   Proposal: 'Proposal',
   Option: 'Option',
+  GuestVote: 'GuestVote',
   Vote: 'Vote',
   RefreshToken: 'RefreshToken',
   Business: 'Business',
@@ -425,7 +426,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "blockedUser" | "report" | "group" | "groupMember" | "invitation" | "proposal" | "option" | "vote" | "refreshToken" | "business" | "featuredListing" | "businessImpression"
+    modelProps: "user" | "blockedUser" | "report" | "group" | "groupMember" | "invitation" | "proposal" | "option" | "guestVote" | "vote" | "refreshToken" | "business" | "featuredListing" | "businessImpression"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1021,6 +1022,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    GuestVote: {
+      payload: Prisma.$GuestVotePayload<ExtArgs>
+      fields: Prisma.GuestVoteFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.GuestVoteFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuestVotePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.GuestVoteFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuestVotePayload>
+        }
+        findFirst: {
+          args: Prisma.GuestVoteFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuestVotePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.GuestVoteFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuestVotePayload>
+        }
+        findMany: {
+          args: Prisma.GuestVoteFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuestVotePayload>[]
+        }
+        create: {
+          args: Prisma.GuestVoteCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuestVotePayload>
+        }
+        createMany: {
+          args: Prisma.GuestVoteCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.GuestVoteCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuestVotePayload>[]
+        }
+        delete: {
+          args: Prisma.GuestVoteDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuestVotePayload>
+        }
+        update: {
+          args: Prisma.GuestVoteUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuestVotePayload>
+        }
+        deleteMany: {
+          args: Prisma.GuestVoteDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.GuestVoteUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.GuestVoteUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuestVotePayload>[]
+        }
+        upsert: {
+          args: Prisma.GuestVoteUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuestVotePayload>
+        }
+        aggregate: {
+          args: Prisma.GuestVoteAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateGuestVote>
+        }
+        groupBy: {
+          args: Prisma.GuestVoteGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GuestVoteGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.GuestVoteCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GuestVoteCountAggregateOutputType> | number
+        }
+      }
+    }
     Vote: {
       payload: Prisma.$VotePayload<ExtArgs>
       fields: Prisma.VoteFieldRefs
@@ -1519,6 +1594,7 @@ export const ProposalScalarFieldEnum = {
   title: 'title',
   dateTime: 'dateTime',
   status: 'status',
+  shareToken: 'shareToken',
   parentId: 'parentId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
@@ -1548,6 +1624,18 @@ export const OptionScalarFieldEnum = {
 } as const
 
 export type OptionScalarFieldEnum = (typeof OptionScalarFieldEnum)[keyof typeof OptionScalarFieldEnum]
+
+
+export const GuestVoteScalarFieldEnum = {
+  id: 'id',
+  proposalId: 'proposalId',
+  optionId: 'optionId',
+  guestId: 'guestId',
+  guestName: 'guestName',
+  createdAt: 'createdAt'
+} as const
+
+export type GuestVoteScalarFieldEnum = (typeof GuestVoteScalarFieldEnum)[keyof typeof GuestVoteScalarFieldEnum]
 
 
 export const VoteScalarFieldEnum = {
@@ -1971,6 +2059,7 @@ export type GlobalOmitConfig = {
   invitation?: Prisma.InvitationOmit
   proposal?: Prisma.ProposalOmit
   option?: Prisma.OptionOmit
+  guestVote?: Prisma.GuestVoteOmit
   vote?: Prisma.VoteOmit
   refreshToken?: Prisma.RefreshTokenOmit
   business?: Prisma.BusinessOmit
