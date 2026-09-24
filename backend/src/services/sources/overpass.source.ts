@@ -316,7 +316,7 @@ export async function fetchOverpass(
         const elements = await queryOverpass(ql);
         return elements
           .filter((el) => el.tags?.name)
-          .slice(0, 5) // max 5 per tag type
+          .slice(0, 15) // max 15 per tag type
           .map((el): Suggestion => {
             const elLat = el.lat ?? el.center?.lat;
             const elLng = el.lon ?? el.center?.lon;
