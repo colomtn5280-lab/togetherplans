@@ -24,7 +24,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/contexts/ThemeContext';
 import { usePlanBuilder } from '@/contexts/PlanBuilderContext';
 import { OPTION_RADII, SHADOWS, SPACING, TYPE } from '@/constants';
-import { CATEGORIES, Category } from '@/constants/categories';
+import { CATEGORIES, Category, getCategoryColorById } from '@/constants/categories';
 import {
   DNButton,
   DNCard,
@@ -39,32 +39,13 @@ import type { RootStackParamList, Suggestion } from '@/types';
 type RouteT = RouteProp<RootStackParamList, 'Suggestions'>;
 
 // ── Category colour & emoji fallbacks ─────────────────────────────────────────
-const CATEGORY_COLORS: Record<string, string> = {
-  'Restaurants & Dining': '#FDEBD0',
-  'Live Music & Concerts': '#EBD5FB',
-  'Comedy Shows': '#FEF9C3',
-  'Movies & Theater': '#D5E8FD',
-  'Art & Museums': '#FCE4EC',
-  'Outdoor Adventures': '#D4EDDA',
-  'Sports & Active': '#FFE0B2',
-  'Nightlife & Bars': '#E8D5F5',
-  'Wellness & Spa': '#D0F4F1',
-  'Cooking & Classes': '#FFF3CD',
-  'Shopping & Markets': '#F8D7DA',
-  'Couples Events': '#FCE4EC',
-  'Family Events': '#D5EFD5',
-  'Hotel & Staycation': '#D5E8FD',
-  'Volunteering': '#D4EDDA',
-  Custom: '#F0F0F0',
-};
-
 function getCategoryEmoji(category: string): string {
   const cat = CATEGORIES.find((c) => c.name === category || c.id === category);
   return cat?.emoji ?? '📍';
 }
 
 function getCategoryColor(category: string): string {
-  return CATEGORY_COLORS[category] ?? '#F0F0F0';
+  return getCategoryColorById(category);
 }
 
 // ── Image or emoji fallback block ─────────────────────────────────────────────
@@ -531,6 +512,109 @@ function SuggestionCard({
   );
 }
 
+// ── Idea Card (seed-catalog starter — no live listing) ────────────────────────
+function IdeaCard({
+  suggestion,
+  alreadyAdded,
+  onAdd,
+  colors,
+}: {
+  suggestion: Suggestion;
+  alreadyAdded: boolean;
+  onAdd: () => void;
+  colors: any;
+}) {
+  const tint = getCategoryColor(suggestion.category);
+  const emoji = getCategoryEmoji(suggestion.category);
+  return (
+    <View
+      style={{
+        backgroundColor: tint,
+        borderRadius: 18,
+        borderWidth: 1.5,
+        borderStyle: 'dashed',
+        borderColor: colors.primary,
+        padding: SPACING.md,
+        marginBottom: SPACING.sm,
+        flexDirection: 'row',
+        alignItems: 'center',
+      }}
+    >
+      <Text style={{ fontSize: 32, marginRight: SPACING.md }}>{emoji}</Text>
+      <View style={{ flex: 1 }}>
+        <DNText variant="heading" color="#1A1A1A">
+          {suggestion.name}
+        </DNText>
+        {suggestion.description ? (
+          <DNText variant="secondary" color="#4A4A4A" style={{ marginTop: 2 }} numberOfLines={2}>
+            {suggestion.description}
+          </DNText>
+        ) : null}
+        <View style={{ marginTop: SPACING.xs, flexDirection: 'row' }}>
+          {alreadyAdded ? (
+            <DNText variant="secondary" color={colors.lime}>
+              ✓ In your plan
+            </DNText>
+          ) : (
+            <TouchableOpacity
+              onPress={onAdd}
+              style={{
+                backgroundColor: colors.primary,
+                borderRadius: 14,
+                paddingVertical: 6,
+                paddingHorizontal: 14,
+              }}
+            >
+              <DNText variant="buttonSm" color={colors.onPrimary}>
+                Add to Plan
+              </DNText>
+            </TouchableOpacity>
+          )}
+        </View>
+      </View>
+    </View>
+  );
+}
+
+// ── Ideas Section (rendered below real results) ───────────────────────────────
+function IdeasSection({
+  ideas,
+  hasRealResults,
+  addedKeys,
+  onAdd,
+  colors,
+}: {
+  ideas: Suggestion[];
+  hasRealResults: boolean;
+  addedKeys: Set<string>;
+  onAdd: (s: Suggestion) => void;
+  colors: any;
+}) {
+  if (ideas.length === 0) return null;
+  return (
+    <View style={{ marginTop: hasRealResults ? SPACING.md : 0 }}>
+      <DNText variant="section" color={colors.ink} style={{ marginBottom: 2 }}>
+        Ideas to spark the plan ✨
+      </DNText>
+      <DNText variant="secondary" color={colors.ink2} style={{ marginBottom: SPACING.sm }}>
+        No live listings for this filter yet — some starters:
+      </DNText>
+      {ideas.map((idea, i) => {
+        const key = idea.name + (idea.address ?? '');
+        return (
+          <IdeaCard
+            key={`idea-${idea.name}-${i}`}
+            suggestion={idea}
+            alreadyAdded={addedKeys.has(key)}
+            onAdd={() => onAdd(idea)}
+            colors={colors}
+          />
+        );
+      })}
+    </View>
+  );
+}
+
 // ── Empty State ────────────────────────────────────────────────────────────────
 function EmptyState({
   onUseLocation,
@@ -697,6 +781,10 @@ export default function SuggestionsScreen() {
           (activeCategory as any).matches?.includes(s.category),
       );
 
+  // Split into real results vs seed-catalog ideas (isIdea may be absent)
+  const realResults = displayedSuggestions.filter((s) => s.isIdea !== true);
+  const ideaResults = displayedSuggestions.filter((s) => s.isIdea === true);
+
   // Already-added key set
   const addedKeys = new Set(planOptions.map((o) => o.name + (o.address ?? '')));
 
@@ -729,7 +817,7 @@ export default function SuggestionsScreen() {
         </ScrollView>
       ) : (
         <FlatList
-          data={displayedSuggestions}
+          data={realResults}
           keyExtractor={(item, i) => `${item.name}-${item.address ?? ''}-${i}`}
           ListHeaderComponent={
             <CategoryGrid activeId={activeCategory?.id ?? null} onSelect={handleCategorySelect} colors={colors} />
@@ -753,9 +841,18 @@ export default function SuggestionsScreen() {
           onEndReached={handleLoadMore}
           onEndReachedThreshold={0.5}
           ListFooterComponent={
-            loadingMore ? (
-              <ActivityIndicator color={colors.primary} style={{ marginVertical: 16 }} />
-            ) : null
+            <>
+              {loadingMore ? (
+                <ActivityIndicator color={colors.primary} style={{ marginVertical: 16 }} />
+              ) : null}
+              <IdeasSection
+                ideas={ideaResults}
+                hasRealResults={realResults.length > 0}
+                addedKeys={addedKeys}
+                onAdd={handleAdd}
+                colors={colors}
+              />
+            </>
           }
         />
       )}

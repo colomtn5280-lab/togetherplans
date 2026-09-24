@@ -130,6 +130,8 @@ export interface Suggestion {
   priceLevel?: number;
   distanceMiles?: number;
   sourceName?: string;
+  /** True for seed-catalog "idea" prompts (no live listing behind them). */
+  isIdea?: boolean;
 }
 
 export type RootStackParamList = {

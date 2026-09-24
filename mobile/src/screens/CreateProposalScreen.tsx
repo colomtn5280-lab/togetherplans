@@ -22,7 +22,7 @@ import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { useTheme } from '@/contexts/ThemeContext';
 import { usePlanBuilder } from '@/contexts/PlanBuilderContext';
 import { SPACING, SHADOWS } from '@/constants';
-import { CATEGORIES } from '@/constants/categories';
+import { CATEGORIES, getCategoryColorById } from '@/constants/categories';
 import {
   DNButton,
   DNInput,
@@ -36,25 +36,11 @@ import type { ActivityOption, Group, PlanBuilderOption, RootStackParamList } fro
 type RouteT = RouteProp<RootStackParamList, 'CreateProposal'>;
 
 // ── Helper: category → colour/emoji ───────────────────────────────────────────
-const CATEGORY_COLORS: Record<string, string> = {
-  'Restaurants & Dining': '#FDEBD0',
-  'Live Music & Concerts': '#EBD5FB',
-  'Comedy Shows': '#FEF9C3',
-  'Movies & Theater': '#D5E8FD',
-  'Art & Museums': '#FCE4EC',
-  'Outdoor Adventures': '#D4EDDA',
-  'Sports & Active': '#FFE0B2',
-  'Nightlife & Bars': '#E8D5F5',
-  'Wellness & Spa': '#D0F4F1',
-  'Cooking & Classes': '#FFF3CD',
-  Custom: '#F0F0F0',
-};
-
 function getCategoryEmoji(category: string): string {
-  return CATEGORIES.find((c) => c.name === category)?.emoji ?? '📍';
+  return CATEGORIES.find((c) => c.name === category || c.id === category)?.emoji ?? '📍';
 }
 function getCategoryColor(category: string): string {
-  return CATEGORY_COLORS[category] ?? '#F0F0F0';
+  return getCategoryColorById(category);
 }
 
 // ── Thumbnail (image or emoji fallback) ───────────────────────────────────────
@@ -191,7 +177,7 @@ function PreviewModal({
 
           <ScrollView showsVerticalScrollIndicator={false}>
             <DNText variant="title" color={colors.ink} style={{ marginBottom: SPACING.sm }}>
-              {title || 'Date Night'}
+              {title || 'Date night'}
             </DNText>
             {opts.map((opt) => (
               <View
@@ -263,7 +249,7 @@ function suggestTitle(opts: PlanBuilderOption[]): string {
   if (dates.length > 0 && new Set(dates).size === 1) {
     const d = new Date(dates[0]);
     const day = d.toLocaleDateString(undefined, { weekday: 'long' });
-    return `Date Night · ${day}`;
+    return `Date night · ${day}`;
   }
   const hasDining = categories.some((c) =>
     c.includes('Dining') || c.includes('Restaurant') || c.includes('Cooking'),
@@ -567,7 +553,7 @@ export default function CreateProposalScreen() {
             label="Title"
             value={title}
             onChangeText={setTitle}
-            placeholder="Date Night · Friday"
+            placeholder="Date night · Friday"
             error={titleError}
           />
 
