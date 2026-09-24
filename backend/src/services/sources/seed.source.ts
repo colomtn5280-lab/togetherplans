@@ -113,11 +113,13 @@ const SEEDS: SeedEntry[] = [
   { name: 'Flea market Saturday', category: 'Unique & Quirky', shortDescription: 'Treasure hunting in the organized chaos. Coffee in hand is required.', costTier: 'free', dateFriendly: true, groupFriendly: true, durationMinutes: 150 },
   { name: 'Observatory night viewing', category: 'Unique & Quirky', shortDescription: 'Many public observatories do free public nights through a telescope.', costTier: 'free', dateFriendly: true, groupFriendly: false, durationMinutes: 120 },
 
-  // ── Golf ──────────────────────────────────────────────────────────
-  { name: 'Nine holes at a local course', category: 'Golf', shortDescription: 'Twilight rates make weeknight nine-hole rounds surprisingly affordable.', costTier: '$$', dateFriendly: true, groupFriendly: true, durationMinutes: 150 },
-  { name: 'Driving range date', category: 'Golf', shortDescription: 'Bucket of balls, zero pressure, plenty of time to talk between swings.', costTier: '$', dateFriendly: true, groupFriendly: true, durationMinutes: 90 },
-  { name: 'Mini golf showdown', category: 'Golf', shortDescription: 'Eighteen holes of windmills and bridges. Loser buys ice cream.', costTier: '$', dateFriendly: true, groupFriendly: true, durationMinutes: 90 },
-  { name: 'Topgolf-style range bay', category: 'Golf', shortDescription: 'Climate-controlled bays, food and drinks, games for every skill level.', costTier: '$$', dateFriendly: true, groupFriendly: true, durationMinutes: 120 },
+  // ── Sports (watch & play) ─────────────────────────────────────────
+  { name: 'Nine holes at a local course', category: 'Sports', shortDescription: 'Twilight rates make weeknight nine-hole rounds surprisingly affordable.', costTier: '$$', dateFriendly: true, groupFriendly: true, durationMinutes: 150 },
+  { name: 'Driving range date', category: 'Sports', shortDescription: 'Bucket of balls, zero pressure, plenty of time to talk between swings.', costTier: '$', dateFriendly: true, groupFriendly: true, durationMinutes: 90 },
+  { name: 'Mini golf showdown', category: 'Sports', shortDescription: 'Eighteen holes of windmills and bridges. Loser buys ice cream.', costTier: '$', dateFriendly: true, groupFriendly: true, durationMinutes: 90 },
+  { name: 'Topgolf-style range bay', category: 'Sports', shortDescription: 'Climate-controlled bays, food and drinks, games for every skill level.', costTier: '$$', dateFriendly: true, groupFriendly: true, durationMinutes: 120 },
+  { name: 'Catch a local game', category: 'Sports', shortDescription: 'Minor league, college, or pro — live sports energy beats the couch.', costTier: '$$', dateFriendly: true, groupFriendly: true, durationMinutes: 180 },
+  { name: 'Bowling night out', category: 'Sports', shortDescription: 'Lanes, rental shoes, and friendly trash talk. Timeless.', costTier: '$', dateFriendly: true, groupFriendly: true, durationMinutes: 90 },
 
   // ── Wellness ──────────────────────────────────────────────────────
   { name: 'Couples massage', category: 'Wellness', shortDescription: 'Side-by-side massages. The rare treat that is exactly as good as it sounds.', costTier: '$$$', dateFriendly: true, groupFriendly: false, durationMinutes: 90 },

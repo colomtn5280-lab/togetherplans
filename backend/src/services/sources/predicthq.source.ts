@@ -119,7 +119,7 @@ function classify(ev: PhqEvent): SuggestionCategory {
 // ---------------------------------------------------------------------------
 // Skip categories PHQ doesn't help with (places, not events)
 // ---------------------------------------------------------------------------
-const SKIP_CATEGORIES = new Set<string>(['Dining', 'Streaming Night', 'Movies', 'Golf', 'Wellness']);
+const SKIP_CATEGORIES = new Set<string>(['Dining', 'Streaming Night', 'Movies', 'Wellness']);
 
 // PHQ categories to request per our category filter
 function phqCategories(categoryFilter?: string): string {
@@ -132,6 +132,7 @@ function phqCategories(categoryFilter?: string): string {
     'Theater & Plays': 'performing-arts',
     'Arts & Culture':  'performing-arts,expos,community',
     'Active':          'sports,community',
+    'Sports':          'sports',
     'Outdoors':        'community,sports',
     'Local Experience':'community,expos,festivals,conferences',
     'Unique & Quirky': 'community,expos',
@@ -254,6 +255,7 @@ export async function fetchPredictHQ(
       const category: SuggestionCategory =
         categoryFilter === 'Family' ? 'Family'
         : categoryFilter === 'Couples' ? 'Couples'
+        : categoryFilter === 'Sports' ? 'Sports'
         : classify(ev);
       const costTier = formatCostTier(ev);
 

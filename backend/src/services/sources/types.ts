@@ -14,7 +14,7 @@ export type SuggestionCategory =
   | 'Wine & Drinks'
   | 'Arts & Culture'
   | 'Active'
-  | 'Golf'
+  | 'Sports'
   | 'Wellness'
   | 'Family'
   | 'Couples'

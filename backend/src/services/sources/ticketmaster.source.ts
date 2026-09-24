@@ -116,10 +116,14 @@ export async function fetchTicketmaster(
     // Family mode: Ticketmaster Discovery supports includeFamily=only
     const familyMode = categoryFilter === 'Family';
     const couplesMode = categoryFilter === 'Couples';
+    // Sports & Active mode: request the Sports segment explicitly and label results 'Sports'
+    const sportsMode = categoryFilter === 'Sports';
     if (familyMode) {
       url.searchParams.set('includeFamily', 'only');
     } else if (couplesMode) {
       // General events; sports excluded post-fetch, evening events preferred
+    } else if (sportsMode) {
+      url.searchParams.set('segmentName', 'Sports');
     } else if (categoryFilter && categoryFilter !== 'All') {
       // Map our category to TM classification
       const segmentFilter: Record<string, string> = {
@@ -170,6 +174,8 @@ export async function fetchTicketmaster(
         ? 'Family'
         : couplesMode
         ? 'Couples'
+        : sportsMode
+        ? 'Sports'
         : classifyTm(ev.classifications);
       const { price, costTier } = formatPrice(ev.priceRanges);
 

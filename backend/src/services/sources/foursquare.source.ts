@@ -67,10 +67,13 @@ const FSQ_CATEGORY_RULES: Array<{
   { ids: ['4bf58dd8d48988d1d8941735'], category: 'Wine & Drinks', costTier: '$$', durationMinutes: 120 },   // Winery / Vineyard
   { ids: ['50327c8591d4c4b30a586d5d', '4bf58dd8d48988d11e941735'], category: 'Wine & Drinks', costTier: '$$', durationMinutes: 90 }, // Brewery
   { ids: ['4bf58dd8d48988d166941735'], category: 'Active', costTier: '$', durationMinutes: 120 },           // Bowling Alley
-  { ids: ['4bf58dd8d48988d1e6941735'], category: 'Golf', costTier: '$$', durationMinutes: 240 },            // Golf Course
-  { ids: ['4bf58dd8d48988d1e7941735'], category: 'Golf', costTier: '$', durationMinutes: 90 },              // Mini Golf
-  { ids: ['58daa1558bbb0b01f18ec1b0'], category: 'Golf', costTier: '$', durationMinutes: 90 },              // Golf Driving Range
-  { ids: ['4bf58dd8d48988d15e941735'], category: 'Golf', costTier: '$$', durationMinutes: 240 },            // Golf (legacy generic)
+  { ids: ['4bf58dd8d48988d1e6941735'], category: 'Sports', costTier: '$$', durationMinutes: 240 },          // Golf Course
+  { ids: ['4bf58dd8d48988d1e7941735'], category: 'Sports', costTier: '$', durationMinutes: 90 },            // Mini Golf
+  { ids: ['58daa1558bbb0b01f18ec1b0'], category: 'Sports', costTier: '$', durationMinutes: 90 },            // Golf Driving Range
+  { ids: ['4bf58dd8d48988d15e941735'], category: 'Sports', costTier: '$$', durationMinutes: 240 },          // Golf (legacy generic)
+  { ids: ['4bf58dd8d48988d1e4931735'], category: 'Sports', costTier: '$', durationMinutes: 90 },            // Bowling Alley
+  { ids: ['503289d391d4c4b30a586d6a'], category: 'Sports', costTier: '$$', durationMinutes: 120 },          // Climbing Gym
+  { ids: ['4bf58dd8d48988d168941735'], category: 'Sports', costTier: '$', durationMinutes: 90 },            // Skating Rink
   { ids: ['4bf58dd8d48988d1ed941735'], category: 'Wellness', costTier: '$$', durationMinutes: 120 },        // Spa
   { ids: ['52f2ab2ebcbc57f1066b8b3c'], category: 'Wellness', costTier: '$$', durationMinutes: 90 },         // Massage Studio
   { ids: ['4bf58dd8d48988d102941735'], category: 'Wellness', costTier: '$', durationMinutes: 75 },          // Yoga Studio

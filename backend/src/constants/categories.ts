@@ -18,7 +18,7 @@ export const CATEGORIES: Category[] = [
   { id: 'concerts',           name: 'Concerts',            emoji: '🎸', tagline: 'Live shows, touring acts & local bands' },
   { id: 'couples-events',     name: 'Couples Events',      emoji: '💑', tagline: 'Date-worthy events built for two' },
   { id: 'family-events',      name: 'Family Events',       emoji: '👨‍👩‍👧', tagline: 'Fun for every age' },
-  { id: 'golf',               name: 'Golf',                emoji: '⛳', tagline: 'Courses, driving ranges & mini golf' },
+  { id: 'sports-active',      name: 'Sports & Active',     emoji: '🏟️', tagline: 'Games to watch, games to play' },
   { id: 'hiking-trails',      name: 'Hiking Trails',       emoji: '🥾', tagline: 'Trails, parks & scenic walks' },
   { id: 'hotel-stays',        name: 'Hotel Stays',         emoji: '🏨', tagline: 'Staycations & weekend getaways' },
   { id: 'local-experiences',  name: 'Local Experiences',   emoji: '📍', tagline: 'Escape rooms, trivia & hidden gems' },

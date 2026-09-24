@@ -146,7 +146,7 @@ const TAG_RULES: Array<{
   },
   {
     query: '["leisure"="miniature_golf"]',
-    category: 'Golf',
+    category: 'Sports',
     costTier: '$',
     descriptionFn: () => 'Mini golf -- easy going, competitive enough to be fun.',
     dateFriendly: true,
@@ -155,7 +155,7 @@ const TAG_RULES: Array<{
   },
   {
     query: '["leisure"="golf_course"]',
-    category: 'Golf',
+    category: 'Sports',
     costTier: '$$',
     descriptionFn: (t) => `Golf course${t.holes ? ` -- ${t.holes} holes` : ''}. Book a tee time or hit the range.`,
     dateFriendly: true,
@@ -164,7 +164,7 @@ const TAG_RULES: Array<{
   },
   {
     query: '["golf"="driving_range"]',
-    category: 'Golf',
+    category: 'Sports',
     costTier: '$',
     descriptionFn: () => 'Driving range -- bucket of balls, no tee time needed.',
     dateFriendly: true,

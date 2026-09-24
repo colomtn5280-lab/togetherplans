@@ -13,6 +13,8 @@ const VALID_CATEGORIES = new Set<string>([
   // New unified categories — slugs and display names both accepted
   ...ALL_CATEGORIES.map((c) => c.id),
   ...ALL_CATEGORIES.map((c) => c.name),
+  // Legacy 'Golf' category (replaced by 'Sports & Active') — shipped clients still send these
+  'golf', 'Golf',
 ]);
 
 const VALID_DATE_FILTERS = new Set(['tonight', 'this-weekend', 'this-week', 'anytime']);

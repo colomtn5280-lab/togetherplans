@@ -39,7 +39,8 @@ const NEW_TO_INTERNAL: Record<string, SuggestionCategory | null> = {
   'concerts': 'Live Music',
   'couples-events': 'Couples',
   'family-events': 'Family',
-  'golf': 'Golf',
+  'sports-active': 'Sports',
+  'golf': 'Sports', // backward-compat alias — shipped clients still send the old 'golf' slug
   'hiking-trails': 'Outdoors',
   'hotel-stays': null,
   'local-experiences': 'Local Experience',
@@ -55,7 +56,8 @@ const NEW_TO_INTERNAL: Record<string, SuggestionCategory | null> = {
   'Concerts': 'Live Music',
   'Couples Events': 'Couples',
   'Family Events': 'Family',
-  'Golf': 'Golf',
+  'Sports & Active': 'Sports',
+  'Golf': 'Sports', // backward-compat alias — old proposal options / shipped clients send 'Golf'
   'Hiking Trails': 'Outdoors',
   'Hotel Stays': null,
   'Local Experiences': 'Local Experience',
