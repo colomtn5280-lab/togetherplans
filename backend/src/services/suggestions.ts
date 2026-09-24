@@ -29,6 +29,7 @@ import { fetchMobilize } from './sources/mobilize.source';
 import { fetchViator } from './sources/viator.source';
 import { fetchLiteApiHotels } from './sources/liteapi.source';
 import { enrichPhotos } from './photo-enrichment';
+import { fetchAiIdeas } from './sources/ai-ideas.source';
 
 export type { Suggestion, SuggestionCategory, SuggestionQuery };
 
@@ -378,6 +379,32 @@ export async function getSuggestions(query: SuggestionQuery): Promise<Suggestion
   }
 
   logger.info(`Suggestions assembled: ${final.length} total [${sourceSummary.join(', ')}]`);
+
+  // Append AI-generated ideas (Gemini) if key is configured.
+  // Always adds 8 fresh ideas tagged as isIdea:true so the frontend
+  // shows them in the "Ideas to spark your plan" section.
+  if (process.env.GEMINI_API_KEY) {
+    let aiCity = '';
+    let aiState = '';
+    if (query.zip) {
+      // Resolve city name from zip via zippopotam (cached)
+      try {
+        const zipData = await fetch(`https://api.zippopotam.us/us/${query.zip}`, { signal: AbortSignal.timeout(3000) });
+        if (zipData.ok) {
+          const zd = await zipData.json() as { places?: Array<{ 'place name'?: string; 'state abbreviation'?: string }> };
+          aiCity = zd.places?.[0]?.['place name'] ?? query.zip;
+          aiState = zd.places?.[0]?.['state abbreviation'] ?? '';
+        }
+      } catch { aiCity = query.zip; }
+    } else if (lat && lng) {
+      aiCity = `${lat.toFixed(2)},${lng.toFixed(2)}`;
+    }
+    const aiIdeas = await fetchAiIdeas(category ?? 'Local Experience', aiCity, aiState, 8);
+    if (aiIdeas.length) {
+      final = deduplicate([...final, ...aiIdeas]);
+      logger.info(`AI ideas appended: ${aiIdeas.length} for ${category} near ${aiCity}`);
+    }
+  }
 
   // Enrich photos for any results still missing imageUrl (PredictHQ, Overpass,
   // seed cards, etc.) — uses Foursquare venue name search, cached 24h.
