@@ -24,7 +24,7 @@ export const CATEGORIES: Category[] = [
   { id: 'concerts',           name: 'Concerts',            emoji: '🎸', tagline: 'Live shows, touring acts & local bands',  color: '#EBD5FB', matches: ['Live Music'] },
   { id: 'couples-events',     name: 'Couples Events',      emoji: '💑', tagline: 'Date-worthy events built for two',        color: '#FCE4EC', matches: [] },
   { id: 'family-events',      name: 'Family Events',       emoji: '👨‍👩‍👧', tagline: 'Fun for every age',                       color: '#D5EFD5', matches: [] },
-  { id: 'golf',               name: 'Golf',                emoji: '⛳', tagline: 'Courses, driving ranges & mini golf',     color: '#D9F2D0', matches: ['Active'] },
+  { id: 'sports-active',      name: 'Sports & Active',     emoji: '🏟️', tagline: 'Games to watch, games to play',           color: '#FFE0B2', matches: ['Sports'] },
   { id: 'hiking-trails',      name: 'Hiking Trails',       emoji: '🥾', tagline: 'Trails, parks & scenic walks',            color: '#D4EDDA', matches: ['Outdoors'] },
   { id: 'hotel-stays',        name: 'Hotel Stays',         emoji: '🏨', tagline: 'Staycations & weekend getaways',          color: '#CFE3FB', matches: [] },
   { id: 'local-experiences',  name: 'Local Experiences',   emoji: '📍', tagline: 'Escape rooms, trivia & hidden gems',      color: '#FFE8D1', matches: ['Local Experience'] },
@@ -50,11 +50,21 @@ export const CUSTOM_CATEGORY: Category = {
 export const ALL_CATEGORIES: Category[] = [...CATEGORIES, CUSTOM_CATEGORY];
 
 /**
+ * Legacy aliases → current category id. Old stored proposal options and
+ * shipped clients may still carry the retired 'golf'/'Golf' category.
+ */
+const LEGACY_ALIASES: Record<string, string> = {
+  'golf': 'sports-active',
+  'Golf': 'sports-active',
+};
+
+/**
  * Resolve a category's tint color by slug id OR display name
  * (stored proposal options carry display names). Grey fallback.
  */
 export function getCategoryColorById(category?: string): string {
   if (!category) return '#F0F0F0';
-  const cat = ALL_CATEGORIES.find((c) => c.id === category || c.name === category);
+  const key = LEGACY_ALIASES[category] ?? category;
+  const cat = ALL_CATEGORIES.find((c) => c.id === key || c.name === key);
   return cat?.color ?? '#F0F0F0';
 }
