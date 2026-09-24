@@ -57,17 +57,18 @@ describe('getSuggestions', () => {
     for (const r of runs) expect(r.length).toBeGreaterThan(0);
   }, 30_000);
 
-  it('golf never resolves to the Active (sports tickets) category', async () => {
-    // Regression: 'golf' used to map to 'Active', routing golf taps to
-    // Ticketmaster's Sports segment (baseball/hockey tickets).
-    for (const raw of ['golf', 'Golf']) {
+  it('sports-active (and legacy golf) resolves to Sports, never Active', async () => {
+    // Regression: 'golf' used to map to 'Active'. It now aliases to 'Sports'
+    // (the Sports & Active category) — TM sports events are intentional now,
+    // but every result must carry the internal 'Sports' category, never 'Active'.
+    for (const raw of ['sports-active', 'Sports & Active', 'golf', 'Golf']) {
       const result = await getSuggestions({ category: raw, lat: 39.7392, lng: -104.9903 });
       for (const s of result) {
         expect(s.category).not.toBe('Active');
-        expect(s.category).toBe('Golf');
+        expect(s.category).toBe('Sports');
       }
     }
-  }, 30_000);
+  }, 60_000);
 
   it('seed suggestions carry isIdea and sort after real results', async () => {
     const result = await getSuggestions({ category: 'Streaming Night' });
