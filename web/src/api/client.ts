@@ -163,6 +163,9 @@ export const authApi = {
     token: string;
   }): Promise<AxiosResponse<{ message: string }>> =>
     api.post("/auth/verify-email", body),
+
+  claimGuestVotes: (guestId: string): Promise<AxiosResponse<{ converted: number; pending: number }>> =>
+    api.post("/auth/claim-guest-votes", { guestId }),
 };
 
 // ── Groups ────────────────────────────────────────────────────────────────────
@@ -197,8 +200,8 @@ export const invitationsApi = {
   get: (token: string): Promise<AxiosResponse<Invitation>> =>
     api.get(`/invitations/${token}`),
 
-  accept: (token: string): Promise<AxiosResponse<{ message: string; group?: Group }>> =>
-    api.post(`/invitations/${token}/accept`),
+  accept: (token: string, guestId?: string): Promise<AxiosResponse<{ message: string; group?: Group }>> =>
+    api.post(`/invitations/accept/${token}`, guestId ? { guestId } : {}),
 };
 
 // ── Proposals ─────────────────────────────────────────────────────────────────

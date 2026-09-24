@@ -360,6 +360,7 @@ export function GuestVotePage() {
               <p style={{ color: "var(--ink2)", fontSize: 14, margin: "0 0 16px" }}>
                 Guest votes advise the group — members make the final call.
                 Create a free account to join {proposal.groupName} and make your vote count.
+                Your vote comes with you.
               </p>
               <Link to="/signup" className="dn-btn dn-btn--primary" style={{ minWidth: 220 }}>
                 Create your free account

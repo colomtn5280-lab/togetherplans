@@ -36,4 +36,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy web/dist --project-name=togetherplans --branch=main
+          # Run inside web/ so wrangler picks up web/functions/ (Pages Functions
+          # — crawler-readable OG previews for /vote/<token> links)
+          workingDirectory: web
+          command: pages deploy dist --project-name=togetherplans --branch=main

@@ -56,7 +56,10 @@ export function JoinPage() {
     if (!token) return;
     setJoining(true);
     try {
-      const res = await invitationsApi.accept(token);
+      // Pass the guest id (if this user voted as a guest via a share link)
+      // so their guest votes on this group's proposals convert to real votes.
+      const guestId = localStorage.getItem("tp.guestId") ?? undefined;
+      const res = await invitationsApi.accept(token, guestId);
       setJoined(true);
       const resolvedGroupId = groupId ?? (res.data.group as { id?: string } | undefined)?.id;
       setTimeout(() => {

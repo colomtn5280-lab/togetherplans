@@ -28,6 +28,13 @@ export const useAuthStore = create<AuthState>()(
           localStorage.setItem("refreshToken", refreshToken);
         }
         set({ user, accessToken, refreshToken, isAuthenticated: true });
+        // Guest→member vote carryover: fire-and-forget after any signup/login.
+        // Deferred so it never blocks or breaks the auth flow.
+        setTimeout(() => {
+          import("../utils/guestClaim")
+            .then((m) => m.claimGuestVotesIfAny())
+            .catch(() => {});
+        }, 0);
       },
 
       clearAuth: () => {
