@@ -14,21 +14,32 @@ export type AfterDarkTier = 'ROMANTIC' | 'SPICY';
 export type AfterDarkWhere = 'HOME' | 'OUT';
 
 /**
- * After Dark Activity Item
+ * After Dark Activity Item (matches database schema)
  * Can be SEED (40-item catalog) or USER (couple-created)
  */
 export interface AfterDarkItem {
   id: string;
-  emoji: string;
-  name: string;
+  title: string;
   description: string;
-  where: AfterDarkWhere;      // HOME | OUT
-  duration: string;           // "2h", "90m", "1 night", etc.
   tier: AfterDarkTier;        // ROMANTIC | SPICY (filter/label)
-  source: 'SEED' | 'USER';    // SEED = catalog, USER = couple-created
-  groupId?: string;           // if USER: visible only to this couple
-  createdById?: string;       // user who added it
-  reported?: boolean;         // flag for user-generated content moderation
+  icon: string | null;        // Emoji or icon name
+  color: string;              // Hex color
+  createdBy: string | null;   // null for seed items, userId for couple-created
+  groupId: string | null;     // null for seed, groupId for couple ideas
+  reportedCount: number;      // Number of times reported
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/**
+ * Input for creating a custom After Dark idea
+ */
+export interface CreateAfterDarkIdeaInput {
+  title: string;
+  description: string;
+  tier: AfterDarkTier;
+  icon?: string;
+  // groupId and userId come from context (not input)
 }
 
 /**
@@ -37,34 +48,25 @@ export interface AfterDarkItem {
  * Visible to all groups (not couple-restricted at browse level)
  */
 export interface AfterDarkCategory {
-  name: 'After Dark';
-  emoji: '🌙';
-  description: 'Intimate and playful activities for couples';
-  color: '#B2485E';           // wine accent from spec
-  tiers: {
-    ALL: 'Browse all';
-    ROMANTIC: 'Romantic moments';
-    SPICY: 'Spicy & playful';
+  id: string;
+  name: string;
+  emoji: string;
+  description: string;
+  color: string;
+  accentColor: string;
+  softBgColor: string;
+  deepColor: string;
+}
+
+/**
+ * API Response wrapper for paginated items
+ */
+export interface AfterDarkItemsResponse {
+  items: AfterDarkItem[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    pages: number;
   };
 }
-
-/**
- * User-Created After Dark Idea
- * Form: name, description, tier (Romantic/Spicy), where (Home/Out)
- */
-export interface CreateAfterDarkIdeaInput {
-  groupId: string;
-  name: string;              // ≤ 40 chars
-  description: string;       // ≤ 140 chars
-  tier: AfterDarkTier;       // ROMANTIC | SPICY
-  where: AfterDarkWhere;     // HOME | OUT
-}
-
-/**
- * After Dark Seed Catalog (40 items)
- * Import from after_dark_menu.json
- * 20 ROMANTIC + 20 SPICY
- */
-export const AFTER_DARK_ROMANTIC_COUNT = 20;
-export const AFTER_DARK_SPICY_COUNT = 20;
-export const AFTER_DARK_TOTAL_ITEMS = 40;

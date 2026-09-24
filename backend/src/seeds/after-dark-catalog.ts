@@ -1,475 +1,276 @@
 /**
  * After Dark Seed Catalog Loader
  * 
- * Loads 40 curated intimate activities from after_dark_menu.json
- * Should run once on DB init
+ * Loads 40 curated intimate/playful activities (20 Romantic + 20 Spicy)
+ * into the AfterDarkItem table on app startup.
+ * 
+ * Source: https://github.com/colomtn5280-lab/claude_upload/blob/main/AFTER_DARK_MENU.md
  */
 
-import { AfterDarkItem } from '../models/AfterDarkModels';
+import { prisma as db } from '@/services/db';
+import { logger } from '@/services/logger';
 
-const AFTER_DARK_SEED_DATA = {
-  version: '2026-09-24',
-  romantic: [
-    {
-      id: 'R01',
-      emoji: '🍝',
-      name: 'Cook-off for two',
-      description: 'Same ingredients, two dishes, one judge each. Loser does dishes.',
-      where: 'HOME',
-      duration: '2h',
-      category: 'AFTER_DARK',
-      tier: 'ROMANTIC',
-      source: 'SEED',
-    },
-    {
-      id: 'R02',
-      emoji: '🔭',
-      name: 'Blanket and the sky',
-      description: 'Drive somewhere dark, bring a thermos, name the constellations wrong.',
-      where: 'OUT',
-      duration: '3h',
-      category: 'AFTER_DARK',
-      tier: 'ROMANTIC',
-      source: 'SEED',
-    },
-    {
-      id: 'R03',
-      emoji: '💆',
-      name: 'Couples massage class',
-      description: 'Learn it once, use it forever. Most studios run a 90-minute intro.',
-      where: 'OUT',
-      duration: '90m',
-      category: 'AFTER_DARK',
-      tier: 'ROMANTIC',
-      source: 'SEED',
-    },
-    {
-      id: 'R04',
-      emoji: '🏨',
-      name: 'Staycation',
-      description: 'A hotel 10 minutes away. Late checkout, room service breakfast.',
-      where: 'OUT',
-      duration: '1 night',
-      category: 'AFTER_DARK',
-      tier: 'ROMANTIC',
-      source: 'SEED',
-    },
-    {
-      id: 'R05',
-      emoji: '🌅',
-      name: 'Sunrise drive',
-      description: 'Alarm at 5, coffee in the car, watch it come up from the hill.',
-      where: 'OUT',
-      duration: '2h',
-      category: 'AFTER_DARK',
-      tier: 'ROMANTIC',
-      source: 'SEED',
-    },
-    {
-      id: 'R06',
-      emoji: '✉️',
-      name: 'Letter swap',
-      description: 'Write each other a letter, read them out loud over a drink.',
-      where: 'HOME',
-      duration: '1h',
-      category: 'AFTER_DARK',
-      tier: 'ROMANTIC',
-      source: 'SEED',
-    },
-    {
-      id: 'R07',
-      emoji: '💃',
-      name: 'Kitchen dance lesson',
-      description: 'One YouTube tutorial, one song, bare feet on tile.',
-      where: 'HOME',
-      duration: '45m',
-      category: 'AFTER_DARK',
-      tier: 'ROMANTIC',
-      source: 'SEED',
-    },
-    {
-      id: 'R08',
-      emoji: '🛁',
-      name: 'Bath, playlist, no phones',
-      description: 'Candles, a shared playlist, a hard stop on screens.',
-      where: 'HOME',
-      duration: '1h',
-      category: 'AFTER_DARK',
-      tier: 'ROMANTIC',
-      source: 'SEED',
-    },
-    {
-      id: 'R09',
-      emoji: '🧺',
-      name: 'Rooftop picnic',
-      description: 'Sandwiches and a bottle up on the roof or the fire escape.',
-      where: 'OUT',
-      duration: '2h',
-      category: 'AFTER_DARK',
-      tier: 'ROMANTIC',
-      source: 'SEED',
-    },
-    {
-      id: 'R10',
-      emoji: '🔁',
-      name: 'Recreate the first date',
-      description: 'Same place if it still exists, same order, better conversation.',
-      where: 'OUT',
-      duration: '3h',
-      category: 'AFTER_DARK',
-      tier: 'ROMANTIC',
-      source: 'SEED',
-    },
-    {
-      id: 'R11',
-      emoji: '🥐',
-      name: 'Slow breakfast in bed',
-      description: 'One of you cooks, the other stays. Swap next week.',
-      where: 'HOME',
-      duration: '1h',
-      category: 'AFTER_DARK',
-      tier: 'ROMANTIC',
-      source: 'SEED',
-    },
-    {
-      id: 'R12',
-      emoji: '🎨',
-      name: 'Wine and paint at home',
-      description: 'Two canvases, one bottle, paint each other. No talent required.',
-      where: 'HOME',
-      duration: '2h',
-      category: 'AFTER_DARK',
-      tier: 'ROMANTIC',
-      source: 'SEED',
-    },
-    {
-      id: 'R13',
-      emoji: '🧖',
-      name: 'Spa afternoon',
-      description: 'Sauna, steam, plunge. Go on a weekday if you can.',
-      where: 'OUT',
-      duration: '3h',
-      category: 'AFTER_DARK',
-      tier: 'ROMANTIC',
-      source: 'SEED',
-    },
-    {
-      id: 'R14',
-      emoji: '🚗',
-      name: 'Drive-in movie',
-      description: 'Blankets, snacks, the back seat down.',
-      where: 'OUT',
-      duration: '3h',
-      category: 'AFTER_DARK',
-      tier: 'ROMANTIC',
-      source: 'SEED',
-    },
-    {
-      id: 'R15',
-      emoji: '📚',
-      name: 'Bookshop swap',
-      description: 'Pick a book for each other, read the first chapter together at the cafe.',
-      where: 'OUT',
-      duration: '2h',
-      category: 'AFTER_DARK',
-      tier: 'ROMANTIC',
-      source: 'SEED',
-    },
-    {
-      id: 'R16',
-      emoji: '🫕',
-      name: 'Fondue night',
-      description: 'Cheese or chocolate. Long forks, longer conversation.',
-      where: 'HOME',
-      duration: '2h',
-      category: 'AFTER_DARK',
-      tier: 'ROMANTIC',
-      source: 'SEED',
-    },
-    {
-      id: 'R17',
-      emoji: '🌙',
-      name: 'Moonlit walk',
-      description: 'The usual route, at midnight, holding hands.',
-      where: 'OUT',
-      duration: '1h',
-      category: 'AFTER_DARK',
-      tier: 'ROMANTIC',
-      source: 'SEED',
-    },
-    {
-      id: 'R18',
-      emoji: '🍽️',
-      name: 'No-phones dinner',
-      description: 'Book somewhere nice. Phones stay at home, not in pockets.',
-      where: 'OUT',
-      duration: '2h',
-      category: 'AFTER_DARK',
-      tier: 'ROMANTIC',
-      source: 'SEED',
-    },
-    {
-      id: 'R19',
-      emoji: '✈️',
-      name: 'Plan the dream trip',
-      description: "Open the map, pick a country, build the itinerary you'll take one day.",
-      where: 'HOME',
-      duration: '90m',
-      category: 'AFTER_DARK',
-      tier: 'ROMANTIC',
-      source: 'SEED',
-    },
-    {
-      id: 'R20',
-      emoji: '🫙',
-      name: 'Memory jar night',
-      description: 'Write 20 favourite moments on slips, pull them one by one.',
-      where: 'HOME',
-      duration: '1h',
-      category: 'AFTER_DARK',
-      tier: 'ROMANTIC',
-      source: 'SEED',
-    },
-  ],
-  spicy: [
-    {
-      id: 'S01',
-      emoji: '📝',
-      name: 'Yes / No / Maybe list',
-      description: 'Each fill one in privately, then compare only the overlaps.',
-      where: 'HOME',
-      duration: '1h',
-      category: 'AFTER_DARK',
-      tier: 'SPICY',
-      source: 'SEED',
-    },
-    {
-      id: 'S02',
-      emoji: '👗',
-      name: 'Outfit surprise',
-      description: 'One of you picks what the other wears tonight. Sealed envelope.',
-      where: 'HOME',
-      duration: 'evening',
-      category: 'AFTER_DARK',
-      tier: 'SPICY',
-      source: 'SEED',
-    },
-    {
-      id: 'S03',
-      emoji: '🫒',
-      name: 'Massage, oils, lights low',
-      description: 'Warm oil, one long playlist, no clock.',
-      where: 'HOME',
-      duration: '90m',
-      category: 'AFTER_DARK',
-      tier: 'SPICY',
-      source: 'SEED',
-    },
-    {
-      id: 'S04',
-      emoji: '❓',
-      name: '20 questions, adults only',
-      description: 'Take turns; honest answers only. Pass is always allowed.',
-      where: 'HOME',
-      duration: '1h',
-      category: 'AFTER_DARK',
-      tier: 'SPICY',
-      source: 'SEED',
-    },
-    {
-      id: 'S05',
-      emoji: '🙈',
-      name: 'Blindfold taste test',
-      description: 'Five small bites, one blindfold, guess wrong and owe a favour.',
-      where: 'HOME',
-      duration: '45m',
-      category: 'AFTER_DARK',
-      tier: 'SPICY',
-      source: 'SEED',
-    },
-    {
-      id: 'S06',
-      emoji: '🎲',
-      name: 'The dare jar',
-      description: 'Write ten dares each, keep it playful, draw three.',
-      where: 'HOME',
-      duration: '1h',
-      category: 'AFTER_DARK',
-      tier: 'SPICY',
-      source: 'SEED',
-    },
-    {
-      id: 'S07',
-      emoji: '💿',
-      name: 'One song, slow dance',
-      description: 'Lights off, one song on repeat, see where it goes.',
-      where: 'HOME',
-      duration: '20m',
-      category: 'AFTER_DARK',
-      tier: 'SPICY',
-      source: 'SEED',
-    },
-    {
-      id: 'S08',
-      emoji: '🗝️',
-      name: 'Hotel, no plans',
-      description: 'Check in at 6. Do not leave the room.',
-      where: 'OUT',
-      duration: '1 night',
-      category: 'AFTER_DARK',
-      tier: 'SPICY',
-      source: 'SEED',
-    },
-    {
-      id: 'S09',
-      emoji: '🗺️',
-      name: 'Love-note scavenger hunt',
-      description: 'Notes hidden around the flat, each one a clue. Last one is in the bedroom.',
-      where: 'HOME',
-      duration: '1h',
-      category: 'AFTER_DARK',
-      tier: 'SPICY',
-      source: 'SEED',
-    },
-    {
-      id: 'S10',
-      emoji: '🚿',
-      name: 'Shower together',
-      description: 'Simple. Hot water, no rush.',
-      where: 'HOME',
-      duration: '30m',
-      category: 'AFTER_DARK',
-      tier: 'SPICY',
-      source: 'SEED',
-    },
-    {
-      id: 'S11',
-      emoji: '🍸',
-      name: 'Strangers at the bar',
-      description: 'Arrive separately. Meet like it\'s the first time. Pick each other up.',
-      where: 'OUT',
-      duration: '2h',
-      category: 'AFTER_DARK',
-      tier: 'SPICY',
-      source: 'SEED',
-    },
-    {
-      id: 'S12',
-      emoji: '🛍️',
-      name: 'Browse the toy shop',
-      description: 'Together, online or in person. Nothing has to come home.',
-      where: 'OUT',
-      duration: '1h',
-      category: 'AFTER_DARK',
-      tier: 'SPICY',
-      source: 'SEED',
-    },
-    {
-      id: 'S13',
-      emoji: '🃏',
-      name: 'Adults-only game night',
-      description: 'A couples card game, a bottle, a rule that you finish the deck.',
-      where: 'HOME',
-      duration: '2h',
-      category: 'AFTER_DARK',
-      tier: 'SPICY',
-      source: 'SEED',
-    },
-    {
-      id: 'S14',
-      emoji: '🕯️',
-      name: 'Bath for two',
-      description: 'Candles, a glass each, a hard stop on talking about work.',
-      where: 'HOME',
-      duration: '1h',
-      category: 'AFTER_DARK',
-      tier: 'SPICY',
-      source: 'SEED',
-    },
-    {
-      id: 'S15',
-      emoji: '🥂',
-      name: 'Dress code: robe',
-      description: 'Dinner in, ordered or cooked, robes only.',
-      where: 'HOME',
-      duration: 'evening',
-      category: 'AFTER_DARK',
-      tier: 'SPICY',
-      source: 'SEED',
-    },
-    {
-      id: 'S16',
-      emoji: '🥞',
-      name: 'Morning after breakfast',
-      description: 'Order in, stay in bed until it arrives, and after.',
-      where: 'HOME',
-      duration: '2h',
-      category: 'AFTER_DARK',
-      tier: 'SPICY',
-      source: 'SEED',
-    },
-    {
-      id: 'S17',
-      emoji: '💭',
-      name: 'One fantasy each',
-      description: 'Share one, listen to one. No commentary until both are out.',
-      where: 'HOME',
-      duration: '45m',
-      category: 'AFTER_DARK',
-      tier: 'SPICY',
-      source: 'SEED',
-    },
-    {
-      id: 'S18',
-      emoji: '📸',
-      name: 'Photo booth for two',
-      description: 'Your phones, your rules. Stays on your devices.',
-      where: 'HOME',
-      duration: '30m',
-      category: 'AFTER_DARK',
-      tier: 'SPICY',
-      source: 'SEED',
-    },
-    {
-      id: 'S19',
-      emoji: '🌜',
-      name: 'Midnight snack in bed',
-      description: 'Something you can eat with your fingers. Crumbs are fine.',
-      where: 'HOME',
-      duration: '30m',
-      category: 'AFTER_DARK',
-      tier: 'SPICY',
-      source: 'SEED',
-    },
-    {
-      id: 'S20',
-      emoji: '👃',
-      name: 'Five-senses night',
-      description: 'One thing to taste, touch, smell, hear and see. Take turns leading.',
-      where: 'HOME',
-      duration: '2h',
-      category: 'AFTER_DARK',
-      tier: 'SPICY',
-      source: 'SEED',
-    },
-  ],
-};
+// Romantic activities (20 items)
+const ROMANTIC_ITEMS = [
+  {
+    title: 'Cook-off challenge',
+    description: 'Cook your favorite meal together and judge each other',
+    icon: '👨‍🍳',
+  },
+  {
+    title: 'Couples massage',
+    description: 'Give each other a relaxing massage at home',
+    icon: '💆',
+  },
+  {
+    title: 'Moonlit walk',
+    description: 'Take a romantic walk under the stars',
+    icon: '🌙',
+  },
+  {
+    title: 'Paint night',
+    description: 'Create art together, no experience needed',
+    icon: '🎨',
+  },
+  {
+    title: 'Recreate first date',
+    description: 'Relive the magic of your first date',
+    icon: '💕',
+  },
+  {
+    title: 'Couples yoga',
+    description: 'Practice yoga together for wellness and bonding',
+    icon: '🧘',
+  },
+  {
+    title: 'Spa day',
+    description: 'Pamper yourselves with facials, soaks, or scrubs',
+    icon: '🛁',
+  },
+  {
+    title: 'Wine tasting',
+    description: 'Sample wines and learn about different varieties',
+    icon: '🍷',
+  },
+  {
+    title: 'Breakfast in bed',
+    description: 'Make each other a special breakfast feast',
+    icon: '🥐',
+  },
+  {
+    title: 'Sunset picnic',
+    description: 'Pack a picnic and watch the sunset together',
+    icon: '🧺',
+  },
+  {
+    title: 'Slow dancing',
+    description: 'Dance together to your favorite slow songs',
+    icon: '💃',
+  },
+  {
+    title: 'Movie marathon',
+    description: 'Watch your favorite movies back-to-back',
+    icon: '🎬',
+  },
+  {
+    title: 'Book club for two',
+    description: 'Read the same book and discuss it',
+    icon: '📚',
+  },
+  {
+    title: 'Couples photoshoot',
+    description: 'Get professional couple photos taken',
+    icon: '📷',
+  },
+  {
+    title: 'Cooking class',
+    description: 'Take a couples cooking class together',
+    icon: '👩‍🍳',
+  },
+  {
+    title: 'Hot tub night',
+    description: 'Relax in a hot tub with candles and music',
+    icon: '🛁',
+  },
+  {
+    title: 'Couples getaway',
+    description: 'Plan and take a weekend trip together',
+    icon: '🏖️',
+  },
+  {
+    title: 'Love letters',
+    description: 'Write heartfelt letters to each other',
+    icon: '💌',
+  },
+  {
+    title: 'Couples playlist',
+    description: 'Create a playlist of songs that represent your love',
+    icon: '🎵',
+  },
+  {
+    title: 'Adventure bucket list',
+    description: 'Create and plan adventures together',
+    icon: '✨',
+  },
+];
 
-/**
- * Seed After Dark items into database
- * Should be called once during migrations/initialization
- */
-export async function seedAfterDarkCatalog(
-  insertFn: (items: AfterDarkItem[]) => Promise<void>
-): Promise<void> {
-  const items: AfterDarkItem[] = [
-    ...AFTER_DARK_SEED_DATA.romantic,
-    ...AFTER_DARK_SEED_DATA.spicy,
-  ] as AfterDarkItem[];
+// Spicy activities (20 items)
+const SPICY_ITEMS = [
+  {
+    title: 'Yes/No/Maybe list',
+    description: 'Explore desires and boundaries together',
+    icon: '🎯',
+  },
+  {
+    title: 'Outfit surprise',
+    description: 'Surprise each other with a special outfit',
+    icon: '👗',
+  },
+  {
+    title: 'Dare jar',
+    description: 'Create a jar of dares for each other',
+    icon: '🎲',
+  },
+  {
+    title: 'Love note hunt',
+    description: 'Hide love notes around the house for discovery',
+    icon: '📝',
+  },
+  {
+    title: 'Share fantasies',
+    description: 'Have an open conversation about desires',
+    icon: '💭',
+  },
+  {
+    title: 'Blindfolded experience',
+    description: 'Explore sensations with limited sight',
+    icon: '🕶️',
+  },
+  {
+    title: 'Massage oil play',
+    description: 'Use scented oils for a sensual massage',
+    icon: '🧴',
+  },
+  {
+    title: 'Couples scavenger hunt',
+    description: 'Hide items and clues for playful discovery',
+    icon: '🔍',
+  },
+  {
+    title: 'Board game night',
+    description: 'Play naughty board games designed for couples',
+    icon: '🎮',
+  },
+  {
+    title: 'Intimate playlist',
+    description: 'Create a sensual playlist for the mood',
+    icon: '🎶',
+  },
+  {
+    title: 'Costume night',
+    description: 'Dress up in fun or sexy costumes',
+    icon: '🎭',
+  },
+  {
+    title: 'Shower time',
+    description: 'Make shower time intimate and playful',
+    icon: '🚿',
+  },
+  {
+    title: 'Pillow talk',
+    description: 'Have deep, intimate conversations in bed',
+    icon: '🛏️',
+  },
+  {
+    title: 'Workout together',
+    description: 'Work up a sweat with partner exercises',
+    icon: '💪',
+  },
+  {
+    title: 'Intimacy calendar',
+    description: 'Plan intimate moments throughout the month',
+    icon: '📆',
+  },
+  {
+    title: 'Sensual photoshoot',
+    description: 'Take intimate photos of each other',
+    icon: '📸',
+  },
+  {
+    title: 'Romantic dinner prep',
+    description: 'Cook together then enjoy the meal sensually',
+    icon: '🍽️',
+  },
+  {
+    title: 'Oil selection date',
+    description: 'Pick massage oils together and explore scents',
+    icon: '🧴',
+  },
+  {
+    title: 'Couples workout video',
+    description: 'Exercise together as a duo',
+    icon: '📺',
+  },
+  {
+    title: 'Retreat planning',
+    description: 'Plan a romantic couples retreat',
+    icon: '🏨',
+  },
+];
 
-  console.log(`🌙 Seeding After Dark catalog (${items.length} items)...`);
-  await insertFn(items);
-  console.log('✅ After Dark catalog seeded');
+export async function seedAfterDarkCatalog(): Promise<void> {
+  try {
+    // Check if already seeded
+    const count = await db.afterDarkItem.count({
+      where: { createdBy: null } // Seed items have no creator
+    });
+
+    if (count >= 40) {
+      logger.info('After Dark catalog already seeded, skipping...');
+      return;
+    }
+
+    logger.info('Seeding After Dark catalog...');
+
+    // Seed romantic items
+    for (const item of ROMANTIC_ITEMS) {
+      await db.afterDarkItem.create({
+        data: {
+          title: item.title,
+          description: item.description,
+          tier: 'ROMANTIC',
+          icon: item.icon,
+          color: '#B2485E', // Wine accent
+          createdBy: null, // Seed items have no creator
+          groupId: null, // Public to all groups
+        }
+      });
+    }
+
+    // Seed spicy items
+    for (const item of SPICY_ITEMS) {
+      await db.afterDarkItem.create({
+        data: {
+          title: item.title,
+          description: item.description,
+          tier: 'SPICY',
+          icon: item.icon,
+          color: '#8E3448', // Deep wine
+          createdBy: null,
+          groupId: null,
+        }
+      });
+    }
+
+    logger.info('After Dark catalog seeded successfully (40 items)', {
+      romantic: ROMANTIC_ITEMS.length,
+      spicy: SPICY_ITEMS.length
+    });
+  } catch (error) {
+    logger.error('Failed to seed After Dark catalog', {
+      context: 'seedAfterDarkCatalog',
+      error: error instanceof Error ? error.message : String(error)
+    });
+    // Don't throw - allow app to continue if seeding fails
+  }
 }
-
-export default AFTER_DARK_SEED_DATA;

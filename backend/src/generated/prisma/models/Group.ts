@@ -193,6 +193,7 @@ export type GroupWhereInput = {
   members?: Prisma.GroupMemberListRelationFilter
   invitations?: Prisma.InvitationListRelationFilter
   proposals?: Prisma.ProposalListRelationFilter
+  afterDarkItems?: Prisma.AfterDarkItemListRelationFilter
 }
 
 export type GroupOrderByWithRelationInput = {
@@ -205,6 +206,7 @@ export type GroupOrderByWithRelationInput = {
   members?: Prisma.GroupMemberOrderByRelationAggregateInput
   invitations?: Prisma.InvitationOrderByRelationAggregateInput
   proposals?: Prisma.ProposalOrderByRelationAggregateInput
+  afterDarkItems?: Prisma.AfterDarkItemOrderByRelationAggregateInput
 }
 
 export type GroupWhereUniqueInput = Prisma.AtLeast<{
@@ -220,6 +222,7 @@ export type GroupWhereUniqueInput = Prisma.AtLeast<{
   members?: Prisma.GroupMemberListRelationFilter
   invitations?: Prisma.InvitationListRelationFilter
   proposals?: Prisma.ProposalListRelationFilter
+  afterDarkItems?: Prisma.AfterDarkItemListRelationFilter
 }, "id">
 
 export type GroupOrderByWithAggregationInput = {
@@ -256,6 +259,7 @@ export type GroupCreateInput = {
   members?: Prisma.GroupMemberCreateNestedManyWithoutGroupInput
   invitations?: Prisma.InvitationCreateNestedManyWithoutGroupInput
   proposals?: Prisma.ProposalCreateNestedManyWithoutGroupInput
+  afterDarkItems?: Prisma.AfterDarkItemCreateNestedManyWithoutGroupInput
 }
 
 export type GroupUncheckedCreateInput = {
@@ -268,6 +272,7 @@ export type GroupUncheckedCreateInput = {
   members?: Prisma.GroupMemberUncheckedCreateNestedManyWithoutGroupInput
   invitations?: Prisma.InvitationUncheckedCreateNestedManyWithoutGroupInput
   proposals?: Prisma.ProposalUncheckedCreateNestedManyWithoutGroupInput
+  afterDarkItems?: Prisma.AfterDarkItemUncheckedCreateNestedManyWithoutGroupInput
 }
 
 export type GroupUpdateInput = {
@@ -280,6 +285,7 @@ export type GroupUpdateInput = {
   members?: Prisma.GroupMemberUpdateManyWithoutGroupNestedInput
   invitations?: Prisma.InvitationUpdateManyWithoutGroupNestedInput
   proposals?: Prisma.ProposalUpdateManyWithoutGroupNestedInput
+  afterDarkItems?: Prisma.AfterDarkItemUpdateManyWithoutGroupNestedInput
 }
 
 export type GroupUncheckedUpdateInput = {
@@ -292,6 +298,7 @@ export type GroupUncheckedUpdateInput = {
   members?: Prisma.GroupMemberUncheckedUpdateManyWithoutGroupNestedInput
   invitations?: Prisma.InvitationUncheckedUpdateManyWithoutGroupNestedInput
   proposals?: Prisma.ProposalUncheckedUpdateManyWithoutGroupNestedInput
+  afterDarkItems?: Prisma.AfterDarkItemUncheckedUpdateManyWithoutGroupNestedInput
 }
 
 export type GroupCreateManyInput = {
@@ -353,6 +360,11 @@ export type GroupScalarRelationFilter = {
   isNot?: Prisma.GroupWhereInput
 }
 
+export type GroupNullableScalarRelationFilter = {
+  is?: Prisma.GroupWhereInput | null
+  isNot?: Prisma.GroupWhereInput | null
+}
+
 export type GroupCreateNestedOneWithoutMembersInput = {
   create?: Prisma.XOR<Prisma.GroupCreateWithoutMembersInput, Prisma.GroupUncheckedCreateWithoutMembersInput>
   connectOrCreate?: Prisma.GroupCreateOrConnectWithoutMembersInput
@@ -395,6 +407,22 @@ export type GroupUpdateOneRequiredWithoutProposalsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.GroupUpdateToOneWithWhereWithoutProposalsInput, Prisma.GroupUpdateWithoutProposalsInput>, Prisma.GroupUncheckedUpdateWithoutProposalsInput>
 }
 
+export type GroupCreateNestedOneWithoutAfterDarkItemsInput = {
+  create?: Prisma.XOR<Prisma.GroupCreateWithoutAfterDarkItemsInput, Prisma.GroupUncheckedCreateWithoutAfterDarkItemsInput>
+  connectOrCreate?: Prisma.GroupCreateOrConnectWithoutAfterDarkItemsInput
+  connect?: Prisma.GroupWhereUniqueInput
+}
+
+export type GroupUpdateOneWithoutAfterDarkItemsNestedInput = {
+  create?: Prisma.XOR<Prisma.GroupCreateWithoutAfterDarkItemsInput, Prisma.GroupUncheckedCreateWithoutAfterDarkItemsInput>
+  connectOrCreate?: Prisma.GroupCreateOrConnectWithoutAfterDarkItemsInput
+  upsert?: Prisma.GroupUpsertWithoutAfterDarkItemsInput
+  disconnect?: Prisma.GroupWhereInput | boolean
+  delete?: Prisma.GroupWhereInput | boolean
+  connect?: Prisma.GroupWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.GroupUpdateToOneWithWhereWithoutAfterDarkItemsInput, Prisma.GroupUpdateWithoutAfterDarkItemsInput>, Prisma.GroupUncheckedUpdateWithoutAfterDarkItemsInput>
+}
+
 export type GroupCreateWithoutMembersInput = {
   id?: string
   name: string
@@ -404,6 +432,7 @@ export type GroupCreateWithoutMembersInput = {
   updatedAt?: Date | string
   invitations?: Prisma.InvitationCreateNestedManyWithoutGroupInput
   proposals?: Prisma.ProposalCreateNestedManyWithoutGroupInput
+  afterDarkItems?: Prisma.AfterDarkItemCreateNestedManyWithoutGroupInput
 }
 
 export type GroupUncheckedCreateWithoutMembersInput = {
@@ -415,6 +444,7 @@ export type GroupUncheckedCreateWithoutMembersInput = {
   updatedAt?: Date | string
   invitations?: Prisma.InvitationUncheckedCreateNestedManyWithoutGroupInput
   proposals?: Prisma.ProposalUncheckedCreateNestedManyWithoutGroupInput
+  afterDarkItems?: Prisma.AfterDarkItemUncheckedCreateNestedManyWithoutGroupInput
 }
 
 export type GroupCreateOrConnectWithoutMembersInput = {
@@ -442,6 +472,7 @@ export type GroupUpdateWithoutMembersInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   invitations?: Prisma.InvitationUpdateManyWithoutGroupNestedInput
   proposals?: Prisma.ProposalUpdateManyWithoutGroupNestedInput
+  afterDarkItems?: Prisma.AfterDarkItemUpdateManyWithoutGroupNestedInput
 }
 
 export type GroupUncheckedUpdateWithoutMembersInput = {
@@ -453,6 +484,7 @@ export type GroupUncheckedUpdateWithoutMembersInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   invitations?: Prisma.InvitationUncheckedUpdateManyWithoutGroupNestedInput
   proposals?: Prisma.ProposalUncheckedUpdateManyWithoutGroupNestedInput
+  afterDarkItems?: Prisma.AfterDarkItemUncheckedUpdateManyWithoutGroupNestedInput
 }
 
 export type GroupCreateWithoutInvitationsInput = {
@@ -464,6 +496,7 @@ export type GroupCreateWithoutInvitationsInput = {
   updatedAt?: Date | string
   members?: Prisma.GroupMemberCreateNestedManyWithoutGroupInput
   proposals?: Prisma.ProposalCreateNestedManyWithoutGroupInput
+  afterDarkItems?: Prisma.AfterDarkItemCreateNestedManyWithoutGroupInput
 }
 
 export type GroupUncheckedCreateWithoutInvitationsInput = {
@@ -475,6 +508,7 @@ export type GroupUncheckedCreateWithoutInvitationsInput = {
   updatedAt?: Date | string
   members?: Prisma.GroupMemberUncheckedCreateNestedManyWithoutGroupInput
   proposals?: Prisma.ProposalUncheckedCreateNestedManyWithoutGroupInput
+  afterDarkItems?: Prisma.AfterDarkItemUncheckedCreateNestedManyWithoutGroupInput
 }
 
 export type GroupCreateOrConnectWithoutInvitationsInput = {
@@ -502,6 +536,7 @@ export type GroupUpdateWithoutInvitationsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.GroupMemberUpdateManyWithoutGroupNestedInput
   proposals?: Prisma.ProposalUpdateManyWithoutGroupNestedInput
+  afterDarkItems?: Prisma.AfterDarkItemUpdateManyWithoutGroupNestedInput
 }
 
 export type GroupUncheckedUpdateWithoutInvitationsInput = {
@@ -513,6 +548,7 @@ export type GroupUncheckedUpdateWithoutInvitationsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.GroupMemberUncheckedUpdateManyWithoutGroupNestedInput
   proposals?: Prisma.ProposalUncheckedUpdateManyWithoutGroupNestedInput
+  afterDarkItems?: Prisma.AfterDarkItemUncheckedUpdateManyWithoutGroupNestedInput
 }
 
 export type GroupCreateWithoutProposalsInput = {
@@ -524,6 +560,7 @@ export type GroupCreateWithoutProposalsInput = {
   updatedAt?: Date | string
   members?: Prisma.GroupMemberCreateNestedManyWithoutGroupInput
   invitations?: Prisma.InvitationCreateNestedManyWithoutGroupInput
+  afterDarkItems?: Prisma.AfterDarkItemCreateNestedManyWithoutGroupInput
 }
 
 export type GroupUncheckedCreateWithoutProposalsInput = {
@@ -535,6 +572,7 @@ export type GroupUncheckedCreateWithoutProposalsInput = {
   updatedAt?: Date | string
   members?: Prisma.GroupMemberUncheckedCreateNestedManyWithoutGroupInput
   invitations?: Prisma.InvitationUncheckedCreateNestedManyWithoutGroupInput
+  afterDarkItems?: Prisma.AfterDarkItemUncheckedCreateNestedManyWithoutGroupInput
 }
 
 export type GroupCreateOrConnectWithoutProposalsInput = {
@@ -562,6 +600,7 @@ export type GroupUpdateWithoutProposalsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.GroupMemberUpdateManyWithoutGroupNestedInput
   invitations?: Prisma.InvitationUpdateManyWithoutGroupNestedInput
+  afterDarkItems?: Prisma.AfterDarkItemUpdateManyWithoutGroupNestedInput
 }
 
 export type GroupUncheckedUpdateWithoutProposalsInput = {
@@ -573,6 +612,71 @@ export type GroupUncheckedUpdateWithoutProposalsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.GroupMemberUncheckedUpdateManyWithoutGroupNestedInput
   invitations?: Prisma.InvitationUncheckedUpdateManyWithoutGroupNestedInput
+  afterDarkItems?: Prisma.AfterDarkItemUncheckedUpdateManyWithoutGroupNestedInput
+}
+
+export type GroupCreateWithoutAfterDarkItemsInput = {
+  id?: string
+  name: string
+  description?: string | null
+  groupType?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  members?: Prisma.GroupMemberCreateNestedManyWithoutGroupInput
+  invitations?: Prisma.InvitationCreateNestedManyWithoutGroupInput
+  proposals?: Prisma.ProposalCreateNestedManyWithoutGroupInput
+}
+
+export type GroupUncheckedCreateWithoutAfterDarkItemsInput = {
+  id?: string
+  name: string
+  description?: string | null
+  groupType?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  members?: Prisma.GroupMemberUncheckedCreateNestedManyWithoutGroupInput
+  invitations?: Prisma.InvitationUncheckedCreateNestedManyWithoutGroupInput
+  proposals?: Prisma.ProposalUncheckedCreateNestedManyWithoutGroupInput
+}
+
+export type GroupCreateOrConnectWithoutAfterDarkItemsInput = {
+  where: Prisma.GroupWhereUniqueInput
+  create: Prisma.XOR<Prisma.GroupCreateWithoutAfterDarkItemsInput, Prisma.GroupUncheckedCreateWithoutAfterDarkItemsInput>
+}
+
+export type GroupUpsertWithoutAfterDarkItemsInput = {
+  update: Prisma.XOR<Prisma.GroupUpdateWithoutAfterDarkItemsInput, Prisma.GroupUncheckedUpdateWithoutAfterDarkItemsInput>
+  create: Prisma.XOR<Prisma.GroupCreateWithoutAfterDarkItemsInput, Prisma.GroupUncheckedCreateWithoutAfterDarkItemsInput>
+  where?: Prisma.GroupWhereInput
+}
+
+export type GroupUpdateToOneWithWhereWithoutAfterDarkItemsInput = {
+  where?: Prisma.GroupWhereInput
+  data: Prisma.XOR<Prisma.GroupUpdateWithoutAfterDarkItemsInput, Prisma.GroupUncheckedUpdateWithoutAfterDarkItemsInput>
+}
+
+export type GroupUpdateWithoutAfterDarkItemsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  members?: Prisma.GroupMemberUpdateManyWithoutGroupNestedInput
+  invitations?: Prisma.InvitationUpdateManyWithoutGroupNestedInput
+  proposals?: Prisma.ProposalUpdateManyWithoutGroupNestedInput
+}
+
+export type GroupUncheckedUpdateWithoutAfterDarkItemsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  members?: Prisma.GroupMemberUncheckedUpdateManyWithoutGroupNestedInput
+  invitations?: Prisma.InvitationUncheckedUpdateManyWithoutGroupNestedInput
+  proposals?: Prisma.ProposalUncheckedUpdateManyWithoutGroupNestedInput
 }
 
 
@@ -584,12 +688,14 @@ export type GroupCountOutputType = {
   members: number
   invitations: number
   proposals: number
+  afterDarkItems: number
 }
 
 export type GroupCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   members?: boolean | GroupCountOutputTypeCountMembersArgs
   invitations?: boolean | GroupCountOutputTypeCountInvitationsArgs
   proposals?: boolean | GroupCountOutputTypeCountProposalsArgs
+  afterDarkItems?: boolean | GroupCountOutputTypeCountAfterDarkItemsArgs
 }
 
 /**
@@ -623,6 +729,13 @@ export type GroupCountOutputTypeCountProposalsArgs<ExtArgs extends runtime.Types
   where?: Prisma.ProposalWhereInput
 }
 
+/**
+ * GroupCountOutputType without action
+ */
+export type GroupCountOutputTypeCountAfterDarkItemsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AfterDarkItemWhereInput
+}
+
 
 export type GroupSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -634,6 +747,7 @@ export type GroupSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   members?: boolean | Prisma.Group$membersArgs<ExtArgs>
   invitations?: boolean | Prisma.Group$invitationsArgs<ExtArgs>
   proposals?: boolean | Prisma.Group$proposalsArgs<ExtArgs>
+  afterDarkItems?: boolean | Prisma.Group$afterDarkItemsArgs<ExtArgs>
   _count?: boolean | Prisma.GroupCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["group"]>
 
@@ -669,6 +783,7 @@ export type GroupInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   members?: boolean | Prisma.Group$membersArgs<ExtArgs>
   invitations?: boolean | Prisma.Group$invitationsArgs<ExtArgs>
   proposals?: boolean | Prisma.Group$proposalsArgs<ExtArgs>
+  afterDarkItems?: boolean | Prisma.Group$afterDarkItemsArgs<ExtArgs>
   _count?: boolean | Prisma.GroupCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type GroupIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -680,6 +795,7 @@ export type $GroupPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     members: Prisma.$GroupMemberPayload<ExtArgs>[]
     invitations: Prisma.$InvitationPayload<ExtArgs>[]
     proposals: Prisma.$ProposalPayload<ExtArgs>[]
+    afterDarkItems: Prisma.$AfterDarkItemPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1085,6 +1201,7 @@ export interface Prisma__GroupClient<T, Null = never, ExtArgs extends runtime.Ty
   members<T extends Prisma.Group$membersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Group$membersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$GroupMemberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   invitations<T extends Prisma.Group$invitationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Group$invitationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InvitationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   proposals<T extends Prisma.Group$proposalsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Group$proposalsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProposalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  afterDarkItems<T extends Prisma.Group$afterDarkItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Group$afterDarkItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AfterDarkItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1582,6 +1699,30 @@ export type Group$proposalsArgs<ExtArgs extends runtime.Types.Extensions.Interna
   take?: number
   skip?: number
   distinct?: Prisma.ProposalScalarFieldEnum | Prisma.ProposalScalarFieldEnum[]
+}
+
+/**
+ * Group.afterDarkItems
+ */
+export type Group$afterDarkItemsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AfterDarkItem
+   */
+  select?: Prisma.AfterDarkItemSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AfterDarkItem
+   */
+  omit?: Prisma.AfterDarkItemOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AfterDarkItemInclude<ExtArgs> | null
+  where?: Prisma.AfterDarkItemWhereInput
+  orderBy?: Prisma.AfterDarkItemOrderByWithRelationInput | Prisma.AfterDarkItemOrderByWithRelationInput[]
+  cursor?: Prisma.AfterDarkItemWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AfterDarkItemScalarFieldEnum | Prisma.AfterDarkItemScalarFieldEnum[]
 }
 
 /**

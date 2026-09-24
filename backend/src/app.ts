@@ -19,6 +19,7 @@ import { shareCardsRouter } from '@/routes/share-cards';
 import { shareRouter } from '@/routes/share';
 import { safetyRouter } from '@/routes/safety';
 import { businessRouter } from '@/routes/business';
+import { seedAfterDarkCatalog } from '@/seeds/after-dark-catalog';
 
 export function createApp(): express.Express {
   const app = express();
@@ -62,6 +63,11 @@ export function createApp(): express.Express {
   app.use('/api/safety', safetyRouter);
   app.use('/api/business', businessRouter);
   app.use('/', legalRouter);
+
+  // Seed After Dark catalog on startup
+  seedAfterDarkCatalog().catch(err => {
+    logger.error('Failed to seed After Dark catalog', { error: err });
+  });
 
   app.use((_req: Request, res: Response) => {
     res.status(404).json({ error: 'Not Found' });

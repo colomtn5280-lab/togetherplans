@@ -109,3 +109,8 @@ export type FeaturedListing = Prisma.FeaturedListingModel
  * 
  */
 export type BusinessImpression = Prisma.BusinessImpressionModel
+/**
+ * Model AfterDarkItem
+ * 
+ */
+export type AfterDarkItem = Prisma.AfterDarkItemModel

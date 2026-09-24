@@ -64,7 +64,8 @@ export const ModelName = {
   RefreshToken: 'RefreshToken',
   Business: 'Business',
   FeaturedListing: 'FeaturedListing',
-  BusinessImpression: 'BusinessImpression'
+  BusinessImpression: 'BusinessImpression',
+  AfterDarkItem: 'AfterDarkItem'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -297,6 +298,23 @@ export const BusinessImpressionScalarFieldEnum = {
 } as const
 
 export type BusinessImpressionScalarFieldEnum = (typeof BusinessImpressionScalarFieldEnum)[keyof typeof BusinessImpressionScalarFieldEnum]
+
+
+export const AfterDarkItemScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  description: 'description',
+  tier: 'tier',
+  icon: 'icon',
+  color: 'color',
+  createdBy: 'createdBy',
+  groupId: 'groupId',
+  reportedCount: 'reportedCount',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AfterDarkItemScalarFieldEnum = (typeof AfterDarkItemScalarFieldEnum)[keyof typeof AfterDarkItemScalarFieldEnum]
 
 
 export const SortOrder = {

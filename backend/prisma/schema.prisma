@@ -36,6 +36,7 @@ model User {
   blocking        BlockedUser[] @relation("BlockerRelation")
   blockedBy       BlockedUser[] @relation("BlockedRelation")
   reports         Report[]      @relation("ReporterRelation")
+  afterDarkIdeas  AfterDarkItem[]
 
   @@unique([provider, providerId])
 }
@@ -74,6 +75,7 @@ model Group {
   members     GroupMember[]
   invitations Invitation[]
   proposals   Proposal[]
+  afterDarkItems AfterDarkItem[]
 }
 
 model GroupMember {
@@ -286,4 +288,29 @@ model BusinessImpression {
   metadata     Json?
   createdAt    DateTime @default(now())
   business     Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+}
+
+// ── After Dark: Intimate/Playful Activities for Couples ──────────────────────
+
+model AfterDarkItem {
+  id            String   @id @default(uuid())
+  title         String   @db.VarChar(140)
+  description   String   @db.Text
+  tier          String   // ROMANTIC | SPICY
+  icon          String?  // Emoji or icon name
+  color         String   // Hex color (#B2485E, #8E3448, etc.)
+  createdBy     String?  // null for seed items, userId for couple-created ideas
+  groupId       String?  // null for public seed catalog, groupId for couple ideas
+  reportedCount Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  group         Group?   @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  creator       User?    @relation(fields: [createdBy], references: [id], onDelete: SetNull)
+
+  @@index([groupId])
+  @@index([createdBy])
+  @@index([tier])
+  @@index([createdAt])
 }

@@ -410,7 +410,8 @@ export const ModelName = {
   RefreshToken: 'RefreshToken',
   Business: 'Business',
   FeaturedListing: 'FeaturedListing',
-  BusinessImpression: 'BusinessImpression'
+  BusinessImpression: 'BusinessImpression',
+  AfterDarkItem: 'AfterDarkItem'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -426,7 +427,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "blockedUser" | "report" | "group" | "groupMember" | "invitation" | "proposal" | "option" | "guestVote" | "vote" | "refreshToken" | "business" | "featuredListing" | "businessImpression"
+    modelProps: "user" | "blockedUser" | "report" | "group" | "groupMember" | "invitation" | "proposal" | "option" | "guestVote" | "vote" | "refreshToken" | "business" | "featuredListing" | "businessImpression" | "afterDarkItem"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1466,6 +1467,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    AfterDarkItem: {
+      payload: Prisma.$AfterDarkItemPayload<ExtArgs>
+      fields: Prisma.AfterDarkItemFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AfterDarkItemFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AfterDarkItemPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AfterDarkItemFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AfterDarkItemPayload>
+        }
+        findFirst: {
+          args: Prisma.AfterDarkItemFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AfterDarkItemPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AfterDarkItemFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AfterDarkItemPayload>
+        }
+        findMany: {
+          args: Prisma.AfterDarkItemFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AfterDarkItemPayload>[]
+        }
+        create: {
+          args: Prisma.AfterDarkItemCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AfterDarkItemPayload>
+        }
+        createMany: {
+          args: Prisma.AfterDarkItemCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.AfterDarkItemCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AfterDarkItemPayload>[]
+        }
+        delete: {
+          args: Prisma.AfterDarkItemDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AfterDarkItemPayload>
+        }
+        update: {
+          args: Prisma.AfterDarkItemUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AfterDarkItemPayload>
+        }
+        deleteMany: {
+          args: Prisma.AfterDarkItemDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AfterDarkItemUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.AfterDarkItemUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AfterDarkItemPayload>[]
+        }
+        upsert: {
+          args: Prisma.AfterDarkItemUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AfterDarkItemPayload>
+        }
+        aggregate: {
+          args: Prisma.AfterDarkItemAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAfterDarkItem>
+        }
+        groupBy: {
+          args: Prisma.AfterDarkItemGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AfterDarkItemGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AfterDarkItemCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AfterDarkItemCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1719,6 +1794,23 @@ export const BusinessImpressionScalarFieldEnum = {
 } as const
 
 export type BusinessImpressionScalarFieldEnum = (typeof BusinessImpressionScalarFieldEnum)[keyof typeof BusinessImpressionScalarFieldEnum]
+
+
+export const AfterDarkItemScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  description: 'description',
+  tier: 'tier',
+  icon: 'icon',
+  color: 'color',
+  createdBy: 'createdBy',
+  groupId: 'groupId',
+  reportedCount: 'reportedCount',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AfterDarkItemScalarFieldEnum = (typeof AfterDarkItemScalarFieldEnum)[keyof typeof AfterDarkItemScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -2065,6 +2157,7 @@ export type GlobalOmitConfig = {
   business?: Prisma.BusinessOmit
   featuredListing?: Prisma.FeaturedListingOmit
   businessImpression?: Prisma.BusinessImpressionOmit
+  afterDarkItem?: Prisma.AfterDarkItemOmit
 }
 
 /* Types for Logging */

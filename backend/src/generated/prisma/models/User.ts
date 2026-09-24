@@ -292,6 +292,7 @@ export type UserWhereInput = {
   blocking?: Prisma.BlockedUserListRelationFilter
   blockedBy?: Prisma.BlockedUserListRelationFilter
   reports?: Prisma.ReportListRelationFilter
+  afterDarkIdeas?: Prisma.AfterDarkItemListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -316,6 +317,7 @@ export type UserOrderByWithRelationInput = {
   blocking?: Prisma.BlockedUserOrderByRelationAggregateInput
   blockedBy?: Prisma.BlockedUserOrderByRelationAggregateInput
   reports?: Prisma.ReportOrderByRelationAggregateInput
+  afterDarkIdeas?: Prisma.AfterDarkItemOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -344,6 +346,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   blocking?: Prisma.BlockedUserListRelationFilter
   blockedBy?: Prisma.BlockedUserListRelationFilter
   reports?: Prisma.ReportListRelationFilter
+  afterDarkIdeas?: Prisma.AfterDarkItemListRelationFilter
 }, "id" | "email" | "provider_providerId">
 
 export type UserOrderByWithAggregationInput = {
@@ -408,6 +411,7 @@ export type UserCreateInput = {
   blocking?: Prisma.BlockedUserCreateNestedManyWithoutBlockerInput
   blockedBy?: Prisma.BlockedUserCreateNestedManyWithoutBlockedInput
   reports?: Prisma.ReportCreateNestedManyWithoutReporterInput
+  afterDarkIdeas?: Prisma.AfterDarkItemCreateNestedManyWithoutCreatorInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -432,6 +436,7 @@ export type UserUncheckedCreateInput = {
   blocking?: Prisma.BlockedUserUncheckedCreateNestedManyWithoutBlockerInput
   blockedBy?: Prisma.BlockedUserUncheckedCreateNestedManyWithoutBlockedInput
   reports?: Prisma.ReportUncheckedCreateNestedManyWithoutReporterInput
+  afterDarkIdeas?: Prisma.AfterDarkItemUncheckedCreateNestedManyWithoutCreatorInput
 }
 
 export type UserUpdateInput = {
@@ -456,6 +461,7 @@ export type UserUpdateInput = {
   blocking?: Prisma.BlockedUserUpdateManyWithoutBlockerNestedInput
   blockedBy?: Prisma.BlockedUserUpdateManyWithoutBlockedNestedInput
   reports?: Prisma.ReportUpdateManyWithoutReporterNestedInput
+  afterDarkIdeas?: Prisma.AfterDarkItemUpdateManyWithoutCreatorNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -480,6 +486,7 @@ export type UserUncheckedUpdateInput = {
   blocking?: Prisma.BlockedUserUncheckedUpdateManyWithoutBlockerNestedInput
   blockedBy?: Prisma.BlockedUserUncheckedUpdateManyWithoutBlockedNestedInput
   reports?: Prisma.ReportUncheckedUpdateManyWithoutReporterNestedInput
+  afterDarkIdeas?: Prisma.AfterDarkItemUncheckedUpdateManyWithoutCreatorNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -596,6 +603,11 @@ export type UserSumOrderByAggregateInput = {
 export type UserScalarRelationFilter = {
   is?: Prisma.UserWhereInput
   isNot?: Prisma.UserWhereInput
+}
+
+export type UserNullableScalarRelationFilter = {
+  is?: Prisma.UserWhereInput | null
+  isNot?: Prisma.UserWhereInput | null
 }
 
 export type StringFieldUpdateOperationsInput = {
@@ -734,6 +746,22 @@ export type UserUpdateOneRequiredWithoutRefreshTokensNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutRefreshTokensInput, Prisma.UserUpdateWithoutRefreshTokensInput>, Prisma.UserUncheckedUpdateWithoutRefreshTokensInput>
 }
 
+export type UserCreateNestedOneWithoutAfterDarkIdeasInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAfterDarkIdeasInput, Prisma.UserUncheckedCreateWithoutAfterDarkIdeasInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAfterDarkIdeasInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutAfterDarkIdeasNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAfterDarkIdeasInput, Prisma.UserUncheckedCreateWithoutAfterDarkIdeasInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAfterDarkIdeasInput
+  upsert?: Prisma.UserUpsertWithoutAfterDarkIdeasInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAfterDarkIdeasInput, Prisma.UserUpdateWithoutAfterDarkIdeasInput>, Prisma.UserUncheckedUpdateWithoutAfterDarkIdeasInput>
+}
+
 export type UserCreateWithoutBlockingInput = {
   id?: string
   email: string
@@ -755,6 +783,7 @@ export type UserCreateWithoutBlockingInput = {
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockedUserCreateNestedManyWithoutBlockedInput
   reports?: Prisma.ReportCreateNestedManyWithoutReporterInput
+  afterDarkIdeas?: Prisma.AfterDarkItemCreateNestedManyWithoutCreatorInput
 }
 
 export type UserUncheckedCreateWithoutBlockingInput = {
@@ -778,6 +807,7 @@ export type UserUncheckedCreateWithoutBlockingInput = {
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockedUserUncheckedCreateNestedManyWithoutBlockedInput
   reports?: Prisma.ReportUncheckedCreateNestedManyWithoutReporterInput
+  afterDarkIdeas?: Prisma.AfterDarkItemUncheckedCreateNestedManyWithoutCreatorInput
 }
 
 export type UserCreateOrConnectWithoutBlockingInput = {
@@ -806,6 +836,7 @@ export type UserCreateWithoutBlockedByInput = {
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
   blocking?: Prisma.BlockedUserCreateNestedManyWithoutBlockerInput
   reports?: Prisma.ReportCreateNestedManyWithoutReporterInput
+  afterDarkIdeas?: Prisma.AfterDarkItemCreateNestedManyWithoutCreatorInput
 }
 
 export type UserUncheckedCreateWithoutBlockedByInput = {
@@ -829,6 +860,7 @@ export type UserUncheckedCreateWithoutBlockedByInput = {
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
   blocking?: Prisma.BlockedUserUncheckedCreateNestedManyWithoutBlockerInput
   reports?: Prisma.ReportUncheckedCreateNestedManyWithoutReporterInput
+  afterDarkIdeas?: Prisma.AfterDarkItemUncheckedCreateNestedManyWithoutCreatorInput
 }
 
 export type UserCreateOrConnectWithoutBlockedByInput = {
@@ -868,6 +900,7 @@ export type UserUpdateWithoutBlockingInput = {
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockedUserUpdateManyWithoutBlockedNestedInput
   reports?: Prisma.ReportUpdateManyWithoutReporterNestedInput
+  afterDarkIdeas?: Prisma.AfterDarkItemUpdateManyWithoutCreatorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutBlockingInput = {
@@ -891,6 +924,7 @@ export type UserUncheckedUpdateWithoutBlockingInput = {
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockedUserUncheckedUpdateManyWithoutBlockedNestedInput
   reports?: Prisma.ReportUncheckedUpdateManyWithoutReporterNestedInput
+  afterDarkIdeas?: Prisma.AfterDarkItemUncheckedUpdateManyWithoutCreatorNestedInput
 }
 
 export type UserUpsertWithoutBlockedByInput = {
@@ -925,6 +959,7 @@ export type UserUpdateWithoutBlockedByInput = {
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
   blocking?: Prisma.BlockedUserUpdateManyWithoutBlockerNestedInput
   reports?: Prisma.ReportUpdateManyWithoutReporterNestedInput
+  afterDarkIdeas?: Prisma.AfterDarkItemUpdateManyWithoutCreatorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutBlockedByInput = {
@@ -948,6 +983,7 @@ export type UserUncheckedUpdateWithoutBlockedByInput = {
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
   blocking?: Prisma.BlockedUserUncheckedUpdateManyWithoutBlockerNestedInput
   reports?: Prisma.ReportUncheckedUpdateManyWithoutReporterNestedInput
+  afterDarkIdeas?: Prisma.AfterDarkItemUncheckedUpdateManyWithoutCreatorNestedInput
 }
 
 export type UserCreateWithoutReportsInput = {
@@ -971,6 +1007,7 @@ export type UserCreateWithoutReportsInput = {
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
   blocking?: Prisma.BlockedUserCreateNestedManyWithoutBlockerInput
   blockedBy?: Prisma.BlockedUserCreateNestedManyWithoutBlockedInput
+  afterDarkIdeas?: Prisma.AfterDarkItemCreateNestedManyWithoutCreatorInput
 }
 
 export type UserUncheckedCreateWithoutReportsInput = {
@@ -994,6 +1031,7 @@ export type UserUncheckedCreateWithoutReportsInput = {
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
   blocking?: Prisma.BlockedUserUncheckedCreateNestedManyWithoutBlockerInput
   blockedBy?: Prisma.BlockedUserUncheckedCreateNestedManyWithoutBlockedInput
+  afterDarkIdeas?: Prisma.AfterDarkItemUncheckedCreateNestedManyWithoutCreatorInput
 }
 
 export type UserCreateOrConnectWithoutReportsInput = {
@@ -1033,6 +1071,7 @@ export type UserUpdateWithoutReportsInput = {
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
   blocking?: Prisma.BlockedUserUpdateManyWithoutBlockerNestedInput
   blockedBy?: Prisma.BlockedUserUpdateManyWithoutBlockedNestedInput
+  afterDarkIdeas?: Prisma.AfterDarkItemUpdateManyWithoutCreatorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReportsInput = {
@@ -1056,6 +1095,7 @@ export type UserUncheckedUpdateWithoutReportsInput = {
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
   blocking?: Prisma.BlockedUserUncheckedUpdateManyWithoutBlockerNestedInput
   blockedBy?: Prisma.BlockedUserUncheckedUpdateManyWithoutBlockedNestedInput
+  afterDarkIdeas?: Prisma.AfterDarkItemUncheckedUpdateManyWithoutCreatorNestedInput
 }
 
 export type UserCreateWithoutMembershipsInput = {
@@ -1079,6 +1119,7 @@ export type UserCreateWithoutMembershipsInput = {
   blocking?: Prisma.BlockedUserCreateNestedManyWithoutBlockerInput
   blockedBy?: Prisma.BlockedUserCreateNestedManyWithoutBlockedInput
   reports?: Prisma.ReportCreateNestedManyWithoutReporterInput
+  afterDarkIdeas?: Prisma.AfterDarkItemCreateNestedManyWithoutCreatorInput
 }
 
 export type UserUncheckedCreateWithoutMembershipsInput = {
@@ -1102,6 +1143,7 @@ export type UserUncheckedCreateWithoutMembershipsInput = {
   blocking?: Prisma.BlockedUserUncheckedCreateNestedManyWithoutBlockerInput
   blockedBy?: Prisma.BlockedUserUncheckedCreateNestedManyWithoutBlockedInput
   reports?: Prisma.ReportUncheckedCreateNestedManyWithoutReporterInput
+  afterDarkIdeas?: Prisma.AfterDarkItemUncheckedCreateNestedManyWithoutCreatorInput
 }
 
 export type UserCreateOrConnectWithoutMembershipsInput = {
@@ -1141,6 +1183,7 @@ export type UserUpdateWithoutMembershipsInput = {
   blocking?: Prisma.BlockedUserUpdateManyWithoutBlockerNestedInput
   blockedBy?: Prisma.BlockedUserUpdateManyWithoutBlockedNestedInput
   reports?: Prisma.ReportUpdateManyWithoutReporterNestedInput
+  afterDarkIdeas?: Prisma.AfterDarkItemUpdateManyWithoutCreatorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutMembershipsInput = {
@@ -1164,6 +1207,7 @@ export type UserUncheckedUpdateWithoutMembershipsInput = {
   blocking?: Prisma.BlockedUserUncheckedUpdateManyWithoutBlockerNestedInput
   blockedBy?: Prisma.BlockedUserUncheckedUpdateManyWithoutBlockedNestedInput
   reports?: Prisma.ReportUncheckedUpdateManyWithoutReporterNestedInput
+  afterDarkIdeas?: Prisma.AfterDarkItemUncheckedUpdateManyWithoutCreatorNestedInput
 }
 
 export type UserCreateWithoutSentInvitationsInput = {
@@ -1187,6 +1231,7 @@ export type UserCreateWithoutSentInvitationsInput = {
   blocking?: Prisma.BlockedUserCreateNestedManyWithoutBlockerInput
   blockedBy?: Prisma.BlockedUserCreateNestedManyWithoutBlockedInput
   reports?: Prisma.ReportCreateNestedManyWithoutReporterInput
+  afterDarkIdeas?: Prisma.AfterDarkItemCreateNestedManyWithoutCreatorInput
 }
 
 export type UserUncheckedCreateWithoutSentInvitationsInput = {
@@ -1210,6 +1255,7 @@ export type UserUncheckedCreateWithoutSentInvitationsInput = {
   blocking?: Prisma.BlockedUserUncheckedCreateNestedManyWithoutBlockerInput
   blockedBy?: Prisma.BlockedUserUncheckedCreateNestedManyWithoutBlockedInput
   reports?: Prisma.ReportUncheckedCreateNestedManyWithoutReporterInput
+  afterDarkIdeas?: Prisma.AfterDarkItemUncheckedCreateNestedManyWithoutCreatorInput
 }
 
 export type UserCreateOrConnectWithoutSentInvitationsInput = {
@@ -1249,6 +1295,7 @@ export type UserUpdateWithoutSentInvitationsInput = {
   blocking?: Prisma.BlockedUserUpdateManyWithoutBlockerNestedInput
   blockedBy?: Prisma.BlockedUserUpdateManyWithoutBlockedNestedInput
   reports?: Prisma.ReportUpdateManyWithoutReporterNestedInput
+  afterDarkIdeas?: Prisma.AfterDarkItemUpdateManyWithoutCreatorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSentInvitationsInput = {
@@ -1272,6 +1319,7 @@ export type UserUncheckedUpdateWithoutSentInvitationsInput = {
   blocking?: Prisma.BlockedUserUncheckedUpdateManyWithoutBlockerNestedInput
   blockedBy?: Prisma.BlockedUserUncheckedUpdateManyWithoutBlockedNestedInput
   reports?: Prisma.ReportUncheckedUpdateManyWithoutReporterNestedInput
+  afterDarkIdeas?: Prisma.AfterDarkItemUncheckedUpdateManyWithoutCreatorNestedInput
 }
 
 export type UserCreateWithoutProposalsInput = {
@@ -1295,6 +1343,7 @@ export type UserCreateWithoutProposalsInput = {
   blocking?: Prisma.BlockedUserCreateNestedManyWithoutBlockerInput
   blockedBy?: Prisma.BlockedUserCreateNestedManyWithoutBlockedInput
   reports?: Prisma.ReportCreateNestedManyWithoutReporterInput
+  afterDarkIdeas?: Prisma.AfterDarkItemCreateNestedManyWithoutCreatorInput
 }
 
 export type UserUncheckedCreateWithoutProposalsInput = {
@@ -1318,6 +1367,7 @@ export type UserUncheckedCreateWithoutProposalsInput = {
   blocking?: Prisma.BlockedUserUncheckedCreateNestedManyWithoutBlockerInput
   blockedBy?: Prisma.BlockedUserUncheckedCreateNestedManyWithoutBlockedInput
   reports?: Prisma.ReportUncheckedCreateNestedManyWithoutReporterInput
+  afterDarkIdeas?: Prisma.AfterDarkItemUncheckedCreateNestedManyWithoutCreatorInput
 }
 
 export type UserCreateOrConnectWithoutProposalsInput = {
@@ -1357,6 +1407,7 @@ export type UserUpdateWithoutProposalsInput = {
   blocking?: Prisma.BlockedUserUpdateManyWithoutBlockerNestedInput
   blockedBy?: Prisma.BlockedUserUpdateManyWithoutBlockedNestedInput
   reports?: Prisma.ReportUpdateManyWithoutReporterNestedInput
+  afterDarkIdeas?: Prisma.AfterDarkItemUpdateManyWithoutCreatorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutProposalsInput = {
@@ -1380,6 +1431,7 @@ export type UserUncheckedUpdateWithoutProposalsInput = {
   blocking?: Prisma.BlockedUserUncheckedUpdateManyWithoutBlockerNestedInput
   blockedBy?: Prisma.BlockedUserUncheckedUpdateManyWithoutBlockedNestedInput
   reports?: Prisma.ReportUncheckedUpdateManyWithoutReporterNestedInput
+  afterDarkIdeas?: Prisma.AfterDarkItemUncheckedUpdateManyWithoutCreatorNestedInput
 }
 
 export type UserCreateWithoutVotesInput = {
@@ -1403,6 +1455,7 @@ export type UserCreateWithoutVotesInput = {
   blocking?: Prisma.BlockedUserCreateNestedManyWithoutBlockerInput
   blockedBy?: Prisma.BlockedUserCreateNestedManyWithoutBlockedInput
   reports?: Prisma.ReportCreateNestedManyWithoutReporterInput
+  afterDarkIdeas?: Prisma.AfterDarkItemCreateNestedManyWithoutCreatorInput
 }
 
 export type UserUncheckedCreateWithoutVotesInput = {
@@ -1426,6 +1479,7 @@ export type UserUncheckedCreateWithoutVotesInput = {
   blocking?: Prisma.BlockedUserUncheckedCreateNestedManyWithoutBlockerInput
   blockedBy?: Prisma.BlockedUserUncheckedCreateNestedManyWithoutBlockedInput
   reports?: Prisma.ReportUncheckedCreateNestedManyWithoutReporterInput
+  afterDarkIdeas?: Prisma.AfterDarkItemUncheckedCreateNestedManyWithoutCreatorInput
 }
 
 export type UserCreateOrConnectWithoutVotesInput = {
@@ -1465,6 +1519,7 @@ export type UserUpdateWithoutVotesInput = {
   blocking?: Prisma.BlockedUserUpdateManyWithoutBlockerNestedInput
   blockedBy?: Prisma.BlockedUserUpdateManyWithoutBlockedNestedInput
   reports?: Prisma.ReportUpdateManyWithoutReporterNestedInput
+  afterDarkIdeas?: Prisma.AfterDarkItemUpdateManyWithoutCreatorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutVotesInput = {
@@ -1488,6 +1543,7 @@ export type UserUncheckedUpdateWithoutVotesInput = {
   blocking?: Prisma.BlockedUserUncheckedUpdateManyWithoutBlockerNestedInput
   blockedBy?: Prisma.BlockedUserUncheckedUpdateManyWithoutBlockedNestedInput
   reports?: Prisma.ReportUncheckedUpdateManyWithoutReporterNestedInput
+  afterDarkIdeas?: Prisma.AfterDarkItemUncheckedUpdateManyWithoutCreatorNestedInput
 }
 
 export type UserCreateWithoutRefreshTokensInput = {
@@ -1511,6 +1567,7 @@ export type UserCreateWithoutRefreshTokensInput = {
   blocking?: Prisma.BlockedUserCreateNestedManyWithoutBlockerInput
   blockedBy?: Prisma.BlockedUserCreateNestedManyWithoutBlockedInput
   reports?: Prisma.ReportCreateNestedManyWithoutReporterInput
+  afterDarkIdeas?: Prisma.AfterDarkItemCreateNestedManyWithoutCreatorInput
 }
 
 export type UserUncheckedCreateWithoutRefreshTokensInput = {
@@ -1534,6 +1591,7 @@ export type UserUncheckedCreateWithoutRefreshTokensInput = {
   blocking?: Prisma.BlockedUserUncheckedCreateNestedManyWithoutBlockerInput
   blockedBy?: Prisma.BlockedUserUncheckedCreateNestedManyWithoutBlockedInput
   reports?: Prisma.ReportUncheckedCreateNestedManyWithoutReporterInput
+  afterDarkIdeas?: Prisma.AfterDarkItemUncheckedCreateNestedManyWithoutCreatorInput
 }
 
 export type UserCreateOrConnectWithoutRefreshTokensInput = {
@@ -1573,6 +1631,7 @@ export type UserUpdateWithoutRefreshTokensInput = {
   blocking?: Prisma.BlockedUserUpdateManyWithoutBlockerNestedInput
   blockedBy?: Prisma.BlockedUserUpdateManyWithoutBlockedNestedInput
   reports?: Prisma.ReportUpdateManyWithoutReporterNestedInput
+  afterDarkIdeas?: Prisma.AfterDarkItemUpdateManyWithoutCreatorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRefreshTokensInput = {
@@ -1596,6 +1655,119 @@ export type UserUncheckedUpdateWithoutRefreshTokensInput = {
   blocking?: Prisma.BlockedUserUncheckedUpdateManyWithoutBlockerNestedInput
   blockedBy?: Prisma.BlockedUserUncheckedUpdateManyWithoutBlockedNestedInput
   reports?: Prisma.ReportUncheckedUpdateManyWithoutReporterNestedInput
+  afterDarkIdeas?: Prisma.AfterDarkItemUncheckedUpdateManyWithoutCreatorNestedInput
+}
+
+export type UserCreateWithoutAfterDarkIdeasInput = {
+  id?: string
+  email: string
+  passwordHash?: string | null
+  displayName: string
+  provider?: string | null
+  providerId?: string | null
+  avatarUrl?: string | null
+  pushToken?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  memberships?: Prisma.GroupMemberCreateNestedManyWithoutUserInput
+  sentInvitations?: Prisma.InvitationCreateNestedManyWithoutInviterInput
+  proposals?: Prisma.ProposalCreateNestedManyWithoutCreatorInput
+  votes?: Prisma.VoteCreateNestedManyWithoutUserInput
+  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
+  blocking?: Prisma.BlockedUserCreateNestedManyWithoutBlockerInput
+  blockedBy?: Prisma.BlockedUserCreateNestedManyWithoutBlockedInput
+  reports?: Prisma.ReportCreateNestedManyWithoutReporterInput
+}
+
+export type UserUncheckedCreateWithoutAfterDarkIdeasInput = {
+  id?: string
+  email: string
+  passwordHash?: string | null
+  displayName: string
+  provider?: string | null
+  providerId?: string | null
+  avatarUrl?: string | null
+  pushToken?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  memberships?: Prisma.GroupMemberUncheckedCreateNestedManyWithoutUserInput
+  sentInvitations?: Prisma.InvitationUncheckedCreateNestedManyWithoutInviterInput
+  proposals?: Prisma.ProposalUncheckedCreateNestedManyWithoutCreatorInput
+  votes?: Prisma.VoteUncheckedCreateNestedManyWithoutUserInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+  blocking?: Prisma.BlockedUserUncheckedCreateNestedManyWithoutBlockerInput
+  blockedBy?: Prisma.BlockedUserUncheckedCreateNestedManyWithoutBlockedInput
+  reports?: Prisma.ReportUncheckedCreateNestedManyWithoutReporterInput
+}
+
+export type UserCreateOrConnectWithoutAfterDarkIdeasInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutAfterDarkIdeasInput, Prisma.UserUncheckedCreateWithoutAfterDarkIdeasInput>
+}
+
+export type UserUpsertWithoutAfterDarkIdeasInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutAfterDarkIdeasInput, Prisma.UserUncheckedUpdateWithoutAfterDarkIdeasInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutAfterDarkIdeasInput, Prisma.UserUncheckedCreateWithoutAfterDarkIdeasInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutAfterDarkIdeasInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutAfterDarkIdeasInput, Prisma.UserUncheckedUpdateWithoutAfterDarkIdeasInput>
+}
+
+export type UserUpdateWithoutAfterDarkIdeasInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
+  provider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  providerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  memberships?: Prisma.GroupMemberUpdateManyWithoutUserNestedInput
+  sentInvitations?: Prisma.InvitationUpdateManyWithoutInviterNestedInput
+  proposals?: Prisma.ProposalUpdateManyWithoutCreatorNestedInput
+  votes?: Prisma.VoteUpdateManyWithoutUserNestedInput
+  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
+  blocking?: Prisma.BlockedUserUpdateManyWithoutBlockerNestedInput
+  blockedBy?: Prisma.BlockedUserUpdateManyWithoutBlockedNestedInput
+  reports?: Prisma.ReportUpdateManyWithoutReporterNestedInput
+}
+
+export type UserUncheckedUpdateWithoutAfterDarkIdeasInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
+  provider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  providerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  memberships?: Prisma.GroupMemberUncheckedUpdateManyWithoutUserNestedInput
+  sentInvitations?: Prisma.InvitationUncheckedUpdateManyWithoutInviterNestedInput
+  proposals?: Prisma.ProposalUncheckedUpdateManyWithoutCreatorNestedInput
+  votes?: Prisma.VoteUncheckedUpdateManyWithoutUserNestedInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+  blocking?: Prisma.BlockedUserUncheckedUpdateManyWithoutBlockerNestedInput
+  blockedBy?: Prisma.BlockedUserUncheckedUpdateManyWithoutBlockedNestedInput
+  reports?: Prisma.ReportUncheckedUpdateManyWithoutReporterNestedInput
 }
 
 
@@ -1612,6 +1784,7 @@ export type UserCountOutputType = {
   blocking: number
   blockedBy: number
   reports: number
+  afterDarkIdeas: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1623,6 +1796,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   blocking?: boolean | UserCountOutputTypeCountBlockingArgs
   blockedBy?: boolean | UserCountOutputTypeCountBlockedByArgs
   reports?: boolean | UserCountOutputTypeCountReportsArgs
+  afterDarkIdeas?: boolean | UserCountOutputTypeCountAfterDarkIdeasArgs
 }
 
 /**
@@ -1691,6 +1865,13 @@ export type UserCountOutputTypeCountReportsArgs<ExtArgs extends runtime.Types.Ex
   where?: Prisma.ReportWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountAfterDarkIdeasArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AfterDarkItemWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1714,6 +1895,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   blocking?: boolean | Prisma.User$blockingArgs<ExtArgs>
   blockedBy?: boolean | Prisma.User$blockedByArgs<ExtArgs>
   reports?: boolean | Prisma.User$reportsArgs<ExtArgs>
+  afterDarkIdeas?: boolean | Prisma.User$afterDarkIdeasArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -1775,6 +1957,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   blocking?: boolean | Prisma.User$blockingArgs<ExtArgs>
   blockedBy?: boolean | Prisma.User$blockedByArgs<ExtArgs>
   reports?: boolean | Prisma.User$reportsArgs<ExtArgs>
+  afterDarkIdeas?: boolean | Prisma.User$afterDarkIdeasArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1791,6 +1974,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     blocking: Prisma.$BlockedUserPayload<ExtArgs>[]
     blockedBy: Prisma.$BlockedUserPayload<ExtArgs>[]
     reports: Prisma.$ReportPayload<ExtArgs>[]
+    afterDarkIdeas: Prisma.$AfterDarkItemPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -2208,6 +2392,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   blocking<T extends Prisma.User$blockingArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$blockingArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BlockedUserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   blockedBy<T extends Prisma.User$blockedByArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$blockedByArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BlockedUserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   reports<T extends Prisma.User$reportsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$reportsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReportPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  afterDarkIdeas<T extends Prisma.User$afterDarkIdeasArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$afterDarkIdeasArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AfterDarkItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2832,6 +3017,30 @@ export type User$reportsArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
   take?: number
   skip?: number
   distinct?: Prisma.ReportScalarFieldEnum | Prisma.ReportScalarFieldEnum[]
+}
+
+/**
+ * User.afterDarkIdeas
+ */
+export type User$afterDarkIdeasArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AfterDarkItem
+   */
+  select?: Prisma.AfterDarkItemSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AfterDarkItem
+   */
+  omit?: Prisma.AfterDarkItemOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AfterDarkItemInclude<ExtArgs> | null
+  where?: Prisma.AfterDarkItemWhereInput
+  orderBy?: Prisma.AfterDarkItemOrderByWithRelationInput | Prisma.AfterDarkItemOrderByWithRelationInput[]
+  cursor?: Prisma.AfterDarkItemWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AfterDarkItemScalarFieldEnum | Prisma.AfterDarkItemScalarFieldEnum[]
 }
 
 /**

@@ -1,17 +1,41 @@
 /**
  * After Dark Routes
  * 
- * GET  /api/categories/after-dark          — Get category info
- * GET  /api/after-dark/items               — Browse seed + couple ideas (paginated)
- * POST /api/after-dark/ideas               — Create custom idea
- * POST /api/after-dark/ideas/:id/report    — Report user-generated idea
+ * Endpoints:
+ *   GET  /api/categories/after-dark       — Display info for After Dark category
+ *   GET  /api/after-dark/items            — Browse 40 seed items + couple's custom ideas
+ *   POST /api/after-dark/ideas            — Create custom idea (couple only)
+ *   POST /api/after-dark/ideas/:id/report — Report inappropriate idea
  */
 
 import { Router, Response } from 'express';
+import { AuthRequest } from '../middleware/auth';
 import { AfterDarkService } from '../services/after-dark.service';
-import { requireAuth, AuthRequest } from '../middleware/auth';
+import { logger } from '@/services/logger';
+import rateLimit from 'express-rate-limit';
+import { requireAuth } from '../middleware/auth';
 
 const router = Router();
+
+// ── Rate limiters ──────────────────────────────────────────────────────────
+
+const createIdeaLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 5, // 5 ideas per minute per user
+  message: 'Too many ideas created, please try again later',
+  keyGenerator: (req) => (req as AuthRequest).userId || req.ip || 'unknown',
+  skip: (req) => !((req as AuthRequest).userId), // Skip if not authenticated
+});
+
+const reportLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 10, // 10 reports per minute per user
+  message: 'Too many reports, please try again later',
+  keyGenerator: (req) => (req as AuthRequest).userId || req.ip || 'unknown',
+  skip: (req) => !((req as AuthRequest).userId),
+});
+
+// ────────────────────────────────────────────────────────────────────────────
 
 /**
  * GET /api/categories/after-dark
@@ -19,16 +43,13 @@ const router = Router();
  */
 router.get('/categories/after-dark', requireAuth, async (_req: AuthRequest, res: Response) => {
   try {
-    const info = AfterDarkService.getCategoryInfo();
-    const colors = AfterDarkService.getColorTokens();
-    
-    res.json({
-      ...info,
-      colors,
-      itemCount: 40, // TODO: count from DB
-    });
+    const categoryInfo = AfterDarkService.getCategoryInfo();
+    res.json(categoryInfo);
   } catch (error) {
-    console.error('Error fetching After Dark category info:', error);
+    logger.error('Failed to fetch After Dark category info', {
+      context: 'get-category',
+      error: error instanceof Error ? error.message : String(error)
+    });
     res.status(500).json({ error: 'Failed to fetch category info' });
   }
 });
@@ -39,115 +60,123 @@ router.get('/categories/after-dark', requireAuth, async (_req: AuthRequest, res:
  * 
  * Query params:
  *   - page: number (default 1)
- *   - limit: number (default 20)
- *   - tier: 'ROMANTIC' | 'SPICY' | undefined for all
- *   - groupId: string (optional, to include couple's custom ideas)
+ *   - limit: number (default 20, max 100)
+ *   - tier: 'ROMANTIC' | 'SPICY' (optional, filters by tier)
+ *   - groupId: string (optional, includes couple's custom ideas if provided)
  */
-router.get('/after-dark/items', requireAuth, async (req: AuthRequest, res: Response) => {
+router.get('/items', requireAuth, async (req: AuthRequest, res: Response) => {
   try {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 20;
-    const tier = (req.query.tier as 'ROMANTIC' | 'SPICY') || undefined;
-    const groupId = req.query.groupId as string;
+    const tier = (req.query.tier as string) || undefined;
+    const groupId = (req.query.groupId as string) || undefined;
 
-    // Validate pagination
-    if (page < 1 || limit < 1 || limit > 100) {
-      return res.status(400).json({ error: 'Invalid pagination parameters' });
-    }
+    // Validate pagination bounds
+    const validPage = Math.max(1, Math.min(page, 1000));
+    const validLimit = Math.max(1, Math.min(limit, 100));
 
-    const result = await AfterDarkService.getItemsPaginated(
-      page,
-      limit,
-      tier,
-      groupId
-    );
+    const result = await AfterDarkService.getItems(groupId, tier as any, validPage, validLimit);
 
-    res.json(result);
+    res.json({
+      items: result.items,
+      pagination: {
+        page: result.page,
+        limit: result.limit,
+        total: result.total,
+        pages: Math.ceil(result.total / result.limit)
+      }
+    });
   } catch (error) {
-    console.error('Error fetching After Dark items:', error);
+    logger.error('Failed to fetch After Dark items', {
+      context: 'get-items',
+      query: req.query,
+      error: error instanceof Error ? error.message : String(error)
+    });
     res.status(500).json({ error: 'Failed to fetch items' });
   }
 });
 
 /**
  * POST /api/after-dark/ideas
- * Create a custom After Dark idea (couple-created)
+ * Create custom After Dark idea for a couple
  * 
  * Body:
- *   - groupId: string
- *   - name: string (≤40 chars)
- *   - description: string (≤140 chars)
- *   - tier: 'ROMANTIC' | 'SPICY'
- *   - where: 'HOME' | 'OUT'
+ *   - title: string (max 140 chars, required)
+ *   - description: string (required)
+ *   - tier: 'ROMANTIC' | 'SPICY' (required)
+ *   - icon?: string (emoji, optional)
+ *   - groupId: string (required, user must be member)
  */
-router.post('/after-dark/ideas', requireAuth, async (req: AuthRequest, res: Response) => {
+router.post('/ideas', requireAuth, createIdeaLimiter, async (req: AuthRequest, res: Response) => {
   try {
-    const userId = req.userId; // from auth middleware
-    const { groupId, name, description, tier, where } = req.body;
+    const { title, description, tier, icon, groupId } = req.body;
+    const userId = req.userId;
 
-    // Validate input
-    if (!groupId || !name || !description || !tier || !where) {
-      return res.status(400).json({ error: 'Missing required fields' });
+    // Validate required fields
+    if (!title?.trim() || title.length > 140) {
+      return res.status(400).json({ error: 'Title required (1-140 characters)' });
     }
-
-    if (name.length > 40) {
-      return res.status(400).json({ error: 'Name must be ≤ 40 characters' });
+    if (!description?.trim()) {
+      return res.status(400).json({ error: 'Description required' });
     }
-
-    if (description.length > 140) {
-      return res.status(400).json({ error: 'Description must be ≤ 140 characters' });
-    }
-
     if (!['ROMANTIC', 'SPICY'].includes(tier)) {
       return res.status(400).json({ error: 'Tier must be ROMANTIC or SPICY' });
     }
-
-    if (!['HOME', 'OUT'].includes(where)) {
-      return res.status(400).json({ error: 'Where must be HOME or OUT' });
+    if (!groupId) {
+      return res.status(400).json({ error: 'groupId required' });
     }
 
     // TODO: Verify user is member of group
-    // const group = await db.getGroup(groupId);
-    // if (!group || !group.members.includes(userId)) {
+    // const member = await db.groupMember.findUnique({
+    //   where: { groupId_userId: { groupId, userId } }
+    // });
+    // if (!member) {
     //   return res.status(403).json({ error: 'Not a member of this group' });
     // }
 
-    const idea = await AfterDarkService.createUserIdea(groupId, userId!, {
-      groupId,
-      name,
+    const idea = await AfterDarkService.createIdea(groupId, userId!, {
+      title,
       description,
       tier,
-      where,
+      icon
     });
 
     res.status(201).json(idea);
   } catch (error) {
-    console.error('Error creating After Dark idea:', error);
+    logger.error('Failed to create After Dark idea', {
+      context: 'create-idea',
+      userId: req.userId,
+      error: error instanceof Error ? error.message : String(error)
+    });
     res.status(500).json({ error: 'Failed to create idea' });
   }
 });
 
 /**
  * POST /api/after-dark/ideas/:id/report
- * Report a user-generated idea for moderation
+ * Report an inappropriate After Dark idea
  * 
- * Body:
- *   - reason: string (report reason)
+ * Params:
+ *   - id: string (idea ID)
  */
-router.post('/after-dark/ideas/:id/report', requireAuth, async (req: AuthRequest, res: Response) => {
+router.post('/ideas/:id/report', requireAuth, reportLimiter, async (req: AuthRequest, res: Response) => {
   try {
-    const { id } = req.params;
-    const { reason } = req.body;
+    const ideaId = req.params.id;
 
-    if (!reason) {
-      return res.status(400).json({ error: 'Reason is required' });
+    if (!ideaId) {
+      return res.status(400).json({ error: 'Idea ID required' });
     }
 
-    await AfterDarkService.reportIdea(id, reason);
+    await AfterDarkService.reportIdea(ideaId);
 
     res.json({ message: 'Idea reported successfully' });
   } catch (error) {
-    console.error('Error reporting After Dark idea:', error);
+    logger.error('Failed to report After Dark idea', {
+      context: 'report-idea',
+      ideaId: req.params.id,
+      userId: req.userId,
+      error: error instanceof Error ? error.message : String(error)
+    });
     res.status(500).json({ error: 'Failed to report idea' });
   }
 });

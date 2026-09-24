@@ -17,7 +17,9 @@
  *   - Icon: 🌙
  */
 
+import { prisma as db } from '@/services/db';
 import { AfterDarkItem, AfterDarkTier, AfterDarkWhere, CreateAfterDarkIdeaInput } from '../models/AfterDarkModels';
+import { logger } from '@/services/logger';
 
 export class AfterDarkService {
   /**
@@ -26,157 +28,292 @@ export class AfterDarkService {
    */
   static async getItems(
     groupId?: string,
-    tier?: AfterDarkTier
-  ): Promise<AfterDarkItem[]> {
-    let items: AfterDarkItem[] = [];
-
-    // Load seed catalog (40 items, all groups can see)
-    // TODO: fetch from DB or in-memory cache
-    // const seedItems = await db.query(
-    //   'SELECT * FROM suggestions WHERE category = ? AND source = ?',
-    //   ['AFTER_DARK', 'SEED']
-    // );
-    // items.push(...seedItems);
-
-    // If groupId provided, load couple's custom ideas too
-    if (groupId) {
-      // TODO: fetch from DB
-      // const userIdeas = await db.query(
-      //   'SELECT * FROM suggestions WHERE category = ? AND source = ? AND groupId = ?',
-      //   ['AFTER_DARK', 'USER', groupId]
-      // );
-      // items.push(...userIdeas);
-    }
-
-    // Filter by tier if specified
-    if (tier) {
-      items = items.filter((item) => item.tier === tier);
-    }
-
-    return items;
-  }
-
-  /**
-   * Get paginated items (for browsing in Discover)
-   */
-  static async getItemsPaginated(
-    page: number = 1,
-    limit: number = 20,
     tier?: AfterDarkTier,
-    groupId?: string
-  ): Promise<{
-    items: AfterDarkItem[];
-    total: number;
-    page: number;
-    limit: number;
-    hasMore: boolean;
-  }> {
-    const allItems = await this.getItems(groupId, tier);
-    const total = allItems.length;
-    const offset = (page - 1) * limit;
-    const items = allItems.slice(offset, offset + limit);
+    page: number = 1,
+    limit: number = 20
+  ): Promise<{ items: AfterDarkItem[], total: number, page: number, limit: number }> {
+    // Validate pagination
+    page = Math.max(1, Math.min(page, 1000));
+    limit = Math.max(1, Math.min(limit, 100));
 
-    return {
-      items,
-      total,
-      page,
-      limit,
-      hasMore: offset + limit < total,
+    const where: any = {
+      OR: [
+        { createdBy: null }, // Public seed items (visible to all)
+        { groupId }, // Couple's custom ideas (if groupId provided)
+      ]
     };
+
+    if (tier && ['ROMANTIC', 'SPICY'].includes(tier)) {
+      where.tier = tier;
+    }
+
+    try {
+      const [items, total] = await Promise.all([
+        db.afterDarkItem.findMany({
+          where,
+          orderBy: [
+            { createdBy: 'asc' }, // Seed items first (createdBy null sorts first)
+            { createdAt: 'desc' }
+          ],
+          skip: (page - 1) * limit,
+          take: limit,
+        }),
+        db.afterDarkItem.count({ where })
+      ]);
+
+      return {
+        items: items as AfterDarkItem[],
+        total,
+        page,
+        limit
+      };
+    } catch (error) {
+      logger.error('Failed to fetch After Dark items', {
+        context: 'getItems',
+        groupId,
+        tier,
+        error: error instanceof Error ? error.message : String(error)
+      });
+      throw error;
+    }
   }
 
   /**
-   * Create a custom After Dark idea (couple-created)
-   * Visible only to that couple
+   * Get items by tier with pagination
    */
-  static async createUserIdea(
+  static async getItemsByTier(
+    tier: AfterDarkTier,
+    groupId?: string,
+    page: number = 1,
+    limit: number = 20
+  ): Promise<{ items: AfterDarkItem[], total: number }> {
+    if (!['ROMANTIC', 'SPICY'].includes(tier)) {
+      throw new Error(`Invalid tier: ${tier}`);
+    }
+
+    return this.getItems(groupId, tier as AfterDarkTier, page, limit);
+  }
+
+  /**
+   * Create a custom After Dark idea for a couple
+   */
+  static async createIdea(
     groupId: string,
     userId: string,
     input: CreateAfterDarkIdeaInput
   ): Promise<AfterDarkItem> {
     // Validate input
-    if (input.name.length > 40) {
-      throw new Error('Name must be ≤ 40 characters');
+    if (!input.title?.trim() || input.title.length > 140) {
+      throw new Error('Title required (1-140 characters)');
     }
-    if (input.description.length > 140) {
-      throw new Error('Description must be ≤ 140 characters');
+    if (!input.description?.trim()) {
+      throw new Error('Description required');
+    }
+    if (!['ROMANTIC', 'SPICY'].includes(input.tier)) {
+      throw new Error('Tier must be ROMANTIC or SPICY');
     }
 
-    // TODO: insert into DB
-    // const idea = await db.query(
-    //   'INSERT INTO suggestions (id, name, description, category, tier, where, source, groupId, createdById) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-    //   [cuid(), input.name, input.description, 'AFTER_DARK', input.tier, input.where, 'USER', groupId, userId]
-    // );
+    try {
+      const idea = await db.afterDarkItem.create({
+        data: {
+          title: input.title.trim(),
+          description: input.description.trim(),
+          tier: input.tier,
+          icon: input.icon || '💡',
+          color: input.tier === 'ROMANTIC' ? '#B2485E' : '#8E3448',
+          groupId,
+          createdBy: userId,
+        }
+      });
 
-    // Stub implementation for now
-    return {
-      id: `user_${Date.now()}`,
-      emoji: input.tier === 'ROMANTIC' ? '💕' : '🔥',
-      name: input.name,
-      description: input.description,
-      where: input.where,
-      duration: 'Varies',
-      tier: input.tier,
-      source: 'USER',
-      groupId,
-      createdById: userId,
-    };
+      logger.info('Created After Dark idea', {
+        context: 'createIdea',
+        ideaId: idea.id,
+        groupId,
+        userId,
+        tier: input.tier
+      });
+
+      return idea as AfterDarkItem;
+    } catch (error) {
+      logger.error('Failed to create After Dark idea', {
+        context: 'createIdea',
+        groupId,
+        userId,
+        error: error instanceof Error ? error.message : String(error)
+      });
+      throw error;
+    }
   }
 
   /**
-   * Report a user-created idea
-   * Flags for moderation; doesn't delete immediately
+   * Get couple's custom ideas only (not seed catalog)
    */
-  static async reportIdea(itemId: string, reason: string): Promise<void> {
-    // TODO: update DB
-    // await db.query('UPDATE suggestions SET reported = true WHERE id = ?', [itemId]);
+  static async getCoupleIdeas(
+    groupId: string,
+    page: number = 1,
+    limit: number = 20
+  ): Promise<{ items: AfterDarkItem[], total: number }> {
+    page = Math.max(1, Math.min(page, 1000));
+    limit = Math.max(1, Math.min(limit, 100));
+
+    try {
+      const [items, total] = await Promise.all([
+        db.afterDarkItem.findMany({
+          where: {
+            groupId,
+            createdBy: { not: null } // Only user-created ideas
+          },
+          orderBy: { createdAt: 'desc' },
+          skip: (page - 1) * limit,
+          take: limit,
+        }),
+        db.afterDarkItem.count({
+          where: {
+            groupId,
+            createdBy: { not: null }
+          }
+        })
+      ]);
+
+      return {
+        items: items as AfterDarkItem[],
+        total
+      };
+    } catch (error) {
+      logger.error('Failed to fetch couple ideas', {
+        context: 'getCoupleIdeas',
+        groupId,
+        error: error instanceof Error ? error.message : String(error)
+      });
+      throw error;
+    }
   }
 
   /**
-   * Get category display info for Discover UI
+   * Report an inappropriate idea (increment report counter)
+   */
+  static async reportIdea(ideaId: string): Promise<void> {
+    try {
+      await db.afterDarkItem.update({
+        where: { id: ideaId },
+        data: { reportedCount: { increment: 1 } }
+      });
+
+      logger.info('Reported After Dark idea', {
+        context: 'reportIdea',
+        ideaId
+      });
+    } catch (error) {
+      logger.error('Failed to report After Dark idea', {
+        context: 'reportIdea',
+        ideaId,
+        error: error instanceof Error ? error.message : String(error)
+      });
+      throw error;
+    }
+  }
+
+  /**
+   * Get seed catalog (public items, no couple ideas)
+   */
+  static async getSeedCatalog(
+    tier?: AfterDarkTier
+  ): Promise<AfterDarkItem[]> {
+    const where: any = { createdBy: null }; // Only seed items
+
+    if (tier && ['ROMANTIC', 'SPICY'].includes(tier)) {
+      where.tier = tier;
+    }
+
+    try {
+      return await db.afterDarkItem.findMany({
+        where,
+        orderBy: { createdAt: 'desc' }
+      }) as AfterDarkItem[];
+    } catch (error) {
+      logger.error('Failed to fetch seed catalog', {
+        context: 'getSeedCatalog',
+        tier,
+        error: error instanceof Error ? error.message : String(error)
+      });
+      throw error;
+    }
+  }
+
+  /**
+   * Get After Dark category metadata for Discover
    */
   static getCategoryInfo(): {
+    id: string;
     name: string;
     emoji: string;
     description: string;
     color: string;
-    tiers: { [key: string]: string };
+    accentColor: string;
+    softBgColor: string;
+    deepColor: string;
   } {
     return {
+      id: 'after-dark',
       name: 'After Dark',
       emoji: '🌙',
-      description: 'Intimate and playful activities for couples',
-      color: '#B2485E', // wine accent
-      tiers: {
-        ALL: 'Browse all',
-        ROMANTIC: 'Romantic moments',
-        SPICY: 'Spicy & playful',
-      },
+      description: 'Intimate & playful activities for couples',
+      color: '#B2485E',
+      accentColor: '#B2485E',
+      softBgColor: '#F7E3E7',
+      deepColor: '#8E3448'
     };
   }
 
   /**
-   * Get color tokens for UI
+   * Get stats for a group's After Dark usage
    */
-  static getColorTokens(): {
-    accent: string;
-    soft: string;
-    deep: string;
-    textOnAccent: string;
-  } {
-    return {
-      accent: '#B2485E',    // main wine color
-      soft: '#F7E3E7',      // soft background
-      deep: '#8E3448',      // deep wine for dark mode
-      textOnAccent: '#FFFFFF',
-    };
-  }
+  static async getGroupStats(groupId: string): Promise<{
+    totalIdeas: number;
+    romanticIdeas: number;
+    spicyIdeas: number;
+  }> {
+    try {
+      const [total, romantic, spicy] = await Promise.all([
+        db.afterDarkItem.count({
+          where: {
+            groupId,
+            createdBy: { not: null }
+          }
+        }),
+        db.afterDarkItem.count({
+          where: {
+            groupId,
+            createdBy: { not: null },
+            tier: 'ROMANTIC'
+          }
+        }),
+        db.afterDarkItem.count({
+          where: {
+            groupId,
+            createdBy: { not: null },
+            tier: 'SPICY'
+          }
+        })
+      ]);
 
-  /**
-   * Calculate search/ranking boost for After Dark category
-   * (used by suggestions API when After Dark is selected)
-   */
-  static getAfterDarkBoost(): number {
-    return 1.0; // No special boost; rank by item popularity/recency
+      return {
+        totalIdeas: total,
+        romanticIdeas: romantic,
+        spicyIdeas: spicy
+      };
+    } catch (error) {
+      logger.error('Failed to fetch group stats', {
+        context: 'getGroupStats',
+        groupId,
+        error: error instanceof Error ? error.message : String(error)
+      });
+      return {
+        totalIdeas: 0,
+        romanticIdeas: 0,
+        spicyIdeas: 0
+      };
+    }
   }
 }
