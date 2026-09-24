@@ -33,15 +33,95 @@ function formatEventDate(dateStr: string): string {
 }
 
 // ── Geolocation + reverse geocode ────────────────────────────────────────────
+const GEO_STORAGE_KEY = "dn_last_location";
+
+interface StoredLocation {
+  lat: number;
+  lng: number;
+  city: string | null;
+  source: "gps" | "ip";
+  savedAt: number;
+}
+
+function loadStoredLocation(): StoredLocation | null {
+  try {
+    const raw = localStorage.getItem(GEO_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as StoredLocation;
+    if (typeof parsed?.lat !== "number" || typeof parsed?.lng !== "number") return null;
+    // Expire stored location after 7 days
+    if (Date.now() - (parsed.savedAt ?? 0) > 7 * 24 * 60 * 60 * 1000) return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+function saveStoredLocation(loc: Omit<StoredLocation, "savedAt">) {
+  try {
+    localStorage.setItem(GEO_STORAGE_KEY, JSON.stringify({ ...loc, savedAt: Date.now() }));
+  } catch {
+    // storage unavailable — ignore
+  }
+}
+
 function useGeolocation() {
-  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
-  const [cityName, setCityName] = useState<string | null>(null);
+  // Start from last known location so real listings load instantly
+  const stored = loadStoredLocation();
+  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(
+    stored ? { lat: stored.lat, lng: stored.lng } : null,
+  );
+  const [cityName, setCityName] = useState<string | null>(stored?.city ?? null);
+  const [geoSource, setGeoSource] = useState<"gps" | "ip" | null>(stored?.source ?? null);
   const [geoError, setGeoError] = useState<string | null>(null);
   const [geoLoading, setGeoLoading] = useState(false);
 
+  // IP-based fallback: approximate city-level location, no permission needed.
+  // Ensures real API listings (Ticketmaster/Foursquare/etc.) ALWAYS load,
+  // even when browser geolocation is denied or unavailable.
+  const ipFallback = async () => {
+    try {
+      const resp = await fetch("https://ipapi.co/json/", { signal: AbortSignal.timeout(6000) });
+      const data = await resp.json();
+      const lat = Number(data?.latitude);
+      const lng = Number(data?.longitude);
+      if (!isNaN(lat) && !isNaN(lng) && (lat !== 0 || lng !== 0)) {
+        const city = data?.city ?? null;
+        setCoords({ lat, lng });
+        setCityName(city);
+        setGeoSource("ip");
+        setGeoError(null);
+        saveStoredLocation({ lat, lng, city, source: "ip" });
+        return true;
+      }
+    } catch {
+      // ipapi failed — try secondary provider
+    }
+    try {
+      const resp = await fetch("https://ipwho.is/", { signal: AbortSignal.timeout(6000) });
+      const data = await resp.json();
+      const lat = Number(data?.latitude);
+      const lng = Number(data?.longitude);
+      if (data?.success !== false && !isNaN(lat) && !isNaN(lng)) {
+        const city = data?.city ?? null;
+        setCoords({ lat, lng });
+        setCityName(city);
+        setGeoSource("ip");
+        setGeoError(null);
+        saveStoredLocation({ lat, lng, city, source: "ip" });
+        return true;
+      }
+    } catch {
+      // both IP providers failed
+    }
+    return false;
+  };
+
   const request = () => {
     if (!navigator.geolocation) {
-      setGeoError("Geolocation not supported by your browser");
+      // No geolocation API at all — go straight to IP fallback
+      setGeoLoading(true);
+      ipFallback().finally(() => setGeoLoading(false));
       return;
     }
     setGeoLoading(true);
@@ -50,16 +130,18 @@ function useGeolocation() {
         const lat = pos.coords.latitude;
         const lng = pos.coords.longitude;
         setCoords({ lat, lng });
+        setGeoSource("gps");
         setGeoLoading(false);
         setGeoError(null);
         // Reverse geocode via Nominatim (free, no key)
+        let city: string | null = null;
         try {
           const resp = await fetch(
             `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`,
             { headers: { "Accept-Language": "en" } },
           );
           const data = await resp.json();
-          const city =
+          city =
             data?.address?.city ??
             data?.address?.town ??
             data?.address?.village ??
@@ -69,9 +151,12 @@ function useGeolocation() {
         } catch {
           // ignore geocode failure — just don't show city
         }
+        saveStoredLocation({ lat, lng, city, source: "gps" });
       },
-      (err) => {
-        setGeoError(err.message);
+      async (err) => {
+        // GPS denied/failed → IP fallback so real listings still load
+        const ok = await ipFallback();
+        if (!ok) setGeoError(err.message);
         setGeoLoading(false);
       },
       { enableHighAccuracy: false, timeout: 8000, maximumAge: 300_000 },
@@ -80,7 +165,7 @@ function useGeolocation() {
 
   useEffect(() => { request(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  return { coords, cityName, geoError, geoLoading, retryGeo: request };
+  return { coords, cityName, geoSource, geoError, geoLoading, retryGeo: request };
 }
 
 // ── SuggestionImage — real image or category emoji fallback ───────────────────
@@ -435,8 +520,10 @@ export function SuggestionsPage() {
     ? "📍 Getting location…"
     : cityName
     ? `📍 Near ${cityName}`
+    : coords
+    ? "📍 Near you"
     : geoError
-    ? "📍 Location unavailable"
+    ? "📍 Location unavailable — enter a zip below for local results"
     : null;
 
   return (
