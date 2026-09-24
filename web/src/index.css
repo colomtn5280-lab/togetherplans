@@ -278,6 +278,11 @@ button:not(.dn-btn):not(.app-nav__mobile-hamburger):not(.app-nav__drawer-close):
   border-radius: 100px !important;
 }
 
+/* Also apply to <a> styled as buttons that aren't already handled */
+a.btn-primary, a[class*="btn"]:not(.dn-btn):not(.store):not(.brand):not(.nav-links a):not(footer a) {
+  border-radius: 100px !important;
+}
+
 /* Legacy .btn classes from LandingPage */
 .btn { border-radius: 100px !important; }
 .btn-sm { border-radius: 100px !important; }

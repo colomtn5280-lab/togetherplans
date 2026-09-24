@@ -23,11 +23,12 @@ function getCategoryColor(cat: string): string {
 function formatEventDate(dateStr: string): string {
   try {
     const d = new Date(dateStr);
-    return (
-      d.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" }) +
-      " · " +
-      d.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })
-    );
+    // If dateStr is a date-only string (YYYY-MM-DD), append T00:00 to avoid UTC offset issues
+    const parsed = dateStr.includes('T') ? d : new Date(dateStr + 'T00:00');
+    const hasTime = dateStr.includes('T');
+    const datePart = parsed.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
+    if (!hasTime) return datePart;
+    return datePart + " · " + parsed.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" });
   } catch {
     return dateStr;
   }

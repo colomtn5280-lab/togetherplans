@@ -253,13 +253,8 @@ export async function fetchPredictHQ(
       const { venue, address, city } = extractVenueAndAddress(ev);
 
       const dateStr = ev.start ? ev.start.split('T')[0] : undefined;
-      const timeRaw = ev.start?.includes('T') ? ev.start.split('T')[1] : undefined;
-      const timeFormatted = timeRaw
-        ? new Date(`2000-01-01T${timeRaw}`).toLocaleTimeString('en-US', {
-            hour: 'numeric',
-            minute: '2-digit',
-          })
-        : undefined;
+      // Send the raw start time — frontend formats it in the user's local timezone
+      const timeStart = ev.start ?? undefined;
 
       const category: SuggestionCategory =
         categoryFilter === 'Family' ? 'Family'
@@ -289,7 +284,7 @@ export async function fetchPredictHQ(
         longitude: evLng,
         distanceMiles: dist !== undefined ? Math.round(dist * 10) / 10 : undefined,
         date: dateStr,
-        timeStart: timeFormatted,
+        timeStart: timeStart,
         costTier,
         dateFriendly: true,
         groupFriendly: true,

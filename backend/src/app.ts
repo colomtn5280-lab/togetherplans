@@ -45,7 +45,7 @@ export function createApp(): express.Express {
   });
 
   app.get('/health', (_req: Request, res: Response) => {
-    res.json({ status: 'ok', service: 'datenight-api', uptime: process.uptime() });
+    res.json({ status: 'ok', service: 'togetherplans-api', uptime: process.uptime() });
   });
 
   app.use('/api/auth', authRouter);

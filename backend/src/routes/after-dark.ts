@@ -35,22 +35,6 @@ const reportLimiter = rateLimit({
 
 // ────────────────────────────────────────────────────────────────────────────
 
-/**
- * GET /api/categories/after-dark
- * Display info for After Dark category card in Discover
- */
-router.get('/categories/after-dark', requireAuth, async (_req: AuthRequest, res: Response) => {
-  try {
-    const categoryInfo = AfterDarkService.getCategoryInfo();
-    res.json(categoryInfo);
-  } catch (error) {
-    logger.error('Failed to fetch After Dark category info', {
-      context: 'get-category',
-      error: error instanceof Error ? error.message : String(error)
-    });
-    res.status(500).json({ error: 'Failed to fetch category info' });
-  }
-});
 
 /**
  * GET /api/after-dark/items

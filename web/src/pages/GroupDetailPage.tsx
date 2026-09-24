@@ -230,13 +230,6 @@ export function GroupDetailPage() {
               >
                 + New Proposal
               </Link>
-              <Link
-                to={`/groups/${groupId}/after-dark`}
-                className="dn-btn dn-btn--secondary"
-                style={{ textDecoration: "none" }}
-              >
-                🌙 After Dark
-              </Link>
             </div>
           </div>
         </div>

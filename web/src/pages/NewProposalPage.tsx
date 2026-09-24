@@ -63,7 +63,7 @@ function suggestTitle(opts: PlanBuilderOption[]): string {
       return `${diner.name.split(" ").slice(0, 2).join(" ")} + ${show.name.split(" ").slice(0, 2).join(" ")}`;
     }
   }
-  return `${categories[0]} Night`;
+  return `${categories[0].replace(/\s*(Night|Show|Events?)$/i, '')} Night`;
 }
 
 // ── Confetti ──────────────────────────────────────────────────────────────────
