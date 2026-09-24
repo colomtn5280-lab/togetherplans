@@ -106,7 +106,35 @@ export interface Vote {
 export interface TallyEntry {
   optionId: string;
   votes: number;
+  guestVotes?: number;
   consensus: boolean;
+}
+
+// Public guest-voting snapshot returned by /api/share/:shareToken
+export interface PublicShareOption {
+  id: string;
+  name: string;
+  category: string;
+  description?: string | null;
+  address?: string | null;
+  imageUrl?: string | null;
+  eventDate?: string | null;
+  memberVotes: number;
+  guestVotes: number;
+  totalVotes: number;
+}
+
+export interface PublicShareProposal {
+  shareToken: string;
+  status: "OPEN" | "DECIDED" | "CANCELLED" | "COUNTERED";
+  title: string;
+  dateTime: string;
+  groupName: string;
+  creatorName: string;
+  options: PublicShareOption[];
+  totalVotes: number;
+  winnerOptionId: string | null;
+  yourVote: string | null;
 }
 
 export interface Proposal {

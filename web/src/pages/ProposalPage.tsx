@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useLocation } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { proposalsApi, shareCardsApi } from "../api/client";
 import { AppNav } from "../components/AppNav";
@@ -241,14 +241,106 @@ function ShareModal({ proposalId, onClose }: ShareModalProps) {
   );
 }
 
+// ── Invite-to-vote modal (open proposals — guest voting share link) ──────────
+function InviteVoteModal({ proposalId, soloIntro, onClose }: { proposalId: string; soloIntro?: boolean; onClose: () => void }) {
+  const [shareUrl, setShareUrl] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    proposalsApi.shareLink(proposalId)
+      .then((res) => {
+        setShareUrl(res.data.shareUrl);
+        // Auto-copy for convenience
+        navigator.clipboard?.writeText(res.data.shareUrl).then(() => setCopied(true)).catch(() => {});
+      })
+      .catch(() => setError("Could not create the invite link."));
+  }, [proposalId]);
+
+  const handleCopy = () => {
+    if (!shareUrl) return;
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+
+  const msg = shareUrl ? encodeURIComponent(`Help us pick! Vote on our plan (no account needed): ${shareUrl}`) : "";
+  const waUrl = shareUrl ? `https://wa.me/?text=${msg}` : null;
+  const smsUrl = shareUrl ? `sms:?&body=${msg}` : null;
+
+  return (
+    <div
+      onClick={onClose}
+      style={{
+        position: "fixed", inset: 0, background: "rgba(15,21,25,0.55)", zIndex: 1000,
+        display: "flex", alignItems: "center", justifyContent: "center", padding: 20,
+      }}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="dn-card"
+        style={{ maxWidth: 440, width: "100%", padding: 28 }}
+      >
+        <h2 style={{ marginTop: 0, marginBottom: 8, fontFamily: "var(--font-display)" }}>
+          Invite someone to vote 🗳
+        </h2>
+        <p style={{ color: "var(--ink2)", fontSize: 14, marginBottom: 18 }}>
+          {soloIntro
+            ? "Send this to whoever you're planning with — they can vote without an account."
+            : "Anyone with this link can vote on the options — no account needed. Guest votes advise the group; members decide."}
+        </p>
+
+        {error && <p style={{ color: "var(--error)", fontSize: 14 }}>{error}</p>}
+        {!shareUrl && !error && <p style={{ color: "var(--ink2)", fontSize: 14 }}>Creating link…</p>}
+
+        {shareUrl && (
+          <>
+            <div style={{
+              background: "var(--bg)", border: "1.5px solid var(--line)", borderRadius: 14,
+              padding: "10px 14px", fontSize: 13, color: "var(--primary)",
+              wordBreak: "break-all", marginBottom: 14,
+            }}>
+              {shareUrl}
+            </div>
+            <button className="dn-btn dn-btn--primary" onClick={handleCopy} style={{ width: "100%", marginBottom: 10 }}>
+              {copied ? "✓ Copied to clipboard!" : "📋 Copy link"}
+            </button>
+            <div style={{ display: "flex", gap: 10, marginBottom: 14 }}>
+              {waUrl && (
+                <a href={waUrl} target="_blank" rel="noopener noreferrer" className="dn-btn" style={{ flex: 1, textAlign: "center", textDecoration: "none" }}>
+                  📱 WhatsApp
+                </a>
+              )}
+              {smsUrl && (
+                <a href={smsUrl} className="dn-btn" style={{ flex: 1, textAlign: "center", textDecoration: "none" }}>
+                  💬 Text / SMS
+                </a>
+              )}
+            </div>
+          </>
+        )}
+
+        <button className="dn-btn dn-btn--secondary" onClick={onClose} style={{ width: "100%" }}>
+          Close
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // ── Main component ────────────────────────────────────────────────────────────
 export function ProposalPage() {
   const { proposalId } = useParams<{ proposalId: string }>();
+  const location = useLocation();
   const queryClient = useQueryClient();
   const user = useAuthStore((s) => s.user);
   const [showCounter, setShowCounter] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
+  // Solo-start: auto-open the guest-vote invite sheet when navigated with state
+  const soloShare = !!(location.state as { openInvite?: boolean } | null)?.openInvite;
+  const [showInviteModal, setShowInviteModal] = useState(soloShare);
   const prevStatusRef = useRef<string | null>(null);
   const confettiInjectedRef = useRef(false);
 
@@ -401,6 +493,15 @@ export function ProposalPage() {
               onClick={() => setShowShareModal(true)}
             >
               📤 Share
+            </button>
+          )}
+          {proposal.status === "OPEN" && (
+            <button
+              className="dn-btn dn-btn--sm"
+              style={{ marginLeft: "auto" }}
+              onClick={() => setShowInviteModal(true)}
+            >
+              🗳 Invite someone to vote
             </button>
           )}
         </div>
@@ -881,6 +982,15 @@ export function ProposalPage() {
           <ShareModal
             proposalId={proposalId}
             onClose={() => setShowShareModal(false)}
+          />
+        )}
+
+        {/* ── Invite-to-vote modal (guest voting) ──────────────────────────── */}
+        {showInviteModal && proposalId && (
+          <InviteVoteModal
+            proposalId={proposalId}
+            soloIntro={soloShare}
+            onClose={() => setShowInviteModal(false)}
           />
         )}
 

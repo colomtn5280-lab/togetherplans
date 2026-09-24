@@ -235,6 +235,29 @@ export const proposalsApi = {
     proposalId: string,
   ): Promise<AxiosResponse<Proposal>> =>
     api.patch(`/proposals/${proposalId}/cancel`),
+
+  shareLink: (
+    proposalId: string,
+  ): Promise<AxiosResponse<{ shareToken: string; shareUrl: string }>> =>
+    api.post(`/proposals/${proposalId}/share-link`),
+};
+
+// ── Public share / guest voting (no auth) ─────────────────────────────────────
+
+export const publicShareApi = {
+  get: (
+    shareToken: string,
+    guestId?: string,
+  ): Promise<AxiosResponse<import("../types").PublicShareProposal>> =>
+    api.get(`/share/${shareToken}`, { params: guestId ? { guestId } : {} }),
+
+  vote: (
+    shareToken: string,
+    body: { optionId: string; guestId: string; guestName?: string },
+  ): Promise<AxiosResponse<{
+    vote: { optionId: string; guestName: string | null };
+    proposal: import("../types").PublicShareProposal;
+  }>> => api.post(`/share/${shareToken}/vote`, body),
 };
 
 // ── Suggestions ───────────────────────────────────────────────────────────────

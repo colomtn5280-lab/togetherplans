@@ -25,6 +25,10 @@ import { ForgotPasswordPage } from "./pages/ForgotPasswordPage";
 import { ResetPasswordPage } from "./pages/ResetPasswordPage";
 import { JoinPage } from "./pages/JoinPage";
 import { ShareCardPage, PublicSharePage } from "./pages/ShareCardPage";
+import { GuestVotePage, getGuestId } from "./pages/GuestVotePage";
+import { useParams } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { publicShareApi } from "./api/client";
 import { AfterDarkPage } from './pages/AfterDarkPage';
 import { FacebookCallbackPage } from './pages/FacebookCallbackPage';
 import { AppleCallbackPage } from './pages/AppleCallbackPage';
@@ -44,6 +48,35 @@ const queryClient = new QueryClient({
     },
   },
 });
+
+// /share/:shareToken smart resolver — new guest-vote tokens render the guest
+// voting experience; legacy 32-hex share-card tokens fall back to the old
+// decided-proposal share card view.
+function SmartSharePage() {
+  const { shareToken } = useParams<{ shareToken: string }>();
+  const { data, isLoading } = useQuery({
+    queryKey: ["share-resolve", shareToken],
+    queryFn: async () => {
+      try {
+        await publicShareApi.get(shareToken!, getGuestId());
+        return "guest" as const;
+      } catch {
+        return "legacy" as const;
+      }
+    },
+    enabled: !!shareToken,
+    retry: false,
+    staleTime: 60_000,
+  });
+  if (isLoading) {
+    return (
+      <main style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh" }}>
+        <p style={{ color: "var(--ink2)" }}>Loading…</p>
+      </main>
+    );
+  }
+  return data === "guest" ? <GuestVotePage /> : <PublicSharePage />;
+}
 
 function NotFoundPage() {
   return (
@@ -111,7 +144,8 @@ export default function App() {
           <Route path="/join/:token" element={<JoinPage />} />
 
           {/* ── Public share card — no auth needed ── */}
-          <Route path="/share/:shareToken" element={<PublicSharePage />} />
+          <Route path="/share/:shareToken" element={<SmartSharePage />} />
+          <Route path="/vote/:shareToken" element={<GuestVotePage />} />
 
           {/* ── Protected routes (redirect unauthenticated users to login) ── */}
           <Route element={<ProtectedRoute />}>

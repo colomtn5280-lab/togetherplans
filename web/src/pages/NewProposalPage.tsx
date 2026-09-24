@@ -6,11 +6,12 @@
  * Sends proposal to backend. Shows success screen with confetti.
  */
 import { useState, useEffect, useRef } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { proposalsApi, groupsApi } from "../api/client";
 import { AppNav } from "../components/AppNav";
 import { usePlanBuilder } from "../contexts/PlanBuilderContext";
+import { useAuthStore } from "../store/auth.store";
 import type { Group, PlanBuilderOption } from "../types";
 import type { AxiosError } from "axios";
 import type { ApiError } from "../types";
@@ -265,6 +266,8 @@ function PreviewPanel({ opts, title, partnerName }: { opts: PlanBuilderOption[];
 // ── Main Page ─────────────────────────────────────────────────────────────────
 export function NewProposalPage() {
   const location = useLocation();
+  const navigate = useNavigate();
+  const authUser = useAuthStore((s) => s.user);
   const { options: pbOptions, clearPlan } = usePlanBuilder();
 
   // Options come from router state (from PlanBuilderDock) or context
@@ -309,6 +312,7 @@ export function NewProposalPage() {
   const [success, setSuccess] = useState(false);
   const [createdId, setCreatedId] = useState("");
   const [showPreview, setShowPreview] = useState(false);
+  const [groupsLoaded, setGroupsLoaded] = useState(false);
 
   // Update title suggestion when options change
   const titleInitialized = useRef(false);
@@ -332,8 +336,15 @@ export function NewProposalPage() {
         const partner = g.members.find((m) => m.userId !== me);
         if (partner) setPartnerName(partner.user?.displayName ?? "your partner");
       }
-    }).catch(() => {});
+    }).catch(() => {}).finally(() => setGroupsLoaded(true));
   }, []);
+
+  // Solo-start: zero-group users get a personal space auto-created on send
+  const isSoloStart = groupsLoaded && groups.length === 0;
+  const firstName =
+    authUser?.firstName ??
+    authUser?.displayName?.split(" ")[0] ??
+    "Your";
 
   const removeOption = (id: string) => {
     setOptions((prev) => prev.filter((o) => o.id !== id));
@@ -346,7 +357,17 @@ export function NewProposalPage() {
       if (options.length < 1) { setOptionsError("Add at least 1 activity"); throw new Error("no options"); }
       if (options.length > 5) { setOptionsError("Maximum 5 options"); throw new Error("too many"); }
       setOptionsError("");
-      if (!selectedGroupId) { setOptionsError("Select a group"); throw new Error("no group"); }
+
+      let groupId = selectedGroupId;
+      let solo = false;
+      if (!groupId) {
+        if (!isSoloStart) { setOptionsError("Select a group"); throw new Error("no group"); }
+        // Solo-start: transparently create a personal space — no group wall
+        const groupRes = await groupsApi.create({ name: `${firstName}'s plans` });
+        groupId = (groupRes.data as any)?.id ?? "";
+        if (!groupId) { setOptionsError("Could not set up your space. Please try again."); throw new Error("group create failed"); }
+        solo = true;
+      }
 
       const dt = new Date(datetime);
       const apiOptions = options.map((o) => ({
@@ -363,16 +384,22 @@ export function NewProposalPage() {
       }));
 
       const res = await proposalsApi.create({
-        groupId: selectedGroupId,
+        groupId,
         title: title.trim(),
         dateTime: dt.toISOString(),
         options: apiOptions,
       });
-      return (res.data as any)?.id ?? (res.data as any)?.proposal?.id ?? "";
+      const id = (res.data as any)?.id ?? (res.data as any)?.proposal?.id ?? "";
+      return { id, solo };
     },
-    onSuccess: (id: string) => {
-      setCreatedId(id);
+    onSuccess: ({ id, solo }: { id: string; solo: boolean }) => {
       clearPlan();
+      if (solo && id) {
+        // Land on the proposal page with the guest-vote share sheet auto-opened
+        navigate(`/proposals/${id}`, { state: { openInvite: true } });
+        return;
+      }
+      setCreatedId(id);
       setSuccess(true);
     },
   });
@@ -547,6 +574,23 @@ export function NewProposalPage() {
           </section>
         )}
 
+        {/* Solo-start notice — zero-group users, no wall */}
+        {isSoloStart && (
+          <section style={{ marginBottom: 20 }}>
+            <div style={{
+              background: "rgba(14,140,140,0.07)",
+              border: "1.5px solid var(--primary)",
+              borderRadius: 14,
+              padding: "14px 18px",
+              fontSize: 14,
+              color: "var(--ink)",
+            }}>
+              ✨ We'll start a personal space for you (<strong>{firstName}'s plans</strong>) —
+              then you can send a link to whoever you're planning with, and they can vote without an account.
+            </div>
+          </section>
+        )}
+
         {/* Preview toggle */}
         <button
           className="dn-btn dn-btn--tonal"
@@ -574,7 +618,11 @@ export function NewProposalPage() {
           disabled={mutation.isPending}
           onClick={() => mutation.mutate()}
         >
-          {mutation.isPending ? "Sending…" : `Send to ${partnerName} ♥`}
+          {mutation.isPending
+            ? "Sending…"
+            : isSoloStart
+              ? "Create plan & get share link →"
+              : `Send to ${partnerName} ♥`}
         </button>
       </main>
     </>
