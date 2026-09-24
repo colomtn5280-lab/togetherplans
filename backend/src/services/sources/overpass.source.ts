@@ -146,11 +146,47 @@ const TAG_RULES: Array<{
   },
   {
     query: '["leisure"="miniature_golf"]',
-    category: 'Active',
+    category: 'Golf',
     costTier: '$',
     descriptionFn: () => 'Mini golf -- easy going, competitive enough to be fun.',
     dateFriendly: true,
     groupFriendly: true,
+    durationMinutes: 90,
+  },
+  {
+    query: '["leisure"="golf_course"]',
+    category: 'Golf',
+    costTier: '$$',
+    descriptionFn: (t) => `Golf course${t.holes ? ` -- ${t.holes} holes` : ''}. Book a tee time or hit the range.`,
+    dateFriendly: true,
+    groupFriendly: true,
+    durationMinutes: 240,
+  },
+  {
+    query: '["golf"="driving_range"]',
+    category: 'Golf',
+    costTier: '$',
+    descriptionFn: () => 'Driving range -- bucket of balls, no tee time needed.',
+    dateFriendly: true,
+    groupFriendly: true,
+    durationMinutes: 90,
+  },
+  {
+    query: '["leisure"="spa"]',
+    category: 'Wellness',
+    costTier: '$$',
+    descriptionFn: () => 'Day spa -- massages, facials, and a few hours of doing nothing.',
+    dateFriendly: true,
+    groupFriendly: false,
+    durationMinutes: 150,
+  },
+  {
+    query: '["leisure"="sauna"]',
+    category: 'Wellness',
+    costTier: '$$',
+    descriptionFn: () => 'Sauna -- sweat it out, cool down, repeat.',
+    dateFriendly: true,
+    groupFriendly: false,
     durationMinutes: 90,
   },
   {
@@ -181,7 +217,12 @@ async function queryOverpass(ql: string): Promise<OverpassElement[]> {
   try {
     const resp = await fetch(OVERPASS_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        // overpass-api.de returns HTTP 406 for requests without a User-Agent
+        // (Node fetch sends none by default) — this header is required.
+        'User-Agent': 'TogetherPlans/1.0 (https://togetherplans.app)',
+      },
       body: `data=${encodeURIComponent(ql)}`,
       signal: ctrl.signal,
     });
@@ -206,8 +247,8 @@ export async function fetchOverpass(
     ? TAG_RULES.filter((r) => r.category === categoryFilter)
     : TAG_RULES;
 
-  // Run all queries in parallel, cap at 6 concurrent to be polite
-  const batchSize = 6;
+  // Run all queries in parallel, cap concurrency to be polite to the public API
+  const batchSize = 9;
   const results: Suggestion[] = [];
 
   for (let i = 0; i < rules.length; i += batchSize) {

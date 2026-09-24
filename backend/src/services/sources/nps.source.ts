@@ -13,6 +13,7 @@ const NPS_BASE = 'https://developer.nps.gov/api/v1';
 
 interface NpsPark {
   id: string;
+  parkCode?: string;
   fullName: string;
   description: string;
   latitude: string;
@@ -50,6 +51,29 @@ function activityList(activities?: Array<{ name: string }>): string {
   return names.join(', ');
 }
 
+// Module-level cache of the full NPS park list (changes rarely; one fetch per instance per day)
+let parkListCache: { parks: NpsPark[]; fetchedAt: number } | null = null;
+const PARK_LIST_TTL_MS = 24 * 3600 * 1000;
+
+async function getAllParks(key: string): Promise<NpsPark[]> {
+  if (parkListCache && Date.now() - parkListCache.fetchedAt < PARK_LIST_TTL_MS) {
+    return parkListCache.parks;
+  }
+  const url = new URL(`${NPS_BASE}/parks`);
+  // BUG FIX: previously limit=20 with no location filter returned the first 20
+  // parks alphabetically (nationwide), which were then radius-filtered to ~0.
+  // The NPS API has no lat/lng search — fetch the full list (~470 parks) and
+  // filter locally.
+  url.searchParams.set('limit', '600');
+  url.searchParams.set('api_key', key);
+  const resp = await fetch(url.toString());
+  if (!resp.ok) throw new Error(`NPS /parks HTTP ${resp.status}`);
+  const data = (await resp.json()) as { data: NpsPark[] };
+  const parks = data.data ?? [];
+  parkListCache = { parks, fetchedAt: Date.now() };
+  return parks;
+}
+
 /** Fetch parks near a lat/lng within radius miles */
 export async function fetchNpsParks(
   lat: number,
@@ -60,15 +84,7 @@ export async function fetchNpsParks(
   if (!key) return [];
 
   try {
-    const url = new URL(`${NPS_BASE}/parks`);
-    url.searchParams.set('limit', '20');
-    url.searchParams.set('api_key', key);
-
-    const resp = await fetch(url.toString());
-    if (!resp.ok) return [];
-
-    const data = (await resp.json()) as { data: NpsPark[] };
-    const parks = data.data ?? [];
+    const parks = await getAllParks(key);
 
     return parks
       .map((park): Suggestion | null => {
@@ -123,9 +139,25 @@ export async function fetchNpsEvents(
   if (!key) return [];
 
   try {
+    // BUG FIX: previously limit=20 with no location filter fetched 20 arbitrary
+    // events nationwide, which the radius filter reduced to ~0. Query events by
+    // the parkCodes of parks actually near the user instead.
+    const parks = await getAllParks(key);
+    const nearbyParkCodes = parks
+      .filter((p) => {
+        const pLat = parseFloat(p.latitude);
+        const pLng = parseFloat(p.longitude);
+        if (isNaN(pLat) || isNaN(pLng) || !p.parkCode) return false;
+        return haversineMiles(lat, lng, pLat, pLng) <= Math.max(radiusMiles, 60);
+      })
+      .map((p) => p.parkCode as string)
+      .slice(0, 10);
+    if (nearbyParkCodes.length === 0) return [];
+
     const url = new URL(`${NPS_BASE}/events`);
     url.searchParams.set('limit', '20');
     url.searchParams.set('api_key', key);
+    url.searchParams.set('parkCode', nearbyParkCodes.join(','));
     // Filter to upcoming events
     const today = new Date().toISOString().split('T')[0];
     url.searchParams.set('dateStart', today);
