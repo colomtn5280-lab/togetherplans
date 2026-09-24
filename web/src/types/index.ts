@@ -189,6 +189,8 @@ export interface Suggestion {
   sourceName?: string;
   source?: "yelp" | "google" | "tmdb" | "fandango" | "internal";
   externalId?: string;
+  /** True for seed-catalog idea prompts (no real listing behind them). Absent on older responses. */
+  isIdea?: boolean;
 }
 
 export interface Category {

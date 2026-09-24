@@ -3,43 +3,19 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { suggestionsApi } from "../api/client";
 import { AppNav } from "../components/AppNav";
-import { CATEGORIES } from "../constants/categories";
+import { CATEGORIES, findCategory } from "../constants/categories";
 import { usePlanBuilder } from "../contexts/PlanBuilderContext";
 import { useAuthStore } from "../store/auth.store";
 import type { Suggestion } from "../types";
 
 // ── Category helpers ─────────────────────────────────────────────────────────
-const CATEGORY_COLORS: Record<string, string> = {
-  "Restaurants & Dining": "#FDEBD0",
-  "Live Music & Concerts": "#EBD5FB",
-  "Comedy Shows": "#FEF9C3",
-  "Movies & Theater": "#D5E8FD",
-  "Art & Museums": "#FCE4EC",
-  "Outdoor Adventures": "#D4EDDA",
-  "Sports & Active": "#FFE0B2",
-  "Nightlife & Bars": "#E8D5F5",
-  "Wellness & Spa": "#D0F4F1",
-  "Cooking & Classes": "#FFF3CD",
-  Custom: "#F0F0F0",
-};
-const CATEGORY_EMOJIS: Record<string, string> = {
-  "Restaurants & Dining": "🍽️",
-  "Live Music & Concerts": "🎵",
-  "Comedy Shows": "😂",
-  "Movies & Theater": "🎬",
-  "Art & Museums": "🎨",
-  "Outdoor Adventures": "🏔️",
-  "Sports & Active": "🏃",
-  "Nightlife & Bars": "🍸",
-  "Wellness & Spa": "💆",
-  "Cooking & Classes": "🍳",
-};
-
+// Colors & emojis come from the shared category constants (keyed by id, with
+// fallback matching on display name / legacy internal names).
 function getCategoryEmoji(cat: string): string {
-  return CATEGORY_EMOJIS[cat] ?? "📍";
+  return findCategory(cat)?.emoji ?? "📍";
 }
 function getCategoryColor(cat: string): string {
-  return CATEGORY_COLORS[cat] ?? "#F0F0F0";
+  return findCategory(cat)?.color ?? "#F0F0F0";
 }
 
 function formatEventDate(dateStr: string): string {
@@ -313,7 +289,14 @@ export function SuggestionsPage() {
     enabled: true,
   });
 
-  const all: Suggestion[] = Array.isArray(data?.data) ? data.data : (data?.data as any)?.results ?? [];
+  const raw = data?.data as unknown;
+  // Accept both response shapes: a bare array, or { results, ideas }.
+  const all: Suggestion[] = Array.isArray(raw)
+    ? raw
+    : [
+        ...(((raw as any)?.results ?? []) as Suggestion[]),
+        ...((((raw as any)?.ideas ?? []) as Suggestion[]).map((s) => ({ ...s, isIdea: true }))),
+      ];
 
   const displayed = !categoryId
     ? all
@@ -322,6 +305,11 @@ export function SuggestionsPage() {
         if (!cat) return true;
         return s.category === cat.name || (cat as any).matches?.includes(s.category);
       });
+
+  // Split honest real listings from seed-catalog idea prompts.
+  // isIdea may be absent on old cached responses — treat absent as a real result.
+  const realResults = displayed.filter((s: Suggestion) => s.isIdea !== true);
+  const ideas = displayed.filter((s: Suggestion) => s.isIdea === true);
 
   // Added key set
   const addedKeys = new Set(planOptions.map((o) => o.name + (o.address ?? "")));
@@ -443,14 +431,14 @@ export function SuggestionsPage() {
           </div>
         )}
 
-        {/* Suggestions 4-up grid */}
-        {displayed.length > 0 && (
+        {/* Suggestions 4-up grid — real listings only */}
+        {realResults.length > 0 && (
           <div
             style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 20 }}
             data-testid="suggestions-list"
             className="suggestions-grid"
           >
-            {displayed.map((s: Suggestion, i: number) => {
+            {realResults.map((s: Suggestion, i: number) => {
               const key = s.name + (s.address ?? "");
               const added = addedKeys.has(key);
               const priceStr = s.priceLevel ? "$".repeat(s.priceLevel) : null;
@@ -516,6 +504,70 @@ export function SuggestionsPage() {
                 </div>
               );
             })}
+          </div>
+        )}
+
+        {/* Ideas section — seed-catalog prompts, honestly framed */}
+        {ideas.length > 0 && (
+          <div style={{ marginTop: realResults.length > 0 ? 40 : 8 }} data-testid="ideas-section">
+            <h2 style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: 22, marginBottom: 4 }}>
+              Ideas to spark the plan ✨
+            </h2>
+            <p style={{ color: "var(--ink2)", fontSize: 14, marginBottom: 18 }}>
+              No live listings for this filter yet — here are some starters.
+            </p>
+            <div
+              style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16 }}
+              className="suggestions-grid"
+            >
+              {ideas.map((s: Suggestion) => {
+                const key = s.name + (s.address ?? "");
+                const added = addedKeys.has(key);
+                return (
+                  <div
+                    key={s.id}
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      textAlign: "center",
+                      border: "2px dashed var(--line)",
+                      background: `${getCategoryColor(s.category)}55`,
+                      borderRadius: 20,
+                      padding: "24px 18px 18px",
+                    }}
+                  >
+                    <div style={{ fontSize: 40, marginBottom: 10 }}>
+                      {getCategoryEmoji(s.category)}
+                    </div>
+                    <h3 style={{ fontSize: 15, marginBottom: 6 }}>{s.name}</h3>
+                    {s.description && (
+                      <p style={{ color: "var(--ink2)", fontSize: 12, marginBottom: 12, lineHeight: 1.5 }}>
+                        {s.description}
+                      </p>
+                    )}
+                    <button
+                      className={`dn-btn dn-btn--sm ${added ? "dn-btn--tonal" : "dn-btn--secondary"}`}
+                      style={{ marginTop: "auto", width: "100%" }}
+                      onClick={() => {
+                        if (!isAuthenticated) {
+                          navigate("/signup");
+                          return;
+                        }
+                        if (added) return;
+                        addOption({
+                          name: s.name,
+                          category: s.category,
+                          description: s.description,
+                        });
+                      }}
+                    >
+                      {added ? "✓ In Plan" : isAuthenticated ? "+ Add to Plan" : "Sign up to save your plan →"}
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         )}
 
