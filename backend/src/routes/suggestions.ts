@@ -89,28 +89,3 @@ suggestionsRouter.get('/', async (req: Request, res: Response, next: NextFunctio
 });
 
 
-// ── Temporary: test Gemini API from production ─────────────────────────────
-suggestionsRouter.get('/gemini-test', async (_req: import('express').Request, res: import('express').Response) => {
-  const key = process.env.GEMINI_API_KEY;
-  if (!key) return res.json({ error: 'GEMINI_API_KEY not set' });
-  try {
-    const r = await fetch(
-      'https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent',
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
-        body: JSON.stringify({ contents: [{ parts: [{ text: 'Say hello in 3 words. Return plain text only.' }] }] }),
-        signal: AbortSignal.timeout(8000),
-      }
-    );
-    const d = await r.json() as { candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>; error?: { message?: string } };
-    return res.json({
-      key_prefix: key.slice(0, 12) + '...',
-      status: r.status,
-      error: d.error?.message ?? null,
-      response: d.candidates?.[0]?.content?.parts?.[0]?.text ?? null,
-    });
-  } catch (err) {
-    return res.json({ error: String(err) });
-  }
-});
