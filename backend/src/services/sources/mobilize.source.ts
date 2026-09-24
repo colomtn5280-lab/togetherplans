@@ -71,6 +71,44 @@ interface MobilizeResponse {
 // lat/lng (rounded to ~1km) → zip, cached for the life of the instance
 const zipCache = new Map<string, string | null>();
 
+// Static nearest-metro zip table (mirrors ZIP_PREFIX_COORDS in suggestions.ts).
+// Instant + dependency-free for the top metros; reverse-geocode only for the rest.
+const METRO_ZIPS: Array<[number, number, string]> = [
+  [40.7128, -74.006, '10001'],   // New York
+  [34.0522, -118.2437, '90012'], // Los Angeles
+  [41.8781, -87.6298, '60601'],  // Chicago
+  [29.7604, -95.3698, '77002'],  // Houston
+  [33.4484, -112.074, '85004'],  // Phoenix
+  [39.9526, -75.1652, '19102'],  // Philadelphia
+  [29.4241, -98.4936, '78205'],  // San Antonio
+  [32.7157, -117.1611, '92101'], // San Diego
+  [32.7767, -96.797, '75201'],   // Dallas
+  [30.2672, -97.7431, '78701'],  // Austin
+  [39.7392, -104.9903, '80202'], // Denver
+  [47.6062, -122.3321, '98101'], // Seattle
+  [42.3601, -71.0589, '02108'],  // Boston
+  [33.749, -84.388, '30303'],    // Atlanta
+  [25.7617, -80.1918, '33131'],  // Miami
+  [45.5051, -122.675, '97204'],  // Portland
+  [36.1699, -115.1398, '89101'], // Las Vegas
+  [36.1627, -86.7816, '37201'],  // Nashville
+  [35.2271, -80.8431, '28202'],  // Charlotte
+  [37.3382, -121.8863, '95113'], // San Jose
+];
+
+function nearestMetroZip(lat: number, lng: number): string | null {
+  let best: string | null = null;
+  let bestDist = 25; // only trust a metro zip within 25 miles
+  for (const [mLat, mLng, zip] of METRO_ZIPS) {
+    const d = haversineMiles(lat, lng, mLat, mLng);
+    if (d < bestDist) {
+      bestDist = d;
+      best = zip;
+    }
+  }
+  return best;
+}
+
 async function fetchWithTimeout(url: string, ms: number): Promise<globalThis.Response> {
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), ms);
@@ -84,8 +122,11 @@ async function fetchWithTimeout(url: string, ms: number): Promise<globalThis.Res
   }
 }
 
-/** Reverse-geocode lat/lng → US zip. Free bigdatacloud client endpoint, no key. */
+/** Reverse-geocode lat/lng → US zip: static metro table → bigdatacloud → Nominatim. */
 async function latLngToZip(lat: number, lng: number): Promise<string | null> {
+  const metro = nearestMetroZip(lat, lng);
+  if (metro) return metro;
+
   const key = `${lat.toFixed(2)}:${lng.toFixed(2)}`;
   if (zipCache.has(key)) return zipCache.get(key) ?? null;
   try {
@@ -96,6 +137,23 @@ async function latLngToZip(lat: number, lng: number): Promise<string | null> {
     if (resp.ok) {
       const data = (await resp.json()) as { postcode?: string };
       const zip = /^\d{5}$/.test(data.postcode ?? '') ? (data.postcode as string) : null;
+      if (zip) {
+        zipCache.set(key, zip);
+        return zip;
+      }
+    }
+  } catch {
+    // fall through to Nominatim
+  }
+  try {
+    const resp = await fetchWithTimeout(
+      `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=jsonv2`,
+      4000,
+    );
+    if (resp.ok) {
+      const data = (await resp.json()) as { address?: { postcode?: string } };
+      const pc = (data.address?.postcode ?? '').slice(0, 5);
+      const zip = /^\d{5}$/.test(pc) ? pc : null;
       zipCache.set(key, zip);
       return zip;
     }
