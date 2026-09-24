@@ -49,8 +49,8 @@ function loadStoredLocation(): StoredLocation | null {
     if (!raw) return null;
     const parsed = JSON.parse(raw) as StoredLocation;
     if (typeof parsed?.lat !== "number" || typeof parsed?.lng !== "number") return null;
-    // Expire stored location after 7 days
-    if (Date.now() - (parsed.savedAt ?? 0) > 7 * 24 * 60 * 60 * 1000) return null;
+    // Expire stored location after 30 days
+    if (Date.now() - (parsed.savedAt ?? 0) > 30 * 24 * 60 * 60 * 1000) return null;
     return parsed;
   } catch {
     return null;
