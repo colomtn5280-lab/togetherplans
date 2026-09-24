@@ -1,10 +1,11 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { suggestionsApi } from "../api/client";
 import { AppNav } from "../components/AppNav";
 import { CATEGORIES, findCategory } from "../constants/categories";
-import { loadFavCategories, orderCategoriesByFavorites } from "../components/FavCategories";
+import { loadFavCategories } from "../components/FavCategories";
+import "./discover-filters.css";
 import { usePlanBuilder } from "../contexts/PlanBuilderContext";
 import { useAuthStore } from "../store/auth.store";
 import type { Suggestion } from "../types";
@@ -541,9 +542,9 @@ export function SuggestionsPage() {
   const { coords, cityName, geoError, geoLoading, retryGeo } = useGeolocation();
   const { options: planOptions, addOption } = usePlanBuilder();
 
-  // Favorite categories (localStorage) — grid shows favourites first
+  // Favorite categories — retained for backward compat with localStorage
   const [favIds] = useState<string[]>(() => loadFavCategories());
-  const orderedCategories = useMemo(() => orderCategoriesByFavorites(favIds), [favIds]);
+  void favIds; // blob-tile UI doesn't use favIds directly but we keep it for future use
 
   const [detailSuggestion, setDetailSuggestion] = useState<Suggestion | null>(null);
   const [zipDraft, setZipDraft] = useState("");
@@ -916,75 +917,116 @@ export function SuggestionsPage() {
           </div>
         )}
 
-        {/* Category grid */}
-        <div
-          className="category-grid"
-          style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 10, marginBottom: 20 }}
-        >
+        {/* Category blob tiles */}
+        <div className="tp-filter-label">Category</div>
+        <div className="tp-tiles" role="radiogroup" aria-label="Category" data-testid="category-tiles">
+          {/* All categories */}
           <button
-            className={`dn-btn dn-btn--sm ${!categoryId ? "dn-btn--primary" : "dn-btn--tonal"}`}
+            className="tp-tile"
+            role="radio"
+            aria-checked={!categoryId ? true : false}
             onClick={() => setSearchParams((p) => { p.delete("category"); return p; })}
           >
+            <span className="tp-dot" aria-hidden={true} />
             All categories
           </button>
-          {orderedCategories.map((cat) => {
-            const isFav = favIds.includes(cat.id);
-            return (
-              <button
-                key={cat.id}
-                className={`dn-btn dn-btn--sm ${categoryId === cat.id ? "dn-btn--primary" : "dn-btn--tonal"}`}
-                onClick={() =>
-                  setSearchParams((p) => { p.set("category", cat.id); return p; })
-                }
-                style={isFav && categoryId !== cat.id ? { boxShadow: "inset 0 0 0 1.5px var(--primary)" } : undefined}
-                title={isFav ? "One of your favourites" : undefined}
-              >
-                {cat.emoji} {cat.name}{isFav ? " ★" : ""}
-              </button>
-            );
-          })}
+          {/* Comedy → comedy */}
+          <button className="tp-tile" role="radio" aria-checked={categoryId === "comedy" ? true : false}
+            onClick={() => setSearchParams((p) => { p.set("category", "comedy"); return p; })}>
+            <span className="tp-dot" aria-hidden={true} />Comedy
+          </button>
+          {/* Concerts → concerts */}
+          <button className="tp-tile" role="radio" aria-checked={categoryId === "concerts" ? true : false}
+            onClick={() => setSearchParams((p) => { p.set("category", "concerts"); return p; })}>
+            <span className="tp-dot" aria-hidden={true} />Concerts
+          </button>
+          {/* Couples Events → couples-events */}
+          <button className="tp-tile" role="radio" aria-checked={categoryId === "couples-events" ? true : false}
+            onClick={() => setSearchParams((p) => { p.set("category", "couples-events"); return p; })}>
+            <span className="tp-dot" aria-hidden={true} />Couples Events
+          </button>
+          {/* Family Events → family-events */}
+          <button className="tp-tile" role="radio" aria-checked={categoryId === "family-events" ? true : false}
+            onClick={() => setSearchParams((p) => { p.set("category", "family-events"); return p; })}>
+            <span className="tp-dot" aria-hidden={true} />Family Events
+          </button>
+          {/* Sports & Active → sports-active */}
+          <button className="tp-tile" role="radio" aria-checked={categoryId === "sports-active" ? true : false}
+            onClick={() => setSearchParams((p) => { p.set("category", "sports-active"); return p; })}>
+            <span className="tp-dot" aria-hidden={true} />Sports &amp; Active
+          </button>
+          {/* Hiking Trails → hiking-trails */}
+          <button className="tp-tile" role="radio" aria-checked={categoryId === "hiking-trails" ? true : false}
+            onClick={() => setSearchParams((p) => { p.set("category", "hiking-trails"); return p; })}>
+            <span className="tp-dot" aria-hidden={true} />Hiking Trails
+          </button>
+          {/* Hotel Stays → hotel-stays */}
+          <button className="tp-tile" role="radio" aria-checked={categoryId === "hotel-stays" ? true : false}
+            onClick={() => setSearchParams((p) => { p.set("category", "hotel-stays"); return p; })}>
+            <span className="tp-dot" aria-hidden={true} />Hotel Stays
+          </button>
+          {/* Local Experiences → local-experiences */}
+          <button className="tp-tile" role="radio" aria-checked={categoryId === "local-experiences" ? true : false}
+            onClick={() => setSearchParams((p) => { p.set("category", "local-experiences"); return p; })}>
+            <span className="tp-dot" aria-hidden={true} />Local Experiences
+          </button>
+          {/* Movies → movies */}
+          <button className="tp-tile" role="radio" aria-checked={categoryId === "movies" ? true : false}
+            onClick={() => setSearchParams((p) => { p.set("category", "movies"); return p; })}>
+            <span className="tp-dot" aria-hidden={true} />Movies
+          </button>
+          {/* Netflix Shows → netflix-shows */}
+          <button className="tp-tile" role="radio" aria-checked={categoryId === "netflix-shows" ? true : false}
+            onClick={() => setSearchParams((p) => { p.set("category", "netflix-shows"); return p; })}>
+            <span className="tp-dot" aria-hidden={true} />Netflix Shows
+          </button>
+          {/* Performing Arts → performing-arts */}
+          <button className="tp-tile" role="radio" aria-checked={categoryId === "performing-arts" ? true : false}
+            onClick={() => setSearchParams((p) => { p.set("category", "performing-arts"); return p; })}>
+            <span className="tp-dot" aria-hidden={true} />Performing Arts
+          </button>
+          {/* Restaurants & Dining → restaurants-dining */}
+          <button className="tp-tile" role="radio" aria-checked={categoryId === "restaurants-dining" ? true : false}
+            onClick={() => setSearchParams((p) => { p.set("category", "restaurants-dining"); return p; })}>
+            <span className="tp-dot" aria-hidden={true} />Restaurants &amp; Dining
+          </button>
+          {/* Volunteering → volunteering */}
+          <button className="tp-tile" role="radio" aria-checked={categoryId === "volunteering" ? true : false}
+            onClick={() => setSearchParams((p) => { p.set("category", "volunteering"); return p; })}>
+            <span className="tp-dot" aria-hidden={true} />Volunteering
+          </button>
+          {/* Wellness & Spa → wellness-spa */}
+          <button className="tp-tile" role="radio" aria-checked={categoryId === "wellness-spa" ? true : false}
+            onClick={() => setSearchParams((p) => { p.set("category", "wellness-spa"); return p; })}>
+            <span className="tp-dot" aria-hidden={true} />Wellness &amp; Spa
+          </button>
+          {/* Wine & Drinks → wine-drinks */}
+          <button className="tp-tile" role="radio" aria-checked={categoryId === "wine-drinks" ? true : false}
+            onClick={() => setSearchParams((p) => { p.set("category", "wine-drinks"); return p; })}>
+            <span className="tp-dot" aria-hidden={true} />Wine &amp; Drinks
+          </button>
         </div>
 
-        {/* Date-filter chips */}
-        <div style={{ display: "flex", gap: 8, marginBottom: 20, flexWrap: "wrap" }} data-testid="date-chips">
-          {([
-            ["tonight", "🌙 Tonight"],
-            ["this-weekend", "This weekend"],
-            ["this-week", "This week"],
-            ["anytime", "Anytime"],
-          ] as const).map(([df, label]) => (
-            <button
-              key={df}
-              className={`dn-btn dn-btn--sm ${dateFilter === df ? "dn-btn--primary" : "dn-btn--tonal"}`}
-              onClick={() => setDateFilter(df)}
-            >
-              {label}
-            </button>
-          ))}
-          {dateFilter === "tonight" && (
-            <span style={{ fontSize: 12, color: "var(--ink2)", alignSelf: "center" }}>
-              Only events dated today
-            </span>
-          )}
-        </div>
-
-        {/* Radius chips — search area for day trips & getaways */}
-        <div style={{ display: "flex", gap: 8, marginBottom: 20, flexWrap: "wrap", alignItems: "center" }} data-testid="radius-chips">
-          <span style={{ fontSize: 12, color: "var(--ink2)", fontWeight: 600 }}>Search area</span>
-          {([
-            [10, "Nearby · 10mi"],
-            [25, "25mi"],
-            [60, "60mi"],
-            [150, "Day trip · 150mi"],
-          ] as const).map(([r, label]) => (
-            <button
-              key={r}
-              className={`dn-btn dn-btn--sm ${radius === r ? "dn-btn--primary" : "dn-btn--tonal"}`}
-              onClick={() => setRadius(r)}
-            >
-              {label}
-            </button>
-          ))}
+        {/* When + How far segmented controls */}
+        <div className="tp-filter-rows">
+          <div>
+            <div className="tp-filter-label">When</div>
+            <div className="tp-seg" role="radiogroup" aria-label="When" data-testid="date-chips">
+              <button role="radio" aria-checked={dateFilter === "tonight" ? true : false} onClick={() => setDateFilter("tonight")}>Tonight</button>
+              <button role="radio" aria-checked={dateFilter === "this-weekend" ? true : false} onClick={() => setDateFilter("this-weekend")}>This weekend</button>
+              <button role="radio" aria-checked={dateFilter === "this-week" ? true : false} onClick={() => setDateFilter("this-week")}>This week</button>
+              <button role="radio" aria-checked={dateFilter === "anytime" ? true : false} onClick={() => setDateFilter("anytime")}>Anytime</button>
+            </div>
+          </div>
+          <div>
+            <div className="tp-filter-label">How far</div>
+            <div className="tp-seg" role="radiogroup" aria-label="How far" data-testid="radius-chips">
+              <button role="radio" aria-checked={radius === 10 ? true : false} onClick={() => setRadius(10)}>Nearby · 10 mi</button>
+              <button role="radio" aria-checked={radius === 25 ? true : false} onClick={() => setRadius(25)}>25 mi</button>
+              <button role="radio" aria-checked={radius === 60 ? true : false} onClick={() => setRadius(60)}>60 mi</button>
+              <button role="radio" aria-checked={radius === 150 ? true : false} onClick={() => setRadius(150)}>Day trip · 150 mi</button>
+            </div>
+          </div>
         </div>
 
         {/* Controls row */}
