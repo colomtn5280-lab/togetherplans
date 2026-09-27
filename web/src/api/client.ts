@@ -355,6 +355,12 @@ export const afterDarkApi = {
     optionAddress?: string,
   ): Promise<AxiosResponse<{ proposal: import("../types").Proposal; message: string; impulseDateTime: string }>> =>
     api.post("/after-dark/impulse", { groupId, optionName, optionCategory, optionAddress }),
+
+  getItems: (params?: { tier?: 'ROMANTIC' | 'SPICY'; page?: number; limit?: number }): Promise<AxiosResponse<{ items: import("../types").AfterDarkItem[]; pagination: { page: number; limit: number; total: number; pages: number } }>> =>
+    api.get("/after-dark/items", { params }),
+
+  createIdea: (data: { title: string; description: string; tier: string; icon?: string; groupId: string }): Promise<AxiosResponse<import("../types").AfterDarkItem>> =>
+    api.post("/after-dark/ideas", data),
 };
 
 // Categories — unified 15-category list (+ Custom) from GET /api/categories,

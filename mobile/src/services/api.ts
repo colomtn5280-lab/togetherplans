@@ -80,6 +80,8 @@ export const afterDarkAPI = {
   setMood: (mood: string) => api.post('/api/after-dark/mood', { mood }),
   impulse: (groupId: string, optionName: string, optionCategory: string, optionAddress?: string) =>
     api.post('/api/after-dark/impulse', { groupId, optionName, optionCategory, optionAddress }),
+  getItems: (params?: { tier?: 'ROMANTIC' | 'SPICY'; page?: number; limit?: number }) =>
+    api.get('/api/after-dark/items', { params }),
 };
 
 // Option shape for proposal creation

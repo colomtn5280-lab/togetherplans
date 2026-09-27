@@ -24,7 +24,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { CARD_RADII, SHADOWS, SPACING, TYPE } from '@/constants';
 import { DNButton, DNScreenHeader, DNSticker, DNText } from '@/components/ui';
 import { afterDarkAPI } from '@/services/api';
-import type { AfterDarkStatus, AfterDarkMood, AfterDarkSuggestion, RootStackParamList } from '@/types';
+import type { AfterDarkStatus, AfterDarkMood, AfterDarkSuggestion, AfterDarkItem, RootStackParamList } from '@/types';
 
 type RouteT = RouteProp<RootStackParamList, 'AfterDark'>;
 
@@ -378,6 +378,10 @@ export default function AfterDarkScreen() {
   const [impulseItem, setImpulseItem] = useState<AfterDarkSuggestion | null>(null);
   const [showImpulse, setShowImpulse] = useState(false);
 
+  // Catalog state
+  const [catalogItems, setCatalogItems] = useState<AfterDarkItem[]>([]);
+  const [selectedCatalogItem, setSelectedCatalogItem] = useState<AfterDarkItem | null>(null);
+
   // Glow pulse for the dark banner
   const glowAnim = useRef(new Animated.Value(0.7)).current;
   useEffect(() => {
@@ -421,6 +425,18 @@ export default function AfterDarkScreen() {
       loadSuggestions(selectedMood);
     }
   }, [status?.active]);
+
+  // Load catalog items on mount
+  useEffect(() => {
+    afterDarkAPI.getItems({ limit: 40 })
+      .then((res) => {
+        const data = res.data as { items?: AfterDarkItem[] };
+        setCatalogItems(data.items ?? []);
+      })
+      .catch(() => {
+        console.warn('AfterDark catalog load failed');
+      });
+  }, []);
 
   const handleMoodSelect = async (mood: AfterDarkMood) => {
     const prev = selectedMood;
@@ -522,6 +538,153 @@ export default function AfterDarkScreen() {
             />
           ))}
         </ScrollView>
+
+        {/* Romantic & Spicy Ideas Catalog */}
+        {catalogItems.length > 0 && (
+          <View style={{ marginBottom: SPACING.lg }}>
+            <Text
+              style={[
+                TYPE.section,
+                { color: isActive ? 'rgba(255,255,255,0.5)' : colors.ink2, marginBottom: SPACING.sm },
+              ]}
+            >
+              Romantic & Spicy Ideas
+            </Text>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ gap: 12, paddingRight: SPACING.gutter }}
+              style={{ marginHorizontal: -SPACING.gutter, paddingHorizontal: SPACING.gutter }}
+            >
+              {catalogItems.map((item) => {
+                const isDark = ['#2D1B2E', '#8E3448', '#4A1525', '#B2485E'].includes(item.color);
+                return (
+                  <TouchableOpacity
+                    key={item.id}
+                    onPress={() => setSelectedCatalogItem(item)}
+                    activeOpacity={0.82}
+                    style={{
+                      backgroundColor: item.color,
+                      borderRadius: 18,
+                      padding: 16,
+                      width: 140,
+                      alignItems: 'center',
+                    }}
+                  >
+                    <Text style={{ fontSize: 32, marginBottom: 8 }}>{item.icon}</Text>
+                    <Text
+                      style={{
+                        fontFamily: 'Sora-Bold',
+                        fontSize: 12,
+                        color: isDark ? '#F7E3E7' : '#2D1020',
+                        textAlign: 'center',
+                        lineHeight: 16,
+                      }}
+                      numberOfLines={2}
+                    >
+                      {item.title}
+                    </Text>
+                    <View
+                      style={{
+                        marginTop: 6,
+                        backgroundColor: isDark ? 'rgba(255,255,255,0.15)' : 'rgba(45,16,32,0.1)',
+                        borderRadius: 100,
+                        paddingHorizontal: 8,
+                        paddingVertical: 2,
+                      }}
+                    >
+                      <Text style={{ fontSize: 10, color: isDark ? '#F7E3E7' : '#2D1020' }}>
+                        {item.tier === 'ROMANTIC' ? '💫 Romantic' : '🔥 Spicy'}
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                );
+              })}
+            </ScrollView>
+          </View>
+        )}
+
+        {/* Catalog item detail modal */}
+        {selectedCatalogItem && (
+          <Modal
+            transparent
+            animationType="slide"
+            visible={!!selectedCatalogItem}
+            onRequestClose={() => setSelectedCatalogItem(null)}
+          >
+            <TouchableOpacity
+              style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(0,0,0,0.6)' }]}
+              activeOpacity={1}
+              onPress={() => setSelectedCatalogItem(null)}
+            />
+            <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0 }}>
+              <View
+                style={[
+                  {
+                    backgroundColor: selectedCatalogItem.color,
+                    borderTopLeftRadius: 32,
+                    borderTopRightRadius: 32,
+                    padding: SPACING.xl,
+                    paddingBottom: SPACING.xl + 16,
+                    alignItems: 'center',
+                  },
+                  SHADOWS.dock,
+                ]}
+              >
+                {(() => {
+                  const isDark = ['#2D1B2E', '#8E3448', '#4A1525', '#B2485E'].includes(selectedCatalogItem.color);
+                  const textColor = isDark ? '#F7E3E7' : '#2D1020';
+                  const subColor = isDark ? 'rgba(247,227,231,0.7)' : 'rgba(45,16,32,0.65)';
+                  return (
+                    <>
+                      <Text style={{ fontSize: 48, marginBottom: SPACING.sm }}>{selectedCatalogItem.icon}</Text>
+                      <DNText variant="title" style={{ color: textColor, textAlign: 'center', marginBottom: SPACING.xs }}>
+                        {selectedCatalogItem.title}
+                      </DNText>
+                      <DNText variant="body" style={{ color: subColor, textAlign: 'center', marginBottom: SPACING.lg }}>
+                        {selectedCatalogItem.description}
+                      </DNText>
+                      <View
+                        style={{
+                          backgroundColor: isDark ? 'rgba(255,255,255,0.12)' : 'rgba(45,16,32,0.1)',
+                          borderRadius: 100,
+                          paddingHorizontal: 14,
+                          paddingVertical: 5,
+                          marginBottom: SPACING.lg,
+                        }}
+                      >
+                        <Text style={{ color: textColor, fontSize: 13, fontWeight: '600' }}>
+                          {selectedCatalogItem.tier === 'ROMANTIC' ? '💫 Romantic' : '🔥 Spicy'}
+                        </Text>
+                      </View>
+                      <DNButton
+                        label="Add to Plan"
+                        variant="primary"
+                        onPress={() => {
+                          setSelectedCatalogItem(null);
+                          navigation.navigate('CreateProposal', {
+                            prefillOption: {
+                              name: selectedCatalogItem.title,
+                              category: 'After Dark',
+                              description: selectedCatalogItem.description,
+                            },
+                          } as never);
+                        }}
+                        style={{ width: '100%', marginBottom: SPACING.sm }}
+                      />
+                      <DNButton
+                        label="Close"
+                        variant="secondary"
+                        onPress={() => setSelectedCatalogItem(null)}
+                        style={{ width: '100%' }}
+                      />
+                    </>
+                  );
+                })()}
+              </View>
+            </View>
+          </Modal>
+        )}
 
         {/* Suggestions */}
         {isActive ? (

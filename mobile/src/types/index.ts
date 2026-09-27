@@ -205,6 +205,20 @@ export interface ShareCard {
 
 // ── After Dark types ───────────────────────────────────────────────────────────
 
+export interface AfterDarkItem {
+  id: string;
+  title: string;
+  description: string;
+  tier: 'ROMANTIC' | 'SPICY';
+  icon: string;
+  color: string;
+  createdBy: string | null;
+  groupId: string | null;
+  reportedCount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export type AfterDarkMood =
   | 'adventurous'
   | 'romantic'
