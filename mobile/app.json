@@ -1,12 +1,12 @@
 {
   "expo": {
-    "name": "TogetherPlans",
-    "slug": "togetherplans",
+    "name": "DateMeUp",
+    "slug": "datemeup",
     "version": "1.2.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
-    "scheme": "togetherplans",
+    "scheme": "datemeup",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
@@ -16,15 +16,15 @@
       "supportsTablet": false,
       "bundleIdentifier": "app.togetherplans.datenight",
       "infoPlist": {
-        "NSLocationWhenInUseUsageDescription": "TogetherPlans uses your location to suggest nearby activities.",
-        "NSCameraUsageDescription": "TogetherPlans uses your camera for QR code scanning.",
-        "NSPhotoLibraryUsageDescription": "TogetherPlans may access your photos for profile pictures.",
+        "NSLocationWhenInUseUsageDescription": "DateMeUp uses your location to suggest nearby activities.",
+        "NSCameraUsageDescription": "DateMeUp uses your camera for QR code scanning.",
+        "NSPhotoLibraryUsageDescription": "DateMeUp may access your photos for profile pictures.",
         "ITSAppUsesNonExemptEncryption": false
       },
       "buildNumber": "3"
     },
     "android": {
-      "package": "togetherplans.app",
+      "package": "datemeup.app",
       "versionCode": 3,
       "adaptiveIcon": {
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -46,7 +46,7 @@
           "data": [
             {
               "scheme": "https",
-              "host": "togetherplans.app",
+              "host": "datemeup.app",
               "pathPrefix": "/join"
             }
           ],
@@ -78,9 +78,9 @@
       "@react-native-community/datetimepicker"
     ],
     "extra": {
-      "apiBaseUrl": "https://api.togetherplans.app",
-      "privacyPolicyUrl": "https://api.togetherplans.app/privacy",
-      "termsUrl": "https://api.togetherplans.app/terms",
+      "apiBaseUrl": "https://api.datemeup.app",
+      "privacyPolicyUrl": "https://api.datemeup.app/privacy",
+      "termsUrl": "https://api.datemeup.app/terms",
       "eas": {
         "projectId": "01082da3-36a9-4e80-94f3-a028aeab083f"
       }

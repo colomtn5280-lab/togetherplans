@@ -124,7 +124,7 @@ export default function LoginScreen({ navigation }: Props) {
 
         {/* Title */}
         <Text style={[TYPE.display, { color: colors.ink, textAlign: 'center', marginTop: SPACING.md }]}>
-          TogetherPlans!
+          DateMeUp!
         </Text>
         <Text style={[TYPE.body, { color: colors.ink2, textAlign: 'center', marginTop: SPACING.xs, marginBottom: SPACING.xl }]}>
           Plan together, decide together

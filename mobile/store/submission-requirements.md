@@ -2,15 +2,15 @@
 Updated: September 10, 2026
 
 ## Bundle Identifiers
-- iOS:     app.togetherplans.datenight
-- Android: app.togetherplans.datenight
+- iOS:     app.datemeup.datenight
+- Android: app.datemeup.datenight
 
 ## What You Need Before Submitting
 
 ### Both Stores
-- [x] Privacy Policy URL: https://api.togetherplans.app/privacy
-- [x] Terms of Service URL: https://api.togetherplans.app/terms
-- [x] Support email: hello@togetherplans.app
+- [x] Privacy Policy URL: https://api.datemeup.app/privacy
+- [x] Terms of Service URL: https://api.datemeup.app/terms
+- [x] Support email: hello@datemeup.app
 - [x] App icon — 1024x1024 PNG, no alpha (DONE: ~/DateNight/mobile/assets/icon.png)
 - [x] Android icon 512x512 (DONE: ~/DateNight/mobile/assets/icons/icon-512.png)
 - [x] All icon size variants generated (~/DateNight/mobile/assets/icons/)
@@ -31,7 +31,7 @@ Updated: September 10, 2026
 - [x] App Store Connect app record created (ASC App ID: 6806890578)
 - [x] Apple Team ID: 234UWRXT57
 - [x] eas.json updated with real Team ID and ASC App ID
-- [x] Bundle ID registered: app.togetherplans.datenight
+- [x] Bundle ID registered: app.datemeup.datenight
 - [ ] Privacy nutrition labels completed in App Store Connect
 - [ ] 6 screenshots uploaded at 6.7" and 6.5" sizes
 
@@ -88,7 +88,7 @@ User can request deletion: Yes — via account settings in the app.
 ---
 
 ## Useful Links
-- EAS Builds: https://expo.dev/accounts/colomtn5280s-team/projects/togetherplans/builds
+- EAS Builds: https://expo.dev/accounts/colomtn5280s-team/projects/datemeup/builds
 - App Store Connect: https://appstoreconnect.apple.com
 - Play Console: https://play.google.com/console
 - Apple Developer: https://developer.apple.com/account

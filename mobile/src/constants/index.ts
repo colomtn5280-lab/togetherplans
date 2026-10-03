@@ -3,7 +3,7 @@
 // HANDOFF_README.md § Design tokens
 // ─────────────────────────────────────────────────────────────────────────────
 
-export const API_BASE_URL = 'https://api.togetherplans.app';
+export const API_BASE_URL = 'https://api.datemeup.app';
 
 // ── Colors ────────────────────────────────────────────────────────────────────
 export const COLORS = {

@@ -382,7 +382,7 @@ export default function ProposalDetailScreen() {
           startDate: eventDate,
           endDate,
           location,
-          notes: `TogetherPlans plan`,
+          notes: `DateMeUp plan`,
         });
       }
     } catch {}

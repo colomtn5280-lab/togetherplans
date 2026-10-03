@@ -3,7 +3,7 @@
 
 **For:** Jake  
 **Build:** EAS build ID `b4cfd99e`  
-**Bundle ID:** `app.togetherplans.datenight`
+**Bundle ID:** `app.datemeup.datenight`
 
 ---
 
@@ -12,7 +12,7 @@
 Complete every item before opening Play Console:
 
 - [ ] Google Play Developer account active — [play.google.com/console](https://play.google.com/console)
-- [ ] Production AAB downloaded from EAS — [expo.dev/accounts/colomtn5280s-team/projects/togetherplans/builds](https://expo.dev/accounts/colomtn5280s-team/projects/togetherplans/builds) (build ID: **b4cfd99e**)
+- [ ] Production AAB downloaded from EAS — [expo.dev/accounts/colomtn5280s-team/projects/datemeup/builds](https://expo.dev/accounts/colomtn5280s-team/projects/datemeup/builds) (build ID: **b4cfd99e**)
 - [ ] Store listing copy ready — see `listing-copy.md` in this folder
 - [ ] At least 2 phone screenshots ready
 - [ ] Feature graphic ready (1024 × 500 px, JPG or PNG)
@@ -89,7 +89,7 @@ Click **Start** and answer each question as follows:
 
 - Is all user data encrypted in transit? → **YES**
 - Do you provide a way for users to request deletion? → **YES**
-- **Privacy policy URL:** `https://api.togetherplans.app/privacy`
+- **Privacy policy URL:** `https://api.datemeup.app/privacy`
 
 Click **Save**.
 
@@ -119,8 +119,8 @@ Sidebar: **Store presence > Store settings**
 
 | Field | Value |
 |---|---|
-| Email address | `hello@togetherplans.app` |
-| Privacy policy URL | `https://api.togetherplans.app/privacy` |
+| Email address | `hello@datemeup.app` |
+| Privacy policy URL | `https://api.datemeup.app/privacy` |
 
 Click **Save**.
 

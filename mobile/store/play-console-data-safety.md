@@ -1,5 +1,5 @@
 # Google Play Console — Data Safety Form
-# Pre-filled answers for TogetherPlans / DateNight
+# Pre-filled answers for DateMeUp / DateNight
 # Generated: September 10, 2026
 #
 # HOW TO USE:
@@ -111,11 +111,11 @@ These answers are for the Play Console Content Rating questionnaire:
 When uploading the production AAB:
 
 1. Go to: Play Console → Testing → Internal testing → Create release
-2. Upload the AAB (download from EAS: https://expo.dev/accounts/colomtn5280s-team/projects/togetherplans/builds)
+2. Upload the AAB (download from EAS: https://expo.dev/accounts/colomtn5280s-team/projects/datemeup/builds)
    - Look for the build with profile "production" and platform "Android"
 3. Release name: 1.0.0 (or match your app.json version)
 4. Release notes (required — add for at least English):
-   "Initial release of TogetherPlans — plan date nights and group activities together.
+   "Initial release of DateMeUp — plan date nights and group activities together.
     Create groups, suggest activities, vote on proposals, and get real-time updates."
 
 5. After internal testing is live, promote to Production when ready.

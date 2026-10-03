@@ -167,7 +167,7 @@ function QRModal({
                 ...SHADOWS.card,
               }}
             >
-              <QRCode value={inviteUrl || 'https://togetherplans.app'} size={220} />
+              <QRCode value={inviteUrl || 'https://datemeup.app'} size={220} />
             </View>
 
             {/* 72H sticker */}
@@ -534,7 +534,7 @@ export default function InviteMembersScreen() {
         visible={qrVisible}
         onClose={() => setQrVisible(false)}
         groupName={groupName}
-        inviteUrl={inviteUrl || `https://togetherplans.app/join/${groupId}`}
+        inviteUrl={inviteUrl || `https://datemeup.app/join/${groupId}`}
       />
     </>
   );

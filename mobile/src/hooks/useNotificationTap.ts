@@ -7,7 +7,7 @@ import { RootStackParamList } from '@/types';
 /**
  * Routes push-notification taps to the right screen.
  *
- * All TogetherPlans pushes (vote reminders, nudges, holdout, tomorrow-hype,
+ * All DateMeUp pushes (vote reminders, nudges, holdout, tomorrow-hype,
  * guest-vote alerts) carry `data: { proposalId }` — tapping any of them lands
  * on the ProposalDetail screen. Handles both warm taps (listener) and the
  * cold-start tap that launched the app (last response).

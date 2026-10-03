@@ -1,7 +1,7 @@
-# TogetherPlans — App Store Listing Copy (v1.2.0)
+# DateMeUp — App Store Listing Copy (v1.2.0)
 
 ## App Name (30 chars max)
-TogetherPlans: Plan Together
+DateMeUp: Plan Together
 
 (28 characters)
 
@@ -21,7 +21,7 @@ Browse real local events, propose a few options, and let everyone vote — frien
 
 Stop texting "I don't know, what do you want to do?"
 
-TogetherPlans turns the endless back-and-forth into a quick, fun decision. Browse real events and places near you, pick 2–5 options you'd actually enjoy, send them to your partner or group — everyone votes, and when the group agrees, it's a match.
+DateMeUp turns the endless back-and-forth into a quick, fun decision. Browse real events and places near you, pick 2–5 options you'd actually enjoy, send them to your partner or group — everyone votes, and when the group agrees, it's a match.
 
 HOW IT WORKS
 
@@ -59,7 +59,7 @@ YOUR PRIVACY
 
 No ads. We don't sell your data. Delete your account anytime.
 
-TogetherPlans makes "what do you want to do?" the easiest question of the week. Download it and plan your next night out together.
+DateMeUp makes "what do you want to do?" the easiest question of the week. Download it and plan your next night out together.
 
 ---
 
@@ -76,22 +76,22 @@ date night,couples,events near me,group vote,things to do,activity,local events,
 17+ (app includes After Dark, an optional adults-oriented late-night mode)
 
 ## URLs
-- Support URL: https://togetherplans.app/support
-- Marketing URL: https://togetherplans.app
-- Privacy Policy URL: https://api.togetherplans.app/privacy
-- Terms of Service URL: https://api.togetherplans.app/terms
+- Support URL: https://datemeup.app/support
+- Marketing URL: https://datemeup.app
+- Privacy Policy URL: https://api.datemeup.app/privacy
+- Terms of Service URL: https://api.datemeup.app/terms
 
 ## Support Email
-hello@togetherplans.app
+hello@datemeup.app
 
 ## Copyright
-© 2026 TogetherPlans. All rights reserved.
+© 2026 DateMeUp. All rights reserved.
 
 ---
 
 ## What's New (v1.2.0)
 
-TogetherPlans 1.2.0 is a major update to how you discover and decide:
+DateMeUp 1.2.0 is a major update to how you discover and decide:
 
 • Guest voting — send a vote link to anyone; they vote from their browser, no account or download needed
 • Tonight near me — a new banner surfaces events happening tonight, with a weekend fallback when tonight is quiet

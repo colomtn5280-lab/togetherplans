@@ -5,9 +5,9 @@ import { invitationsAPI } from '@/services/api';
 import { useAuth } from '@/hooks/useAuth';
 
 /** Extracts an invite token from URLs like:
- *  togetherplans://join/TOKEN
- *  https://togetherplans.app/join/TOKEN
- *  https://api.togetherplans.app/join/TOKEN
+ *  datemeup://join/TOKEN
+ *  https://datemeup.app/join/TOKEN
+ *  https://api.datemeup.app/join/TOKEN
  */
 function parseInviteToken(url: string): string | null {
   const match = url.match(/\/join\/([^/?#]+)/);
