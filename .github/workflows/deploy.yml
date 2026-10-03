@@ -63,5 +63,7 @@ jobs:
             --project project-1af074d7-228e-4a43-bc9 \
             --platform managed \
             --allow-unauthenticated \
+            --update-env-vars "APP_URL=https://datemeup.app" \
+            --update-env-vars "CORS_ORIGIN=https://datemeup.app,https://togetherplans.app" \
             --quiet
           echo "✅ Deployed to Cloud Run. Run migrations manually if schema changed."
