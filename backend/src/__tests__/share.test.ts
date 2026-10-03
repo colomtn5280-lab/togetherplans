@@ -402,7 +402,7 @@ describe('GET /api/share/:shareToken/preview and /og', () => {
     expect(res.headers['content-type']).toContain('image/svg+xml');
     const svg = (res.body as Buffer).toString('utf8');
     expect(svg).toContain('Vote now — no account needed');
-    expect(svg).toContain('TogetherPlans');
+    expect(svg).toContain('DateMeUp');
   });
 
   it('declares og:image dimensions in the preview HTML', async () => {

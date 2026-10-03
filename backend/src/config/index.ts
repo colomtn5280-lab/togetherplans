@@ -16,7 +16,7 @@ export const config = {
     : ['http://localhost:5173', 'http://localhost:3000', 'http://localhost:8081'],
   redis_url: process.env.REDIS_URL,
   resend_api_key: process.env.RESEND_API_KEY,
-  app_url: process.env.APP_URL || 'https://togetherplans.app',
+  app_url: process.env.APP_URL || 'https://datemeup.app',
 };
 
 export const validateConfig = (): string[] => {
@@ -30,7 +30,7 @@ export const validateConfig = (): string[] => {
       errors.push('DATABASE_URL must be set in production');
     }
     if (!process.env.CORS_ORIGIN) {
-      errors.push('CORS_ORIGIN must be explicitly set in production (e.g., https://togetherplans.app)');
+      errors.push('CORS_ORIGIN must be explicitly set in production (e.g., https://datemeup.app)');
     } else if (process.env.CORS_ORIGIN.trim() === '*') {
       errors.push('CORS_ORIGIN must not be wildcard (*) in production');
     }

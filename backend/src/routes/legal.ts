@@ -3,10 +3,10 @@ import { Router, Request, Response } from 'express';
 export const legalRouter = Router();
 
 const EFFECTIVE_DATE = 'September 1, 2026';
-const CONTACT_EMAIL = 'hello@togetherplans.app';
-const APP_NAME = 'TogetherPlans';
-const COMPANY = 'TogetherPlans';
-const DOMAIN = 'togetherplans.app';
+const CONTACT_EMAIL = 'hello@datemeup.app';
+const APP_NAME = 'DateMeUp';
+const COMPANY = 'DateMeUp';
+const DOMAIN = 'datemeup.app';
 
 // GET /privacy
 legalRouter.get('/privacy', (_req: Request, res: Response) => {

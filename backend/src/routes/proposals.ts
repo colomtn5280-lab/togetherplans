@@ -201,7 +201,7 @@ proposalsRouter.post('/:id/share-link', async (req: AuthRequest, res: Response, 
       shareToken = generateShareToken();
       await prisma.proposal.update({ where: { id: proposal.id }, data: { shareToken } });
     }
-    const appUrl = process.env.APP_URL || 'https://togetherplans.app';
+    const appUrl = process.env.APP_URL || 'https://datemeup.app';
     return res.json({ shareToken, shareUrl: `${appUrl}/vote/${shareToken}` });
   } catch (err) {
     return next(err);

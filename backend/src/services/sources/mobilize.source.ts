@@ -115,7 +115,7 @@ async function fetchWithTimeout(url: string, ms: number): Promise<globalThis.Res
   try {
     return await fetch(url, {
       signal: ctrl.signal,
-      headers: { 'User-Agent': 'TogetherPlans/1.0 (hello@togetherplans.app)' },
+      headers: { 'User-Agent': 'DateMeUp/1.0 (hello@datemeup.app)' },
     });
   } finally {
     clearTimeout(timer);

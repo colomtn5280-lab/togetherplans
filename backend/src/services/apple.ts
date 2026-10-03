@@ -5,8 +5,8 @@ const APPLE_ISSUER = 'https://appleid.apple.com';
 
 // Bundle ID for native mobile token; Services ID for web (if ever added)
 const VALID_AUDIENCES = [
-  'app.togetherplans.datenight',         // native iOS
-  'com.togetherplans.datenight.web',     // Services ID (web flow)
+  'app.datemeup.datenight',         // native iOS
+  'com.datemeup.datenight.web',     // Services ID (web flow)
 ];
 
 let jwks: ReturnType<typeof createRemoteJWKSet> | null = null;

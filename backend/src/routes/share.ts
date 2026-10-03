@@ -208,8 +208,8 @@ shareRouter.post('/:shareToken/vote', guestVoteLimiter, async (req: Request, res
 // GET /api/share/:token/preview; humans who land here directly are instantly
 // redirected to the SPA voting page.
 
-const APP_URL = process.env.APP_URL || 'https://togetherplans.app';
-const API_URL = process.env.API_URL || 'https://api.togetherplans.app';
+const APP_URL = process.env.APP_URL || 'https://datemeup.app';
+const API_URL = process.env.API_URL || 'https://api.datemeup.app';
 
 function escHtml(s: string): string {
   return s
@@ -255,7 +255,7 @@ shareRouter.get('/:shareToken/preview', async (req: Request, res: Response, next
 <title>${escHtml(ogTitle)}</title>
 <meta name="description" content="${escHtml(ogDescription)}">
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="TogetherPlans">
+<meta property="og:site_name" content="DateMeUp">
 <meta property="og:title" content="${escHtml(ogTitle)}">
 <meta property="og:description" content="${escHtml(ogDescription)}">
 <meta property="og:image" content="${escHtml(ogImage)}">
@@ -319,12 +319,12 @@ shareRouter.get('/:shareToken/og', async (req: Request, res: Response, next: Nex
   <rect width="1200" height="630" fill="url(#bg)"/>
   <circle cx="1050" cy="100" r="200" fill="#7CB518" fill-opacity="0.15"/>
   <circle cx="100" cy="550" r="150" fill="#ffffff" fill-opacity="0.05"/>
-  <text x="60" y="90" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="34" font-weight="800" fill="#D9F1F0" letter-spacing="0.5">TogetherPlans</text>
+  <text x="60" y="90" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="34" font-weight="800" fill="#D9F1F0" letter-spacing="0.5">DateMeUp</text>
   <text x="60" y="290" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="56" font-weight="800" fill="#ffffff" letter-spacing="-1">${escXml(title)}</text>
   <text x="60" y="365" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="32" fill="#D9F1F0">${escXml(subtitle)}</text>
   <rect x="60" y="425" rx="16" width="600" height="76" fill="#7CB518"/>
   <text x="92" y="475" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="30" font-weight="800" fill="#0F1519">${escXml(cta)}</text>
-  <text x="60" y="580" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="20" fill="#7CB518" letter-spacing="0.3">Plan together. Go together. — togetherplans.app</text>
+  <text x="60" y="580" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="20" fill="#7CB518" letter-spacing="0.3">Meet up. Go together. — datemeup.app</text>
 </svg>`;
 
     if (req.query.format === 'svg') {

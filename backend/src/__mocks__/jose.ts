@@ -8,6 +8,6 @@ export const jwtVerify = jest.fn().mockResolvedValue({
     sub: 'test-apple-user-id',
     email: 'test@example.com',
     iss: 'https://appleid.apple.com',
-    aud: 'app.togetherplans.datenight',
+    aud: 'app.datemeup.datenight',
   },
 });

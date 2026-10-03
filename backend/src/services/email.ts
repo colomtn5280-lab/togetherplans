@@ -3,7 +3,7 @@ import path from 'path';
 import { Resend } from 'resend';
 import { logger } from '@/services/logger';
 
-const FROM_ADDRESS = 'TogetherPlans <hello@togetherplans.app>';
+const FROM_ADDRESS = 'DateMeUp <hello@datemeup.app>';
 
 let resend: Resend | null = null;
 
@@ -353,7 +353,7 @@ export async function sendAccountDeletedEmail(to: string, email: string): Promis
     await client.emails.send({
       from: FROM_ADDRESS,
       to,
-      subject: 'Your TogetherPlans account is deleted',
+      subject: 'Your DateMeUp account is deleted',
       html,
     });
     logger.info('Account deleted email sent', { to });

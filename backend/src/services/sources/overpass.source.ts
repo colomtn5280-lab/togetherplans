@@ -305,7 +305,7 @@ async function queryOverpass(ql: string): Promise<OverpassElement[]> {
         'Content-Type': 'application/x-www-form-urlencoded',
         // overpass-api.de returns HTTP 406 for requests without a User-Agent
         // (Node fetch sends none by default) — this header is required.
-        'User-Agent': 'TogetherPlans/1.0 (https://togetherplans.app)',
+        'User-Agent': 'DateMeUp/1.0 (https://datemeup.app)',
       },
       body: `data=${encodeURIComponent(ql)}`,
       signal: ctrl.signal,

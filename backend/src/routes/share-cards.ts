@@ -20,7 +20,7 @@ import { rasterizeOgSvgCached } from '@/services/og-image';
 
 export const shareCardsRouter = Router();
 
-const APP_URL = process.env.APP_URL || 'https://togetherplans.app';
+const APP_URL = process.env.APP_URL || 'https://datemeup.app';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -283,7 +283,7 @@ shareCardsRouter.get('/:proposalId/og-image', async (req: Request, res: Response
   <circle cx="1050" cy="100" r="200" fill="#7CB518" fill-opacity="0.15"/>
   <circle cx="100" cy="550" r="150" fill="#ffffff" fill-opacity="0.05"/>
   <!-- Brand -->
-  <text x="60" y="80" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="28" font-weight="800" fill="#D9F1F0" letter-spacing="0.5">TogetherPlans</text>
+  <text x="60" y="80" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="28" font-weight="800" fill="#D9F1F0" letter-spacing="0.5">DateMeUp</text>
   <!-- Emoji -->
   <text x="60" y="220" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="80">${emoji}</text>
   <!-- Winner name -->
@@ -295,7 +295,7 @@ shareCardsRouter.get('/:proposalId/og-image', async (req: Request, res: Response
   <!-- Address if available -->
   ${addr ? `<text x="60" y="480" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" fill="#b2dede">📍 ${esc(addr.length > 50 ? addr.slice(0, 48) + '…' : addr)}</text>` : ''}
   <!-- Tagline -->
-  <text x="60" y="580" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="20" fill="#7CB518" letter-spacing="0.3">Plan together. Go together. — togetherplans.app</text>
+  <text x="60" y="580" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="20" fill="#7CB518" letter-spacing="0.3">Meet up. Go together. — datemeup.app</text>
 </svg>`;
 
     if (req.query.format === 'svg') {
