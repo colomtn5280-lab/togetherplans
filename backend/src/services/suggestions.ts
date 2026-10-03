@@ -29,6 +29,7 @@ import { fetchPredictHQ } from './sources/predicthq.source';
 import { fetchMobilize } from './sources/mobilize.source';
 import { enrichPhotos } from './photo-enrichment';
 import { fetchAiIdeas } from './sources/ai-ideas.source';
+import { fetchTavilyFallback, tavilyAlwaysFires } from './sources/tavily.source';
 
 export type { Suggestion, SuggestionCategory, SuggestionQuery };
 
@@ -230,7 +231,7 @@ function cacheKey(query: SuggestionQuery): string {
   const cat = query.category ?? 'All';
   const rad = query.radiusMiles ?? 25;
   const date = query.dateFilter ?? 'anytime';
-  return `suggestions:v13:${loc}:${cat}:${rad}:${date}`;
+  return `suggestions:v14:${loc}:${cat}:${rad}:${date}`;
 }
 
 // Events expire sooner; places cached longer
@@ -380,29 +381,65 @@ export async function getSuggestions(query: SuggestionQuery): Promise<Suggestion
 
   logger.info(`Suggestions assembled: ${final.length} total [${sourceSummary.join(', ')}]`);
 
+  // ---------------------------------------------------------------------------
+  // Resolve city/state for AI Ideas + Tavily (shared lookup, cached)
+  // ---------------------------------------------------------------------------
+  let ideaCity = '';
+  let ideaState = '';
+  if (query.zip) {
+    try {
+      const zipData = await fetch(`https://api.zippopotam.us/us/${query.zip}`, { signal: AbortSignal.timeout(3000) });
+      if (zipData.ok) {
+        const zd = await zipData.json() as { places?: Array<{ 'place name'?: string; 'state abbreviation'?: string }> };
+        ideaCity = zd.places?.[0]?.['place name'] ?? query.zip;
+        ideaState = zd.places?.[0]?.['state abbreviation'] ?? '';
+      }
+    } catch { ideaCity = query.zip; }
+  } else if (lat && lng) {
+    // Reverse-geocode lat/lng to city name via bigdatacloud (no key, free)
+    try {
+      const geo = await fetch(
+        `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=en`,
+        { signal: AbortSignal.timeout(3000) },
+      );
+      if (geo.ok) {
+        const gd = await geo.json() as { city?: string; principalSubdivisionCode?: string };
+        ideaCity = gd.city ?? `${lat.toFixed(2)},${lng.toFixed(2)}`;
+        ideaState = (gd.principalSubdivisionCode ?? '').replace('US-', '');
+      }
+    } catch { ideaCity = `${lat.toFixed(2)},${lng.toFixed(2)}`; }
+  }
+
   // Append AI-generated ideas (Gemini) if key is configured.
-  // Always adds 8 fresh ideas tagged as isIdea:true so the frontend
-  // shows them in the "Ideas to spark your plan" section.
+  // Always adds 5 fresh ideas tagged as isIdea:true.
   if (process.env.GEMINI_API_KEY) {
-    let aiCity = '';
-    let aiState = '';
-    if (query.zip) {
-      // Resolve city name from zip via zippopotam (cached)
-      try {
-        const zipData = await fetch(`https://api.zippopotam.us/us/${query.zip}`, { signal: AbortSignal.timeout(3000) });
-        if (zipData.ok) {
-          const zd = await zipData.json() as { places?: Array<{ 'place name'?: string; 'state abbreviation'?: string }> };
-          aiCity = zd.places?.[0]?.['place name'] ?? query.zip;
-          aiState = zd.places?.[0]?.['state abbreviation'] ?? '';
-        }
-      } catch { aiCity = query.zip; }
-    } else if (lat && lng) {
-      aiCity = `${lat.toFixed(2)},${lng.toFixed(2)}`;
-    }
-    const aiIdeas = await fetchAiIdeas(category ?? 'Local Experience', aiCity, aiState, 5);
+    const aiIdeas = await fetchAiIdeas(category ?? 'Local Experience', ideaCity, ideaState, 5);
     if (aiIdeas.length) {
       final = deduplicate([...final, ...aiIdeas]);
-      logger.info(`AI ideas appended: ${aiIdeas.length} for ${category} near ${aiCity}`);
+      logger.info(`AI ideas appended: ${aiIdeas.length} for ${category} near ${ideaCity}`);
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Tavily web search fallback — fires when:
+  //   (a) category always needs it (e.g. Volunteering), OR
+  //   (b) real external results are below TAVILY_THRESHOLD
+  // Skipped for Movies / Streaming Night (TMDB is definitive) and After Dark.
+  // ---------------------------------------------------------------------------
+  const TAVILY_THRESHOLD = 5;
+  const realResults = final.filter((s) => !s.isIdea && s.source !== 'seed').length;
+  const skipCategories = new Set(['Movies', 'Streaming Night', 'After Dark']);
+  const shouldFireTavily =
+    process.env.TAVILY_API_KEY &&
+    !skipCategories.has(category ?? '') &&
+    ideaCity &&
+    (tavilyAlwaysFires(category ?? '') || realResults < TAVILY_THRESHOLD);
+
+  if (shouldFireTavily) {
+    const tavilyResults = await fetchTavilyFallback(category ?? 'Local Experience', ideaCity, ideaState);
+    if (tavilyResults.length) {
+      final = deduplicate([...final, ...tavilyResults]);
+      logger.info(`Tavily fallback: ${tavilyResults.length} results for ${category} near ${ideaCity} (real=${realResults})`);
     }
   }
 

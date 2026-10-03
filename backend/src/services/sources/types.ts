@@ -37,7 +37,8 @@ export type SourceName =
   | 'liteapi'
   | 'places'
   | 'seed'
-  | 'scraped';
+  | 'scraped'
+  | 'tavily';
 
 export interface Suggestion {
   id: string;                      // source:externalId
