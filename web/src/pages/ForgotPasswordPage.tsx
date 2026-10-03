@@ -25,7 +25,7 @@ export function ForgotPasswordPage() {
 
   return (
     <main style={{ maxWidth: 400, margin: "80px auto", padding: "0 16px" }}>
-      <h1>TogetherPlans</h1>
+      <h1>DateMeUp</h1>
       <h2>Forgot your password?</h2>
 
       {submitted ? (

@@ -12,7 +12,7 @@
 const CRAWLER_UA_RE =
   /facebookexternalhit|whatsapp|twitterbot|slackbot|telegrambot|linkedinbot|discordbot|applebot|pinterest|redditbot|skypeuripreview|vkshare|snapchat|iframely|embedly/i;
 
-const API_ORIGIN = "https://api.togetherplans.app";
+const API_ORIGIN = "https://api.datemeup.app";
 const TOKEN_RE = /^[A-Za-z0-9_-]{16,64}$/;
 
 interface PagesContext {

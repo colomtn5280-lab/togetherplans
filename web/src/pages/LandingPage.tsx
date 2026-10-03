@@ -6,9 +6,9 @@ export default function LandingPage() {
       <div className="blob b1" /><div className="blob b2" />
       <div className="wrap">
         <nav className="nav">
-          <a className="brand" href="/" aria-label="Together Plans home">
+          <a className="brand" href="/" aria-label="DateMeUp home">
             <svg viewBox="0 0 100 100" aria-hidden={true}><g transform="rotate(6 34 62)"><circle cx="33" cy="28" r="11" fill="#0E8C8C"/><path d="M15 84V62a18 18 0 0 1 36 0v22z" fill="#0E8C8C"/></g><g transform="rotate(-6 66 66)"><circle cx="67" cy="32" r="11" fill="#7CB518"/><path d="M49 84V66a18 18 0 0 1 36 0v18z" fill="#7CB518"/></g></svg>
-            <b>Together Plans</b>
+            <b>DateMeUp</b>
           </a>
           <div className="nav-links"><a href="#how">How it works</a><a href="#groups">For groups</a><a href="/support">Support</a></div>
           <div className="nav-cta"><a className="link" href="/login">Log in</a><a className="btn sm" href="/signup">Get started</a></div>
@@ -18,9 +18,9 @@ export default function LandingPage() {
           <div>
             <span className="sticker">FOR COUPLES &amp; GROUPS</span>
             <h1>Plan together.<br />Go together<span className="dot">.</span></h1>
-            <p>47 messages later, still no plan? Propose a few options, everyone votes, and Together Plans locks in the winner.</p>
+            <p>47 messages later, still no plan? Propose a few options, everyone votes, and DateMeUp locks in the winner.</p>
             <div className="hero-ctas"><a className="btn lg" href="/signup">Start a plan, free</a><a className="btn lg ghost" href="#how">See how it works</a></div>
-            <div className="stores"><a className="store" href="https://apps.apple.com/app/id6806890578"> App Store</a><a className="store" href="https://play.google.com/store/apps/details?id=app.togetherplans.datenight">&#9654; Google Play</a></div>
+            <div className="stores"><a className="store" href="https://apps.apple.com/app/id6806890578"> App Store</a><a className="store" href="https://play.google.com/store/apps/details?id=app.datemeup.datenight">&#9654; Google Play</a></div>
             <div className="fine">No ads. Friends can vote from a text without installing anything.</div>
           </div>
           <div className="stage" aria-hidden={true}>
@@ -64,7 +64,7 @@ export default function LandingPage() {
           <a className="btn lg" href="/signup">Get started</a>
         </section>
 
-        <footer><span>© 2026 TogetherPlans · togetherplans.app</span><div className="links"><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/support">Support</a></div></footer>
+        <footer><span>© 2026 DateMeUp · datemeup.app</span><div className="links"><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/support">Support</a></div></footer>
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 {
-  "name": "TogetherPlans",
-  "short_name": "TogetherPlans",
+  "name": "DateMeUp",
+  "short_name": "DateMeUp",
   "description": "Plan Together. Go Together.",
   "start_url": "/",
   "display": "standalone",

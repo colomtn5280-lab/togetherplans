@@ -160,8 +160,8 @@ export default function BusinessLandingPage() {
       {/* Nav */}
       <nav style={s.nav}>
         <div style={s.navLogo}>
-          <img src="/mark-teal.svg" alt="TogetherPlans" style={{ width: 32, height: 32 }} />
-          <span style={s.logoText}>TogetherPlans</span>
+          <img src="/mark-teal.svg" alt="DateMeUp" style={{ width: 32, height: 32 }} />
+          <span style={s.logoText}>DateMeUp</span>
           <span style={s.badge}>For Business</span>
         </div>
         <div style={s.navActions}>
@@ -267,7 +267,7 @@ export default function BusinessLandingPage() {
           Ready to get discovered?
         </h2>
         <p style={{ color: '#5D6B76', fontSize: 18, marginBottom: 32 }}>
-          Join venues already showing up in TogetherPlans suggestions.
+          Join venues already showing up in DateMeUp suggestions.
         </p>
         <Link to="/business/register" style={{ ...btnStyle, fontSize: 17, padding: '16px 36px' }}>
           List your business free →
@@ -275,7 +275,7 @@ export default function BusinessLandingPage() {
       </section>
 
       <footer style={s.footer}>
-        <Link to="/" style={{ color: '#0E8C8C', textDecoration: 'none', marginRight: 16 }}>← Back to TogetherPlans</Link>
+        <Link to="/" style={{ color: '#0E8C8C', textDecoration: 'none', marginRight: 16 }}>← Back to DateMeUp</Link>
         <Link to="/privacy" style={{ color: '#5D6B76', textDecoration: 'none', marginRight: 12 }}>Privacy</Link>
         <Link to="/terms" style={{ color: '#5D6B76', textDecoration: 'none' }}>Terms</Link>
       </footer>

@@ -95,7 +95,7 @@ export function BusinessAnalyticsPage() {
   return (
     <div>
       <h1 style={s.title}>Analytics</h1>
-      <p style={s.sub}>Track how your venue performs in TogetherPlans suggestions.</p>
+      <p style={s.sub}>Track how your venue performs in DateMeUp suggestions.</p>
 
       {/* Period selector */}
       <div style={s.periodRow}>

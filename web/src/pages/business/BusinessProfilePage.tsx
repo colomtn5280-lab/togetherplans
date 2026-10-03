@@ -119,7 +119,7 @@ export function BusinessProfilePage() {
   return (
     <div>
       <h1 style={s.title}>Business Profile</h1>
-      <p style={s.sub}>Update your listing details — changes appear in TogetherPlans suggestions.</p>
+      <p style={s.sub}>Update your listing details — changes appear in DateMeUp suggestions.</p>
 
       {success && <div style={s.success}>{success}</div>}
       {error && <div style={s.error}>{error}</div>}

@@ -185,7 +185,7 @@ export function AppNav() {
               color: "var(--ink)",
             }}
           >
-            TogetherPlans
+            DateMeUp
           </span>
         </Link>
 
