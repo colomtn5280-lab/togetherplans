@@ -57,13 +57,11 @@ jobs:
 
       - name: Deploy to Cloud Run
         run: |
-          printf 'APP_URL: "https://datemeup.app"\nCORS_ORIGIN: "https://datemeup.app,https://togetherplans.app"\nTAVILY_API_KEY: "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"\n' > /tmp/envvars.yaml
           gcloud run deploy datenight-api \
             --source ./backend \
             --region us-central1 \
             --project project-1af074d7-228e-4a43-bc9 \
             --platform managed \
             --allow-unauthenticated \
-            --env-vars-file /tmp/envvars.yaml \
             --quiet
           echo "✅ Deployed to Cloud Run. Run migrations manually if schema changed."
