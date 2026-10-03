@@ -15,7 +15,7 @@ import type {
 } from "../types";
 
 const BASE_URL =
-  import.meta.env.VITE_API_URL ?? "https://api.datemeup.app/api";
+  import.meta.env.VITE_API_URL ?? "https://datenight-api-mh74edz3ja-uc.a.run.app/api";
 
 // ── Axios instance ────────────────────────────────────────────────────────────
 
@@ -388,7 +388,7 @@ export const safetyApi = {
 // ── Business Portal ───────────────────────────────────────────────────────────
 
 const businessClient = axios.create({
-  baseURL: (import.meta.env.VITE_API_URL ?? 'https://api.datemeup.app/api'),
+  baseURL: (import.meta.env.VITE_API_URL ?? 'https://datenight-api-mh74edz3ja-uc.a.run.app/api'),
   headers: { 'Content-Type': 'application/json' },
   timeout: 10_000,
 });

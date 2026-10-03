@@ -209,7 +209,7 @@ shareRouter.post('/:shareToken/vote', guestVoteLimiter, async (req: Request, res
 // redirected to the SPA voting page.
 
 const APP_URL = process.env.APP_URL || 'https://datemeup.app';
-const API_URL = process.env.API_URL || 'https://api.datemeup.app';
+const API_URL = process.env.API_URL || 'https://datenight-api-mh74edz3ja-uc.a.run.app';
 
 function escHtml(s: string): string {
   return s

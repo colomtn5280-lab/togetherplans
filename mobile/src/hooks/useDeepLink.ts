@@ -7,7 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 /** Extracts an invite token from URLs like:
  *  datemeup://join/TOKEN
  *  https://datemeup.app/join/TOKEN
- *  https://api.datemeup.app/join/TOKEN
+ *  https://datenight-api-mh74edz3ja-uc.a.run.app/join/TOKEN
  */
 function parseInviteToken(url: string): string | null {
   const match = url.match(/\/join\/([^/?#]+)/);

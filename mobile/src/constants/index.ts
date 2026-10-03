@@ -3,7 +3,7 @@
 // HANDOFF_README.md § Design tokens
 // ─────────────────────────────────────────────────────────────────────────────
 
-export const API_BASE_URL = 'https://api.datemeup.app';
+export const API_BASE_URL = 'https://datenight-api-mh74edz3ja-uc.a.run.app';
 
 // ── Colors ────────────────────────────────────────────────────────────────────
 export const COLORS = {
