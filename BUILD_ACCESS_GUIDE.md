@@ -9,7 +9,7 @@
 | **iOS** | Production IPA | https://expo.dev/artifacts/eas/2Z7WcqcjzmX0Kplz1GDStmQIxrrqizsbDfgaO3Zw6jA.ipa | f445f7ce | Upload to Appetize.io (recommended) or install on real device |
 | **iOS** | Simulator | https://expo.dev/artifacts/eas/rZ9QWQvb8hUdbrOO_t3c2g7oLj3RdyQzK3OjGtxzIFI.tar.gz | 45e401eb | Extract and run on macOS simulator (faster for quick testing) |
 | **Android** | Production AAB | https://expo.dev/artifacts/eas/vwz5j0l7d7dFr0JyR0GujPzQGNpsvANB2H65KYzhz6E.aab | 276b65e8 | Sideload or upload to Play Console internal track |
-| **Web** | Live | https://togetherplans.app | N/A | Open in browser, login with demo account |
+| **Web** | Live | https://datemeup.app | N/A | Open in browser, login with demo account |
 
 ---
 
@@ -77,7 +77,7 @@
 **Troubleshooting:**
 - If `adb` not found: restart terminal after brew install
 - If device not recognized: check USB cable, enable "File Transfer" mode
-- If install fails: run `adb uninstall app.togetherplans.datenight` first, then retry
+- If install fails: run `adb uninstall app.datemeup.datenight` first, then retry
 
 ---
 
@@ -107,9 +107,9 @@
 **Why:** Fastest way to test the core flows, no installation.
 
 **Steps:**
-1. Go to https://togetherplans.app
+1. Go to https://datemeup.app
 2. Click "Log In"
-3. Enter: demo@togetherplans.app
+3. Enter: demo@datemeup.app
 4. Password: Demo1234!
 5. You're logged in to the dashboard
 
@@ -128,7 +128,7 @@
 ## TEST CREDENTIALS
 
 **Demo Account:**
-- Email: demo@togetherplans.app
+- Email: demo@datemeup.app
 - Password: Demo1234!
 - Group: Review Crew
 - Pre-seeded proposals: Weekend plans, Friday date night
@@ -159,18 +159,18 @@
 
 **Android (Sideload):**
 - If adb can't find device: run `adb devices` to list; if blank, reconnect USB and retry
-- If install fails with "failure [INSTALL_FAILED_UPDATE_INCOMPATIBLE]": app is from an older build. Uninstall first: `adb uninstall app.togetherplans.datenight`
+- If install fails with "failure [INSTALL_FAILED_UPDATE_INCOMPATIBLE]": app is from an older build. Uninstall first: `adb uninstall app.datemeup.datenight`
 
 ### App Crashes on Launch
 
 - Verify you're connected to WiFi/mobile data (app needs to fetch suggestions)
-- Try clearing app cache: Settings → Apps → TogetherPlans → Clear Cache
+- Try clearing app cache: Settings → Apps → DateMeUp → Clear Cache
 - If still crashing: kill and reopen
 - Check browser console (web) for errors: F12, Console tab
 
 ### Can't Log In
 
-- Verify email exactly matches: demo@togetherplans.app (no spaces)
+- Verify email exactly matches: demo@datemeup.app (no spaces)
 - Verify password exactly: Demo1234! (capital D, the number 1, exclamation mark)
 - If account locked: contact Jake via Telegram
 

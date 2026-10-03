@@ -31,7 +31,7 @@ jobs:
         run: npx expo export --platform web --output-dir dist
         env:
           APP_ENV: preview
-          EXPO_PUBLIC_API_URL: https://api.togetherplans.app
+          EXPO_PUBLIC_API_URL: https://api.datemeup.app
 
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3

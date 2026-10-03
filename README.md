@@ -1,4 +1,4 @@
-# TogetherPlans
+# DateMeUp
 
 Collaborative date and group activity planning app.
 
@@ -10,7 +10,7 @@ Collaborative date and group activity planning app.
 
 ## API
 
-Live: https://api.togetherplans.app
+Live: https://api.datemeup.app
 
 See `backend/README.md` for full API docs.
 

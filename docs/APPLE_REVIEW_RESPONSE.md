@@ -1,4 +1,4 @@
-# Apple App Review Response — TogetherPlans v1.2.0
+# Apple App Review Response — DateMeUp v1.2.0
 
 ## App Store Connect Notes Field + Review Reply
 
@@ -20,7 +20,7 @@ A screen recording demonstrating the app's full functionality is attached/linked
 - User-generated content reporting (tap any suggestion → report)
 
 Demo account for review:
-- Email: demo@togetherplans.app
+- Email: demo@datemeup.app
 - Password: Demo1234!
 - Pre-seeded with an active proposal and group ("Sam & Alex")
 
@@ -28,7 +28,7 @@ Demo account for review:
 
 **2. App Purpose and Target Audience**
 
-**TogetherPlans** solves the universal problem of decision paralysis in group planning — the endless back-and-forth of "Where do you want to go?" with no resolution.
+**DateMeUp** solves the universal problem of decision paralysis in group planning — the endless back-and-forth of "Where do you want to go?" with no resolution.
 
 **How it works:**
 1. One person proposes 3–5 activity options for a date or outing
@@ -37,7 +37,7 @@ Demo account for review:
 
 **Target audience:** Couples and small groups (2–6 people) planning date nights, friend outings, and family activities. The app is free with no paid tiers.
 
-**Problem solved:** According to internal user research, the average couple exchanges 47+ messages trying to agree on a single plan. TogetherPlans replaces that thread with a structured proposal-and-vote flow that reaches a decision in minutes.
+**Problem solved:** According to internal user research, the average couple exchanges 47+ messages trying to agree on a single plan. DateMeUp replaces that thread with a structured proposal-and-vote flow that reaches a decision in minutes.
 
 **Value delivered:** A locked plan, added to calendar, with all details — venue, time, activity — agreed upon by everyone involved.
 
@@ -62,7 +62,7 @@ Demo account for review:
 - **Share card:** Share a locked plan to social media.
 
 **Demo credentials:**
-- Email: demo@togetherplans.app
+- Email: demo@datemeup.app
 - Password: Demo1234!
 
 The demo account is pre-seeded with a group ("Sam & Alex"), an active proposal, and sample voting history. All features are accessible from the demo account.
@@ -108,7 +108,7 @@ The app functions consistently across all regions with one contextual difference
 
 **6. Industry/Protected Material**
 
-TogetherPlans does not operate in a regulated industry and does not include protected third-party material beyond API integrations listed above, each of which is used under the respective provider's standard developer terms of service:
+DateMeUp does not operate in a regulated industry and does not include protected third-party material beyond API integrations listed above, each of which is used under the respective provider's standard developer terms of service:
 
 - Ticketmaster: Standard Partner API agreement
 - Viator: Affiliate Partner Program (Partner ID: P00321754)
@@ -133,5 +133,5 @@ No medical, financial, legal, or otherwise regulated content is included. The "A
 **Contact**
 Jacob Raymond
 Developer / Founder
-jake@togetherplans.app
+jake@datemeup.app
 +1 (970) 640-7601
