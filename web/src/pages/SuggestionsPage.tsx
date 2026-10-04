@@ -837,11 +837,6 @@ export function SuggestionsPage() {
             onClick={() => setSearchParams((p) => { p.set("category", "concerts"); return p; })}>
             <span className="tp-dot" aria-hidden={true} />Concerts
           </button>
-          {/* Couples Events → couples-events */}
-          <button className="tp-tile" role="radio" aria-checked={categoryId === "couples-events" ? true : false}
-            onClick={() => setSearchParams((p) => { p.set("category", "couples-events"); return p; })}>
-            <span className="tp-dot" aria-hidden={true} />Couples Events
-          </button>
           {/* Family Events → family-events */}
           <button className="tp-tile" role="radio" aria-checked={categoryId === "family-events" ? true : false}
             onClick={() => setSearchParams((p) => { p.set("category", "family-events"); return p; })}>

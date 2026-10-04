@@ -1,38 +1,43 @@
 /* Together Plans · Discover filters · option 4b (blob tiles + segmented)
-   Source: DateNight Web.dc.html #4b. Spec: web/DISCOVER_FILTERS.md, data: web/discover-filters.json */
-:root{--tp-ink:#101820;--tp-ink2:#5D6B76;--tp-line:#DDE3E8;--tp-bg:#F4F6F8;--tp-surface:#fff;--tp-primary:#0E8C8C;--tp-on-primary:#fff;--tp-shadow:0 8px 24px rgba(16,24,32,.07);
-  --tp-dot-teal:#0E8C8C;--tp-dot-amber:#E39B12;--tp-dot-blue:#2D6CDB;--tp-dot-lime:#7CB518;--tp-dot-ink:#101820}
-@media (prefers-color-scheme:dark){:root{--tp-ink:#EEF3F6;--tp-ink2:#93A3AF;--tp-line:#2A3641;--tp-bg:#0F1519;--tp-surface:#18212A;--tp-primary:#2FC4C1;--tp-on-primary:#0F1519;--tp-shadow:0 8px 24px rgba(0,0,0,.4);
-  --tp-dot-teal:#2FC4C1;--tp-dot-amber:#F3B84A;--tp-dot-blue:#5B8CF0;--tp-dot-lime:#A8E04B;--tp-dot-ink:#EEF3F6}}
+   Source: DateNight Web.dc.html #4b. Spec: web/DISCOVER_FILTERS.md
+   Variable names mapped to index.css tokens (--tp-* → global tokens) */
 
-.tp-filter-label{font:700 11px 'Sora',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--tp-ink2);margin:0 0 10px}
+.tp-filter-label{font:700 11px 'Sora',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2);margin:0 0 10px}
 
 /* <div class="tp-tiles" role="radiogroup"><button class="tp-tile" role="radio" aria-checked="true"><span class="tp-dot"></span>All categories</button>… */
 .tp-tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
 .tp-tile{appearance:none;-webkit-appearance:none;border:0;height:64px;padding:0 18px;display:flex;align-items:center;gap:12px;text-align:left;
-  background:var(--tp-surface);color:var(--tp-ink);box-shadow:var(--tp-shadow);font:700 14px/1.15 'Sora',sans-serif;letter-spacing:-.01em;cursor:pointer;transition:transform .15s,box-shadow .15s,background .15s}
+  background:var(--surface);color:var(--ink);box-shadow:var(--shadow-card);font:700 14px/1.15 'Sora',sans-serif;letter-spacing:-.01em;cursor:pointer;transition:transform .15s,box-shadow .15s,background .15s}
 .tp-tile:nth-child(4n+1){border-radius:22px 30px 20px 26px}
 .tp-tile:nth-child(4n+2){border-radius:30px 22px 26px 20px}
 .tp-tile:nth-child(4n+3){border-radius:20px 26px 30px 22px}
 .tp-tile:nth-child(4n){border-radius:26px 20px 22px 30px}
 .tp-tile:hover{transform:translateY(-1px);box-shadow:0 12px 28px rgba(16,24,32,.12)}
-.tp-tile:focus-visible{outline:3px solid var(--tp-primary);outline-offset:2px}
-.tp-dot{width:28px;height:28px;flex:none;border-radius:50% 45% 55% 50%;background:var(--tp-dot-teal)}
-.tp-tile:nth-child(5n+1) .tp-dot{background:var(--tp-dot-teal)}
-.tp-tile:nth-child(5n+2) .tp-dot{background:var(--tp-dot-amber)}
-.tp-tile:nth-child(5n+3) .tp-dot{background:var(--tp-dot-blue)}
-.tp-tile:nth-child(5n+4) .tp-dot{background:var(--tp-dot-lime)}
-.tp-tile:nth-child(5n) .tp-dot{background:var(--tp-dot-ink)}
-.tp-tile[aria-checked="true"]{background:var(--tp-primary);color:var(--tp-on-primary)}
-.tp-tile[aria-checked="true"] .tp-dot{background:var(--tp-dot-lime)}
+.tp-tile:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
+.tp-dot{width:28px;height:28px;flex:none;border-radius:50% 45% 55% 50%;background:var(--primary)}
+.tp-tile:nth-child(5n+1) .tp-dot{background:#0E8C8C}
+.tp-tile:nth-child(5n+2) .tp-dot{background:#E39B12}
+.tp-tile:nth-child(5n+3) .tp-dot{background:#2D6CDB}
+.tp-tile:nth-child(5n+4) .tp-dot{background:#7CB518}
+.tp-tile:nth-child(5n) .tp-dot{background:#101820}
+@media (prefers-color-scheme:dark){
+  .tp-tile:nth-child(5n+1) .tp-dot{background:#2FC4C1}
+  .tp-tile:nth-child(5n+2) .tp-dot{background:#F3B84A}
+  .tp-tile:nth-child(5n+3) .tp-dot{background:#5B8CF0}
+  .tp-tile:nth-child(5n+4) .tp-dot{background:#A8E04B}
+  .tp-tile:nth-child(5n) .tp-dot{background:#EEF3F6}
+}
+.tp-tile[aria-checked="true"]{background:var(--primary);color:var(--on-primary)}
+.tp-tile[aria-checked="true"] .tp-dot{background:#7CB518}
+@media (prefers-color-scheme:dark){.tp-tile[aria-checked="true"] .tp-dot{background:#A8E04B}}
 .tp-tile[aria-checked="true"]::after{content:"✓";margin-left:auto;font:800 13px 'Sora',sans-serif}
 
 /* <div class="tp-seg" role="radiogroup"><button role="radio" aria-checked="true">Tonight</button>… */
-.tp-seg{display:inline-flex;gap:2px;padding:4px;border-radius:999px;background:var(--tp-surface);border:1.5px solid var(--tp-line)}
-.tp-seg button{appearance:none;-webkit-appearance:none;height:34px;padding:0 16px;border:0;border-radius:999px;background:transparent;color:var(--tp-ink2);font:700 13px 'Sora',sans-serif;white-space:nowrap;cursor:pointer}
-.tp-seg button:hover{color:var(--tp-ink)}
-.tp-seg button[aria-checked="true"]{background:var(--tp-primary);color:var(--tp-on-primary);box-shadow:var(--tp-shadow)}
-.tp-seg button:focus-visible{outline:3px solid var(--tp-primary);outline-offset:2px}
+.tp-seg{display:inline-flex;gap:2px;padding:4px;border-radius:999px;background:var(--surface);border:1.5px solid var(--line)}
+.tp-seg button{appearance:none;-webkit-appearance:none;height:34px;padding:0 16px;border:0;border-radius:999px;background:transparent;color:var(--ink2);font:700 13px 'Sora',sans-serif;white-space:nowrap;cursor:pointer}
+.tp-seg button:hover{color:var(--ink)}
+.tp-seg button[aria-checked="true"]{background:var(--primary);color:var(--on-primary);box-shadow:var(--shadow-card)}
+.tp-seg button:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
 
 .tp-filter-rows{display:flex;flex-wrap:wrap;gap:32px;margin-top:24px}
 @media (max-width:767px){.tp-tiles{grid-template-columns:repeat(2,minmax(0,1fr))}.tp-tile{height:56px;font-size:13px}.tp-seg{max-width:100%;overflow-x:auto}}

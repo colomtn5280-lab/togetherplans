@@ -1,0 +1,410 @@
+/* DashboardPage — 4b layout: centered 1080px, left/main + 300px right rail */
+
+.db-main {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 32px var(--gutter);
+}
+
+/* ── Two-column grid ── */
+.db-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 300px;
+  gap: 32px;
+  align-items: start;
+}
+
+/* ── Left column ── */
+.db-left {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.db-greeting h1 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 32px;
+  letter-spacing: -0.04em;
+  margin: 0 0 4px;
+  color: var(--ink);
+}
+
+.db-section-label {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--ink2);
+  margin-bottom: 12px;
+}
+
+.db-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* YOUR TURN card */
+.db-your-turn {
+  border: 2px solid var(--primary) !important;
+  animation: dn-pulse 2.4s infinite;
+}
+
+.db-your-turn-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.db-group-name {
+  color: var(--ink2);
+  font-size: 13px;
+  font-family: var(--font-body);
+}
+
+.db-proposal-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 17px;
+  color: var(--ink);
+  margin: 0 0 8px;
+}
+
+.db-proposal-meta {
+  color: var(--ink2);
+  font-size: 13px;
+  margin: 0 0 14px;
+  font-family: var(--font-body);
+}
+
+/* All caught up card */
+.db-caught-up {
+  border: 2px solid var(--primary) !important;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Coming up cards */
+.db-coming-up {
+  text-decoration: none;
+  display: block;
+  padding: 14px 16px;
+}
+
+.db-coming-up-inner {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.db-avatar {
+  width: 40px;
+  height: 40px;
+  background: var(--primary-soft);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 14px;
+  color: var(--primary);
+  flex-shrink: 0;
+}
+
+.db-coming-up-text {
+  flex: 1;
+}
+
+.db-coming-up-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--ink);
+}
+
+.db-coming-up-group {
+  font-size: 12px;
+  color: var(--ink2);
+  font-family: var(--font-body);
+}
+
+/* Loading / empty */
+.db-loading {
+  padding: 40px;
+  text-align: center;
+  color: var(--ink2);
+}
+
+.db-empty {
+  text-align: center;
+  padding: 48px 40px;
+}
+
+.db-empty-icon {
+  font-size: 64px;
+  margin-bottom: 16px;
+}
+
+.db-empty h2 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 22px;
+  margin: 0 0 10px;
+  color: var(--ink);
+}
+
+.db-empty p {
+  color: var(--ink2);
+  font-size: 15px;
+  line-height: 1.6;
+  max-width: 340px;
+  margin: 0 auto 24px;
+  font-family: var(--font-body);
+}
+
+.db-empty-ctas {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* ── Right rail ── */
+.db-right {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Groups card */
+.db-groups-card {
+  padding: 20px;
+}
+
+.db-groups-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.db-groups-header h3 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 15px;
+  color: var(--ink);
+  margin: 0;
+}
+
+.db-rail-loading {
+  color: var(--ink2);
+  font-size: 14px;
+  font-family: var(--font-body);
+}
+
+.db-groups-empty {
+  text-align: center;
+  padding: 16px 0;
+}
+
+.db-groups-empty p {
+  color: var(--ink2);
+  font-size: 14px;
+  margin: 0 0 12px;
+  font-family: var(--font-body);
+}
+
+.db-groups-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.db-group-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  padding: 4px 0;
+}
+
+/* Stacked avatar dots */
+.db-dot-stack {
+  display: flex;
+  align-items: center;
+}
+
+.db-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50% 45% 55% 50%;
+  border: 2px solid var(--surface);
+  margin-right: -6px;
+  flex-shrink: 0;
+}
+
+.db-dot:last-child {
+  margin-right: 0;
+}
+
+.db-group-name-rail {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--ink);
+  flex: 1;
+  margin-left: 6px;
+}
+
+.db-open-badge {
+  background: var(--primary);
+  color: #fff;
+  border-radius: 99px;
+  font-size: 11px;
+  font-family: var(--font-display);
+  font-weight: 800;
+  padding: 2px 8px;
+  flex-shrink: 0;
+}
+
+.db-dot-ok {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--success);
+  flex-shrink: 0;
+}
+
+/* Account card */
+.db-account-card {
+  padding: 20px;
+}
+
+.db-account-card h3 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 15px;
+  color: var(--ink);
+  margin: 0 0 6px;
+}
+
+.db-account-email {
+  color: var(--ink2);
+  font-size: 13px;
+  font-family: var(--font-body);
+  margin: 0 0 14px;
+  word-break: break-all;
+}
+
+.db-account-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.db-settings-link {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 14px;
+  text-decoration: none;
+  padding: 8px 0;
+}
+
+.db-settings-link:hover {
+  color: var(--primary);
+}
+
+.db-signout-btn {
+  width: 100%;
+}
+
+/* ── Footer — Get the app ── */
+.db-footer {
+  margin-top: 48px;
+  padding-top: 32px;
+  border-top: 1px solid var(--line);
+  text-align: center;
+}
+
+.db-footer-label {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--ink2);
+  margin: 0 0 14px;
+}
+
+.db-footer-badges {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.db-store-badge {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--ink);
+  color: #fff;
+  border-radius: 20px;
+  padding: 10px 18px;
+  text-decoration: none;
+  font-size: 20px;
+  transition: opacity 0.15s;
+}
+
+.db-store-badge:hover {
+  opacity: 0.85;
+  color: #fff;
+}
+
+.db-store-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.db-store-sub {
+  font-family: var(--font-body);
+  font-size: 10px;
+  opacity: 0.7;
+  color: #fff;
+}
+
+.db-store-name {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 13px;
+  color: #fff;
+}
+
+/* ── Responsive: under 768px → single column, groups before proposals ── */
+@media (max-width: 768px) {
+  .db-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Move right rail before left on mobile */
+  .db-right {
+    order: -1;
+  }
+
+  /* Hide account card on mobile (settings accessible via nav) */
+  .db-account-card {
+    display: none;
+  }
+}

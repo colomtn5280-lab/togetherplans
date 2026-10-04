@@ -34,6 +34,7 @@ import { COLORS, RADII, SHADOWS, SPACING, TYPE } from '@/constants';
 import { RootStackParamList } from '@/types';
 
 // Auth screens
+import WelcomeScreen from '@/screens/WelcomeScreen';
 import LoginScreen from '@/screens/LoginScreen';
 import RegisterScreen from '@/screens/RegisterScreen';
 import OnboardingScreen from '@/screens/OnboardingScreen';
@@ -247,6 +248,11 @@ export default function AppNavigator() {
         {!user ? (
           // ── Auth stack ──────────────────────────────────────────────────────
           <>
+            <Stack.Screen
+              name="Welcome"
+              component={WelcomeScreen}
+              options={{ headerShown: false }}
+            />
             <Stack.Screen
               name="Login"
               component={LoginScreen}
