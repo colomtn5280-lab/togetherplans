@@ -30,6 +30,7 @@ import { fetchMobilize } from './sources/mobilize.source';
 import { enrichPhotos } from './photo-enrichment';
 import { fetchAiIdeas } from './sources/ai-ideas.source';
 import { fetchFoursquare } from './sources/foursquare.source';
+import { fetchNpsParks, fetchNpsEvents } from './sources/nps.source';
 import { fetchTavilyFallback, tavilyAlwaysFires } from './sources/tavily.source';
 
 export type { Suggestion, SuggestionCategory, SuggestionQuery };
@@ -283,6 +284,13 @@ export async function getSuggestions(query: SuggestionQuery): Promise<Suggestion
       { name: 'predicthq', fetch: () => fetchPredictHQ(lat!, lng!, radiusMiles, category) },
       { name: 'overpass', fetch: () => fetchOverpass(lat!, lng!, Math.min(radiusMiles, 30), category) },
       { name: 'foursquare', fetch: () => fetchFoursquare(lat!, lng!, radiusMiles, category) },
+      // NPS: national parks + events — primary for Outdoors, included in All
+      ...(!category || category === 'Outdoors'
+        ? [
+            { name: 'nps-parks', fetch: () => fetchNpsParks(lat!, lng!, radiusMiles) },
+            { name: 'nps-events', fetch: () => fetchNpsEvents(lat!, lng!, radiusMiles) },
+          ]
+        : []),
       // Google Places text search fallback for Wellness (OSM is sparse for spas in suburbs)
       ...((category === 'Wellness' || !category) && hasLocation
         ? [{ name: 'places', fetch: () => fetchPlacesWellness(lat!, lng!, radiusMiles) }]
