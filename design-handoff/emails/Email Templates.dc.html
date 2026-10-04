@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<meta name="design_doc_mode" content="canvas">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,600&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#E8ECEF;font-family:'DM Sans',system-ui,sans-serif;color:#101820}
+a{color:#0E8C8C;text-decoration:none}a:hover{color:#086B6B;text-decoration:underline}
+</style>
+</helmet>
+<section id="t1" style="padding:36px 40px 80px">
+  <div style="display:flex;align-items:baseline;gap:14px;flex-wrap:wrap"><a href="#t1" style="font:800 12px 'Sora',sans-serif;padding:4px 10px;border-radius:999px;background:#101820;color:#fff">1</a><div style="font:800 30px/1 'Sora',sans-serif;letter-spacing:-.04em">Transactional emails · 12 templates · DateMeUp branding</div><span style="font-size:13px;color:#5D6B76">Send-ready HTML (600px, tables, inline styles, dark-mode aware). One message, one button each. Merge fields use double curly braces. Files in <code>emails/</code>; spec in README.md.</span></div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(640px,1fr));gap:22px;margin-top:26px">
+    <sc-for list="{{ items }}" as="e" hint-placeholder-count="12"><div id="{{ e.id }}" style="background:#fff;border-radius:22px;padding:14px;box-shadow:0 8px 24px rgba(16,24,32,.07)"><div style="display:flex;gap:8px;align-items:baseline;margin-bottom:8px"><a href="{{ e.anchor }}" style="font:800 11px 'Sora',sans-serif;padding:3px 8px;border-radius:6px;background:#101820;color:#fff">{{ e.id }}</a><b style="font:800 14px 'Sora',sans-serif;letter-spacing:-.02em">{{ e.subject }}</b><a href="{{ e.file }}" style="margin-left:auto;font-size:12px;white-space:nowrap">open file →</a></div><div style="font-size:12px;color:#5D6B76;margin-bottom:10px"><b>Trigger:</b> {{ e.trigger }} · <code>{{ e.file }}</code></div><iframe src="{{ e.file }}" title="{{ e.subject }}" style="width:100%;height:{{ e.h }};border:0;border-radius:14px;background:#F4F6F8"></iframe></div></sc-for>
+  </div>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const items = [
+      ['01-verify-email', 'Confirm your email', 'email entered at signup', '520px'],
+      ['02-welcome', 'Welcome. Now invite one person.', 'email verified', '640px'],
+      ['03-reset-password', 'Reset your password', 'reset requested', '520px'],
+      ['04-group-invite', '{{inviter}} invited you to {{group_name}}', 'invite sent by email', '660px'],
+      ['05-new-proposal', '{{proposer}} proposed 3 things for Friday night', 'proposal created', '860px'],
+      ['06-status-update', 'Priya voted on Friday night', 'a member voted, recipient has not', '620px'],
+      ['07-reminder-24h', "Friday's plan needs your vote ⏰", 'T-24h, non-voters only', '860px'],
+      ['08-its-a-match', "It's a match: Jazz at the Blue Room 💛", 'consensus reached (+ .ics)', '720px'],
+      ['09-take-2', 'No match on Friday night. Priya sent take 2', 'counter-proposal sent', '860px'],
+      ['10-plan-changed', 'Change to Friday night: new time', 'time/place edited or cancelled (+ .ics)', '720px'],
+      ['11-share-card-received', 'Sam made it official 💌', 'Share Card sent by email (+ .ics)', '980px'],
+      ['12-account-deleted', 'Your DateNight account is deleted', 'deletion completed', '480px'],
+    ].map(([file, subject, trigger, h], i) => { const id = '1' + String.fromCharCode(97 + i); return { id, anchor: '#' + id, file: file + '.html', subject, trigger, h }; });
+    return { items };
+  }
+}
+</script>
+</body>
+</html>

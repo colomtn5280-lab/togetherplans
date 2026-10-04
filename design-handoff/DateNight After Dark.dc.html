@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#E8ECEF;font-family:'DM Sans',system-ui,sans-serif;color:#101820}
+a{color:#0E8C8C}a:hover{color:#086B6B}
+.dn{--bg:#F4F6F8;--surface:#FFFFFF;--ink:#101820;--ink2:#5D6B76;--line:#DDE3E8;--primary:#0E8C8C;--primary-deep:#086B6B;--primary-soft:#D9F1F0;--lime:#7CB518;--lime-soft:#EAF6D3;--on-lime:#101820;--on-primary:#FFFFFF;--success:#1E9A55;--success-soft:#DDF4E6;--error:#D63A3A;--warning:#E39B12;--warning-soft:#FBEFD3;--ad:#B2485E;--ad-deep:#8E3448;--ad-soft:#F7E3E7;--on-ad:#FFFFFF;--shadow:0 8px 24px rgba(16,24,32,.07);--dock:0 12px 32px rgba(16,24,32,.16)}
+.dn-dark{--bg:#0F1519;--surface:#18212A;--ink:#EEF3F6;--ink2:#93A3AF;--line:#2A3641;--primary:#2FC4C1;--primary-deep:#5AD6D3;--primary-soft:#154243;--lime:#A8E04B;--lime-soft:#2B4412;--on-lime:#101820;--on-primary:#0F1519;--success:#3FC77A;--success-soft:#173B27;--error:#FF6B6B;--warning:#F3B84A;--warning-soft:#3D2E12;--ad:#E07A8E;--ad-deep:#F2A0B0;--ad-soft:#3E1F27;--on-ad:#0F1519;--shadow:0 8px 24px rgba(0,0,0,.4);--dock:0 16px 40px rgba(0,0,0,.65)}
+.dv-turn{padding:40px 44px 32px;border-bottom:1px solid rgba(0,0,0,.08);scroll-margin-top:16px}
+.dv-thd{display:flex;align-items:baseline;gap:10px;margin:0 0 20px}
+.dv-tid{font:600 10px ui-monospace,Menlo,monospace;padding:3px 7px;background:#1a1a1a;color:#fff;border-radius:4px;text-decoration:none}
+.dv-tname{font:600 13px/1.2 system-ui,sans-serif;color:#1a1a1a}
+.dv-opts{display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start}
+.dv-opt{flex:none;display:flex;flex-direction:column;gap:9px;scroll-margin-top:16px}
+.dv-oid{font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1a1a1a;border-radius:5px;text-decoration:none}
+.dv-olabel{display:flex;align-items:baseline;gap:8px;font:400 11px/1.3 system-ui,sans-serif;color:rgba(0,0,0,.55)}
+.dn-dark .dv-oid{background:rgba(255,255,255,.14);color:#F8F2EC}.dn-dark .dv-tid{background:#F8F2EC;color:#1a1a1a}.dn-dark .dv-turn{border-bottom-color:rgba(255,255,255,.1)}
+.dv-opt:target .dv-oid{background:#0E8C8C;color:#fff}
+.dv-next{margin:22px 0 0;font:12px/1.5 system-ui,sans-serif;color:rgba(0,0,0,.5)}
+.dv-row{font:700 11px 'DM Sans',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2);margin:34px 0 14px}
+@keyframes dn-rise{0%{transform:translateY(40px);opacity:0}100%{transform:translateY(0);opacity:1}}
+@keyframes dn-pop{0%{transform:scale(.6);opacity:0}60%{transform:scale(1.06);opacity:1}100%{transform:scale(1)}}
+</style>
+</helmet>
+
+<section class="dv-turn dn {{ themeClass }}" id="t1" style="background:var(--bg)">
+<div class="dv-thd" style="flex-wrap:wrap;row-gap:10px">
+  <a class="dv-tid" href="#t1">1</a>
+  <span class="dv-tname" style="color:var(--ink)">After Dark · couples-only category · one opt-in, Romantic and Spicy ideas together</span>
+  <button onClick="{{ toggleTheme }}" style="margin-left:auto;height:34px;padding:0 14px;border-radius:999px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);font:600 12px 'DM Sans',sans-serif;cursor:pointer;display:flex;align-items:center;gap:8px"><span style="width:10px;height:10px;border-radius:50%;background:var(--ad);display:inline-block"></span>{{ themeLabel }}</button>
+</div>
+<div style="max-width:1100px;margin:0 0 6px;padding:20px 24px;background:var(--surface);border-radius:30px 22px 34px 20px;color:var(--ink);font-size:13px;line-height:1.55;box-shadow:var(--shadow)">
+<b>Rules as designed.</b> Onboarding asks who you're planning with first (<a class="dv-oid" href="#1i">1i</a>); "Friends &amp; family" users never see After Dark until they start a couple plan. After Dark exists only in 2-person groups and is <b>on by default</b> for couples: creating a couple plan shows it once (<a class="dv-oid" href="#1a">1a</a>) with an 18+ confirmation and a clear "turn it off" option. The partner is asked once, on the first After Dark proposal they receive (<a class="dv-oid" href="#1b">1b</a>), and says yes or not now. Either person can switch it off for themselves in Settings (<a class="dv-oid" href="#1e">1e</a>) at any time. One switch, no levels: After Dark includes both Romantic and Spicy ideas, with an 18+ confirmation at opt-in. Romantic / Spicy remain as browse filters and labels only. Voting is per option with <b>Yes / Maybe / Pass</b>; a match needs two Yes. Your Passes are never shown to your partner, only matches and maybes (<a class="dv-oid" href="#1d">1d</a>). Hidden from History always (your pick); discreet push text is available in Settings (<a class="dv-oid" href="#1e">1e</a>), off by default. No Face ID or blur: neither store requires it, and it made the feature feel like something to hide. Content is a first-party seed catalog only (<a class="dv-oid" href="#1g">1g</a>), suggestive not graphic, no third-party APIs, no photos in this category; After Dark Share Cards use type-only templates (<a class="dv-oid" href="#1f">1f</a>). Rating: Romantic + Spicy as written is "frequent mature or suggestive content", so the app ships at 16+ on iOS and Mature 17+ on Google Play. Nothing explicit, so not 18+. User-written ideas stay private to the couple and get a report/block path so they don't raise the rating. It uses its own accent (wine) so it reads as a different room, not a different app.
+</div>
+
+<div class="dv-row">Mobile · 375 × 812</div>
+<div class="dv-opts">
+
+<div class="dv-opt" id="1i"><div class="dv-olabel"><a class="dv-oid" href="#1i">1i</a><span style="color:var(--ink2)">Onboarding · "who are you planning with first?" · replaces step 3 of 3 in the mobile onboarding · tap to switch</span></div>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" width="{{ fw }}" height="{{ fh }}" dark="{{ dark }}" hint-size="375px,812px">
+<div data-screen-label="Onboarding intent" style="position:relative;height:100%;background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;display:flex;flex-direction:column;padding:62px 24px 44px;box-sizing:border-box;overflow:hidden">
+  <div style="position:absolute;top:-90px;right:-90px;width:300px;height:270px;border-radius:48% 52% 45% 55%/55% 45% 55% 45%;background:{{ intentBlob }}"></div>
+  <div style="display:flex;justify-content:space-between;align-items:center;position:relative"><div style="display:flex;gap:6px"><span style="width:22px;height:6px;border-radius:3px;background:var(--line)"></span><span style="width:22px;height:6px;border-radius:3px;background:var(--line)"></span><span style="width:22px;height:6px;border-radius:3px;background:var(--primary)"></span></div><span style="font:600 14px 'DM Sans',sans-serif;color:var(--ink2)">3 of 3</span></div>
+  <div style="font:800 34px/1 'Sora',sans-serif;letter-spacing:-.04em;margin-top:34px;position:relative">Who are you<br>planning with<br>first?</div>
+  <div style="font-size:14px;color:var(--ink2);margin-top:10px;line-height:1.5;position:relative">You can add other kinds of plans any time.</div>
+  <div style="display:flex;flex-direction:column;gap:12px;margin-top:26px;position:relative">
+    <div onClick="{{ intentCouple }}" style="border-radius:30px 22px 34px 20px;background:var(--surface);box-shadow:var(--shadow);padding:18px;border:2px solid {{ coupleBorder }};cursor:pointer"><div style="display:flex;align-items:center;gap:14px"><div style="display:flex"><span style="width:44px;height:44px;border-radius:50% 45% 55% 50%;background:var(--primary);color:var(--on-primary);font:800 15px 'Sora',sans-serif;display:flex;align-items:center;justify-content:center;border:3px solid var(--surface)">S</span><span style="width:44px;height:44px;border-radius:45% 55% 50% 50%;background:var(--ad);color:var(--on-ad);font:800 18px 'Sora',sans-serif;display:flex;align-items:center;justify-content:center;border:3px solid var(--surface);margin-left:-12px">♥</span></div><div style="flex:1"><div style="font:800 18px 'Sora',sans-serif;letter-spacing:-.02em">Just the two of us</div><div style="font-size:13px;color:var(--ink2);margin-top:2px">Date nights, stay-ins, trips</div></div><span style="width:26px;height:26px;border-radius:50%;border:2px solid var(--primary);background:{{ coupleBg }};color:var(--on-primary);display:flex;align-items:center;justify-content:center;font-size:13px;box-sizing:border-box">{{ coupleTick }}</span></div><div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--line);display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink2)"><span style="padding:3px 8px;border-radius:999px;background:var(--ad-soft);color:var(--ad-deep);font:800 10px 'Sora',sans-serif;letter-spacing:.06em">🌙 AFTER DARK</span>included · 16+ · your partner is asked first</div></div>
+    <div onClick="{{ intentGroup }}" style="border-radius:22px 34px 20px 30px;background:var(--surface);box-shadow:var(--shadow);padding:18px;border:2px solid {{ groupBorder }};cursor:pointer"><div style="display:flex;align-items:center;gap:14px"><div style="display:flex"><span style="width:44px;height:44px;border-radius:50% 45% 55% 50%;background:#2D6CDB;color:#fff;font:800 15px 'Sora',sans-serif;display:flex;align-items:center;justify-content:center;border:3px solid var(--surface)">J</span><span style="width:44px;height:44px;border-radius:45% 55% 50% 50%;background:var(--warning);color:#101820;font:800 15px 'Sora',sans-serif;display:flex;align-items:center;justify-content:center;border:3px solid var(--surface);margin-left:-12px">M</span><span style="width:44px;height:44px;border-radius:55% 50% 45% 50%;background:var(--lime);color:var(--on-lime);font:800 15px 'Sora',sans-serif;display:flex;align-items:center;justify-content:center;border:3px solid var(--surface);margin-left:-12px">L</span></div><div style="flex:1"><div style="font:800 18px 'Sora',sans-serif;letter-spacing:-.02em">Friends &amp; family</div><div style="font-size:13px;color:var(--ink2);margin-top:2px">Crews, siblings, the group chat</div></div><span style="width:26px;height:26px;border-radius:50%;border:2px solid var(--primary);background:{{ groupBg }};color:var(--on-primary);display:flex;align-items:center;justify-content:center;font-size:13px;box-sizing:border-box">{{ groupTick }}</span></div><div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--line);font-size:12px;color:var(--ink2)">After Dark never appears in group plans.</div></div>
+  </div>
+  <div style="margin-top:auto;position:relative"><div style="font-size:12px;color:var(--ink2);text-align:center;line-height:1.5;margin-bottom:12px">{{ intentNote }}</div><div style="height:54px;border-radius:28px 20px 28px 20px;background:var(--primary);color:var(--on-primary);font:700 16px 'Sora',sans-serif;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow)">{{ intentCta }}</div></div>
+</div>
+</x-import>
+</div>
+
+<div class="dv-opt" id="1a"><div class="dv-olabel"><a class="dv-oid" href="#1a">1a</a><span style="color:var(--ink2)">Couple setup · on by default · 18+ confirm, with an off switch</span></div>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" width="{{ fw }}" height="{{ fh }}" dark="{{ dark }}" hint-size="375px,812px">
+<div data-screen-label="After Dark setup" style="position:relative;height:100%;background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;display:flex;flex-direction:column;overflow:hidden">
+  <div style="position:absolute;top:-90px;right:-90px;width:300px;height:270px;border-radius:48% 52% 45% 55%/55% 45% 55% 45%;background:var(--ad-soft)"></div>
+  <div style="padding:62px 24px 0;display:flex;align-items:center;justify-content:space-between;position:relative"><span style="font:600 15px 'DM Sans',sans-serif;color:var(--ink2)">Back</span><span style="font:700 13px 'Sora',sans-serif;color:var(--ink2)">New plan · 3 of 3</span><span style="font:600 15px 'DM Sans',sans-serif;color:var(--ink2)">Skip</span></div>
+  <div style="flex:1;overflow:auto;scrollbar-width:none;padding:22px 24px 176px;position:relative">
+    <span style="display:inline-block;padding:6px 12px;border-radius:12px 6px 14px 6px;background:var(--ad);color:var(--on-ad);font:800 11px 'Sora',sans-serif;letter-spacing:.08em;transform:rotate(-3deg);box-shadow:var(--shadow)">JUST YOU TWO</span>
+    <div style="font:800 32px/1 'Sora',sans-serif;letter-spacing:-.04em;margin-top:14px">After Dark<br>is included</div>
+    <div style="font-size:14px;color:var(--ink2);margin-top:10px;line-height:1.5">A private category of romantic and intimate ideas for <b style="color:var(--ink)">Sam &amp; Priya</b> only. It's on for couples unless you switch it off. Priya is asked before she sees anything.</div>
+    <div style="border-radius:26px 20px 30px 22px;background:var(--surface);box-shadow:var(--shadow);padding:6px 16px;margin-top:22px">
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)"><span style="width:44px;height:44px;border-radius:50% 45% 55% 50%;background:var(--ad-soft);display:flex;align-items:center;justify-content:center;font-size:20px">🕯️</span><div style="flex:1"><div style="font:800 15px 'Sora',sans-serif">Romantic</div><div style="font-size:12px;color:var(--ink2)">Candlelight, staycations, slow mornings</div></div></div>
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)"><span style="width:44px;height:44px;border-radius:45% 55% 50% 50%;background:var(--ad);color:var(--on-ad);display:flex;align-items:center;justify-content:center;font-size:20px">🌶️</span><div style="flex:1"><div style="font:800 15px 'Sora',sans-serif">Spicy</div><div style="font-size:12px;color:var(--ink2)">Suggestive and playful, never explicit</div></div></div>
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 0"><span style="width:44px;height:44px;border-radius:55% 50% 45% 50%;background:var(--lime-soft);display:flex;align-items:center;justify-content:center;font-size:20px">✨</span><div style="flex:1"><div style="font:800 15px 'Sora',sans-serif">Your own ideas</div><div style="font-size:12px;color:var(--ink2)">Add anything, seen only by the two of you</div></div></div>
+    </div>
+    <div onClick="{{ toggleAge }}" style="margin-top:14px;padding:14px 16px;border-radius:20px 26px 22px 30px;background:var(--surface);box-shadow:var(--shadow);display:flex;gap:12px;align-items:flex-start;cursor:pointer;border:2px solid {{ ageBorder }}"><span style="width:26px;height:26px;border-radius:8px;border:2px solid var(--ad);background:{{ ageBg }};color:var(--on-ad);display:flex;align-items:center;justify-content:center;font-size:13px;flex:none;box-sizing:border-box">{{ ageTick }}</span><span style="font-size:13px;color:var(--ink);line-height:1.45"><b>I'm 18 or older.</b> <span style="color:var(--ink2)">After Dark includes adult-themed suggestions. Priya confirms the same before she sees anything.</span></span></div>
+    <div style="margin-top:18px;padding:14px 16px;border-radius:22px 30px 20px 26px;background:var(--surface);box-shadow:var(--shadow);font-size:12px;color:var(--ink2);line-height:1.5"><b style="color:var(--ink)">Private by design.</b> Hidden from History. Your Passes are never shown. Either of you can turn it off any time from Settings.</div>
+  </div>
+  <div style="position:absolute;left:0;right:0;bottom:0;padding:12px 24px 44px;background:linear-gradient(to top,var(--bg) 70%,transparent)"><div style="height:54px;border-radius:28px 20px 28px 20px;background:{{ setupCtaBg }};color:{{ setupCtaFg }};font:700 16px 'Sora',sans-serif;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow)">{{ setupCta }}</div><div style="height:44px;font:600 14px 'DM Sans',sans-serif;color:var(--ink2);display:flex;align-items:center;justify-content:center;margin-top:4px">Turn After Dark off for this plan</div></div>
+</div>
+</x-import>
+</div>
+
+<div class="dv-opt" id="1b"><div class="dv-olabel"><a class="dv-oid" href="#1b">1b</a><span style="color:var(--ink2)">Partner consent · shown to Priya on the first After Dark proposal, before any content · one yes</span></div>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" width="{{ fw }}" height="{{ fh }}" dark="{{ dark }}" hint-size="375px,812px">
+<div data-screen-label="Partner consent" style="position:relative;height:100%;background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;display:flex;flex-direction:column;overflow:hidden">
+  <div style="padding:62px 20px 0;opacity:.35"><div style="font:800 30px/1 'Sora',sans-serif;letter-spacing:-.04em">Your Plans</div><div style="margin-top:18px;border-radius:22px 30px 20px 26px;background:var(--surface);box-shadow:var(--shadow);padding:16px;height:80px"></div><div style="margin-top:12px;border-radius:30px 22px 26px 20px;background:var(--surface);box-shadow:var(--shadow);padding:16px;height:80px"></div></div>
+  <div style="position:absolute;inset:0;background:rgba(16,24,32,.55);display:flex;align-items:flex-end;z-index:20">
+    <div style="width:100%;background:var(--surface);border-radius:40px 40px 0 0;padding:16px 24px 48px;animation:dn-rise .45s cubic-bezier(.2,.8,.2,1);position:relative">
+      <div style="width:40px;height:5px;border-radius:999px;background:var(--line);margin:0 auto 20px"></div>
+      <div style="display:flex;align-items:center;gap:12px"><span style="width:48px;height:48px;border-radius:50% 45% 55% 50%;background:var(--primary);color:var(--on-primary);font:800 16px 'Sora',sans-serif;display:flex;align-items:center;justify-content:center">S</span><div><div style="font:800 20px/1.1 'Sora',sans-serif;letter-spacing:-.02em">Sam sent an After Dark idea</div><div style="font-size:13px;color:var(--ink2);margin-top:2px">First one for you two. Want in?</div></div></div>
+      <div style="margin-top:18px;padding:14px 16px;border-radius:22px 30px 20px 26px;background:var(--ad-soft);font-size:13px;line-height:1.5;color:var(--ink)">After Dark is a private category of romantic and intimate ideas, just for the two of you. Nothing explicit, and you can turn it off any time. Sam won't see what you pass on.</div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:16px">
+        <div style="height:54px;border-radius:26px 20px 26px 20px;background:var(--ad);color:var(--on-ad);font:700 15px 'Sora',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px">I'm in <span style="padding:2px 7px;border-radius:999px;background:rgba(255,255,255,.25);font:800 9px 'Sora',sans-serif">18+</span></div>
+        <div style="height:48px;font:600 14px 'DM Sans',sans-serif;color:var(--ink2);display:flex;align-items:center;justify-content:center">Not now</div>
+      </div>
+      <div style="font-size:11px;color:var(--ink2);text-align:center;line-height:1.5">"Not now" tells Sam you'd rather keep plans to the usual categories. No details, no pressure.</div>
+    </div>
+  </div>
+</div>
+</x-import>
+</div>
+
+<div class="dv-opt" id="1c"><div class="dv-olabel"><a class="dv-oid" href="#1c">1c</a><span style="color:var(--ink2)">Discover · After Dark category, visible only in the couple's context · Romantic / Spicy browse filter</span></div>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" width="{{ fw }}" height="{{ fh }}" dark="{{ dark }}" hint-size="375px,812px">
+<div data-screen-label="Discover After Dark" style="position:relative;height:100%;background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;display:flex;flex-direction:column;overflow:hidden">
+  <div style="position:absolute;top:-80px;left:-90px;width:260px;height:240px;border-radius:52% 48% 45% 55%/55% 45% 55% 45%;background:var(--ad-soft)"></div>
+  <div style="padding:62px 20px 0;position:relative"><div style="display:flex;align-items:center;justify-content:space-between"><div style="font:800 34px/1 'Sora',sans-serif;letter-spacing:-.04em">Discover</div><span style="padding:6px 10px;border-radius:999px;background:var(--surface);box-shadow:var(--shadow);font:700 12px 'Sora',sans-serif;display:flex;align-items:center;gap:6px"><span style="width:8px;height:8px;border-radius:50%;background:var(--ad)"></span>Sam &amp; Priya</span></div></div>
+  <div style="display:flex;gap:8px;padding:16px 20px 0;overflow:auto;scrollbar-width:none;position:relative"><span style="flex:none;height:36px;padding:0 14px;border-radius:999px;background:var(--surface);box-shadow:var(--shadow);font:700 13px 'Sora',sans-serif;display:flex;align-items:center;color:var(--ink2)">All</span><span style="flex:none;height:36px;padding:0 14px;border-radius:999px;background:var(--surface);box-shadow:var(--shadow);font:700 13px 'Sora',sans-serif;display:flex;align-items:center;color:var(--ink2)">Dining</span><span style="flex:none;height:36px;padding:0 14px;border-radius:999px;background:var(--surface);box-shadow:var(--shadow);font:700 13px 'Sora',sans-serif;display:flex;align-items:center;color:var(--ink2)">Movies</span><span style="flex:none;height:36px;padding:0 14px;border-radius:999px;background:var(--ad);color:var(--on-ad);font:700 13px 'Sora',sans-serif;display:flex;align-items:center;gap:6px;box-shadow:var(--shadow)">🌙 After Dark</span><span style="flex:none;height:36px;padding:0 14px;border-radius:999px;background:var(--surface);box-shadow:var(--shadow);font:700 13px 'Sora',sans-serif;display:flex;align-items:center;color:var(--ink2)">Arts</span></div>
+  <div style="display:flex;gap:6px;padding:12px 20px 0;position:relative"><span onClick="{{ filterAll }}" style="height:30px;padding:0 12px;border-radius:999px;background:{{ fAllBg }};color:{{ fAllFg }};font:700 12px 'DM Sans',sans-serif;display:flex;align-items:center;cursor:pointer;border:1.5px solid var(--line)">Both</span><span onClick="{{ filterRomantic }}" style="height:30px;padding:0 12px;border-radius:999px;background:{{ fRomBg }};color:{{ fRomFg }};font:700 12px 'DM Sans',sans-serif;display:flex;align-items:center;cursor:pointer;border:1.5px solid var(--line)">🕯️ Romantic</span><span onClick="{{ filterSpicy }}" style="height:30px;padding:0 12px;border-radius:999px;background:{{ fSpBg }};color:{{ fSpFg }};font:700 12px 'DM Sans',sans-serif;display:flex;align-items:center;cursor:pointer;border:1.5px solid var(--line)">🌶️ Spicy</span><span style="margin-left:auto;font-size:11px;color:var(--ink2);align-self:center">{{ discoverCount }} ideas</span></div>
+  <div style="flex:1;overflow:auto;scrollbar-width:none;padding:14px 20px 110px;display:flex;flex-direction:column;gap:12px;position:relative">
+    <sc-for list="{{ discover }}" as="s" hint-placeholder-count="5"><div style="border-radius:26px 20px 30px 22px;background:var(--surface);box-shadow:var(--shadow);padding:16px 16px 14px;position:relative"><span style="position:absolute;top:-9px;right:16px;padding:4px 9px;border-radius:10px 4px 10px 4px;background:{{ s.badgeBg }};color:{{ s.badgeFg }};font:800 10px 'Sora',sans-serif;transform:rotate(4deg);box-shadow:var(--shadow)">{{ s.tierLabel }}</span><div style="display:flex;gap:12px;align-items:flex-start"><span style="width:46px;height:46px;border-radius:50% 45% 55% 50%;background:var(--ad-soft);display:flex;align-items:center;justify-content:center;font-size:21px;flex:none">{{ s.emoji }}</span><div style="flex:1;min-width:0"><div style="font:800 16px/1.15 'Sora',sans-serif;letter-spacing:-.02em">{{ s.name }}</div><div style="font-size:13px;color:var(--ink2);margin-top:4px;line-height:1.4">{{ s.desc }}</div><div style="font:700 10px 'DM Sans',sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--ink2);margin-top:8px">{{ s.where }} · {{ s.time }}</div></div></div><div style="display:flex;gap:8px;margin-top:12px"><div style="flex:1;height:40px;border-radius:20px 14px 20px 14px;background:var(--ad);color:var(--on-ad);font:700 13px 'Sora',sans-serif;display:flex;align-items:center;justify-content:center">Suggest to Priya</div><div style="width:40px;height:40px;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:16px">♡</div></div></div></sc-for>
+  </div>
+  <div style="position:absolute;left:16px;right:16px;bottom:22px;height:66px;border-radius:33px;background:var(--surface);box-shadow:var(--dock);display:flex;align-items:center;justify-content:space-around;padding:0 10px"><div style="display:flex;flex-direction:column;align-items:center;gap:3px;font:600 10px 'DM Sans',sans-serif;color:var(--ink2)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="4"></rect><path d="M3 10h18M8 3v3M16 3v3"></path></svg>Plans</div><div style="display:flex;flex-direction:column;align-items:center;gap:3px;font:700 10px 'DM Sans',sans-serif;color:var(--ad)"><span style="width:44px;height:30px;border-radius:15px;background:var(--ad-soft);display:flex;align-items:center;justify-content:center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M15 9l-2 6-4 0 2-6z"></path></svg></span>Discover</div><div style="display:flex;flex-direction:column;align-items:center;gap:3px;font:600 10px 'DM Sans',sans-serif;color:var(--ink2)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c0-4 4-6 8-6s8 2 8 6"></path></svg>Profile</div></div>
+</div>
+</x-import>
+</div>
+
+<div class="dv-opt" id="1d"><div class="dv-olabel"><a class="dv-oid" href="#1d">1d</a><span style="color:var(--ink2)">After Dark proposal · Yes / Maybe / Pass per option · Passes stay private · tap to vote</span></div>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" width="{{ fw }}" height="{{ fh }}" dark="{{ dark }}" hint-size="375px,812px">
+<div data-screen-label="After Dark proposal" style="position:relative;height:100%;background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;display:flex;flex-direction:column;overflow:hidden">
+  <div style="position:absolute;top:-80px;right:-90px;width:260px;height:240px;border-radius:48% 52% 45% 55%/55% 45% 55% 45%;background:var(--ad-soft)"></div>
+  <div style="padding:62px 20px 0;display:flex;align-items:center;gap:10px;position:relative"><div style="width:42px;height:42px;border-radius:50% 45% 55% 50%;background:var(--surface);box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"></path></svg></div><span style="font:600 13px 'DM Sans',sans-serif;color:var(--ink2)">Sam &amp; Priya</span><span style="margin-left:auto;padding:6px 11px;border-radius:12px 6px 14px 6px;background:var(--ad);color:var(--on-ad);font:800 11px 'Sora',sans-serif;letter-spacing:.06em;transform:rotate(-4deg);box-shadow:var(--shadow)">🌙 AFTER DARK</span></div>
+  <div style="flex:1;overflow:auto;padding:14px 20px 40px;position:relative">
+    <div style="font:800 32px/1 'Sora',sans-serif;letter-spacing:-.04em">Saturday,<br>stay in <span style="display:inline-block;transform:rotate(8deg);color:var(--ad)">?</span></div>
+    <div style="margin-top:10px;display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:18px 24px 20px 26px;background:var(--surface);box-shadow:var(--shadow);font-size:13px;font-weight:600">🗓 Sat, Oct 3 · from 7 PM</div>
+    <div style="font-size:12px;color:var(--ink2);margin-top:12px;line-height:1.5">Yes, Maybe or Pass on each. Priya only ever sees your Yeses and Maybes.</div>
+    <div style="display:flex;flex-direction:column;gap:14px;margin-top:16px">
+      <sc-for list="{{ adOptions }}" as="o" hint-placeholder-count="3"><div style="position:relative;border-radius:28px 40px 24px 44px;background:var(--surface);box-shadow:var(--shadow);padding:16px 16px 14px 18px;border:2px solid {{ o.border }};opacity:{{ o.opacity }}"><sc-if value="{{ o.match }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;top:-10px;right:18px;padding:4px 9px;border-radius:10px 4px 10px 4px;background:var(--ad);color:var(--on-ad);font:800 10px 'Sora',sans-serif;transform:rotate(5deg);box-shadow:var(--shadow);animation:dn-pop .4s">BOTH YES ♥</span></sc-if><sc-if value="{{ o.partnerMaybe }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;top:-10px;right:18px;padding:4px 9px;border-radius:10px 4px 10px 4px;background:var(--warning);color:#101820;font:800 10px 'Sora',sans-serif;transform:rotate(5deg);box-shadow:var(--shadow)">Priya: maybe</span></sc-if><div style="display:flex;gap:12px;align-items:center"><span style="width:46px;height:46px;border-radius:50% 45% 55% 50%;background:var(--ad-soft);display:flex;align-items:center;justify-content:center;font-size:21px;flex:none">{{ o.emoji }}</span><div style="flex:1;min-width:0"><div style="font:700 11px 'Sora',sans-serif;color:var(--ad-deep);letter-spacing:.04em">{{ o.tierLabel }}</div><div style="font:800 17px/1.15 'Sora',sans-serif;letter-spacing:-.02em;margin-top:3px">{{ o.name }}</div><div style="font-size:13px;color:var(--ink2);margin-top:3px">{{ o.desc }}</div></div></div><div style="display:flex;gap:8px;margin-top:12px"><div onClick="{{ o.yes }}" style="flex:1;height:42px;border-radius:21px 14px 21px 14px;background:{{ o.yesBg }};color:{{ o.yesFg }};border:2px solid var(--ad);box-sizing:border-box;font:700 13px 'Sora',sans-serif;display:flex;align-items:center;justify-content:center;cursor:pointer">Yes ♥</div><div onClick="{{ o.maybe }}" style="flex:1;height:42px;border-radius:14px 21px 14px 21px;background:{{ o.maybeBg }};color:{{ o.maybeFg }};border:2px solid var(--line);box-sizing:border-box;font:700 13px 'Sora',sans-serif;display:flex;align-items:center;justify-content:center;cursor:pointer">Maybe</div><div onClick="{{ o.pass }}" style="width:64px;height:42px;border-radius:21px;background:{{ o.passBg }};color:{{ o.passFg }};border:2px solid var(--line);box-sizing:border-box;font:700 13px 'Sora',sans-serif;display:flex;align-items:center;justify-content:center;cursor:pointer">Pass</div></div></div></sc-for>
+    </div>
+    <div style="margin-top:16px;padding:14px 16px;border-radius:22px 30px 20px 26px;background:var(--surface);box-shadow:var(--shadow);display:flex;align-items:center;gap:12px"><div style="display:flex"><span style="width:30px;height:30px;border-radius:50% 45% 55% 50%;background:var(--primary);color:var(--on-primary);font:800 11px 'Sora',sans-serif;display:flex;align-items:center;justify-content:center;border:2px solid var(--surface)">S</span><span style="width:30px;height:30px;border-radius:45% 55% 50% 50%;background:var(--lime);color:var(--on-lime);font:800 11px 'Sora',sans-serif;display:flex;align-items:center;justify-content:center;border:2px solid var(--surface);margin-left:-8px">P</span></div><div style="flex:1;font-size:13px;line-height:1.35">{{ adStatus }}</div></div>
+    <sc-if value="{{ adMatched }}" hint-placeholder-val="{{ false }}"><div style="margin-top:14px;border-radius:30px 22px 34px 20px;background:var(--ad);color:var(--on-ad);padding:18px 18px 16px;animation:dn-rise .4s;position:relative"><span style="position:absolute;top:-12px;left:18px;padding:5px 10px;border-radius:12px 6px 14px 6px;background:var(--surface);color:var(--ad);font:800 11px 'Sora',sans-serif;letter-spacing:.06em;transform:rotate(-4deg);box-shadow:var(--shadow)">IT'S A MATCH</span><div style="font:800 22px/1.1 'Sora',sans-serif;letter-spacing:-.03em;margin-top:6px">{{ adWinner }}</div><div style="font-size:13px;opacity:.9;margin-top:4px">Saturday from 7. Nothing else gets shared; this stays between you.</div><div style="display:flex;gap:8px;margin-top:14px"><div style="flex:1;height:44px;border-radius:22px 16px 22px 16px;background:var(--surface);color:var(--ad);font:700 13px 'Sora',sans-serif;display:flex;align-items:center;justify-content:center">Lock it in</div><div onClick="{{ adReset }}" style="flex:1;height:44px;border-radius:16px 22px 16px 22px;border:2px solid rgba(255,255,255,.5);font:700 13px 'Sora',sans-serif;display:flex;align-items:center;justify-content:center;cursor:pointer">Reset demo</div></div></div></sc-if>
+  </div>
+</div>
+</x-import>
+</div>
+
+<div class="dv-opt" id="1e"><div class="dv-olabel"><a class="dv-oid" href="#1e">1e</a><span style="color:var(--ink2)">Settings · on/off and privacy · toggles work</span></div>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" width="{{ fw }}" height="{{ fh }}" dark="{{ dark }}" hint-size="375px,812px">
+<div data-screen-label="After Dark settings" style="position:relative;height:100%;background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;display:flex;flex-direction:column;overflow:hidden">
+  <div style="padding:62px 20px 0;display:flex;align-items:center;gap:10px"><div style="width:42px;height:42px;border-radius:50% 45% 55% 50%;background:var(--surface);box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"></path></svg></div><span style="font:600 13px 'DM Sans',sans-serif;color:var(--ink2)">Profile · Sam &amp; Priya</span></div>
+  <div style="flex:1;overflow:auto;padding:14px 20px 40px">
+    <div style="font:800 30px/1 'Sora',sans-serif;letter-spacing:-.04em">🌙 After Dark</div>
+    <div style="font-size:13px;color:var(--ink2);margin-top:6px">These settings are yours. Priya has her own.</div>
+    <div style="margin-top:22px;border-radius:26px 20px 30px 22px;background:var(--surface);box-shadow:var(--shadow);padding:14px 16px;display:flex;align-items:center;gap:12px"><span style="width:44px;height:44px;border-radius:50% 45% 55% 50%;background:var(--ad-soft);display:flex;align-items:center;justify-content:center;font-size:20px">🌙</span><div style="flex:1"><div style="font:700 14px 'Sora',sans-serif">After Dark for me</div><div style="font-size:12px;color:var(--ink2)">Romantic + Spicy · age confirmed Sep 19, 2026</div></div><span onClick="{{ toggleOn }}" style="width:50px;height:30px;border-radius:15px;background:{{ onBg }};position:relative;transition:background .2s;cursor:pointer"><span style="position:absolute;top:3px;left:{{ onKnob }};width:24px;height:24px;border-radius:50%;background:#fff;transition:left .2s"></span></span></div>
+    <div style="font:700 11px 'DM Sans',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2);margin-top:22px">Privacy</div>
+    <div style="margin-top:8px;border-radius:22px 30px 20px 26px;background:var(--surface);box-shadow:var(--shadow);overflow:hidden">
+      <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--line)"><div style="flex:1"><div style="font:700 14px 'Sora',sans-serif">Hidden from History</div><div style="font-size:12px;color:var(--ink2)">After Dark plans never appear in “your nights out”</div></div><span style="width:50px;height:30px;border-radius:15px;background:var(--ad);position:relative;opacity:.55"><span style="position:absolute;top:3px;left:23px;width:24px;height:24px;border-radius:50%;background:#fff"></span></span></div>
+      <div onClick="{{ toggleVague }}" style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--line);cursor:pointer"><div style="flex:1"><div style="font:700 14px 'Sora',sans-serif">Discreet notifications</div><div style="font-size:12px;color:var(--ink2)">Push says “Priya sent you something” with no detail</div></div><span style="width:50px;height:30px;border-radius:15px;background:{{ vagueBg }};position:relative;transition:background .2s"><span style="position:absolute;top:3px;left:{{ vagueKnob }};width:24px;height:24px;border-radius:50%;background:#fff;transition:left .2s"></span></span></div>
+      <div style="display:flex;align-items:center;gap:12px;padding:14px 16px"><div style="flex:1"><div style="font:700 14px 'Sora',sans-serif">Share Cards</div><div style="font-size:12px;color:var(--ink2)">Type-only templates, never sent by email; share sheet only</div></div><span style="font-size:12px;color:var(--ink2)">Always</span></div>
+    </div>
+    <div style="margin-top:14px;padding:14px 16px;border-radius:22px 30px 20px 26px;background:var(--surface);box-shadow:var(--shadow);font-size:12px;color:var(--ink2);line-height:1.5">Turning yourself Off hides everything immediately and tells Priya only that After Dark is paused. Your Yes/Maybe/Pass history is deleted, not archived.</div>
+    <div style="height:48px;margin-top:14px;border-radius:24px 18px 24px 18px;border:2px solid var(--error);color:var(--error);font:700 13px 'Sora',sans-serif;display:flex;align-items:center;justify-content:center">Turn off After Dark for both of us</div>
+  </div>
+</div>
+</x-import>
+</div>
+
+<div class="dv-opt" id="1f"><div class="dv-olabel"><a class="dv-oid" href="#1f">1f</a><span style="color:var(--ink2)">After Dark Share Card · type-only, 9:16 · share sheet only, never email</span></div>
+<div style="width:360px;height:640px;position:relative;overflow:hidden;border-radius:28px;background:#2A1219;color:#F7E3E7;padding:36px 30px 30px;display:flex;flex-direction:column;box-sizing:border-box;font-family:'DM Sans',sans-serif">
+  <div style="position:absolute;right:-90px;top:-70px;width:280px;height:260px;border-radius:48% 52% 45% 55%/55% 45% 55% 45%;background:rgba(224,122,142,.14)"></div>
+  <div style="position:absolute;left:-60px;bottom:-80px;width:240px;height:220px;border-radius:52% 48% 45% 55%/55% 45% 55% 45%;background:rgba(224,122,142,.1)"></div>
+  <div style="display:flex;justify-content:space-between;align-items:center;position:relative"><span style="font:700 12px 'Sora',sans-serif;letter-spacing:.14em;text-transform:uppercase;opacity:.8">Just us</span><span style="padding:6px 12px;border-radius:12px 6px 14px 6px;background:#E07A8E;color:#2A1219;font:800 11px 'Sora',sans-serif;letter-spacing:.08em;transform:rotate(4deg)">🌙 AFTER DARK</span></div>
+  <div style="font:800 60px/.95 'Sora',sans-serif;letter-spacing:-.05em;margin-top:70px;position:relative;text-wrap:balance">Saturday,<br>stay in<span style="color:#E07A8E">.</span></div>
+  <div style="font:700 20px/1.25 'Sora',sans-serif;letter-spacing:-.02em;margin-top:26px;position:relative">{{ adWinnerCard }}</div>
+  <div style="font-size:14px;opacity:.8;margin-top:6px;position:relative">Sat, Oct 3 · from 7 PM · home</div>
+  <div style="margin-top:auto;position:relative">
+    <div style="display:flex;align-items:center;gap:10px"><div style="display:flex"><span style="width:28px;height:28px;border-radius:50% 45% 55% 50%;background:#0E8C8C;color:#fff;font:800 10px 'Sora',sans-serif;display:flex;align-items:center;justify-content:center;border:2px solid #2A1219">S</span><span style="width:28px;height:28px;border-radius:45% 55% 50% 50%;background:#7CB518;color:#101820;font:800 10px 'Sora',sans-serif;display:flex;align-items:center;justify-content:center;border:2px solid #2A1219;margin-left:-8px">P</span></div><span style="font:700 13px 'Sora',sans-serif">Both said yes ♥</span></div>
+    <div style="font:italic 400 14px/1.4 'DM Sans',sans-serif;opacity:.85;margin-top:14px">“Phones in the drawer. I'll handle dinner.” — Sam</div>
+    <div style="height:50px;margin-top:16px;border-radius:26px 18px 26px 18px;background:#E07A8E;color:#2A1219;font:700 15px 'Sora',sans-serif;display:flex;align-items:center;justify-content:center">See you at 7</div>
+    <div style="font-size:9px;opacity:.5;margin-top:10px;text-align:center">No photos, no address, no app link on After Dark cards.</div>
+  </div>
+</div>
+</div>
+
+<div class="dv-opt" id="1h"><div class="dv-olabel"><a class="dv-oid" href="#1h">1h</a><span style="color:var(--ink2)">Add your own idea · from Discover's "+" · saved to the couple only · type and add, it shows up in <a class="dv-oid" href="#1c">1c</a></span></div>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" width="{{ fw }}" height="{{ fh }}" dark="{{ dark }}" hint-size="375px,812px">
+<div data-screen-label="Add your own idea" style="position:relative;height:100%;background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;display:flex;flex-direction:column;overflow:hidden">
+  <div style="position:absolute;top:-90px;left:-90px;width:280px;height:250px;border-radius:52% 48% 45% 55%/55% 45% 55% 45%;background:var(--ad-soft)"></div>
+  <div style="padding:62px 24px 0;display:flex;align-items:center;justify-content:space-between;position:relative"><span style="font:600 15px 'DM Sans',sans-serif;color:var(--ink2)">Cancel</span><span style="font:700 13px 'Sora',sans-serif;color:var(--ink2)">🌙 After Dark</span><span style="width:48px"></span></div>
+  <div style="flex:1;overflow:auto;scrollbar-width:none;padding:18px 24px 120px;position:relative">
+    <div style="font:800 30px/1 'Sora',sans-serif;letter-spacing:-.04em">Your own idea</div>
+    <div style="font-size:13px;color:var(--ink2);margin-top:6px;line-height:1.5">Only Sam &amp; Priya ever see it. It never joins the public catalog.</div>
+    <div style="font:700 12px 'DM Sans',sans-serif;color:var(--ink2);padding:0 6px;margin-top:20px">What is it?</div>
+    <input value="{{ cName }}" onChange="{{ setCName }}" maxlength="40" placeholder="e.g. Rooftop hot chocolate at midnight" style="width:100%;box-sizing:border-box;height:52px;margin-top:8px;border-radius:18px;border:2px solid var(--ad);background:var(--surface);color:var(--ink);padding:0 16px;font:400 15px 'DM Sans',sans-serif;outline:none;box-shadow:var(--shadow)">
+    <div style="font:700 12px 'DM Sans',sans-serif;color:var(--ink2);padding:0 6px;margin-top:14px">A line about it <span style="font-weight:400">· optional</span></div>
+    <textarea value="{{ cDesc }}" onChange="{{ setCDesc }}" maxlength="120" placeholder="Keep it playful. Priya sees exactly this." style="width:100%;box-sizing:border-box;height:84px;margin-top:8px;border-radius:18px;border:2px solid transparent;background:var(--surface);color:var(--ink);padding:14px 16px;font:400 14px/1.4 'DM Sans',sans-serif;outline:none;box-shadow:var(--shadow);resize:none;font-family:'DM Sans',sans-serif"></textarea>
+    <div style="font-size:11px;color:var(--ink2);text-align:right;margin-top:4px">{{ cDescCount }}/120</div>
+    <div style="font:700 12px 'DM Sans',sans-serif;color:var(--ink2);padding:0 6px;margin-top:10px">Level</div>
+    <div style="display:flex;gap:8px;margin-top:8px"><div onClick="{{ cTierRomantic }}" style="flex:1;height:46px;border-radius:23px 16px 23px 16px;background:{{ cRomBg }};color:{{ cRomFg }};border:2px solid var(--ad);box-sizing:border-box;font:700 13px 'Sora',sans-serif;display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer">🕯️ Romantic</div><div onClick="{{ cTierSpicy }}" style="flex:1;height:46px;border-radius:16px 23px 16px 23px;background:{{ cSpBg }};color:{{ cSpFg }};border:2px solid var(--ad);box-sizing:border-box;font:700 13px 'Sora',sans-serif;display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;opacity:{{ cSpOpacity }}">🌶️ Spicy</div></div>
+    <div style="font-size:11px;color:var(--ink2);margin-top:6px;padding:0 6px">Romantic or Spicy is just a label so Priya knows the mood.</div>
+    <div style="display:flex;gap:8px;margin-top:14px"><div style="flex:1"><div style="font:700 12px 'DM Sans',sans-serif;color:var(--ink2);padding:0 6px">Where</div><div style="display:flex;gap:6px;margin-top:8px"><div onClick="{{ cWhereHome }}" style="flex:1;height:40px;border-radius:14px;background:{{ cHomeBg }};color:{{ cHomeFg }};border:1.5px solid var(--line);box-sizing:border-box;font:700 12px 'Sora',sans-serif;display:flex;align-items:center;justify-content:center;cursor:pointer">Home</div><div onClick="{{ cWhereOut }}" style="flex:1;height:40px;border-radius:14px;background:{{ cOutBg }};color:{{ cOutFg }};border:1.5px solid var(--line);box-sizing:border-box;font:700 12px 'Sora',sans-serif;display:flex;align-items:center;justify-content:center;cursor:pointer">Out</div></div></div><div style="width:120px"><div style="font:700 12px 'DM Sans',sans-serif;color:var(--ink2);padding:0 6px">How long</div><div style="height:40px;margin-top:8px;border-radius:14px;background:var(--surface);box-shadow:var(--shadow);display:flex;align-items:center;justify-content:space-between;padding:0 12px;font:700 12px 'Sora',sans-serif">{{ cTime }}<span style="color:var(--ink2)">⌄</span></div></div></div>
+    <sc-if value="{{ hasCustom }}" hint-placeholder-val="{{ false }}"><div style="font:700 11px 'DM Sans',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2);margin-top:22px">Your ideas · {{ customCount }}</div><div style="display:flex;flex-direction:column;gap:8px;margin-top:8px"><sc-for list="{{ custom }}" as="c" hint-placeholder-count="1"><div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:18px;background:var(--surface);box-shadow:var(--shadow)"><span style="font-size:16px">{{ c.emoji }}</span><div style="flex:1;min-width:0"><div style="font:700 13px 'Sora',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.name }}</div><div style="font-size:11px;color:var(--ink2)">{{ c.tierLabel }} · {{ c.where }} · {{ c.time }}</div></div><span onClick="{{ c.remove }}" style="font-size:12px;color:var(--ink2);cursor:pointer;padding:6px">Remove</span></div></sc-for></div></sc-if>
+  </div>
+  <div style="position:absolute;left:0;right:0;bottom:0;padding:12px 24px 44px;background:linear-gradient(to top,var(--bg) 70%,transparent)"><div onClick="{{ addCustom }}" style="height:54px;border-radius:28px 20px 28px 20px;background:{{ addBg }};color:{{ addFg }};font:700 16px 'Sora',sans-serif;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow);cursor:pointer">{{ addLabel }}</div></div>
+</div>
+</x-import>
+</div>
+
+</div>
+
+<div class="dv-row">Seed catalog · {{ catalogCount }} suggestions · suggestive, never explicit · first-party only</div>
+<div class="dv-opt" id="1g"><div class="dv-olabel"><a class="dv-oid" href="#1g">1g</a><span style="color:var(--ink2)">Romantic (20) and Spicy (20). Fields map to the Suggestion model: name, category=AFTER_DARK, tier, description, setting (home/out), duration. No externalRef, no lat/lng.</span></div>
+<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:26px;max-width:1100px">
+  <div style="background:var(--surface);border-radius:30px 22px 34px 20px;box-shadow:var(--shadow);padding:22px 24px;color:var(--ink)"><div style="display:flex;align-items:center;gap:10px"><span style="width:40px;height:40px;border-radius:50% 45% 55% 50%;background:var(--ad-soft);display:flex;align-items:center;justify-content:center;font-size:18px">🕯️</span><div style="font:800 18px 'Sora',sans-serif;letter-spacing:-.02em">Romantic</div><span style="margin-left:auto;font-size:12px;color:var(--ink2)">Included with After Dark</span></div><div style="display:flex;flex-direction:column;margin-top:14px"><sc-for list="{{ romantic }}" as="s" hint-placeholder-count="20"><div style="display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);align-items:flex-start"><span style="font-size:18px;width:26px;text-align:center;flex:none">{{ s.emoji }}</span><div style="flex:1;min-width:0"><div style="font:700 14px 'Sora',sans-serif">{{ s.name }}</div><div style="font-size:12px;color:var(--ink2);line-height:1.4;margin-top:2px">{{ s.desc }}</div></div><span style="font:700 10px 'DM Sans',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--ink2);flex:none;padding-top:3px">{{ s.where }} · {{ s.time }}</span></div></sc-for></div></div>
+  <div style="background:var(--surface);border-radius:22px 34px 20px 30px;box-shadow:var(--shadow);padding:22px 24px;color:var(--ink)"><div style="display:flex;align-items:center;gap:10px"><span style="width:40px;height:40px;border-radius:45% 55% 50% 50%;background:var(--ad);color:var(--on-ad);display:flex;align-items:center;justify-content:center;font-size:18px">🌶️</span><div style="font:800 18px 'Sora',sans-serif;letter-spacing:-.02em">Spicy</div><span style="margin-left:auto;font-size:12px;color:var(--ink2)">Included with After Dark · 18+</span></div><div style="display:flex;flex-direction:column;margin-top:14px"><sc-for list="{{ spicy }}" as="s" hint-placeholder-count="20"><div style="display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);align-items:flex-start"><span style="font-size:18px;width:26px;text-align:center;flex:none">{{ s.emoji }}</span><div style="flex:1;min-width:0"><div style="font:700 14px 'Sora',sans-serif">{{ s.name }}</div><div style="font-size:12px;color:var(--ink2);line-height:1.4;margin-top:2px">{{ s.desc }}</div></div><span style="font:700 10px 'DM Sans',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--ink2);flex:none;padding-top:3px">{{ s.where }} · {{ s.time }}</span></div></sc-for></div></div>
+</div>
+</div>
+<p class="dv-next">Try next: "a web version of <a class="dv-oid" href="#1c">1c</a> and <a class="dv-oid" href="#1d">1d</a>" · "what Priya sees when Sam passes on everything" · "a 'surprise me' button that picks one idea at random"</p>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;dark&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Theme&quot;}}">
+class Component extends DCLogic {
+  state = { dark: false, intent: 'couple', on: true, age: false, filter: 'all', vague: false, votes: {}, custom: [], cName: '', cDesc: '', cTier: 'romantic', cWhere: 'home' };
+  romantic = [
+    ['🍝','Cook-off for two','Same ingredients, two dishes, one judge each. Loser does dishes.','home','2h'],
+    ['🔭','Blanket and the sky','Drive somewhere dark, bring a thermos, name the constellations wrong.','out','3h'],
+    ['💆','Couples massage class','Learn it once, use it forever. Most studios run a 90-minute intro.','out','90m'],
+    ['🏨','Staycation','A hotel 10 minutes away. Late checkout, room service breakfast.','out','1 night'],
+    ['🌅','Sunrise drive','Alarm at 5, coffee in the car, watch it come up from the hill.','out','2h'],
+    ['✉️','Letter swap','Write each other a letter, read them out loud over a drink.','home','1h'],
+    ['💃','Kitchen dance lesson','One YouTube tutorial, one song, bare feet on tile.','home','45m'],
+    ['🛁','Bath, playlist, no phones','Candles, a shared playlist, a hard stop on screens.','home','1h'],
+    ['🧺','Rooftop picnic','Sandwiches and a bottle up on the roof or the fire escape.','out','2h'],
+    ['🔁','Recreate the first date','Same place if it still exists, same order, better conversation.','out','3h'],
+    ['🥐','Slow breakfast in bed','One of you cooks, the other stays. Swap next week.','home','1h'],
+    ['🎨','Wine and paint at home','Two canvases, one bottle, paint each other. No talent required.','home','2h'],
+    ['🧖','Spa afternoon','Sauna, steam, plunge. Go on a weekday if you can.','out','3h'],
+    ['🚗','Drive-in movie','Blankets, snacks, the back seat down.','out','3h'],
+    ['📚','Bookshop swap','Pick a book for each other, read the first chapter together at the cafe.','out','2h'],
+    ['🫕','Fondue night','Cheese or chocolate. Long forks, longer conversation.','home','2h'],
+    ['🌙','Moonlit walk','The usual route, at midnight, holding hands.','out','1h'],
+    ['🍽️','No-phones dinner','Book somewhere nice. Phones stay at home, not in pockets.','out','2h'],
+    ['✈️','Plan the dream trip','Open the map, pick a country, build the itinerary you\'ll take one day.','home','90m'],
+    ['🫙','Memory jar night','Write 20 favourite moments on slips, pull them one by one.','home','1h'],
+  ];
+  spicy = [
+    ['📝','Yes / No / Maybe list','Each fill one in privately, then compare only the overlaps.','home','1h'],
+    ['👗','Outfit surprise','One of you picks what the other wears tonight. Sealed envelope.','home','evening'],
+    ['🫒','Massage, oils, lights low','Warm oil, one long playlist, no clock.','home','90m'],
+    ['❓','20 questions, adults only','Take turns; honest answers only. Pass is always allowed.','home','1h'],
+    ['🙈','Blindfold taste test','Five small bites, one blindfold, guess wrong and owe a favour.','home','45m'],
+    ['🎲','The dare jar','Write ten dares each, keep it playful, draw three.','home','1h'],
+    ['💿','One song, slow dance','Lights off, one song on repeat, see where it goes.','home','20m'],
+    ['🗝️','Hotel, no plans','Check in at 6. Do not leave the room.','out','1 night'],
+    ['🗺️','Love-note scavenger hunt','Notes hidden around the flat, each one a clue. Last one is in the bedroom.','home','1h'],
+    ['🚿','Shower together','Simple. Hot water, no rush.','home','30m'],
+    ['🍸','Strangers at the bar','Arrive separately. Meet like it\'s the first time. Pick each other up.','out','2h'],
+    ['🛍️','Browse the toy shop','Together, online or in person. Nothing has to come home.','out','1h'],
+    ['🃏','Adults-only game night','A couples card game, a bottle, a rule that you finish the deck.','home','2h'],
+    ['🕯️','Bath for two','Candles, a glass each, a hard stop on talking about work.','home','1h'],
+    ['🥂','Dress code: robe','Dinner in, ordered or cooked, robes only.','home','evening'],
+    ['🥞','Morning after breakfast','Order in, stay in bed until it arrives, and after.','home','2h'],
+    ['💭','One fantasy each','Share one, listen to one. No commentary until both are out.','home','45m'],
+    ['📸','Photo booth for two','Your phones, your rules. Stays on your devices.','home','30m'],
+    ['🌜','Midnight snack in bed','Something you can eat with your fingers. Crumbs are fine.','home','30m'],
+    ['👃','Five-senses night','One thing to taste, touch, smell, hear and see. Take turns leading.','home','2h'],
+  ];
+  adOpts = [['🫒','spicy','Massage, oils, lights low','Warm oil, one long playlist, no clock.'],['🍝','romantic','Cook-off for two','Same ingredients, two dishes, dishes for the loser.'],['🙈','spicy','Blindfold taste test','Five bites, one blindfold, favours owed.']];
+  partner = { 0: 'yes', 1: 'maybe', 2: 'yes' };
+  renderVals() {
+    const st = this.state, dark = this.props.dark ?? st.dark;
+    const map = ([emoji, name, desc, where, time]) => ({ emoji, name, desc, where, time });
+    const rom = this.romantic.map(s => ({ ...map(s), tier: 'romantic', tierLabel: '🕯️ Romantic', badgeBg: 'var(--ad-soft)', badgeFg: 'var(--ad-deep)' }));
+    const sp = this.spicy.map(s => ({ ...map(s), tier: 'spicy', tierLabel: '🌶️ Spicy', badgeBg: 'var(--ad)', badgeFg: 'var(--on-ad)' }));
+    const pool = [rom[0], sp[0], rom[1], sp[4], rom[3], sp[2], rom[7], sp[6]];
+    const customs = st.custom.map((c, i) => ({ ...c, tierLabel: (c.tier === 'spicy' ? '🌶️ Spicy' : '🕯️ Romantic') + ' · yours', badgeBg: 'var(--ink)', badgeFg: 'var(--bg)', remove: () => this.setState({ custom: st.custom.filter((_, j) => j !== i) }) }));
+    const discover = [...customs, ...pool].filter(s => st.filter === 'all' || s.tier === st.filter);
+    const chip = on => ({ bg: on ? 'var(--ad)' : 'var(--surface)', fg: on ? 'var(--on-ad)' : 'var(--ink2)' });
+    const adOptions = this.adOpts.map(([emoji, t, name, desc], i) => {
+      const v = st.votes[i], p = this.partner[i], match = v === 'yes' && p === 'yes';
+      return { emoji, name, desc, tierLabel: t === 'spicy' ? '🌶️ Spicy' : '🕯️ Romantic', match, partnerMaybe: !match && p === 'maybe' && v !== 'pass',
+        border: match ? 'var(--ad)' : 'transparent', opacity: v === 'pass' ? 0.5 : 1,
+        yesBg: v === 'yes' ? 'var(--ad)' : 'transparent', yesFg: v === 'yes' ? 'var(--on-ad)' : 'var(--ad-deep)',
+        maybeBg: v === 'maybe' ? 'var(--warning)' : 'transparent', maybeFg: v === 'maybe' ? '#101820' : 'var(--ink2)',
+        passBg: v === 'pass' ? 'var(--ink)' : 'transparent', passFg: v === 'pass' ? 'var(--bg)' : 'var(--ink2)',
+        yes: () => this.setState({ votes: { ...st.votes, [i]: 'yes' } }), maybe: () => this.setState({ votes: { ...st.votes, [i]: 'maybe' } }), pass: () => this.setState({ votes: { ...st.votes, [i]: 'pass' } }) };
+    });
+    const voted = Object.keys(st.votes).length, matches = adOptions.filter(o => o.match);
+    const setupOk = st.age;
+    return {
+      dark, themeClass: dark ? 'dn-dark' : '', themeLabel: dark ? 'Dark' : 'Light', toggleTheme: () => this.setState({ dark: !st.dark }), fw: 375, fh: 812,
+      intentCouple: () => this.setState({ intent: 'couple' }), intentGroup: () => this.setState({ intent: 'group' }),
+      coupleBorder: st.intent === 'couple' ? 'var(--primary)' : 'transparent', groupBorder: st.intent === 'group' ? 'var(--primary)' : 'transparent',
+      coupleBg: st.intent === 'couple' ? 'var(--primary)' : 'transparent', groupBg: st.intent === 'group' ? 'var(--primary)' : 'transparent', coupleTick: st.intent === 'couple' ? '✓' : '', groupTick: st.intent === 'group' ? '✓' : '',
+      intentBlob: st.intent === 'couple' ? 'var(--ad-soft)' : 'var(--lime-soft)', intentCta: st.intent === 'couple' ? 'Invite my partner' : 'Name the group',
+      intentNote: st.intent === 'couple' ? 'Next: the After Dark card, then a link for your partner.' : 'Next: name it and invite people. You can start a couple plan later from Plans.',
+      toggleAge: () => this.setState({ age: !st.age }), ageBg: st.age ? 'var(--ad)' : 'transparent', ageTick: st.age ? '✓' : '', ageBorder: st.age ? 'var(--ad)' : 'transparent',
+      setupCta: setupOk ? 'Continue with After Dark on' : 'Confirm you\'re 18+ to continue', setupCtaBg: setupOk ? 'var(--ad)' : 'var(--surface)', setupCtaFg: setupOk ? 'var(--on-ad)' : 'var(--ink2)',
+      toggleOn: () => this.setState({ on: !st.on }), onBg: st.on ? 'var(--ad)' : 'var(--line)', onKnob: st.on ? '23px' : '3px',
+      filterAll: () => this.setState({ filter: 'all' }), filterRomantic: () => this.setState({ filter: 'romantic' }), filterSpicy: () => this.setState({ filter: 'spicy' }),
+      fAllBg: chip(st.filter === 'all').bg, fAllFg: chip(st.filter === 'all').fg, fRomBg: chip(st.filter === 'romantic').bg, fRomFg: chip(st.filter === 'romantic').fg, fSpBg: chip(st.filter === 'spicy').bg, fSpFg: chip(st.filter === 'spicy').fg,
+      discover, discoverCount: discover.length,
+      adOptions, adMatched: matches.length > 0, adWinner: matches.length ? matches[0].name : '', adWinnerCard: matches.length ? matches[0].name : 'Massage, oils, lights low',
+      adStatus: voted === 0 ? 'Priya answered all 3. Your turn; she can\'t see your Passes.' : voted < 3 ? `${voted} of 3 answered · ${3 - voted} to go` : matches.length ? `${matches.length} match${matches.length > 1 ? 'es' : ''}. Pick one to lock in.` : 'No match yet. Priya sees your Maybes and can counter.',
+      adReset: () => this.setState({ votes: {} }),
+      toggleVague: () => this.setState({ vague: !st.vague }), vagueBg: st.vague ? 'var(--ad)' : 'var(--line)', vagueKnob: st.vague ? '23px' : '3px',
+      romantic: rom, spicy: sp, catalogCount: rom.length + sp.length,
+      cName: st.cName, setCName: e => this.setState({ cName: e.target.value }), cDesc: st.cDesc, setCDesc: e => this.setState({ cDesc: e.target.value }), cDescCount: st.cDesc.length,
+      cTierRomantic: () => this.setState({ cTier: 'romantic' }), cTierSpicy: () => this.setState({ cTier: 'spicy' }),
+      cRomBg: st.cTier === 'romantic' ? 'var(--ad)' : 'transparent', cRomFg: st.cTier === 'romantic' ? 'var(--on-ad)' : 'var(--ad-deep)', cSpBg: st.cTier === 'spicy' ? 'var(--ad)' : 'transparent', cSpFg: st.cTier === 'spicy' ? 'var(--on-ad)' : 'var(--ad-deep)', cSpOpacity: 1, cSpicyBlocked: false,
+      cWhereHome: () => this.setState({ cWhere: 'home' }), cWhereOut: () => this.setState({ cWhere: 'out' }), cHomeBg: st.cWhere === 'home' ? 'var(--ink)' : 'var(--surface)', cHomeFg: st.cWhere === 'home' ? 'var(--bg)' : 'var(--ink2)', cOutBg: st.cWhere === 'out' ? 'var(--ink)' : 'var(--surface)', cOutFg: st.cWhere === 'out' ? 'var(--bg)' : 'var(--ink2)', cTime: '1h',
+      custom: customs, customCount: customs.length, hasCustom: customs.length > 0,
+      addLabel: st.cName.trim() ? 'Add to After Dark' : 'Name your idea to add it', addBg: st.cName.trim() ? 'var(--ad)' : 'var(--surface)', addFg: st.cName.trim() ? 'var(--on-ad)' : 'var(--ink2)',
+      addCustom: () => st.cName.trim() && this.setState({ custom: [{ emoji: st.cTier === 'spicy' ? '🌶️' : '✨', name: st.cName.trim(), desc: st.cDesc.trim() || 'Your idea, just for the two of you.', tier: st.cTier, where: st.cWhere, time: '1h' }, ...st.custom], cName: '', cDesc: '' }),
+    };
+  }
+}
+</script>
+</body>
+</html>

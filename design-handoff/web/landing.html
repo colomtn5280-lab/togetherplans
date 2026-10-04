@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Together Plans — Plan together. Go together.</title>
+<meta name="description" content="47 messages later, still no plan? Propose three things, everyone votes, it locks in. Free for couples, friends and families on iOS, Android and web.">
+<meta name="theme-color" content="#0E8C8C">
+<meta property="og:title" content="Together Plans — Plan together. Go together.">
+<meta property="og:description" content="Propose three things, everyone votes, it locks in. Free on iOS, Android and web.">
+<meta property="og:image" content="https://togetherplans.app/og-image.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+<style>
+:root{--primary:#0E8C8C;--primary-deep:#086B6B;--primary-soft:#D9F1F0;--lime:#7CB518;--lime-soft:#EAF6D3;--ink:#101820;--ink2:#5D6B76;--line:#DDE3E8;--bg:#F4F6F8;--surface:#fff;--warning:#E39B12;--warning-soft:#FBEFD3;--shadow:0 8px 24px rgba(16,24,32,.07);--shadow-lg:0 30px 80px rgba(16,24,32,.18)}
+@media (prefers-color-scheme:dark){:root{--primary:#2FC4C1;--primary-deep:#7FE0DD;--primary-soft:#123B3B;--lime:#A8E04B;--lime-soft:#2A3A12;--ink:#F4F6F8;--ink2:#93A3AF;--line:#2A3641;--bg:#0F1519;--surface:#1B232B;--warning-soft:#3A2E12;--shadow:0 8px 24px rgba(0,0,0,.35);--shadow-lg:0 30px 80px rgba(0,0,0,.5)}}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'DM Sans',system-ui,sans-serif;font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:var(--primary);text-decoration:none}a:hover{color:var(--primary-deep)}
+h1,h2,h3{font-family:'Sora',sans-serif;font-weight:800;letter-spacing:-.04em;margin:0}
+.wrap{position:relative;max-width:1160px;margin:0 auto;padding:0 40px}
+.blob{position:absolute;pointer-events:none;z-index:0}
+.b1{top:-220px;right:-160px;width:640px;height:580px;border-radius:48% 52% 45% 55%/55% 45% 55% 45%;background:var(--primary-soft)}
+.b2{top:560px;left:-200px;width:520px;height:460px;border-radius:52% 48% 45% 55%/55% 45% 55% 45%;background:var(--lime-soft)}
+.page{position:relative;overflow:hidden}
+.page>.wrap{position:relative;z-index:1}
+.nav{height:84px;display:flex;align-items:center;gap:32px}
+.brand{display:flex;align-items:center;gap:10px;color:var(--ink)}
+.brand svg{width:36px;height:36px;display:block}
+.brand b{font:800 20px 'Sora',sans-serif;letter-spacing:-.03em}
+.nav-links{display:flex;gap:26px;font-weight:600;font-size:14px;color:var(--ink2);margin-left:12px}
+.nav-links a{color:var(--ink2)}.nav-links a:hover{color:var(--ink)}
+.nav-cta{margin-left:auto;display:flex;gap:10px;align-items:center}
+.btn{display:inline-flex;align-items:center;justify-content:center;font:700 15px 'Sora',sans-serif;height:48px;padding:0 22px;border-radius:24px 17px 24px 17px;background:var(--primary);color:#fff;border:0;cursor:pointer;transition:transform .15s ease,box-shadow .15s ease;white-space:nowrap}
+.btn:hover{transform:translateY(-1px);box-shadow:var(--shadow);color:#fff}
+.btn.lg{height:56px;padding:0 28px;font-size:17px;border-radius:28px 20px 28px 20px;box-shadow:var(--shadow)}
+.btn.ghost{background:var(--surface);color:var(--ink);box-shadow:var(--shadow);border-radius:20px 28px 20px 28px}
+.btn.ghost:hover{color:var(--ink)}
+.btn.sm{height:42px;font-size:14px;padding:0 20px;border-radius:21px 15px 21px 15px}
+.link{font-weight:600;font-size:14px;padding:0 14px;color:var(--ink)}
+.hero{display:grid;grid-template-columns:1.1fr 1fr;gap:48px;align-items:center;padding:72px 0 96px}
+.sticker{display:inline-block;padding:6px 12px;border-radius:12px 6px 14px 6px;background:var(--lime);color:#101820;font:800 12px 'Sora',sans-serif;letter-spacing:.06em;transform:rotate(-3deg);box-shadow:var(--shadow)}
+.hero h1{font-size:76px;line-height:.98;letter-spacing:-.05em;margin-top:22px}
+.hero h1 .dot{display:inline-block;transform:rotate(8deg);color:var(--primary)}
+.hero p{font-size:20px;color:var(--ink2);max-width:520px;margin:22px 0 0}
+.hero-ctas{display:flex;gap:12px;margin-top:32px;align-items:center;flex-wrap:wrap}
+.stores{display:flex;gap:10px;margin-top:28px;flex-wrap:wrap}
+.store{height:44px;padding:0 16px;border-radius:12px;background:var(--ink);color:var(--bg);font-weight:600;font-size:13px;display:inline-flex;align-items:center;gap:8px}
+.store:hover{color:var(--bg);opacity:.9}
+.fine{font-size:12px;color:var(--ink2);margin-top:14px}
+.stage{position:relative;height:560px}
+.phone{position:absolute;left:40px;top:0;width:300px;height:520px;border-radius:44px;background:var(--surface);box-shadow:var(--shadow-lg);padding:26px 18px;transform:rotate(-4deg);overflow:hidden}
+.phone h3{font-size:24px;line-height:1}
+.phone .sub{font-size:12px;color:var(--ink2);margin-top:8px}
+.opts{margin-top:16px;display:flex;flex-direction:column;gap:12px}
+.opt{position:relative;border-radius:22px 30px 20px 26px;background:var(--bg);padding:12px 14px;display:flex;align-items:center;gap:10px}
+.opt:nth-child(2){border-radius:30px 22px 26px 20px;border:2px solid var(--primary)}
+.opt:nth-child(3){border-radius:20px 26px 30px 22px}
+.opt .t{flex:1}.opt .t b{display:block;font:800 13px 'Sora',sans-serif}.opt .t span{font-size:11px;color:var(--ink2)}
+.heart{width:38px;height:38px;border-radius:50% 48% 52% 50%;background:var(--surface);border:2px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--ink2);flex:none}
+.heart.on{background:var(--primary);color:#fff;border-color:var(--primary)}
+.tag{position:absolute;top:-8px;right:14px;padding:3px 7px;border-radius:8px 4px 8px 4px;background:var(--lime);color:#101820;font:800 9px 'Sora',sans-serif;transform:rotate(5deg)}
+.locked{position:absolute;right:0;bottom:20px;width:280px;border-radius:44px 36px 48px 40px;background:var(--surface);box-shadow:var(--shadow-lg);padding:34px 22px 22px;text-align:center;transform:rotate(5deg)}
+.locked .badge{position:absolute;top:-14px;left:50%;transform:translateX(-50%) rotate(-6deg);padding:7px 14px;border-radius:14px 8px 16px 8px;background:var(--lime);color:#101820;font:800 12px 'Sora',sans-serif;letter-spacing:.08em;box-shadow:var(--shadow)}
+.locked .big{font-size:40px;line-height:1}
+.locked h3{font-size:20px;line-height:1.05;margin-top:10px}
+.locked .win{font:800 15px 'Sora',sans-serif;color:var(--primary-deep);margin-top:8px}
+.locked .cal{height:44px;margin-top:14px;border-radius:22px 16px 22px 16px;background:var(--primary);color:#fff;font:700 13px 'Sora',sans-serif;display:flex;align-items:center;justify-content:center}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;padding-bottom:96px}
+.card{background:var(--surface);box-shadow:var(--shadow);padding:28px}
+.card:nth-child(1){border-radius:30px 22px 34px 20px}.card:nth-child(2){border-radius:22px 34px 20px 30px}.card:nth-child(3){border-radius:34px 20px 30px 22px}
+.card .ic{width:48px;height:48px;border-radius:50% 45% 55% 50%;display:flex;align-items:center;justify-content:center;color:var(--primary-deep)}
+.card .ic svg{width:24px;height:24px}
+.card h3{font-size:22px;line-height:1.15;margin-top:18px;letter-spacing:-.03em}
+.card p{font-size:15px;color:var(--ink2);margin:10px 0 0}
+.how{padding-bottom:96px}
+.how h2{font-size:44px;line-height:1;text-align:center}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:40px}
+.step{text-align:center;padding:0 20px}
+.num{width:64px;height:64px;border-radius:50% 45% 55% 50%;background:var(--primary);color:#fff;font:800 26px 'Sora',sans-serif;display:inline-flex;align-items:center;justify-content:center;transform:rotate(-6deg)}
+.step:nth-child(2) .num{background:var(--lime);color:#101820;border-radius:45% 55% 50% 50%;transform:rotate(5deg)}
+.step:nth-child(3) .num{background:var(--ink);color:var(--bg);border-radius:55% 50% 45% 50%;transform:rotate(-3deg)}
+.step h3{font-size:20px;letter-spacing:-.02em;margin-top:18px}
+.step p{font-size:15px;color:var(--ink2);margin:8px 0 0}
+.cta{border-radius:44px 36px 48px 40px;background:var(--primary);color:#fff;padding:64px 56px;display:flex;align-items:center;gap:32px;margin-bottom:64px;position:relative;overflow:hidden}
+.cta .cb{position:absolute;right:-80px;top:-100px;width:360px;height:320px;border-radius:48% 52% 45% 55%/55% 45% 55% 45%;background:rgba(255,255,255,.14)}
+.cta h2{font-size:44px;line-height:1.02;position:relative}
+.cta p{font-size:17px;opacity:.85;margin:12px 0 0;position:relative}
+.cta .btn{background:#fff;color:#086B6B;position:relative;flex:none}
+.cta .btn:hover{color:#086B6B}
+footer{display:flex;justify-content:space-between;align-items:center;padding:0 0 40px;font-size:13px;color:var(--ink2);gap:16px;flex-wrap:wrap}
+footer .links{display:flex;gap:22px}footer a{color:var(--ink2)}footer a:hover{color:var(--ink)}
+@media (max-width:1024px){.hero{grid-template-columns:1fr;gap:56px}.hero h1{font-size:60px}.stage{height:520px;max-width:520px;margin:0 auto;width:100%}.cards,.steps{grid-template-columns:1fr}.cta{flex-direction:column;align-items:flex-start;padding:48px 36px}}
+@media (max-width:640px){.wrap{padding:0 20px}.nav-links{display:none}.link{display:none}.hero{padding:40px 0 64px}.hero h1{font-size:44px}.hero p{font-size:17px}.stage{height:auto;display:flex;flex-direction:column;gap:20px;align-items:center}.phone,.locked{position:static;transform:none;width:100%;max-width:340px;height:auto}.how h2,.cta h2{font-size:32px}.cta{padding:36px 24px;border-radius:32px 26px 36px 28px}}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="blob b1"></div><div class="blob b2"></div>
+  <div class="wrap">
+    <nav class="nav">
+      <a class="brand" href="/" aria-label="Together Plans home">
+        <svg viewBox="0 0 100 100" aria-hidden="true"><g transform="rotate(6 34 62)"><circle cx="33" cy="28" r="11" fill="#0E8C8C"/><path d="M15 84V62a18 18 0 0 1 36 0v22z" fill="#0E8C8C"/></g><g transform="rotate(-6 66 66)"><circle cx="67" cy="32" r="11" fill="#7CB518"/><path d="M49 84V66a18 18 0 0 1 36 0v18z" fill="#7CB518"/></g></svg>
+        <b>Together Plans</b>
+      </a>
+      <div class="nav-links"><a href="#how">How it works</a><a href="#groups">For groups</a><a href="/support">Support</a></div>
+      <div class="nav-cta"><a class="link" href="/login">Log in</a><a class="btn sm" href="/signup">Get started</a></div>
+    </nav>
+
+    <section class="hero">
+      <div>
+        <span class="sticker">FOR COUPLES &amp; GROUPS</span>
+        <h1>Plan together.<br>Go together<span class="dot">.</span></h1>
+        <p>47 messages later, still no plan? Propose a few options, everyone votes, and Together Plans locks in the winner.</p>
+        <div class="hero-ctas"><a class="btn lg" href="/signup">Start a plan, free</a><a class="btn lg ghost" href="#how">See how it works</a></div>
+        <div class="stores"><a class="store" href="https://apps.apple.com/app/id0000000000"> App Store</a><a class="store" href="https://play.google.com/store/apps/details?id=app.togetherplans.datenight">▶ Google Play</a></div>
+        <div class="fine">No ads. Friends can vote from a text without installing anything.</div>
+      </div>
+      <div class="stage" aria-hidden="true">
+        <div class="phone">
+          <h3>Friday<br>night <span class="dot" style="display:inline-block;transform:rotate(8deg);color:var(--primary)">!</span></h3>
+          <div class="sub">Priya voted · waiting on you</div>
+          <div class="opts">
+            <div class="opt"><span class="tag">Priya ♥</span><div class="t"><b>Jazz at the Blue Room</b><span>Nightlife</span></div><span class="heart">♡</span></div>
+            <div class="opt"><div class="t"><b>Noodle Bar Kōji</b><span>Dining</span></div><span class="heart on">♥</span></div>
+            <div class="opt"><div class="t"><b>Sunset hike</b><span>Outdoors</span></div><span class="heart">♡</span></div>
+          </div>
+        </div>
+        <div class="locked">
+          <span class="badge">LOCKED IN</span>
+          <div class="big">🎉</div>
+          <h3>You both said yes to</h3>
+          <div class="win">Jazz at the Blue Room</div>
+          <div class="cal">Add to calendar</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="cards" id="groups">
+      <div class="card"><span class="ic" style="background:var(--primary-soft);transform:rotate(-6deg)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.2L4 21l1.8-5.4A8 8 0 1 1 21 12z"/></svg></span><h3>Stop the "What should we do?" loop</h3><p>One proposal, three to five options, one clear answer. No 47-message thread.</p></div>
+      <div class="card"><span class="ic" style="background:var(--lime-soft);transform:rotate(5deg)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 8.6c0 4.8-8.8 10.4-8.8 10.4S3.2 13.4 3.2 8.6a4.6 4.6 0 0 1 8.8-1.9 4.6 4.6 0 0 1 8.8 1.9z"/></svg></span><h3>Suggest. Counter. Lock it in.</h3><p>Everyone votes on their phone. Nobody's happy? Counter-propose in one tap.</p></div>
+      <div class="card"><span class="ic" style="background:var(--warning-soft);transform:rotate(-4deg)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><circle cx="17" cy="9" r="3"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M14 20a5 5 0 0 1 7.5-4.3"/></svg></span><h3>Works for couples &amp; groups</h3><p>Two people or twelve. Invite by link, text, email, QR or username.</p></div>
+    </section>
+
+    <section class="how" id="how">
+      <h2>How it works</h2>
+      <div class="steps">
+        <div class="step"><span class="num">1</span><h3>Invite</h3><p>Make a group and send a link. They're in before the kettle boils.</p></div>
+        <div class="step"><span class="num">2</span><h3>Propose</h3><p>Pick a night, add 3–5 options, or pull them straight from Discover.</p></div>
+        <div class="step"><span class="num">3</span><h3>Agree</h3><p>Everyone votes. Consensus locks it in and adds it to your calendar.</p></div>
+      </div>
+    </section>
+
+    <section class="cta">
+      <div class="cb"></div>
+      <div style="flex:1"><h2>Friday's sorted<br>by Tuesday.</h2><p>Free for couples and groups. iOS, Android, web.</p></div>
+      <a class="btn lg" href="/signup">Get started</a>
+    </section>
+
+    <footer><span>© 2026 TogetherPlans · togetherplans.app</span><div class="links"><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/support">Support</a></div></footer>
+  </div>
+</div>
+</body>
+</html>

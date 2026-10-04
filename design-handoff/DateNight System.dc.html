@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'DM Sans',system-ui,sans-serif}
+a{color:#0E8C8C}a:hover{color:#086B6B}
+.dn{--bg:#F4F6F8;--surface:#FFFFFF;--ink:#101820;--ink2:#5D6B76;--line:#DDE3E8;--primary:#0E8C8C;--primary-deep:#086B6B;--primary-soft:#D9F1F0;--on-primary:#FFFFFF;--lime:#7CB518;--lime-soft:#EAF6D3;--on-lime:#101820;--success:#1E9A55;--success-soft:#DDF4E6;--error:#D63A3A;--error-soft:#FBE0E0;--warning:#E39B12;--warning-soft:#FBEFD3;--on-warning-soft:#8A5A00;--shadow:0 8px 24px rgba(16,24,32,.07);--dock:0 12px 32px rgba(16,24,32,.16)}
+.dn-dark{--bg:#0F1519;--surface:#18212A;--ink:#EEF3F6;--ink2:#93A3AF;--line:#2A3641;--primary:#2FC4C1;--primary-deep:#5AD6D3;--primary-soft:#154243;--on-primary:#0F1519;--lime:#A8E04B;--lime-soft:#2B4412;--on-lime:#101820;--success:#3FC77A;--success-soft:#173B27;--error:#FF6B6B;--error-soft:#3D1A1A;--warning:#F3B84A;--warning-soft:#3D2E12;--on-warning-soft:#F3B84A;--shadow:0 8px 24px rgba(0,0,0,.4);--dock:0 16px 40px rgba(0,0,0,.65)}
+@keyframes dn-pop{0%{transform:scale(.6);opacity:0}60%{transform:scale(1.06);opacity:1}100%{transform:scale(1)}}
+</style>
+</helmet>
+<div class="dn {{ themeClass }}" style="min-height:100vh;background:var(--bg);color:var(--ink);padding:40px clamp(20px,4vw,56px) 80px">
+
+<div style="display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap;max-width:1100px">
+  <div style="flex:1;min-width:260px"><div style="font:700 11px 'DM Sans',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2)">Together Plans · design system v1</div><h1 style="font:800 clamp(32px,4vw,44px)/1 'Sora',sans-serif;letter-spacing:-.04em;margin:10px 0 0">Teal, lime, stickers.</h1><p style="font-size:15px;line-height:1.55;color:var(--ink2);max-width:560px;margin:12px 0 0">One palette for mobile and web. Tokens are named so they map 1:1 to <span style="font-family:ui-monospace,Menlo,monospace;font-size:13px">constants/index.ts</span> (Expo) and <span style="font-family:ui-monospace,Menlo,monospace;font-size:13px">index.css</span> variables (Vite). Copy the hex values from the swatches; every component below is built from them.</p></div>
+  <button onClick="{{ toggleTheme }}" style="height:38px;padding:0 16px;border-radius:19px 13px 19px 13px;border:0;background:var(--surface);color:var(--ink);font:700 13px 'Sora',sans-serif;cursor:pointer;display:flex;align-items:center;gap:8px;box-shadow:var(--shadow)"><span style="width:10px;height:10px;border-radius:50%;background:var(--primary)"></span>{{ themeLabel }}</button>
+</div>
+
+<!-- COLOR -->
+<div style="font:700 11px 'DM Sans',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2);margin:56px 0 16px">01 · Color</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;max-width:1100px">
+  <sc-for list="{{ swatches }}" as="s" hint-placeholder-count="12">
+    <div style="border-radius:22px 16px 22px 16px;background:var(--surface);box-shadow:var(--shadow);overflow:hidden"><div style="height:72px;background:{{ s.css }};display:flex;align-items:flex-end;padding:8px 10px"><span style="font:700 10px ui-monospace,Menlo,monospace;color:{{ s.on }};opacity:.85">{{ s.hex }}</span></div><div style="padding:10px 12px 12px"><div style="font:700 13px 'Sora',sans-serif;letter-spacing:-.01em">{{ s.name }}</div><div style="font-size:11px;color:var(--ink2);margin-top:2px;line-height:1.4">{{ s.use }}</div></div></div>
+  </sc-for>
+</div>
+<p style="font-size:13px;color:var(--ink2);max-width:720px;line-height:1.55;margin:16px 0 0">Rules: Primary carries every "me" action (buttons, my vote, active tab). Lime carries the "other person" (partner avatars, their votes) and the celebration. Never stack teal on lime. Semantic greens stay for system success only (saved, sent), not for DECIDED, which is lime.</p>
+
+<!-- TYPE -->
+<div style="font:700 11px 'DM Sans',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2);margin:56px 0 16px">02 · Type</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;max-width:1100px">
+  <div style="border-radius:30px 22px 34px 20px;background:var(--surface);box-shadow:var(--shadow);padding:24px">
+    <div style="font:700 11px 'DM Sans',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2)">Sora · display, numbers, buttons</div>
+    <div style="font:800 40px/1 'Sora',sans-serif;letter-spacing:-.04em;margin-top:16px">Display 40 / 800 / -0.04em</div>
+    <div style="font:800 30px/1.05 'Sora',sans-serif;letter-spacing:-.03em;margin-top:14px">Title 30 / 800</div>
+    <div style="font:800 19px/1.2 'Sora',sans-serif;letter-spacing:-.02em;margin-top:12px">Heading 19 / 800</div>
+    <div style="font:700 15px/1.2 'Sora',sans-serif;margin-top:10px">Button 15 / 700</div>
+    <div style="font:800 11px/1 'Sora',sans-serif;letter-spacing:.06em;margin-top:10px">STICKER 11 / 800 / +0.06em</div>
+  </div>
+  <div style="border-radius:22px 34px 20px 30px;background:var(--surface);box-shadow:var(--shadow);padding:24px">
+    <div style="font:700 11px 'DM Sans',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2)">DM Sans · everything else</div>
+    <div style="font:400 16px/1.5 'DM Sans',sans-serif;margin-top:16px">Body 16 / 400 / 1.5 — Couples and groups waste time in the "what do you want to do?" loop.</div>
+    <div style="font:600 15px/1.4 'DM Sans',sans-serif;margin-top:12px">Row label 15 / 600</div>
+    <div style="font:400 13px/1.45 'DM Sans',sans-serif;color:var(--ink2);margin-top:10px">Secondary 13 / 400 / ink2 — Fri, Sep 25 · 7:30 PM · 4 options</div>
+    <div style="font:700 11px/1 'DM Sans',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2);margin-top:12px">Section label 11 / 700 / +0.12em</div>
+    <div style="font:500 13px/1.4 ui-monospace,Menlo,monospace;color:var(--ink2);margin-top:12px">Mono 13 · togetherplans.app/join/k3x9</div>
+  </div>
+</div>
+
+<!-- SHAPE -->
+<div style="font:700 11px 'DM Sans',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2);margin:56px 0 16px">03 · Shape &amp; elevation</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;max-width:1100px">
+  <div style="border-radius:30px 22px 34px 20px;background:var(--surface);box-shadow:var(--shadow);padding:20px;min-height:120px"><div style="font:700 14px 'Sora',sans-serif">Card</div><div style="font:500 12px ui-monospace,Menlo,monospace;color:var(--ink2);margin-top:6px;line-height:1.5">radius 30 22 34 20<br>(rotate the four values per sibling)<br>shadow 0 8 24 ink/7%<br>no border</div></div>
+  <div style="border-radius:28px 20px 28px 20px;background:var(--primary);color:var(--on-primary);padding:20px;min-height:120px"><div style="font:700 14px 'Sora',sans-serif">Button</div><div style="font:500 12px ui-monospace,Menlo,monospace;opacity:.85;margin-top:6px;line-height:1.5">radius 28 20 28 20<br>height 52–54 (44 compact)</div></div>
+  <div style="border-radius:18px;background:var(--surface);box-shadow:var(--shadow);border:2px solid var(--primary);padding:20px;min-height:120px"><div style="font:700 14px 'Sora',sans-serif">Input</div><div style="font:500 12px ui-monospace,Menlo,monospace;color:var(--ink2);margin-top:6px;line-height:1.5">radius 18 (even)<br>height 52<br>focus: 2px primary</div></div>
+  <div style="border-radius:22px;background:var(--surface);box-shadow:var(--shadow);padding:20px;min-height:120px;position:relative;overflow:hidden"><div style="position:absolute;top:-40px;right:-40px;width:140px;height:130px;border-radius:48% 52% 45% 55%/55% 45% 55% 45%;background:var(--primary-soft)"></div><div style="font:700 14px 'Sora',sans-serif;position:relative">Blob</div><div style="font:500 12px ui-monospace,Menlo,monospace;color:var(--ink2);margin-top:6px;line-height:1.5;position:relative">one per screen header<br>primary-soft or lime-soft<br>bleeds off a corner</div></div>
+</div>
+
+<!-- BUTTONS -->
+<div style="font:700 11px 'DM Sans',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2);margin:56px 0 16px">04 · Buttons</div>
+<div style="border-radius:30px 22px 34px 20px;background:var(--surface);box-shadow:var(--shadow);padding:24px;max-width:1100px;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:24px">
+  <div style="display:flex;flex-direction:column;gap:10px">
+    <div style="font:700 11px 'DM Sans',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2)">Primary</div>
+    <div style="height:54px;border-radius:28px 20px 28px 20px;background:var(--primary);color:var(--on-primary);font:700 16px 'Sora',sans-serif;display:flex;align-items:center;justify-content:center">Send to Priya ♥</div>
+    <div style="height:54px;border-radius:28px 20px 28px 20px;background:var(--primary-deep);color:var(--on-primary);font:700 16px 'Sora',sans-serif;display:flex;align-items:center;justify-content:center;transform:scale(.98)">Pressed</div>
+    <div style="height:54px;border-radius:28px 20px 28px 20px;background:var(--primary);color:var(--on-primary);font:700 16px 'Sora',sans-serif;display:flex;align-items:center;justify-content:center;opacity:.4">Disabled</div>
+    <div style="height:54px;border-radius:28px 20px 28px 20px;background:var(--primary);color:var(--on-primary);display:flex;align-items:center;justify-content:center;gap:8px"><span style="width:18px;height:18px;border-radius:50%;border:2.5px solid rgba(255,255,255,.35);border-top-color:var(--on-primary)"></span></div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:10px">
+    <div style="font:700 11px 'DM Sans',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2)">Secondary · Tonal · Ink</div>
+    <div style="height:54px;border-radius:20px 28px 20px 28px;background:var(--surface);box-shadow:var(--shadow);border:1.5px solid var(--line);font:700 16px 'Sora',sans-serif;display:flex;align-items:center;justify-content:center">Share sheet</div>
+    <div style="height:54px;border-radius:28px 20px 28px 20px;background:var(--primary-soft);color:var(--primary-deep);font:700 16px 'Sora',sans-serif;display:flex;align-items:center;justify-content:center">Vote now ♥</div>
+    <div style="height:54px;border-radius:22px 16px 22px 16px;background:var(--ink);color:var(--bg);font:700 16px 'Sora',sans-serif;display:flex;align-items:center;justify-content:center">Counter-propose</div>
+    <div style="height:48px;border-radius:24px 18px 24px 18px;border:2px dashed var(--primary);color:var(--primary-deep);font:700 14px 'Sora',sans-serif;display:flex;align-items:center;justify-content:center">+ Add your own</div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:10px">
+    <div style="font:700 11px 'DM Sans',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2)">Social · Icon · Compact</div>
+    <div style="height:52px;border-radius:20px 28px 20px 28px;background:#fff;color:#1F1F1F;box-shadow:var(--shadow);border:1px solid #DADCE0;display:flex;align-items:center;justify-content:center;gap:10px;font:500 15px 'DM Sans',sans-serif"><span style="width:18px;height:18px;border-radius:50%;background:conic-gradient(#EA4335 0 25%,#FBBC05 0 50%,#34A853 0 75%,#4285F4 0)"></span>Continue with Google</div>
+    <div style="height:52px;border-radius:28px 20px 28px 20px;background:#000;color:#fff;display:flex;align-items:center;justify-content:center;gap:8px;font:500 15px 'DM Sans',sans-serif"> Continue with Apple</div>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+      <div style="width:44px;height:44px;flex:none;border-radius:50% 45% 55% 50%;background:var(--surface);box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"></path></svg></div>
+      <div style="width:44px;height:44px;border-radius:50% 45% 55% 50%;background:var(--primary);color:var(--on-primary);display:flex;align-items:center;justify-content:center" aria-label="New"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg></div>
+      <div style="height:44px;padding:0 18px;flex:none;white-space:nowrap;border-radius:22px 16px 22px 16px;background:var(--primary);color:var(--on-primary);font:700 14px 'Sora',sans-serif;display:flex;align-items:center;gap:6px">+ New</div>
+      <div style="height:38px;padding:0 16px;flex:none;white-space:nowrap;border-radius:19px 13px 19px 13px;background:var(--primary);color:var(--on-primary);font:700 13px 'Sora',sans-serif;display:flex;align-items:center">Copy</div>
+    </div>
+  </div>
+</div>
+
+<!-- STICKERS -->
+<div style="font:700 11px 'DM Sans',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2);margin:56px 0 16px">05 · Stickers (status, category, chips)</div>
+<div style="border-radius:22px 34px 20px 30px;background:var(--surface);box-shadow:var(--shadow);padding:28px 24px 24px;max-width:1100px;display:flex;flex-direction:column;gap:22px">
+  <div style="display:flex;flex-wrap:wrap;gap:16px;align-items:center">
+    <span style="padding:5px 10px;border-radius:12px 6px 14px 6px;background:var(--primary);color:var(--on-primary);font:800 11px 'Sora',sans-serif;letter-spacing:.06em;transform:rotate(-4deg);box-shadow:var(--shadow)">OPEN</span>
+    <span style="padding:5px 10px;border-radius:12px 6px 14px 6px;background:var(--lime);color:var(--on-lime);font:800 11px 'Sora',sans-serif;letter-spacing:.06em;transform:rotate(3deg);box-shadow:var(--shadow)">DECIDED</span>
+    <span style="padding:5px 10px;border-radius:12px 6px 14px 6px;background:var(--warning);color:#101820;font:800 11px 'Sora',sans-serif;letter-spacing:.06em;transform:rotate(-3deg);box-shadow:var(--shadow)">COUNTERED</span>
+    <span style="padding:5px 10px;border-radius:12px 6px 14px 6px;background:var(--line);color:var(--ink2);font:800 11px 'Sora',sans-serif;letter-spacing:.06em;transform:rotate(2deg)">CANCELLED</span>
+    <span style="padding:5px 10px;border-radius:12px 6px 14px 6px;background:var(--warning);color:#101820;font:800 11px 'Sora',sans-serif;letter-spacing:.06em;transform:rotate(4deg);box-shadow:var(--shadow)">PENDING</span>
+    <span style="padding:5px 10px;border-radius:12px 6px 14px 6px;background:var(--primary);color:var(--on-primary);font:800 11px 'Sora',sans-serif;letter-spacing:.06em;transform:rotate(-4deg);box-shadow:var(--shadow)">YOUR TURN</span>
+    <span style="padding:4px 9px;border-radius:10px 4px 10px 4px;background:var(--lime);color:var(--on-lime);font:800 10px 'Sora',sans-serif;transform:rotate(5deg)">Priya ♥</span>
+    <span style="padding:3px 8px;border-radius:8px 4px 8px 4px;background:var(--lime);color:var(--on-lime);font:800 10px 'Sora',sans-serif;transform:rotate(-3deg)">OWNER</span>
+    <span style="font-size:12px;color:var(--ink2)">Rotation alternates −4° / +3° / −3° / +4° down a list. Stickers sit 10–12px above their card edge.</span>
+  </div>
+  <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+    <span style="height:38px;padding:0 16px;border-radius:18px 12px 18px 12px;background:var(--ink);color:var(--bg);font:700 13px 'DM Sans',sans-serif;display:flex;align-items:center">All</span>
+    <span style="height:38px;padding:0 16px;border-radius:12px 18px 12px 18px;background:var(--bg);font:600 13px 'DM Sans',sans-serif;display:flex;align-items:center">Dining</span>
+    <span style="height:38px;padding:0 16px;border-radius:18px 12px 18px 12px;background:var(--bg);font:600 13px 'DM Sans',sans-serif;display:flex;align-items:center">Movies</span>
+    <span style="height:38px;padding:0 16px;border-radius:12px 18px 12px 18px;background:var(--bg);font:600 13px 'DM Sans',sans-serif;display:flex;align-items:center">Outdoors</span>
+    <span style="height:38px;padding:0 16px;border-radius:18px 12px 18px 12px;background:var(--bg);font:600 13px 'DM Sans',sans-serif;display:flex;align-items:center">Arts</span>
+    <span style="height:38px;padding:0 16px;border-radius:12px 18px 12px 18px;background:var(--bg);font:600 13px 'DM Sans',sans-serif;display:flex;align-items:center">Nightlife</span>
+    <span style="font-size:12px;color:var(--ink2);margin-left:8px">Filter chips: selected = ink fill, −2°; rest alternate radius direction.</span>
+  </div>
+</div>
+
+<!-- INPUTS -->
+<div style="font:700 11px 'DM Sans',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2);margin:56px 0 16px">06 · Inputs</div>
+<div style="border-radius:30px 22px 34px 20px;background:var(--surface);box-shadow:var(--shadow);padding:24px;max-width:1100px;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px">
+  <div><div style="font:700 12px 'DM Sans',sans-serif;color:var(--ink2);padding:0 6px">Default</div><div style="height:52px;border-radius:18px;background:var(--bg);display:flex;align-items:center;padding:0 20px;font-size:15px;color:var(--ink2);margin-top:8px">you@email.com</div></div>
+  <div><div style="font:700 12px 'DM Sans',sans-serif;color:var(--ink2);padding:0 6px">Focused</div><div style="height:52px;border-radius:18px;background:var(--bg);border:2px solid var(--primary);display:flex;align-items:center;padding:0 18px;font-size:15px;margin-top:8px">Sam<span style="width:2px;height:20px;background:var(--primary);margin-left:2px"></span></div></div>
+  <div><div style="font:700 12px 'DM Sans',sans-serif;color:var(--ink2);padding:0 6px">Error</div><div style="height:52px;border-radius:18px;background:var(--bg);border:2px solid var(--error);display:flex;align-items:center;padding:0 18px;font-size:15px;margin-top:8px">••••••</div><div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--error);padding:0 6px;margin-top:6px"><span style="padding:2px 7px;border-radius:8px 4px 8px 4px;background:var(--error);color:#fff;font:800 10px 'Sora',sans-serif;transform:rotate(-4deg)">!</span>At least 8 characters.</div></div>
+  <div><div style="font:700 12px 'DM Sans',sans-serif;color:var(--ink2);padding:0 6px">Toggle · Segmented</div><div style="display:flex;align-items:center;gap:14px;margin-top:8px"><span style="width:50px;height:30px;border-radius:999px;background:var(--primary);position:relative;flex:none"><span style="position:absolute;top:3px;right:3px;width:24px;height:24px;border-radius:50%;background:#fff"></span></span><span style="width:50px;height:30px;border-radius:999px;background:var(--line);position:relative;flex:none"><span style="position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:var(--surface)"></span></span><span style="padding:10px 14px;border-radius:18px 12px 18px 12px;background:var(--ink);color:var(--bg);font:700 13px 'DM Sans',sans-serif">💑 Couple</span><span style="padding:10px 14px;border-radius:12px 18px 12px 18px;background:var(--bg);font:600 13px 'DM Sans',sans-serif">Friends</span></div></div>
+</div>
+
+<!-- CARDS -->
+<div style="font:700 11px 'DM Sans',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2);margin:56px 0 16px">07 · Cards &amp; list rows</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;max-width:1100px;align-items:start">
+  <div style="display:flex;flex-direction:column;gap:14px;padding-top:12px">
+    <div style="font:700 11px 'DM Sans',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2)">Group row</div>
+    <div style="border-radius:22px 34px 20px 30px;background:var(--surface);box-shadow:var(--shadow);padding:16px;display:flex;align-items:center;gap:14px">
+      <div style="display:flex"><span style="width:42px;height:42px;border-radius:50% 45% 55% 50%;background:var(--primary);color:var(--on-primary);font:800 15px 'Sora',sans-serif;display:flex;align-items:center;justify-content:center;border:3px solid var(--surface)">S</span><span style="width:42px;height:42px;border-radius:45% 55% 50% 50%;background:var(--lime);color:var(--on-lime);font:800 15px 'Sora',sans-serif;display:flex;align-items:center;justify-content:center;border:3px solid var(--surface);margin-left:-12px">P</span></div>
+      <div style="flex:1"><div style="font:800 16px 'Sora',sans-serif;letter-spacing:-.02em">Sam &amp; Priya</div><div style="font-size:13px;color:var(--ink2);margin-top:2px">1 open · 12 decided</div></div>
+      <span style="width:12px;height:12px;border-radius:50%;background:var(--primary)" title="Needs you"></span>
+    </div>
+    <div style="font:700 11px 'DM Sans',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2);margin-top:6px">Proposal row</div>
+    <div style="position:relative;border-radius:22px 30px 20px 26px;background:var(--surface);box-shadow:var(--shadow);padding:14px 16px;display:flex;align-items:center;gap:12px;margin-top:6px"><span style="position:absolute;top:-10px;left:14px;padding:4px 9px;border-radius:10px 4px 10px 4px;background:var(--lime);color:var(--on-lime);font:800 10px 'Sora',sans-serif;transform:rotate(-4deg)">DECIDED</span><div style="flex:1;margin-top:4px"><div style="font:700 15px 'Sora',sans-serif">Saturday brunch</div><div style="font-size:12px;color:var(--ink2)">Won: Cafe Marlow · Sep 13</div></div></div>
+    <div style="font:700 11px 'DM Sans',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2);margin-top:6px">Skeleton</div>
+    <div style="border-radius:22px 30px 24px 34px;background:var(--surface);box-shadow:var(--shadow);padding:16px;display:flex;align-items:center;gap:14px"><span style="width:42px;height:42px;border-radius:50% 45% 55% 50%;background:var(--line)"></span><div style="flex:1;display:flex;flex-direction:column;gap:8px"><span style="height:14px;width:60%;border-radius:999px;background:var(--line)"></span><span style="height:12px;width:80%;border-radius:999px;background:var(--line)"></span></div></div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:14px;padding-top:12px">
+    <div style="font:700 11px 'DM Sans',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2)">Option card · not voted / my vote</div>
+    <div style="position:relative;border-radius:28px 40px 24px 44px;background:var(--surface);box-shadow:var(--shadow);padding:16px 16px 16px 18px;display:flex;gap:12px;align-items:center;border:2px solid transparent">
+      <span style="position:absolute;top:-10px;right:18px;padding:4px 9px;border-radius:10px 4px 10px 4px;background:var(--lime);color:var(--on-lime);font:800 10px 'Sora',sans-serif;transform:rotate(5deg);box-shadow:var(--shadow)">Priya ♥</span>
+      <div style="flex:1;min-width:0"><div style="font:700 11px 'Sora',sans-serif;color:var(--primary-deep);letter-spacing:.04em">Nightlife</div><div style="font:800 17px/1.15 'Sora',sans-serif;letter-spacing:-.02em;margin-top:4px">Jazz at the Blue Room</div><div style="font-size:13px;color:var(--ink2);margin-top:4px">Trio set at 8, two-drink minimum</div></div>
+      <div style="width:56px;height:56px;border-radius:50% 48% 52% 50%;flex:none;display:flex;align-items:center;justify-content:center;background:var(--bg);color:var(--ink2);border:2px solid var(--line)"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M12 20s-7-4.5-7-10a4 4 0 017-2 4 4 0 017 2c0 5.5-7 10-7 10z"></path></svg></div>
+    </div>
+    <div style="position:relative;border-radius:40px 24px 44px 28px;background:var(--surface);box-shadow:var(--shadow);padding:16px 16px 16px 18px;display:flex;gap:12px;align-items:center;border:2px solid var(--primary)">
+      <div style="flex:1;min-width:0"><div style="font:700 11px 'Sora',sans-serif;color:var(--primary-deep);letter-spacing:.04em">Dining</div><div style="font:800 17px/1.15 'Sora',sans-serif;letter-spacing:-.02em;margin-top:4px">Noodle Bar Kōji</div><div style="font-size:13px;color:var(--ink2);margin-top:4px">Tonkotsu, counter seats</div></div>
+      <div style="width:56px;height:56px;border-radius:50% 48% 52% 50%;flex:none;display:flex;align-items:center;justify-content:center;background:var(--primary);color:var(--on-primary);border:2px solid var(--primary);animation:dn-pop .4s ease-out"><svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M12 20s-7-4.5-7-10a4 4 0 017-2 4 4 0 017 2c0 5.5-7 10-7 10z"></path></svg></div>
+    </div>
+    <div style="font:700 11px 'DM Sans',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2);margin-top:6px">Discover card</div>
+    <div style="position:relative;border-radius:34px 26px 38px 28px;background:var(--surface);box-shadow:var(--shadow);overflow:hidden">
+      <div style="height:110px;background:repeating-linear-gradient(135deg,var(--primary-soft) 0 10px,var(--surface) 10px 20px);display:flex;align-items:center;justify-content:center;font:500 11px ui-monospace,Menlo,monospace;color:var(--ink2)"><span style="background:var(--surface);padding:4px 8px;border-radius:6px">Yelp / TMDB / Places image</span></div>
+      <span style="position:absolute;top:14px;left:14px;padding:5px 10px;border-radius:12px 6px 14px 6px;background:var(--primary);color:var(--on-primary);font:800 11px 'Sora',sans-serif;transform:rotate(-4deg);box-shadow:var(--shadow)">DINING</span>
+      <span style="position:absolute;top:14px;right:14px;padding:5px 10px;border-radius:6px 12px 6px 14px;background:var(--lime);color:var(--on-lime);font:800 11px 'Sora',sans-serif;transform:rotate(4deg);box-shadow:var(--shadow)">★ 4.6</span>
+      <div style="padding:14px 16px 16px"><div style="font:800 18px 'Sora',sans-serif;letter-spacing:-.02em">Noodle Bar Kōji</div><div style="font-size:13px;color:var(--ink2);margin-top:3px">0.4 mi · no reservations</div><div style="height:46px;border-radius:23px 17px 23px 17px;background:var(--primary);color:var(--on-primary);font:700 14px 'Sora',sans-serif;display:flex;align-items:center;justify-content:center;margin-top:12px">+ Add to proposal</div></div>
+    </div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:14px;padding-top:12px">
+    <div style="font:700 11px 'DM Sans',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2)">Avatars · pair colors</div>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <span style="width:54px;height:54px;border-radius:50% 45% 55% 50%;background:var(--primary);color:var(--on-primary);font:800 19px 'Sora',sans-serif;display:flex;align-items:center;justify-content:center;transform:rotate(-6deg)">S</span>
+      <span style="width:54px;height:54px;border-radius:45% 55% 50% 50%;background:var(--lime);color:var(--on-lime);font:800 19px 'Sora',sans-serif;display:flex;align-items:center;justify-content:center;transform:rotate(6deg)">P</span>
+      <span style="width:42px;height:42px;border-radius:50% 45% 55% 50%;background:#2D6CDB;color:#fff;font:800 15px 'Sora',sans-serif;display:flex;align-items:center;justify-content:center">J</span>
+      <span style="width:42px;height:42px;border-radius:45% 55% 50% 50%;background:var(--warning);color:#101820;font:800 15px 'Sora',sans-serif;display:flex;align-items:center;justify-content:center">M</span>
+      <span style="width:42px;height:42px;border-radius:55% 50% 45% 50%;background:var(--ink);color:var(--bg);font:800 12px 'Sora',sans-serif;display:flex;align-items:center;justify-content:center">+3</span>
+      <span style="width:28px;height:28px;border-radius:50%;background:var(--lime);color:var(--on-lime);font:700 11px 'Sora',sans-serif;display:flex;align-items:center;justify-content:center">P</span>
+    </div>
+    <div style="font-size:12px;color:var(--ink2);line-height:1.5">Me = primary, first partner = lime. Extra members cycle cobalt, warning, ink. Sizes 28 / 42 / 54 / 76.</div>
+    <div style="font:700 11px 'DM Sans',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2);margin-top:6px">Consensus moment</div>
+    <div style="position:relative;background:var(--surface);border-radius:44px 36px 48px 40px;padding:32px 20px 22px;text-align:center;box-shadow:var(--shadow);margin-top:6px">
+      <span style="position:absolute;top:-14px;left:50%;transform:translateX(-50%) rotate(-6deg);padding:7px 14px;border-radius:14px 8px 16px 8px;background:var(--lime);color:var(--on-lime);font:800 12px 'Sora',sans-serif;letter-spacing:.08em;box-shadow:var(--shadow)">LOCKED IN</span>
+      <div style="font-size:40px;line-height:1">🎉</div>
+      <div style="font:800 22px/1.05 'Sora',sans-serif;letter-spacing:-.03em;margin-top:10px">You both said yes to</div>
+      <div style="font:800 16px 'Sora',sans-serif;color:var(--primary-deep);margin-top:8px">Jazz at the Blue Room</div>
+      <div style="height:48px;margin-top:16px;border-radius:24px 18px 24px 18px;background:var(--primary);color:var(--on-primary);font:700 14px 'Sora',sans-serif;display:flex;align-items:center;justify-content:center">Add to calendar</div>
+    </div>
+    <div style="font-size:12px;color:var(--ink2);line-height:1.5">Sequence: dim backdrop → card pops (0.5s) → 26 confetti bits burst in primary / lime / soft tints → sticker settles. Haptic: success.</div>
+  </div>
+</div>
+
+<!-- NAV -->
+<div style="font:700 11px 'DM Sans',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2);margin:56px 0 16px">08 · Navigation &amp; icons</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;max-width:1100px;align-items:start">
+  <div style="border-radius:30px 22px 34px 20px;background:var(--bg);border:1.5px dashed var(--line);padding:24px 20px 20px">
+    <div style="font:700 11px 'DM Sans',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2);margin-bottom:14px">Floating dock · 68px, 20px inset, 32px above home indicator</div>
+    <div style="max-width:335px;height:68px;border-radius:34px 28px 32px 30px;background:var(--surface);box-shadow:var(--dock);display:flex;justify-content:space-around;align-items:center;padding:0 8px">
+      <div style="display:flex;align-items:center;gap:8px;height:48px;padding:0 16px;border-radius:24px 18px 24px 18px;background:var(--primary);color:var(--on-primary)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="4"></rect><path d="M3 10h18M8 3v4M16 3v4"></path></svg><span style="font:700 13px 'Sora',sans-serif">Plans</span></div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:2px;width:64px;color:var(--ink2)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M15.5 8.5l-2 5-5 2 2-5z"></path></svg><span style="font:600 11px 'DM Sans',sans-serif">Discover</span></div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:2px;width:64px;color:var(--ink2)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"></path></svg><span style="font:600 11px 'DM Sans',sans-serif">Profile</span></div>
+    </div>
+    <div style="font-size:12px;color:var(--ink2);line-height:1.5;margin-top:14px">Active tab expands into a labelled primary pill; inactive tabs are icon + 11px label. Android: same dock 16px above gesture bar, FAB sits above it.</div>
+    <div style="font:700 11px 'DM Sans',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2);margin:20px 0 12px">Screen header</div>
+    <div style="display:flex;align-items:center;gap:10px"><div style="width:42px;height:42px;border-radius:50% 45% 55% 50%;background:var(--surface);box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"></path></svg></div><span style="font:600 13px 'DM Sans',sans-serif;color:var(--ink2)">Sam &amp; Priya</span><span style="margin-left:auto;padding:5px 10px;border-radius:12px 6px 14px 6px;background:var(--primary);color:var(--on-primary);font:800 11px 'Sora',sans-serif;letter-spacing:.06em;transform:rotate(-4deg)">OPEN</span></div>
+    <div style="font:800 34px/1 'Sora',sans-serif;letter-spacing:-.04em;margin-top:16px">Friday<br>night <span style="display:inline-block;transform:rotate(8deg);color:var(--primary)">!</span></div>
+    <div style="font-size:12px;color:var(--ink2);line-height:1.5;margin-top:12px">No React Navigation default header. Blob back button, muted context line, sticker status right, then the 34px title.</div>
+  </div>
+  <div style="border-radius:22px 34px 20px 30px;background:var(--surface);box-shadow:var(--shadow);padding:24px 20px 20px">
+    <div style="font:700 11px 'DM Sans',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2);margin-bottom:14px">Icon set · 24px grid, 2.2 stroke, round caps</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:10px">
+      <sc-for list="{{ icons }}" as="i" hint-placeholder-count="12">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 4px;border-radius:16px;background:var(--bg)"><span style="width:24px;height:24px;display:flex;align-items:center;justify-content:center;color:var(--ink)">{{ i.svg }}</span><span style="font:500 10px 'DM Sans',sans-serif;color:var(--ink2);text-align:center">{{ i.name }}</span></div>
+      </sc-for>
+    </div>
+    <div style="font-size:12px;color:var(--ink2);line-height:1.5;margin-top:14px">Drawn on the Lucide grid so <span style="font-family:ui-monospace,Menlo,monospace;font-size:11px">lucide-react-native</span> / <span style="font-family:ui-monospace,Menlo,monospace;font-size:11px">lucide-react</span> can ship them: calendar, compass, user, heart, plus, chevron-left, x, user-plus, link, mail, message-square, qr-code, at-sign, map-pin, clock, check, share, bell, log-out, trash.</div>
+  </div>
+</div>
+
+<!-- TOKENS -->
+<div style="font:700 11px 'DM Sans',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2);margin:56px 0 16px">09 · Token export</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;max-width:1100px">
+  <pre style="margin:0;border-radius:22px;background:var(--ink);color:var(--bg);padding:20px;font:500 12px/1.6 ui-monospace,Menlo,monospace;overflow:auto">{{ tsExport }}</pre>
+  <pre style="margin:0;border-radius:22px;background:var(--ink);color:var(--bg);padding:20px;font:500 12px/1.6 ui-monospace,Menlo,monospace;overflow:auto">{{ cssExport }}</pre>
+</div>
+<p style="font-size:13px;color:var(--ink2);max-width:720px;line-height:1.55;margin:16px 0 0">Spacing scale is unchanged (4 / 8 / 16 / 24 / 32 / 48). Touch targets ≥ 44pt. All text pairs above pass AA in both themes; lime always takes dark text.</p>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;dark&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Theme&quot;}}">
+class Component extends DCLogic {
+  state = { dark: null };
+  light = { bg:'#F4F6F8', surface:'#FFFFFF', ink:'#101820', ink2:'#5D6B76', line:'#DDE3E8', primary:'#0E8C8C', primaryDeep:'#086B6B', primarySoft:'#D9F1F0', onPrimary:'#FFFFFF', lime:'#7CB518', limeSoft:'#EAF6D3', onLime:'#101820', success:'#1E9A55', successSoft:'#DDF4E6', error:'#D63A3A', errorSoft:'#FBE0E0', warning:'#E39B12', warningSoft:'#FBEFD3', onWarningSoft:'#8A5A00' };
+  darkT = { bg:'#0F1519', surface:'#18212A', ink:'#EEF3F6', ink2:'#93A3AF', line:'#2A3641', primary:'#2FC4C1', primaryDeep:'#5AD6D3', primarySoft:'#123637', onPrimary:'#0F1519', lime:'#A8E04B', limeSoft:'#253A0F', onLime:'#101820', success:'#3FC77A', successSoft:'#173B27', error:'#FF6B6B', errorSoft:'#3D1A1A', warning:'#F3B84A', warningSoft:'#3D2E12', onWarningSoft:'#F3B84A' };
+  ico(path, extra) { return React.createElement('svg', { width: 24, height: 24, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2.2, strokeLinecap: 'round', strokeLinejoin: 'round', dangerouslySetInnerHTML: { __html: path } }); }
+  renderVals() {
+    const dark = this.state.dark ?? this.props.dark ?? false;
+    const t = dark ? this.darkT : this.light;
+    const on = (k) => ['bg','surface','primarySoft','limeSoft','successSoft','errorSoft','warningSoft','line'].includes(k) ? t.ink : (k === 'lime' || k === 'warning') ? '#101820' : dark && (k === 'primary' || k === 'primaryDeep') ? '#0F1519' : '#fff';
+    const meta = [
+      ['primary','Primary','My actions, active tab, my vote'], ['primaryDeep','Primary deep','Pressed, link text on light'], ['primarySoft','Primary soft','Tonal buttons, blobs, tag fills'],
+      ['lime','Lime','Partner color, DECIDED, celebration'], ['limeSoft','Lime soft','Partner tints, blobs'],
+      ['ink','Ink','Headings, body, ink buttons'], ['ink2','Ink 2','Secondary text, inactive icons'], ['bg','Background','Screen paper'], ['surface','Surface','Cards, dock, inputs on bg'], ['line','Line','Dividers, skeleton, disabled'],
+      ['success','Success','Saved, sent, copied'], ['warning','Warning','COUNTERED, PENDING'], ['error','Error','Validation, destructive'],
+    ];
+    const swatches = meta.map(([k, name, use]) => ({ name, use, hex: t[k], css: t[k], on: on(k) }));
+    const P = {
+      calendar: '<rect x="3" y="5" width="18" height="16" rx="4"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+      compass: '<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>',
+      user: '<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/>',
+      heart: '<path d="M12 20s-7-4.5-7-10a4 4 0 017-2 4 4 0 017 2c0 5.5-7 10-7 10z"/>',
+      plus: '<path d="M12 5v14M5 12h14"/>', back: '<path d="M15 6l-6 6 6 6"/>', close: '<path d="M6 6l12 12M18 6L6 18"/>',
+      'user-plus': '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.5 3-5.5 6.5-5.5s6.5 2 6.5 5.5M18 8v6M15 11h6"/>',
+      link: '<path d="M10 14a4 4 0 005.7 0l3-3a4 4 0 00-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 00-5.7 0l-3 3a4 4 0 005.7 5.7l1-1"/>',
+      mail: '<rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 8l9 6 9-6"/>',
+      sms: '<path d="M4 5h16v11H9l-5 4z"/>',
+      qr: '<rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><path d="M14 14h2v2h-2zM18 14h2M14 18h2M18 18h2v2"/>',
+      username: '<circle cx="12" cy="12" r="4"/><path d="M16 12v1.5a2.5 2.5 0 005 0V12a9 9 0 10-3.5 7.1"/>',
+      pin: '<path d="M12 21s-6-5.3-6-10a6 6 0 0112 0c0 4.7-6 10-6 10z"/><circle cx="12" cy="11" r="2"/>',
+      clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>', check: '<path d="M5 12l5 5L20 7"/>',
+      share: '<path d="M12 3v12M7 8l5-5 5 5M5 14v5a2 2 0 002 2h10a2 2 0 002-2v-5"/>',
+      bell: '<path d="M6 16V11a6 6 0 0112 0v5l2 2H4zM10 21h4"/>', 'log-out': '<path d="M10 4H6a2 2 0 00-2 2v12a2 2 0 002 2h4M15 8l5 4-5 4M20 12H9"/>',
+      trash: '<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6"/>',
+    };
+    const icons = Object.entries(P).map(([name, d]) => ({ name, svg: this.ico(d) }));
+    const ts = Object.entries(t).map(([k, v]) => `  ${k}: '${v}',`).join('\n');
+    const css = Object.entries(t).map(([k, v]) => `  --${k.replace(/[A-Z]/g, m => '-' + m.toLowerCase())}: ${v};`).join('\n');
+    return {
+      swatches, icons, dark, themeClass: dark ? 'dn-dark' : '', themeLabel: dark ? 'Dark' : 'Light',
+      toggleTheme: () => this.setState({ dark: !dark }),
+      tsExport: `// mobile/constants/index.ts — ${dark ? 'dark' : 'light'}\nexport const Colors = {\n${ts}\n};\nexport const Fonts = { display: 'Sora', body: 'DMSans' };`,
+      cssExport: `/* web/src/index.css — ${dark ? '@media (prefers-color-scheme: dark)' : ':root'} */\n${dark ? '@media (prefers-color-scheme: dark) { :root {' : ':root {'}\n${css}\n  --font-display: 'Sora', system-ui, sans-serif;\n  --font-body: 'DM Sans', system-ui, sans-serif;\n${dark ? '} }' : '}'}`,
+    };
+  }
+}
+</script>
+</body>
+</html>

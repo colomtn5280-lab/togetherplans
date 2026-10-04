@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
+<script src="./doc-page.js"></script>
+<style>
+doc-page:not(:defined){visibility:hidden}
+body{margin:0;font-family:'DM Sans',system-ui,sans-serif;color:#101820}
+a{color:#0E8C8C}a:hover{color:#086B6B}
+*{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+</style>
+</helmet>
+<doc-page margin="0.8in">
+  <div slot="footer" style="display:flex;justify-content:space-between;font:500 9pt 'DM Sans',sans-serif;color:#5D6B76;padding:0 0.8in 0.35in"><span>Together Plans · Design package index · Sept 2026</span><span>togetherplans.app</span></div>
+  <div style="display:flex;align-items:center;gap:10px"><span style="width:30px;height:30px;border-radius:38% 62% 55% 45%/50% 40% 60% 50%;background:#0E8C8C;color:#fff;display:inline-flex;align-items:center;justify-content:center;font:800 13px 'Sora',sans-serif;transform:rotate(-6deg)">♥</span><span style="font:800 14pt 'Sora',sans-serif">Together Plans</span></div>
+  <h1 style="font:800 32pt/1 'Sora',sans-serif;letter-spacing:-.04em;margin:28pt 0 0">Design package index</h1>
+  <p style="font-size:12pt;color:#5D6B76;margin:10pt 0 0;line-height:1.5">What is in each PDF, which files they come from, and the decisions they encode. Visual boards export at their native canvas size (one wide page per board); documents paginate to Letter or A4.</p>
+
+  <sc-for list="{{ pkgs }}" as="p" hint-placeholder-count="8"><div style="margin-top:18pt;padding:14pt 16pt;border-radius:12pt;border:1.5pt solid #DDE3E8;break-inside:avoid"><div style="display:flex;align-items:baseline;gap:10pt"><span style="font:800 10pt 'Sora',sans-serif;padding:3pt 8pt;border-radius:6pt;background:{{ p.bg }};color:{{ p.fg }}">{{ p.kind }}</span><div style="font:800 14pt 'Sora',sans-serif;letter-spacing:-.02em">{{ p.name }}</div><span style="margin-left:auto;font:500 9pt ui-monospace,Menlo,monospace;color:#5D6B76">{{ p.file }}</span></div><div style="font-size:10.5pt;line-height:1.55;margin-top:6pt">{{ p.contents }}</div><div style="font-size:9.5pt;color:#5D6B76;margin-top:5pt"><b>Decisions encoded:</b> {{ p.decisions }}</div></div></sc-for>
+
+  <h2 style="font:800 16pt/1.1 'Sora',sans-serif;letter-spacing:-.03em;margin:26pt 0 6pt">Shared foundations</h2>
+  <ul style="font-size:10.5pt;line-height:1.6;margin:0;padding-left:16pt"><li><b>Colour:</b> teal primary #0E8C8C (deep #086B6B, soft #D9F1F0), lime #7CB518 (soft #EAF6D3), ink #101820, ink-2 #5D6B76, line #DDE3E8, background #F4F6F8, surface #FFFFFF. Semantic: success #1E9A55, warning #E39B12, error #D63A3A. After Dark accent wine #B2485E (soft #F7E3E7). Dark mode variants in each file's stylesheet.</li><li><b>Type:</b> Sora 600–800 for display, DM Sans for text, Caveat only for handwritten Share Card templates. Mobile body 13–15, headings 26–34 at −0.04em.</li><li><b>Shape:</b> blob/sticker language: asymmetric radii (e.g. 22px 30px 20px 26px), rotated stickers ±3–6° on status badges and celebrations only; chips, form fields and list avatars never tilt.</li><li><b>Rating and safety:</b> 16+ (iOS) / Mature 17+ (Play) because of After Dark; hidden from History; no photos, no third-party APIs in that category.</li></ul>
+</doc-page>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const pkgs = [
+      ['Document', 'Marketing Campaign', 'pdf/Marketing Campaign.dc.html', 'Positioning, the five growth loops, channel × app matrix, budget, 12-week calendar, targets, six viral playbooks, traditional low-cost tactics, channel recipes, measurement and rules. Companion boards: Marketing Hub, Playbooks, Store Listings, Social Creatives, Landing Pages, Email Sequences, Print, Press Kit.', 'Under $1k/month, founder-run; US + UK/CA/AU; free at launch; no referral reward; faceless video; After Dark as a tasteful secondary hook.', '#0E8C8C', '#fff'],
+      ['Board', 'iOS app screens', 'DateNight Mobile.dc.html (iOS frames)', 'Login, register, onboarding (3 cards, third creates the group), Plans tab empty and populated, Group detail, Create group, Invite (5 methods + QR modal), Proposal detail (voting, consensus, counter-propose), Create proposal, Discover, Profile, notifications, deep-link landing, forgot/reset/verify, delete account; group voting with veto and hidden tallies; ranked voting (parked); app icon, splash, store screenshots.', 'Single heart + veto for groups; strict majority once all voted; tallies hidden until all in, vetoes visible with name; T-24h reminder; one counter-proposal level; onboarding cards.', '#101820', '#fff'],
+      ['Board', 'Android app screens', 'DateNight Mobile.dc.html (Android frames, 390×844)', 'Same screen set with Material patterns: ripple feedback, system back, Android photo picker (no permission prompt), Play Instant vote page instead of App Clip. Sign in with Apple omitted on Android.', 'Feature parity with iOS; platform-native pickers and sharing; Play rating Mature 17+.', '#101820', '#fff'],
+      ['Board', 'Web app pages', 'DateNight Web.dc.html', 'Landing, login, signup, dashboard, groups, group detail, proposal detail (voting + consensus), suggestions, settings, notifications, forgot/reset/verify, 404; 1440 desktop, 768 tablet, mobile breakpoint reusing the native dock; light and dark.', 'Web reuses the mobile dock under 768px; photo attribution captions reserved; dark mode via prefers-color-scheme.', '#101820', '#fff'],
+      ['Board', 'Share Cards (invite card templates)', 'DateNight Share Cards.dc.html', '36 templates at 9:16 in two modes (vote invite, it\'s official), mood filter (playful / classic / dark), mobile picker, customise + send, in-app received view, email invite, web picker; camera-roll flow (permission primer, group photo library, reframe, web upload).', 'Feature name is "Share Cards"; cards render server-side to 1080×1920 PNG; group photos visible to all members; iOS limited photo access only; Google Photos import deferred.', '#7CB518', '#101820'],
+      ['Board', 'After Dark', 'DateNight After Dark.dc.html', 'Onboarding intent step (couple vs friends & family), couple setup card, partner consent, Discover with After Dark category, Yes/Maybe/Pass proposal with private passes, settings, type-only Share Card, add-your-own-idea form, 40-item seed catalog.', 'Couples-only, on by default with 18+ confirmation and an off switch; no tiers; hidden from History; no lock/blur; 16+ / Mature 17+ accepted.', '#B2485E', '#fff'],
+      ['Document', 'Developer handoff', 'design_handoff_datenight_redesign/README.md', 'Tokens, component inventory, per-screen notes, validation plan, accessibility checklist, and the running log of product decisions from this project.', 'All decisions above, dated.', '#5D6B76', '#fff'],
+    ].map(([kind, name, file, contents, decisions, bg, fg]) => ({ kind, name, file, contents, decisions, bg, fg }));
+    return { pkgs };
+  }
+}
+</script>
+</body>
+</html>

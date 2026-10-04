@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F4F6F8;font-family:'DM Sans',system-ui,sans-serif;color:#101820}
+a{color:#0E8C8C;text-decoration:none}a:hover{color:#086B6B;text-decoration:underline}
+.pb{background:#fff;border-radius:26px 20px 30px 22px;padding:24px 26px;box-shadow:0 8px 24px rgba(16,24,32,.07);scroll-margin-top:20px}
+.pb h2{font:800 22px/1.1 'Sora',sans-serif;letter-spacing:-.03em;margin:0}
+.pb h3{font:700 11px 'Sora',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#5D6B76;margin:18px 0 6px}
+.pb p,.pb li{font-size:14px;line-height:1.55;margin:0}
+.pb ol,.pb ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
+.tag{display:inline-block;padding:4px 10px;border-radius:999px;font:700 11px 'Sora',sans-serif;letter-spacing:.04em}
+</style>
+</helmet>
+<div style="max-width:1120px;margin:0 auto;padding:40px 28px 80px">
+  <div style="font:800 34px/1 'Sora',sans-serif;letter-spacing:-.04em">Playbooks</div>
+  <div style="font-size:15px;color:#5D6B76;margin-top:10px;max-width:760px;line-height:1.55">Six viral plays, then the referral spec, then the channel plans that need a recipe (Reddit, Product Hunt, partnerships, sponsorships). Each has a cost, an owner-hours estimate, and the one metric that says whether to keep going. Back to <a href="Marketing Hub.dc.html">Hub</a>.</div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:18px"><a href="#v1" class="tag" style="background:#D9F1F0;color:#086B6B">1 · 47 Messages Later</a><a href="#v2" class="tag" style="background:#D9F1F0;color:#086B6B">2 · The Decide Link</a><a href="#v3" class="tag" style="background:#D9F1F0;color:#086B6B">3 · Vote Before You Install</a><a href="#v4" class="tag" style="background:#D9F1F0;color:#086B6B">4 · Share Card Sundays</a><a href="#v5" class="tag" style="background:#D9F1F0;color:#086B6B">5 · Wedding Registry</a><a href="#v6" class="tag" style="background:#D9F1F0;color:#086B6B">6 · Campus Pact</a><a href="#referral" class="tag" style="background:#EAF6D3;color:#101820">Referral spec</a><a href="#reddit" class="tag" style="background:#EAF6D3;color:#101820">Reddit</a><a href="#ph" class="tag" style="background:#EAF6D3;color:#101820">Product Hunt</a><a href="#partners" class="tag" style="background:#EAF6D3;color:#101820">Partnerships</a><a href="#sponsor" class="tag" style="background:#EAF6D3;color:#101820">Sponsorships</a><a href="#trad" class="tag" style="background:#EAF6D3;color:#101820">Traditional</a></div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:20px;margin-top:28px">
+
+    <div class="pb" id="v1"><span class="tag" style="background:#0E8C8C;color:#fff">Viral 1</span><h2 style="margin-top:12px">47 Messages Later</h2><p style="color:#5D6B76;margin-top:6px">UGC screenshot campaign. The product explained by the problem.</p>
+      <h3>Mechanic</h3><ol><li>In-app, after a plan locks in: "Post the before/after". Generates a 9:16 image: a blurred, anonymised mock of a long thread on the left, the decided plan card on the right, "47 messages later" stamped on top (number is real: we count messages in the proposal thread).</li><li>Hashtag #47MessagesLater. Weekly "worst thread" feature on the Together Plans account; winner's group gets a printed Share Card poster mailed to them ($8).</li><li>Seed: 20 posts from friends and waitlisters before launch so the tag isn't empty.</li></ol>
+      <h3>Channels</h3><p>TikTok, Reels, IG Stories, Reddit (r/mildlyinfuriating-style crossover posts), Twitter/X quote threads.</p>
+      <h3>Cost · hours · metric</h3><p>$0 + $8/week prize · 2h/week · posts per 100 decided plans (target 5), and installs from tag link.</p></div>
+
+    <div class="pb" id="v2"><span class="tag" style="background:#0E8C8C;color:#fff">Viral 2</span><h2 style="margin-top:12px">The Decide Link</h2><p style="color:#5D6B76;margin-top:6px">A free web tool that is the core loop with no signup. togetherplans.app/decide</p>
+      <h3>Mechanic</h3><ol><li>Type 2–5 options, get a link. Anyone with the link votes once (device fingerprint, no account). Result page shows the winner as a Share Card-style image.</li><li>Result page CTA: "Keep this going in Together Plans" imports the options into a new proposal.</li><li>SEO: the tool page targets "how to decide where to eat", "random date idea picker", "group decision maker". Each result is a shareable URL with OG image.</li></ol>
+      <h3>Why it works</h3><p>People search for a decision, not an app. The tool solves it in 20 seconds, then shows what the app adds: memory, groups, discovery, Share Cards.</p>
+      <h3>Cost · hours · metric</h3><p>$0 (one static page + tiny endpoint) · 1 eng week · decide links created/week; tool → signup rate (target 6%).</p></div>
+
+    <div class="pb" id="v3"><span class="tag" style="background:#0E8C8C;color:#fff">Viral 3</span><h2 style="margin-top:12px">Vote Before You Install</h2><p style="color:#5D6B76;margin-top:6px">iOS App Clip · Google Play Instant · web vote page. Removes the "my partner won't download it" objection.</p>
+      <h3>Mechanic</h3><ol><li>Every invite and vote link (`togetherplans.app/p/:id`) opens an instant experience: see options, tap a heart, see "waiting on Sam". No account.</li><li>After voting: "Get the app to see the result" (soft) with Sign in with Apple / Google one-tap; the vote carries over.</li><li>Share Cards deep-link to the same page, so a card in an IG story is a working ballot.</li></ol>
+      <h3>Store angle</h3><p>App Clips are featurable on the App Store editorial side; pitch "vote from a text, no download" in the feature request.</p>
+      <h3>Cost · hours · metric</h3><p>$0 · 2–3 eng weeks · invite → vote rate (target 70%, vs ~35% install-first); vote → install within 7 days (target 40%).</p></div>
+
+    <div class="pb" id="v4"><span class="tag" style="background:#0E8C8C;color:#fff">Viral 4</span><h2 style="margin-top:12px">Share Card Sundays</h2><p style="color:#5D6B76;margin-top:6px">A weekly template drop that turns 36 templates into a habit.</p>
+      <h3>Mechanic</h3><ol><li>Every Sunday one new or seasonal template appears in the picker with a 7-day "new" sticker; it can only be used after you've sent any card that week (earn-by-sending, not pay).</li><li>Together Plans IG posts the template blank; users reshare their filled version to Stories tagging @togetherplans; we reshare 5/week.</li><li>Seasonal calendar: Valentine's (Feb), wedding season (May–Sep), back-to-school (Sep), Friendsgiving (Nov), NYE.</li></ol>
+      <h3>Cost · hours · metric</h3><p>$0 (templates already designed; 1 new/week) · 1h/week · cards sent per active group per week; story mentions/week.</p></div>
+
+    <div class="pb" id="v5"><span class="tag" style="background:#0E8C8C;color:#fff">Viral 5</span><h2 style="margin-top:12px">Wedding Registry for Date Nights</h2><p style="color:#5D6B76;margin-top:6px">Couples add "12 date nights" to their wedding site; guests fund one each; vendors distribute.</p>
+      <h3>Mechanic</h3><ol><li>Public page per couple: 12 slots (dinner, climbing, jazz…), each with a "fund this" link to Zola/Venmo/Honeyfund (we don't touch money). Each slot becomes a Together Plans proposal after the wedding.</li><li>Guests see the couple's Share Card style page → "make one for us" CTA.</li><li>Distribution: photographers and planners hand a printed card at consults; we list them in Discover's Arts/Outdoors seeds locally in return.</li></ol>
+      <h3>Cost · hours · metric</h3><p>$40 print/month · 2h/week outreach (10 vendors/week, expect 2 yes) · registries created; guests → signups per registry (target 3).</p></div>
+
+    <div class="pb" id="v6"><span class="tag" style="background:#0E8C8C;color:#fff">Viral 6</span><h2 style="margin-top:12px">Campus Roommate Pact</h2><p style="color:#5D6B76;margin-top:6px">September intake. Friend groups form in week one and never decide anything.</p>
+      <h3>Mechanic</h3><ol><li>"First 30 days" challenge: a group that decides 4 plans in 30 days gets a printed group poster of their Share Cards. RAs get a stack of table cards for floor meetings.</li><li>Campus ambassadors: 2 per campus, paid in the same poster + a $50 stipend; they run one "we can't decide" table at orientation.</li><li>Discover seeds tuned per campus (cheap eats, free events).</li></ol>
+      <h3>Cost · hours · metric</h3><p>$150 per campus pilot · 3h/week in August/September · groups created per campus; 30-day decided-plan rate.</p></div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:20px;margin-top:20px">
+    <div class="pb" id="referral"><span class="tag" style="background:#EAF6D3;color:#101820">Spec</span><h2 style="margin-top:12px">Referral program (no reward, free app)</h2>
+      <h3>Principle</h3><p>The invite is the product. We don't pay for invites; we remove every step between "I want to plan with you" and "they voted".</p>
+      <h3>Surfaces</h3><ul><li>Invite Members: link is default, one tap copies; QR for in-person; SMS pre-filled: "Vote on Friday night 👉 {link}". Contacts import only after first group is created (not at signup).</li><li>Every proposal has "Nudge" per non-voter (max 1 per 24h) with a pre-written text.</li><li>Share Cards footer: "made with Together Plans · togetherplans.app/p/:id".</li><li>Profile: "Your groups: 2 · people you brought in: 5" (light social proof, no leaderboard).</li></ul>
+      <h3>Tracking</h3><p>`invite_sent{method}`, `invite_opened`, `vote_without_install`, `invite_accepted`, attributed per inviter. Pair rate and K-factor on the weekly dashboard.</p>
+      <h3>Later (if paid tier ships)</h3><p>Cosmetic first: exclusive templates for people who brought 3+ groups. Never cash.</p></div>
+
+    <div class="pb" id="reddit"><span class="tag" style="background:#EAF6D3;color:#101820">Channel</span><h2 style="margin-top:12px">Reddit + communities</h2>
+      <h3>Rules</h3><ul><li>3 weeks of useful comments before any link. Disclose founder status every time. Never post the same text twice.</li><li>Post the tool (<a href="#v2">/decide</a>) before the app; mods tolerate a free web utility far better than an install link.</li></ul>
+      <h3>Targets (check each sub's self-promo rule first)</h3><p>r/SideProject, r/iosapps, r/androidapps, r/webdev (build story) · r/AskSF, r/bayarea, r/London, r/toronto, r/sydney (city date-idea threads: answer with real ideas, tool link in profile) · r/wedding, r/weddingplanning (registry play) · r/CasualConversation-style "how do you and your partner decide" threads.</p>
+      <h3>Launch week posts</h3><p>4 posts, 4 subs, 4 different angles: build story (r/SideProject), "I counted my group chat: 47 messages" data post, App Clip demo (r/iosapps), the /decide tool (city sub).</p>
+      <h3>Cost · hours · metric</h3><p>$50 one promoted post test · 2h/week · signups with reddit UTM; comment karma trend.</p></div>
+
+    <div class="pb" id="ph"><span class="tag" style="background:#EAF6D3;color:#101820">Channel</span><h2 style="margin-top:12px">Product Hunt (week 9, Tuesday)</h2>
+      <h3>Assets</h3><ul><li>Tagline (60 chars): "End the 'what do you want to do?' loop"</li><li>First comment: founder story, 4 short paragraphs, the 47-message screenshot, what's next (App Clip, After Dark tastefully as "a private category for couples").</li><li>Gallery: 5 images from <a href="Social Creatives.dc.html">Social creatives</a> sized 1270×760; 30-second screen recording.</li></ul>
+      <h3>Day plan</h3><p>Go live 12:01 PT. Waitlist email at 7am PT with the PH link. Reply to every comment within 30 min for 12 hours. No vote-begging in DMs. Cross-post to r/SideProject at 9am.</p>
+      <h3>Cost · hours · metric</h3><p>$0 · 16h on the day + 4h prep · signups with ph UTM; press pickups referencing PH.</p></div>
+
+    <div class="pb" id="partners"><span class="tag" style="background:#EAF6D3;color:#101820">Channel</span><h2 style="margin-top:12px">Partnerships (trade, not cash)</h2>
+      <h3>Offer</h3><p>A featured seed listing in Discover for their city + category, and a co-branded Share Card template, in exchange for table cards on site and one post to their audience.</p>
+      <h3>Who</h3><ul><li>Climbing gyms, board-game cafes, independent cinemas, wine bars: high "what should we do" intent, own a counter.</li><li>Wedding photographers and planners: registry play, consult handouts.</li><li>Campus orientation offices and RAs.</li></ul>
+      <h3>Script</h3><p>"We put your venue in front of couples deciding where to go this weekend. It costs nothing; we'd like a stack of table cards by your register for a month. Here's what the card looks like." Attach <a href="Print.dc.html">table card</a>.</p>
+      <h3>Cost · hours · metric</h3><p>$0 + print · 2h/week (10 emails → 2 yes) · installs per venue QR; venue taps in Discover.</p></div>
+
+    <div class="pb" id="sponsor"><span class="tag" style="background:#EAF6D3;color:#101820">Channel</span><h2 style="margin-top:12px">Podcast / newsletter micro-sponsorships</h2>
+      <h3>Pick</h3><p>Newsletters and pods under 20k with engaged couples or planners: local "things to do this weekend" newsletters (every city has 2–3), relationship-advice pods, productivity-for-couples writers. Ask for a $150–250 single slot; many take product-for-mention.</p>
+      <h3>Copy (60 words)</h3><p>"Together Plans ends the 'what do you want to do?' loop. Someone proposes three options, everyone votes, it locks in. Free on iOS, Android and web. Try the no-signup version at togetherplans.app/decide."</p>
+      <h3>Cost · hours · metric</h3><p>$200/month · 1h/week · CAC per slot; keep any slot under $3 CAC, drop the rest.</p></div>
+
+    <div class="pb" id="trad"><span class="tag" style="background:#EAF6D3;color:#101820">Channel</span><h2 style="margin-top:12px">Traditional, low-cost</h2>
+      <ul><li><b>Table cards</b> at partner venues: "Can't decide? Scan." QR routes by device to App Store / Play / web.</li><li><b>Stickers</b> ("47 messages later", calendar-heart) at gyms, cinemas, farmers markets. $0.20 each.</li><li><b>Flyer</b> for wedding fairs and vendor lobbies.</li><li><b>Cinema pre-show slide</b> at independents ($50–150/month): "Deciding on the movie took longer than the movie."</li><li><b>Campus / community radio</b> 15-second PSA-style read; often free for local startups.</li><li><b>Postcards</b> in partner venues' gift-card envelopes.</li></ul>
+      <p style="margin-top:12px">All artwork in <a href="Print.dc.html">Print</a>. Every piece has its own QR slug so print is measured like a digital channel.</p></div>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

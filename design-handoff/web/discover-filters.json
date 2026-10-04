@@ -1,0 +1,211 @@
+{
+  "component": "DiscoverFilters",
+  "option": "4b",
+  "version": "2026-09-24",
+  "source": "DateNight Web.dc.html · turn 4 · #4b",
+  "layout": {
+    "grid": "repeat(4, 1fr) desktop · repeat(2, 1fr) under 768px",
+    "gap": "10px",
+    "tileHeight": "64px",
+    "tilePadding": "0 18px"
+  },
+  "dotColors": {
+    "teal": {
+      "light": "#0E8C8C",
+      "dark": "#2FC4C1"
+    },
+    "amber": {
+      "light": "#E39B12",
+      "dark": "#F3B84A"
+    },
+    "blue": {
+      "light": "#2D6CDB",
+      "dark": "#5B8CF0"
+    },
+    "lime": {
+      "light": "#7CB518",
+      "dark": "#A8E04B"
+    },
+    "ink": {
+      "light": "#101820",
+      "dark": "#EEF3F6"
+    }
+  },
+  "dotRule": "Dot colour = palette[index % 5] with order teal, amber, blue, lime, ink; the selected tile always shows a lime dot. Never adjacent repeats (horizontal or vertical) in a 4-column grid.",
+  "radiusRule": "Tile radius cycles through the 4 values by index (index % 4).",
+  "states": {
+    "default": {
+      "background": "--tp-surface",
+      "color": "--tp-ink",
+      "shadow": "0 8px 24px rgba(16,24,32,.07)"
+    },
+    "selected": {
+      "background": "--tp-primary",
+      "color": "--tp-on-primary",
+      "dot": "lime",
+      "trailing": "✓"
+    },
+    "hover": {
+      "transform": "translateY(-1px)",
+      "shadow": "0 12px 28px rgba(16,24,32,.12)"
+    },
+    "focus": {
+      "outline": "3px solid --tp-primary",
+      "outlineOffset": "2px"
+    }
+  },
+  "selection": "single-select; \"All categories\" clears others",
+  "categories": [
+    {
+      "id": "all",
+      "label": "All categories",
+      "dot": "lime",
+      "radius": "22px 30px 20px 26px",
+      "default": true
+    },
+    {
+      "id": "comedy",
+      "label": "Comedy",
+      "dot": "amber",
+      "radius": "30px 22px 26px 20px",
+      "default": false
+    },
+    {
+      "id": "concerts",
+      "label": "Concerts",
+      "dot": "blue",
+      "radius": "20px 26px 30px 22px",
+      "default": false
+    },
+    {
+      "id": "couples-events",
+      "label": "Couples Events",
+      "dot": "lime",
+      "radius": "26px 20px 22px 30px",
+      "default": false
+    },
+    {
+      "id": "family-events",
+      "label": "Family Events",
+      "dot": "ink",
+      "radius": "22px 30px 20px 26px",
+      "default": false
+    },
+    {
+      "id": "sports-and-active",
+      "label": "Sports & Active",
+      "dot": "teal",
+      "radius": "30px 22px 26px 20px",
+      "default": false
+    },
+    {
+      "id": "hiking-trails",
+      "label": "Hiking Trails",
+      "dot": "amber",
+      "radius": "20px 26px 30px 22px",
+      "default": false
+    },
+    {
+      "id": "hotel-stays",
+      "label": "Hotel Stays",
+      "dot": "blue",
+      "radius": "26px 20px 22px 30px",
+      "default": false
+    },
+    {
+      "id": "local-experiences",
+      "label": "Local Experiences",
+      "dot": "lime",
+      "radius": "22px 30px 20px 26px",
+      "default": false
+    },
+    {
+      "id": "movies",
+      "label": "Movies",
+      "dot": "ink",
+      "radius": "30px 22px 26px 20px",
+      "default": false
+    },
+    {
+      "id": "netflix-shows",
+      "label": "Netflix Shows",
+      "dot": "teal",
+      "radius": "20px 26px 30px 22px",
+      "default": false
+    },
+    {
+      "id": "performing-arts",
+      "label": "Performing Arts",
+      "dot": "amber",
+      "radius": "26px 20px 22px 30px",
+      "default": false
+    },
+    {
+      "id": "restaurants-and-dining",
+      "label": "Restaurants & Dining",
+      "dot": "blue",
+      "radius": "22px 30px 20px 26px",
+      "default": false
+    },
+    {
+      "id": "volunteering",
+      "label": "Volunteering",
+      "dot": "lime",
+      "radius": "30px 22px 26px 20px",
+      "default": false
+    },
+    {
+      "id": "wellness-and-spa",
+      "label": "Wellness & Spa",
+      "dot": "ink",
+      "radius": "20px 26px 30px 22px",
+      "default": false
+    },
+    {
+      "id": "wine-and-drinks",
+      "label": "Wine & Drinks",
+      "dot": "teal",
+      "radius": "26px 20px 22px 30px",
+      "default": false
+    }
+  ],
+  "when": {
+    "control": "segmented",
+    "options": [
+      "Tonight",
+      "This weekend",
+      "This week",
+      "Anytime"
+    ],
+    "default": "Tonight"
+  },
+  "howFar": {
+    "control": "segmented",
+    "label": "How far",
+    "options": [
+      {
+        "label": "Nearby · 10 mi",
+        "miles": 10
+      },
+      {
+        "label": "25 mi",
+        "miles": 25
+      },
+      {
+        "label": "60 mi",
+        "miles": 60
+      },
+      {
+        "label": "Day trip · 150 mi",
+        "miles": 150
+      }
+    ],
+    "default": 10
+  },
+  "typography": {
+    "tileLabel": "700 14px/1.15 'Sora', sans-serif; letter-spacing -0.01em",
+    "segment": "700 13px 'Sora', sans-serif",
+    "sectionLabel": "700 11px 'Sora'; uppercase; letter-spacing .12em"
+  },
+  "icons": "No emoji. Coloured blob dot only (28px, border-radius 50% 45% 55% 50%)."
+}

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
+<script src="./doc-page.js"></script>
+<style>
+doc-page:not(:defined){visibility:hidden}
+body{margin:0;font-family:'DM Sans',system-ui,sans-serif;color:#101820}
+a{color:#0E8C8C}a:hover{color:#086B6B}
+*{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+</style>
+</helmet>
+<doc-page margin="0.8in">
+  <div slot="footer" style="display:flex;justify-content:space-between;font:500 9pt 'DM Sans',sans-serif;color:#5D6B76;padding:0 0.8in 0.35in"><span>Together Plans · Marketing campaign · Sept 2026</span><span>togetherplans.app</span></div>
+
+  <div style="display:flex;align-items:center;gap:10px"><span style="width:30px;height:30px;border-radius:38% 62% 55% 45%/50% 40% 60% 50%;background:#0E8C8C;color:#fff;display:inline-flex;align-items:center;justify-content:center;font:800 13px 'Sora',sans-serif;transform:rotate(-6deg)">♥</span><span style="font:800 14pt 'Sora',sans-serif">Together Plans</span></div>
+  <h1 style="font:800 34pt/1 'Sora',sans-serif;letter-spacing:-.04em;margin:28pt 0 0">Marketing &amp; advertising campaign</h1>
+  <p style="font-size:13pt;color:#5D6B76;margin:10pt 0 0;line-height:1.5">Founder-run · under $1,000 a month · US, UK, Canada, Australia · soft launch in 6 weeks, full launch at 3 months · free app · faceless, product-led video</p>
+  <div style="margin:22pt 0 0;padding:16pt 18pt;border-radius:14pt;background:#0E8C8C;color:#fff;break-inside:avoid"><div style="font:700 9pt 'Sora',sans-serif;letter-spacing:.12em;text-transform:uppercase;opacity:.8">The hook</div><div style="font:800 22pt/1.05 'Sora',sans-serif;letter-spacing:-.03em;margin-top:6pt">47 messages later, still no plan.</div><div style="font-size:11pt;margin-top:8pt;opacity:.9">Propose three things. Everyone votes. It locks in. Plan together, go together.</div></div>
+
+  <h2 style="font:800 18pt/1.1 'Sora',sans-serif;letter-spacing:-.03em;margin:28pt 0 8pt">1. Positioning</h2>
+  <ul style="font-size:11pt;line-height:1.55;margin:0;padding-left:16pt"><li><b>Audiences, in order:</b> couples (primary), friend groups, families. Couples first because one invite equals one activation.</li><li><b>After Dark</b> is a secondary hook in couples channels ("a private category for just the two of you"). Never in store screenshots 1–3, never in print. App rating 16+ (iOS), Mature 17+ (Play).</li><li><b>Voice:</b> friendly, decisive, light. Specific beats clever. No couple stereotypes.</li></ul>
+
+  <h2 style="font:800 18pt/1.1 'Sora',sans-serif;letter-spacing:-.03em;margin:24pt 0 8pt">2. Loops before channels</h2>
+  <p style="font-size:11pt;line-height:1.55;margin:0 0 8pt">Nothing in the channel list works unless these are healthy.</p>
+  <ol style="font-size:11pt;line-height:1.55;margin:0;padding-left:16pt"><li><b>Pair loop.</b> A group is useless alone, so every activation is an invite. KPI: pair rate, the share of new users whose first invite is accepted within 48 hours. Target 45% at soft launch, 60% at full launch.</li><li><b>Share Cards loop.</b> Every decided plan can become a 9:16 card for iMessage, WhatsApp or Stories with a small "made with Together Plans" footer and a vote link. Target 0.4 cards per decided plan.</li><li><b>Vote without install.</b> iOS App Clip, Play Instant and a web vote page. Removes "my partner won't download an app". Highest-leverage engineering item in the plan.</li><li><b>Screenshot loop.</b> "47 messages later": users post their own worst planning thread next to the Together Plans result.</li><li><b>Free web tool.</b> togetherplans.app/decide, a no-signup picker. SEO magnet and a trial of the core mechanic.</li></ol>
+
+  <h2 style="font:800 18pt/1.1 'Sora',sans-serif;letter-spacing:-.03em;margin:24pt 0 8pt">3. Channels by app</h2>
+  <table style="width:100%;border-collapse:collapse;font-size:9.5pt;line-height:1.4"><thead><tr style="background:#F4F6F8"><th style="text-align:left;padding:7pt 8pt;border-bottom:1.5pt solid #101820">Channel</th><th style="text-align:left;padding:7pt 8pt;border-bottom:1.5pt solid #101820">iOS</th><th style="text-align:left;padding:7pt 8pt;border-bottom:1.5pt solid #101820">Android</th><th style="text-align:left;padding:7pt 8pt;border-bottom:1.5pt solid #101820">Web</th><th style="text-align:left;padding:7pt 8pt;border-bottom:1.5pt solid #101820">Cost</th></tr></thead><tbody>
+  <sc-for list="{{ rows }}" as="r" hint-placeholder-count="13"><tr style="break-inside:avoid"><td style="padding:6pt 8pt;border-bottom:1px solid #DDE3E8;font-weight:700">{{ r.name }}</td><td style="padding:6pt 8pt;border-bottom:1px solid #DDE3E8;color:#5D6B76">{{ r.ios }}</td><td style="padding:6pt 8pt;border-bottom:1px solid #DDE3E8;color:#5D6B76">{{ r.android }}</td><td style="padding:6pt 8pt;border-bottom:1px solid #DDE3E8;color:#5D6B76">{{ r.web }}</td><td style="padding:6pt 8pt;border-bottom:1px solid #DDE3E8;white-space:nowrap">{{ r.cost }}</td></tr></sc-for>
+  </tbody></table>
+
+  <h2 style="font:800 18pt/1.1 'Sora',sans-serif;letter-spacing:-.03em;margin:24pt 0 8pt">4. Budget, per month (ceiling $1,000)</h2>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8pt;break-inside:avoid"><sc-for list="{{ budget }}" as="b" hint-placeholder-count="6"><div style="border-radius:10pt;background:#F4F6F8;padding:10pt 12pt"><div style="font:800 16pt 'Sora',sans-serif;letter-spacing:-.03em">{{ b.amt }}</div><div style="font-size:9.5pt;color:#5D6B76;margin-top:2pt;line-height:1.35">{{ b.what }}</div></div></sc-for></div>
+  <p style="font-size:10.5pt;line-height:1.5;color:#5D6B76;margin:8pt 0 0">Organic channels cost founder time, about 10 hours a week: video 3h, Reddit 2h, partnerships and print drops 2h, email and analytics 1h, press and Product Hunt 1h (bursty), creator seeding 1h. Rule: a paid channel above $4 CAC after $150 spent is stopped and the money goes to the reserve.</p>
+
+  <h2 style="font:800 18pt/1.1 'Sora',sans-serif;letter-spacing:-.03em;margin:24pt 0 8pt;break-before:page">5. Calendar</h2>
+  <sc-for list="{{ cal }}" as="c" hint-placeholder-count="6"><div style="display:flex;gap:12pt;padding:9pt 0;border-bottom:1px solid #DDE3E8;break-inside:avoid;align-items:flex-start"><span style="flex:none;width:62pt;padding:3pt 0;border-radius:6pt;background:{{ c.bg }};color:{{ c.fg }};font:800 9pt 'Sora',sans-serif;text-align:center">{{ c.when }}</span><div style="font-size:10.5pt;line-height:1.5"><b>{{ c.title }}.</b> {{ c.body }}</div></div></sc-for>
+
+  <h2 style="font:800 18pt/1.1 'Sora',sans-serif;letter-spacing:-.03em;margin:24pt 0 8pt">6. Targets at full launch (month 3)</h2>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8pt;break-inside:avoid"><sc-for list="{{ kpis }}" as="k" hint-placeholder-count="8"><div style="border-radius:10pt;border:1.5pt solid #DDE3E8;padding:10pt 12pt"><div style="font:800 15pt 'Sora',sans-serif;letter-spacing:-.03em;color:#086B6B">{{ k.v }}</div><div style="font-size:9pt;color:#5D6B76;margin-top:2pt;line-height:1.35">{{ k.n }}</div></div></sc-for></div>
+
+  <h2 style="font:800 18pt/1.1 'Sora',sans-serif;letter-spacing:-.03em;margin:24pt 0 8pt">7. Viral playbooks</h2>
+  <sc-for list="{{ plays }}" as="p" hint-placeholder-count="6"><div style="padding:10pt 0;border-bottom:1px solid #DDE3E8;break-inside:avoid"><div style="font:800 12pt 'Sora',sans-serif;letter-spacing:-.02em">{{ p.n }}. {{ p.name }}</div><div style="font-size:10.5pt;line-height:1.5;margin-top:3pt">{{ p.how }}</div><div style="font-size:9.5pt;color:#5D6B76;margin-top:3pt"><b>Cost · hours · metric:</b> {{ p.meta }}</div></div></sc-for>
+
+  <h2 style="font:800 18pt/1.1 'Sora',sans-serif;letter-spacing:-.03em;margin:24pt 0 8pt">8. Traditional, low-cost</h2>
+  <ul style="font-size:10.5pt;line-height:1.55;margin:0;padding-left:16pt"><li><b>Table cards</b> at partner venues ("Can't decide? Scan."); the QR routes by device to the App Store, Play or /decide; the venue gets a Discover listing in return.</li><li><b>Stickers</b> ("47 messages later", the calendar-heart) at climbing gyms, cinemas, farmers markets. $0.20 each.</li><li><b>Flyer</b> for wedding fairs and vendor lobbies (the date-night registry).</li><li><b>Cinema pre-show slide</b> at independents, $50–150 a month: "Deciding on the movie took longer than the movie."</li><li><b>Community and campus radio</b> 15-second PSA-style read; free slots exist for local startups.</li><li><b>Postcards</b> in partner venues' gift-card envelopes.</li></ul>
+
+  <h2 style="font:800 18pt/1.1 'Sora',sans-serif;letter-spacing:-.03em;margin:24pt 0 8pt">9. Channel recipes</h2>
+  <sc-for list="{{ recipes }}" as="r" hint-placeholder-count="5"><div style="padding:10pt 0;border-bottom:1px solid #DDE3E8;break-inside:avoid"><div style="font:800 12pt 'Sora',sans-serif;letter-spacing:-.02em">{{ r.name }}</div><div style="font-size:10.5pt;line-height:1.5;margin-top:3pt">{{ r.body }}</div></div></sc-for>
+
+  <h2 style="font:800 18pt/1.1 'Sora',sans-serif;letter-spacing:-.03em;margin:24pt 0 8pt">10. Measurement and rules</h2>
+  <ul style="font-size:10.5pt;line-height:1.55;margin:0;padding-left:16pt"><li>UTM on every link; one short domain (dtnt.app/…) with per-channel and per-venue slugs; QR codes generated per venue.</li><li>Stores: App Store custom product pages and Play custom listings per campaign ("couples", "friends", "wedding").</li><li>Events: invite_sent, invite_accepted, plan_decided, share_card_sent, card_link_opened, vote_without_install.</li><li>Weekly one-page dashboard: installs by source, pair rate, K-factor, CAC by channel, top three videos.</li><li>Reddit: contribute for three weeks before posting, disclose founder status, never astroturf.</li><li>After Dark never in ads that could reach under-18s; keep it out of the Play feature graphic and iOS screenshots 1–3.</li><li>Localisation before promoting a market: en-GB/en-AU spelling, date formats, local venue seed data.</li></ul>
+
+  <h2 style="font:800 18pt/1.1 'Sora',sans-serif;letter-spacing:-.03em;margin:24pt 0 8pt">Appendix · where the assets live</h2>
+  <p style="font-size:10.5pt;line-height:1.6;margin:0">Marketing Hub (index and channel × app matrix) · Playbooks · Store Listings (8 screenshots, App Store and Play copy, ASO) · Social Creatives (4 statics, 8 video scripts, paid tests) · Landing Pages (3 hero variants, /decide, 12 SEO pages) · Email Sequences (14 emails) · Print (table card, flyer, stickers, cinema slide, radio read) · Press Kit (one-pager, release, pitch, target list). Design files: DateNight Mobile, DateNight Web, DateNight Share Cards, DateNight After Dark.</p>
+</doc-page>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const rows = [
+      ['Store listings + ASO', 'App Store copy, 6 screenshots, in-app events', 'Play copy, 8 screenshots, feature graphic, pre-registration', 'Smart App Banner, Play badge', '$0'],
+      ['Short video (TikTok, Reels, Shorts)', 'iPhone screen recordings', 'Same scripts, Android frame for Play posts', 'Clips on landing', '$0 + $200 creators'],
+      ['Instagram', 'Story Share Cards, carousels', 'Same', 'Link-in-bio landing', '$50–100 tests'],
+      ['Reddit + communities', 'r/iosapps, city subs', 'r/androidapps', 'r/SideProject', '$50 test'],
+      ['Referral + Share Cards', 'Share sheet, App Clip', 'Share sheet, Play Instant', 'Copy link + PNG', '$0'],
+      ['Email lifecycle', 'Deep links', 'Deep links', 'Waitlist + launch', '$0'],
+      ['SEO landing pages', 'Smart App Banner', 'Play badge', '12 intent pages + /decide', '$0'],
+      ['Product Hunt', 'App Clip demo', 'Play link', 'Primary link', '$0'],
+      ['Local print', 'QR → App Store', 'QR → Play', 'QR → /decide', '$100/mo'],
+      ['Partnerships', 'Custom product page', 'Custom listing', 'Co-branded page', '$0 (trade)'],
+      ['Podcast / newsletter', 'Promo link', 'Promo link', 'UTM landing', '$200/mo'],
+      ['Press / PR', 'App Store feature pitch', 'Play feature pitch', 'Founder story', '$0'],
+      ['Paid tests', 'Apple Search Ads $5/day', 'Google App Campaign $5/day', 'Reddit promoted', '$300/mo cap'],
+    ].map(([name, ios, android, web, cost]) => ({ name, ios, android, web, cost }));
+    const budget = [['$300', 'Paid tests: Apple Search Ads $150, Play $100, Reddit $50'], ['$200', 'Creator seeding: four $50 date-night gift cards to micro-creators'], ['$200', 'One newsletter or podcast slot under 20k subscribers'], ['$100', 'Print: 500 table cards, 200 stickers, 100 flyers per city'], ['$100', 'Tools: scheduler, short links with UTM, QR codes'], ['$100', 'Reserve: boost whatever worked']].map(([amt, what]) => ({ amt, what }));
+    const cal = [
+      ['Wk 1–2', 'Foundations', 'Waitlist and /decide live; store listings drafted; TestFlight and Play internal testing; press kit; 20 videos scripted, 8 shot; Reddit account warmed with helpful comments, no links.', '#DDE3E8', '#101820'],
+      ['Wk 3–6', 'Soft launch', 'Bay Area plus 300 waitlisters in three waves; measure pair rate and D7; ship Share Cards and the App Clip; first three table-card venues; first newsletter slot; three videos a week begins.', '#D9F1F0', '#086B6B'],
+      ['Wk 7–8', 'Pre-launch', 'Press outreach under embargo; Product Hunt assets; creator seeding round one; SEO pages published; launch emails queued.', '#EAF6D3', '#101820'],
+      ['Wk 9', 'Full launch', 'Product Hunt on Tuesday; embargo lifts; "47 messages later" campaign starts; Apple Search Ads on; four Reddit posts in four subs; store in-app event.', '#0E8C8C', '#fff'],
+      ['Wk 10–12', 'Double down', 'Fund the two channels with the lowest CAC; wedding-vendor outreach for spring; UK, Canada and Australia store localisation; creator round two.', '#EAF6D3', '#101820'],
+      ['Mo 4–6', 'Scale', 'Partnerships at scale; campus pilots for the September intake; SEO compounding; print in four cities; quarterly PR moments (Valentine\'s, wedding season, back-to-school).', '#DDE3E8', '#101820'],
+    ].map(([when, title, body, bg, fg]) => ({ when, title, body, bg, fg }));
+    const kpis = [['5,000', 'installs, 60% iOS / 30% Android / 10% web'], ['60%', 'pair rate'], ['≥ 0.5', 'K-factor'], ['30% / 20%', 'D7 / D30 retention'], ['2', 'decided plans per active group per month'], ['0.4', 'Share Cards per decided plan'], ['≤ $1.50', 'blended CAC (paid ≤ $4)'], ['≥ 30%', 'store listing → install']].map(([v, n]) => ({ v, n }));
+    const plays = [
+      [1, '47 Messages Later', 'After a plan locks in, the app offers "Post the before/after": a 9:16 image with an anonymised long thread on the left, the decided plan on the right, and the real message count stamped on top. Hashtag #47MessagesLater; a weekly "worst thread" feature; the winning group gets a printed Share Card poster. Seed 20 posts before launch.', '$8/week prize · 2h/week · posts per 100 decided plans (target 5)'],
+      [2, 'The Decide Link', 'togetherplans.app/decide: type two to five options, get a link, anyone votes once with no account. The result page is a shareable card and imports into a Together Plans proposal. Targets "how to decide where to eat", "group decision maker", "date night generator".', '$0 · 1 eng week · links created per week; tool → signup 6%'],
+      [3, 'Vote Before You Install', 'Every invite and vote link opens an App Clip, Play Instant or web page: see the options, tap a heart, see who is still waiting. No account. After voting: one-tap sign-in and the vote carries over. Share Cards deep-link to the same page, so a card in a story is a working ballot.', '$0 · 2–3 eng weeks · invite → vote 70%; vote → install in 7 days 40%'],
+      [4, 'Share Card Sundays', 'One new or seasonal template every Sunday, unlocked by sending any card that week. Together Plans posts the blank; users reshare filled versions; five reshared a week. Seasonal calendar: Valentine\'s, wedding season, back-to-school, Friendsgiving, NYE.', '$0 · 1h/week · cards per active group per week'],
+      [5, 'Wedding Registry for Date Nights', 'A public page per couple with 12 date-night slots guests can fund through Zola, Honeyfund or Venmo (we never touch money). Each slot becomes a proposal after the wedding. Photographers and planners hand out the card at consults in return for a Discover listing.', '$40 print/month · 2h/week outreach · guests → signups per registry (target 3)'],
+      [6, 'Campus Roommate Pact', 'September intake. A group that decides four plans in 30 days gets a printed poster of their Share Cards; RAs get table cards for floor meetings; two ambassadors per campus paid in posters and a $50 stipend; Discover seeds tuned per campus.', '$150 per campus · 3h/week in Aug–Sep · groups per campus; 30-day decided rate'],
+    ].map(([n, name, how, meta]) => ({ n, name, how, meta }));
+    const recipes = [
+      ['Referral (no reward)', 'The invite is the product. Link is the default invite; SMS is pre-filled with a plan attached; one Nudge per non-voter per 24 hours; Share Cards carry a footer link; Profile shows "people you brought in". Later, cosmetic rewards only, never cash.'],
+      ['Reddit', 'Three weeks of useful comments first; disclose founder status; post the /decide tool before the app. Launch week: four posts, four subs, four angles (build story, the 47-message data post, App Clip demo, the tool in a city sub).'],
+      ['Product Hunt (week 9, Tuesday)', 'Tagline "End the \'what do you want to do?\' loop". Live at 12:01 PT; waitlist email at 7am PT; reply to every comment within 30 minutes for 12 hours; no vote-begging.'],
+      ['Partnerships (trade, not cash)', 'Offer a featured Discover listing and a co-branded Share Card template in exchange for table cards on site and one post. Targets: climbing gyms, board-game cafés, independent cinemas, wine bars, wedding photographers and planners, campus orientation offices. Ten emails a week, expect two yeses.'],
+      ['Sponsorships', 'Newsletters and podcasts under 20k with couples or "things to do" readers; a single $150–250 slot; keep any slot under $3 CAC. Copy: "Together Plans ends the \'what do you want to do?\' loop. Someone proposes three options, everyone votes, it locks in. Free on iOS, Android and web. Try the no-signup version at togetherplans.app/decide."'],
+    ].map(([name, body]) => ({ name, body }));
+    return { rows, budget, cal, kpis, plays, recipes };
+  }
+}
+</script>
+</body>
+</html>

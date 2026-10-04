@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#E8ECEF;font-family:'DM Sans',system-ui,sans-serif;color:#101820}
+a{color:#0E8C8C;text-decoration:none}a:hover{color:#086B6B;text-decoration:underline}
+</style>
+</helmet>
+<div style="padding:40px 44px 80px">
+  <div style="font:800 34px/1 'Sora',sans-serif;letter-spacing:-.04em">Email sequences</div>
+  <div style="font-size:15px;color:#5D6B76;margin-top:10px;max-width:760px;line-height:1.55">Four sequences, 14 emails. Every email has one job and one button; deep links open the app on mobile and the web app otherwise. Plain-text feel, 600px, no images except the Share Card where noted. Free tier of any ESP covers this volume for the first year. Back to <a href="Marketing Hub.dc.html">Hub</a>.</div>
+  <div style="display:flex;gap:26px;flex-wrap:wrap;margin-top:28px;align-items:flex-start">
+    <sc-for list="{{ seqs }}" as="q" hint-placeholder-count="4"><div style="width:540px"><div style="display:flex;align-items:baseline;gap:10px"><span style="padding:4px 10px;border-radius:999px;background:{{ q.bg }};color:{{ q.fg }};font:800 11px 'Sora',sans-serif;letter-spacing:.06em">{{ q.tag }}</span><div style="font:800 20px 'Sora',sans-serif;letter-spacing:-.02em">{{ q.name }}</div></div><div style="font-size:13px;color:#5D6B76;margin-top:6px;line-height:1.5">{{ q.goal }}</div>
+      <div style="display:flex;flex-direction:column;gap:14px;margin-top:14px"><sc-for list="{{ q.mails }}" as="m" hint-placeholder-count="4"><div style="background:#fff;border-radius:18px;box-shadow:0 8px 24px rgba(16,24,32,.07);overflow:hidden"><div style="padding:12px 18px;border-bottom:1px solid #E5E7EB;background:#FAFAFA;display:flex;gap:10px;align-items:center;font-size:12px"><span style="padding:3px 8px;border-radius:6px;background:#101820;color:#fff;font:800 10px 'Sora',sans-serif">{{ m.when }}</span><span style="color:#5D6B76">{{ m.trigger }}</span></div><div style="padding:16px 18px"><div style="font:700 15px 'DM Sans',sans-serif">{{ m.subject }}</div><div style="font-size:12px;color:#5D6B76;margin-top:2px">Preheader: {{ m.pre }}</div><div style="font-size:14px;line-height:1.55;margin-top:12px;white-space:pre-line">{{ m.body }}</div><div style="display:inline-block;margin-top:14px;height:42px;line-height:42px;padding:0 20px;border-radius:22px 16px 22px 16px;background:#0E8C8C;color:#fff;font:700 13px 'Sora',sans-serif">{{ m.cta }}</div><sc-if value="{{ m.note }}" hint-placeholder-val="{{ false }}"><div style="font-size:11px;color:#5D6B76;margin-top:10px">{{ m.note }}</div></sc-if></div></div></sc-for></div></div></sc-for>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const m = (when, trigger, subject, pre, body, cta, note) => ({ when, trigger, subject, pre, body, cta, note: note || false });
+    const seqs = [
+      { tag: 'WAITLIST', name: 'Waitlist → launch', bg: '#EAF6D3', fg: '#101820', goal: 'Keep 300 waitlisters warm for 6 weeks, then turn them into the first pairs. Sent from a person, not "the team".', mails: [
+        m('Day 0', 'Signup on landing', 'You\'re on the list (and here\'s the no-app version)', 'Try the decide link while you wait', 'Thanks for signing up. Together Plans opens in a few weeks.\n\nUntil then, the core of it works with no app at all: paste your options, send the link, everyone votes. Use it tonight.\n\nJo', 'Try togetherplans.app/decide'),
+        m('Wk 3', 'Soft-launch wave', 'Your invite is in (bring one person)', 'It only works with two', 'You\'re in the first wave. One ask: Together Plans is useless alone, so the first thing it does is invite one person. Pick the one you argue with about dinner.\n\nTestFlight / Play link below. Reply to this email with anything that annoyed you; I read all of them.', 'Get Together Plans'),
+        m('Wk 9', 'Launch day 7am PT', 'It\'s live. Also, we\'re on Product Hunt today', 'Full launch, App Store and Play', '47 messages later, still no plan. Today that ends for everyone, not just the waitlist.\n\nIf Together Plans helped you decide even once, an upvote or a comment on Product Hunt today matters more than you\'d think. No pressure either way.', 'Open the App Store', 'Second button: Product Hunt. Only email with two buttons.'),
+      ]},
+      { tag: 'ONBOARDING', name: 'First 7 days', bg: '#D9F1F0', fg: '#086B6B', goal: 'Get to the first decided plan. Each email is skipped automatically if the user already did the thing.', mails: [
+        m('Hour 1', 'Account created, no invite sent', 'One more tap and it works', 'Invite the person you plan with', 'Together Plans needs two people. You\'re one.\n\nSend the link to the other one; they can vote from the text without installing anything.', 'Invite someone'),
+        m('Day 2', 'Invite sent, not accepted', 'Priya hasn\'t joined yet. Want us to nudge?', 'A friendlier reminder than yours', 'Invites get lost. Tap below and we\'ll send a second link with a plan already attached: "Friday night, 3 options, vote here." People vote when there\'s something to vote on.', 'Send a plan with the nudge', 'Uses the recipient\'s name only if the inviter typed one.'),
+        m('Day 4', 'Group exists, no proposal', 'Three ideas for Friday, already picked', 'Tap to propose them', 'Blank proposals are hard. Here are three near you from Discover: Noodle Bar Kōji, a late show at The Marquee, jazz at the Blue Room.\n\nOne tap sends all three to your group as a proposal.', 'Propose these three', 'Personalised from Discover by home location if set; otherwise generic categories.'),
+        m('Day 7', 'First plan decided', 'You decided in 4 minutes. Make it official?', 'Share Cards are new', 'Friday night is locked in. Turn it into a card for iMessage or your story: 36 designs, one tap.', 'Make a Share Card', 'Includes the user\'s decided plan as a rendered Share Card image.'),
+      ]},
+      { tag: 'RHYTHM', name: 'Weekly rhythm', bg: '#FBEFD3', fg: '#101820', goal: 'One email a week at most, only if there is nothing open. Turns into the push notification when push is on.', mails: [
+        m('Thu 4pm', 'No open proposal this week', 'Friday\'s coming. Three ideas.', 'From Discover, near you', 'Nothing on the table for the weekend. Three from Discover, one tap to propose:\n• Sunset hike, Twin Peaks\n• SFMOMA, free after 6\n• Dim sum at Dragon Beaux', 'Propose these'),
+        m('Sun 6pm', 'Share Card Sundays', 'New template: {{ template name }}', 'Send any card this week to unlock it', 'This week\'s Share Card design is up. It unlocks the moment you send any card.', 'See it in the app', 'Sent only to users who have sent at least one card.'),
+        m('T-24h', 'Proposal open, recipient hasn\'t voted', 'Friday\'s plan needs your vote', '3 haven\'t picked yet', 'Sunday crew is waiting on you and two others. One heart and you\'re done.', 'Vote now', 'Mirrors the T-24h push; email only if push is off.'),
+      ]},
+      { tag: 'WIN-BACK', name: 'Win-back', bg: '#F7E3E7', fg: '#8E3448', goal: 'Three emails over 30 days for anyone inactive 21+ days, then stop forever. Honest, short, no guilt.', mails: [
+        m('Day 21', 'No session in 21 days', 'Still arguing about dinner?', 'Three ideas, one tap', 'It\'s been a few weeks. If the group chat is deciding things again, here are three ideas to end it tonight.', 'Propose these three'),
+        m('Day 35', 'Still inactive', 'What we fixed since you left', 'Vote from a text, Take 2, Share Cards', 'Three things people asked for:\n• Friends can vote without the app\n• Take 2 when nobody agrees\n• Share Cards for when they do\n\nThat\'s it. No pitch.', 'Open DateNight'),
+        m('Day 50', 'Still inactive', 'Last one from us', 'We\'ll stop emailing after this', 'We won\'t email again unless you come back. If you\'d like your account gone entirely, one tap below does it, everything included.', 'Keep my account', 'Second link (text, not button): "Delete my account".'),
+      ]},
+    ];
+    return { seqs };
+  }
+}
+</script>
+</body>
+</html>

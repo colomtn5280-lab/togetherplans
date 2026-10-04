@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F4F6F8;font-family:'DM Sans',system-ui,sans-serif;color:#101820}
+a{color:#0E8C8C;text-decoration:none}a:hover{color:#086B6B;text-decoration:underline}
+</style>
+</helmet>
+<div style="max-width:1120px;margin:0 auto;padding:40px 28px 80px">
+  <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap"><span style="width:40px;height:40px;border-radius:38% 62% 55% 45%/50% 40% 60% 50%;background:#0E8C8C;color:#fff;display:flex;align-items:center;justify-content:center;font:800 18px 'Sora',sans-serif;transform:rotate(-6deg)">♥</span><div style="font:800 34px/1 'Sora',sans-serif;letter-spacing:-.04em">Together Plans marketing hub</div><span style="margin-left:auto;font-size:12px;color:#5D6B76">Founder-run · &lt;$1k/mo · US + UK/CA/AU · soft launch wk 6 · full launch wk 9</span></div>
+  <div style="font-size:15px;color:#5D6B76;margin-top:12px;max-width:760px;line-height:1.55">Strategy lives in <a href="README.md">README.md</a>. Each page below holds the assets for one channel family, packaged by app. Start with the loops: nothing in the channel list works unless the pair rate and Share Cards loop are healthy.</div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:28px">
+    <div style="background:#0E8C8C;color:#fff;border-radius:26px 20px 30px 22px;padding:18px 20px"><div style="font:700 11px 'Sora',sans-serif;letter-spacing:.12em;text-transform:uppercase;opacity:.8">Hook</div><div style="font:800 24px/1.05 'Sora',sans-serif;letter-spacing:-.03em;margin-top:8px">47 messages later, still no plan.</div></div>
+    <div style="background:#fff;border-radius:20px 30px 22px 26px;padding:18px 20px;box-shadow:0 8px 24px rgba(16,24,32,.07)"><div style="font:700 11px 'Sora',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#5D6B76">North-star KPIs</div><div style="font-size:14px;line-height:1.7;margin-top:8px">Pair rate <b>60%</b><br>K-factor <b>≥ 0.5</b><br>Share Cards / decided plan <b>0.4</b><br>Blended CAC <b>≤ $1.50</b></div></div>
+    <div style="background:#fff;border-radius:30px 22px 26px 20px;padding:18px 20px;box-shadow:0 8px 24px rgba(16,24,32,.07)"><div style="font:700 11px 'Sora',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#5D6B76">Budget / month</div><div style="font-size:14px;line-height:1.7;margin-top:8px">Paid tests <b>$300</b> · Creators <b>$200</b><br>Newsletters <b>$200</b> · Print <b>$100</b><br>Tools <b>$100</b> · Reserve <b>$100</b></div></div>
+    <div style="background:#EAF6D3;border-radius:22px 26px 20px 30px;padding:18px 20px"><div style="font:700 11px 'Sora',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#5D6B76">Biggest lever</div><div style="font:700 15px/1.35 'Sora',sans-serif;margin-top:8px">Vote before you install: App Clip / Play Instant / web vote page. Every invite becomes a trial.</div></div>
+  </div>
+
+  <div style="font:700 11px 'Sora',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#5D6B76;margin:36px 0 12px">Assets by channel × app</div>
+  <div style="background:#fff;border-radius:24px;box-shadow:0 8px 24px rgba(16,24,32,.07);overflow:hidden">
+    <div style="display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr 1.2fr;gap:0;font:700 11px 'Sora',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#5D6B76;padding:14px 20px;border-bottom:1px solid #DDE3E8"><span>Channel</span><span>iOS</span><span>Android</span><span>Web</span><span>Page</span></div>
+    <sc-for list="{{ rows }}" as="r" hint-placeholder-count="13"><div style="display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr 1.2fr;gap:0;padding:14px 20px;border-bottom:1px solid #DDE3E8;font-size:13px;line-height:1.45;align-items:start"><div><div style="font:700 14px 'Sora',sans-serif">{{ r.name }}</div><div style="color:#5D6B76;margin-top:2px">{{ r.note }}</div></div><div style="color:#5D6B76;padding-right:10px">{{ r.ios }}</div><div style="color:#5D6B76;padding-right:10px">{{ r.android }}</div><div style="color:#5D6B76;padding-right:10px">{{ r.web }}</div><div><a href="{{ r.href }}" style="display:inline-block;padding:6px 12px;border-radius:999px;background:#D9F1F0;color:#086B6B;font:700 12px 'Sora',sans-serif">{{ r.page }} →</a><div style="font-size:11px;color:#5D6B76;margin-top:6px">{{ r.cost }}</div></div></div></sc-for>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px;margin-top:36px">
+    <div style="background:#fff;border-radius:26px 20px 30px 22px;padding:22px 24px;box-shadow:0 8px 24px rgba(16,24,32,.07)"><div style="font:800 18px 'Sora',sans-serif;letter-spacing:-.02em">12-week calendar</div><div style="display:flex;flex-direction:column;gap:10px;margin-top:14px"><sc-for list="{{ cal }}" as="c" hint-placeholder-count="6"><div style="display:flex;gap:12px;align-items:flex-start"><span style="flex:none;width:64px;padding:4px 0;border-radius:8px;background:{{ c.bg }};color:{{ c.fg }};font:800 11px 'Sora',sans-serif;text-align:center">{{ c.when }}</span><div style="font-size:13px;line-height:1.45"><b>{{ c.title }}</b> · {{ c.body }}</div></div></sc-for></div></div>
+    <div style="background:#fff;border-radius:22px 30px 20px 26px;padding:22px 24px;box-shadow:0 8px 24px rgba(16,24,32,.07)"><div style="font:800 18px 'Sora',sans-serif;letter-spacing:-.02em">Weekly founder hours (~10)</div><div style="display:flex;flex-direction:column;gap:8px;margin-top:14px"><sc-for list="{{ hours }}" as="h" hint-placeholder-count="6"><div style="display:flex;align-items:center;gap:10px;font-size:13px"><span style="width:{{ h.w }};height:10px;border-radius:5px;background:#0E8C8C;flex:none"></span><span style="flex:1">{{ h.name }}</span><b>{{ h.hrs }}</b></div></sc-for></div><div style="font-size:12px;color:#5D6B76;margin-top:14px;line-height:1.5">Rule: if a channel's CAC is above $4 after $150 spent, stop it and move the money to the reserve.</div></div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const rows = [
+      ['Store listings + ASO', 'Copy, keywords, screenshots', 'App Store copy · 6 shots · in-app event', 'Play copy · 8 shots · feature graphic · pre-reg', 'Smart App Banner / Play badge', 'Store Listings.dc.html', 'Store listings', '$0'],
+      ['Short video', 'TikTok · Reels · Shorts', 'iPhone screen-recordings', 'Android frame for Play posts', 'Clips on landing', 'Social Creatives.dc.html#video', 'Social creatives', '$0 + $200 creators'],
+      ['Instagram', 'Stories, carousels, small ads', 'Share Card stories', 'Same', 'Link-in-bio landing', 'Social Creatives.dc.html', 'Social creatives', '$50–100 tests'],
+      ['Reddit + communities', 'Helpful first, links last', 'r/iphone, city subs', 'r/androidapps', 'r/SideProject, PH', 'Playbooks.dc.html#reddit', 'Playbooks', '$50 promoted test'],
+      ['Referral + Share Cards', 'The product is the ad', 'Share sheet + App Clip', 'Share sheet + Play Instant', 'Copy link + PNG', 'Playbooks.dc.html#referral', 'Playbooks', '$0 (eng time)'],
+      ['Email lifecycle', 'Onboarding, pair nudge, win-back', 'Deep links', 'Deep links', 'Waitlist + launch', 'Email Sequences.dc.html', 'Email', '$0 (free tier)'],
+      ['SEO landing pages', '12 intent pages + /decide tool', 'Smart App Banner', 'Play badge', 'Primary', 'Landing Pages.dc.html', 'Landing pages', '$0'],
+      ['Product Hunt', 'Launch Tuesday, wk 9', 'App Clip demo', 'Play link', 'Primary link', 'Playbooks.dc.html#ph', 'Playbooks', '$0'],
+      ['Local print', 'Table cards, stickers, flyers', 'QR → App Store', 'QR → Play', 'QR → /decide', 'Print.dc.html', 'Print', '$100/mo'],
+      ['Partnerships', 'Wedding vendors, gyms, cinemas, campus', 'Custom product page', 'Custom listing', 'Co-branded page', 'Playbooks.dc.html#partners', 'Playbooks', '$0 (trade)'],
+      ['Podcast / newsletter', 'Micro-sponsorships <20k subs', 'Promo link', 'Promo link', 'UTM landing', 'Playbooks.dc.html#sponsor', 'Playbooks', '$200/mo'],
+      ['Press / PR', 'Kit, one-pager, release', 'App Store feature pitch', 'Play feature pitch', 'Founder story', 'Press Kit.dc.html', 'Press kit', '$0'],
+      ['Paid tests', 'Small, kill fast', 'Apple Search Ads $5/day', 'Google App Campaign $5/day', 'Reddit promoted', 'Social Creatives.dc.html#paid', 'Social creatives', '$300/mo cap'],
+    ].map(([name, note, ios, android, web, href, page, cost]) => ({ name, note, ios, android, web, href, page, cost }));
+    const cal = [
+      ['Wk 1–2', 'Foundations', 'waitlist + /decide live, listings drafted, press kit, 20 scripts, Reddit warm-up', '#DDE3E8', '#101820'],
+      ['Wk 3–6', 'Soft launch', 'Bay Area + 300 waitlisters in 3 waves; measure pair rate + D7; ship Share Cards + App Clip; 3 table-card venues', '#D9F1F0', '#086B6B'],
+      ['Wk 7–8', 'Pre-launch', 'press embargo, PH assets, creator round 1, SEO pages, launch emails queued', '#EAF6D3', '#101820'],
+      ['Wk 9', 'Full launch', 'Product Hunt Tuesday, press, "47 messages later" starts, search ads on, 4 Reddit posts, in-app event', '#0E8C8C', '#fff'],
+      ['Wk 10–12', 'Double down', 'fund the 2 lowest-CAC channels; wedding-vendor outreach; UK/CA/AU localisation; creator round 2', '#EAF6D3', '#101820'],
+      ['Mo 4–6', 'Scale', 'partnerships, campus pilots (Sept), SEO compounding, print in 4 cities, quarterly PR moments', '#DDE3E8', '#101820'],
+    ].map(([when, title, body, bg, fg]) => ({ when, title, body, bg, fg }));
+    const hours = [['Short video (3/wk)', 3], ['Reddit + communities', 2], ['Email + analytics', 1], ['Partnerships + print drops', 2], ['Press + PH (bursty)', 1], ['Creator seeding', 1]].map(([name, hrs]) => ({ name, hrs: hrs + 'h', w: (hrs * 40) + 'px' }));
+    return { rows, cal, hours };
+  }
+}
+</script>
+</body>
+</html>

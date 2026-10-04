@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#E8ECEF;font-family:'DM Sans',system-ui,sans-serif;color:#101820}
+a{color:#0E8C8C;text-decoration:none}a:hover{color:#086B6B;text-decoration:underline}
+</style>
+</helmet>
+<div style="padding:40px 44px 80px">
+  <div style="font:800 34px/1 'Sora',sans-serif;letter-spacing:-.04em">Store listings + ASO</div>
+  <div style="font-size:15px;color:#5D6B76;margin-top:10px;max-width:760px;line-height:1.55">Screenshot set at 1290×2796 proportions (shown at 1/3). First three never mention After Dark. Copy blocks below are paste-ready for App Store Connect and Play Console; UK/AU variants swap spelling only. Back to <a href="Marketing Hub.dc.html">Hub</a>.</div>
+
+  <div style="font:700 11px 'Sora',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#5D6B76;margin:32px 0 14px">Screenshots · iOS 6 · Play uses the same plus 7–8</div>
+  <div style="display:flex;gap:18px;flex-wrap:wrap">
+    <sc-for list="{{ shots }}" as="s" hint-placeholder-count="8"><div style="width:430px;height:932px;border-radius:36px;background:{{ s.bg }};color:{{ s.fg }};position:relative;overflow:hidden;flex:none;padding:56px 36px 0;box-sizing:border-box"><div style="font:800 13px 'Sora',sans-serif;letter-spacing:.14em;text-transform:uppercase;opacity:.75">{{ s.n }} · {{ s.kicker }}</div><div style="font:800 44px/1 'Sora',sans-serif;letter-spacing:-.04em;margin-top:12px;text-wrap:balance">{{ s.title }}</div><div style="font-size:17px;line-height:1.4;margin-top:12px;opacity:.9;max-width:340px">{{ s.sub }}</div>
+      <div style="position:absolute;left:50%;bottom:-60px;transform:translateX(-50%) rotate({{ s.tilt }});width:330px;height:660px;border-radius:48px;background:#101820;padding:12px;box-sizing:border-box;box-shadow:0 30px 60px rgba(0,0,0,.35)"><div style="width:100%;height:100%;border-radius:38px;background:#F4F6F8;overflow:hidden;position:relative;color:#101820">
+        <div style="padding:40px 20px 0"><div style="font:800 26px/1 'Sora',sans-serif;letter-spacing:-.04em">{{ s.screenTitle }}</div><div style="font-size:12px;color:#5D6B76;margin-top:6px">{{ s.screenSub }}</div></div>
+        <div style="padding:16px 20px;display:flex;flex-direction:column;gap:10px"><sc-for list="{{ s.rows }}" as="r" hint-placeholder-count="3"><div style="position:relative;border-radius:22px 30px 20px 26px;background:#fff;box-shadow:0 8px 24px rgba(16,24,32,.07);padding:14px 16px;border:2px solid {{ r.border }}"><sc-if value="{{ r.badge }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;top:-10px;right:14px;padding:4px 9px;border-radius:10px 4px 10px 4px;background:{{ r.badgeBg }};color:{{ r.badgeFg }};font:800 10px 'Sora',sans-serif;transform:rotate(5deg)">{{ r.badge }}</span></sc-if><div style="font:700 10px 'Sora',sans-serif;color:#086B6B;letter-spacing:.04em">{{ r.cat }}</div><div style="font:800 15px/1.15 'Sora',sans-serif;letter-spacing:-.02em;margin-top:3px">{{ r.name }}</div><div style="font-size:12px;color:#5D6B76;margin-top:3px">{{ r.desc }}</div></div></sc-for></div>
+        <sc-if value="{{ s.cta }}" hint-placeholder-val="{{ false }}"><div style="margin:4px 20px 0;height:48px;border-radius:26px 18px 26px 18px;background:{{ s.ctaBg }};color:{{ s.ctaFg }};font:700 14px 'Sora',sans-serif;display:flex;align-items:center;justify-content:center">{{ s.cta }}</div></sc-if>
+      </div></div></div></sc-for>
+  </div>
+
+  <div style="font:700 11px 'Sora',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#5D6B76;margin:40px 0 14px">Copy · App Store</div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:18px;max-width:1120px">
+    <div style="background:#fff;border-radius:26px 20px 30px 22px;padding:22px 24px;box-shadow:0 8px 24px rgba(16,24,32,.07);font-size:14px;line-height:1.6">
+      <div style="font:800 16px 'Sora',sans-serif">Name (30)</div><div>Together Plans: Decide Together</div>
+      <div style="font:800 16px 'Sora',sans-serif;margin-top:14px">Subtitle (30)</div><div>Date night, decided. Plans, too.</div>
+      <div style="font:800 16px 'Sora',sans-serif;margin-top:14px">Promotional text (170)</div><div>New: Share Cards. Turn a decided plan into a card for iMessage or your story, 36 designs. And you can now vote from a text without installing.</div>
+      <div style="font:800 16px 'Sora',sans-serif;margin-top:14px">Keywords (100)</div><div style="font-family:ui-monospace,Menlo,monospace;font-size:12px">date night,couples,plans,group,vote,decide,things to do,friends,weekend,ideas,planner,poll</div>
+      <div style="font:800 16px 'Sora',sans-serif;margin-top:14px">Category</div><div>Lifestyle (primary) · Social Networking (secondary) · Rating 16+</div>
+    </div>
+    <div style="background:#fff;border-radius:22px 30px 20px 26px;padding:22px 24px;box-shadow:0 8px 24px rgba(16,24,32,.07);font-size:14px;line-height:1.6">
+      <div style="font:800 16px 'Sora',sans-serif">Description</div>
+      <p style="margin:6px 0 0">47 messages later, still no plan? Together Plans ends the "what do you want to do?" loop.</p>
+      <p style="margin:10px 0 0"><b>How it works</b><br>1. Someone proposes 3–5 things to do<br>2. Everyone votes on their favourite<br>3. When you agree, it locks in. Calendar, done.</p>
+      <p style="margin:10px 0 0"><b>Made for couples, works for crews</b><br>Two people or twelve. Friday nights, Sunday afternoons, the family trip.</p>
+      <p style="margin:10px 0 0"><b>Never run out of ideas</b><br>Discover restaurants, films, hikes, galleries and nights out near you, and drop them straight into a proposal.</p>
+      <p style="margin:10px 0 0"><b>No match? Counter it</b><br>Take 2 keeps the good options and swaps the rest.</p>
+      <p style="margin:10px 0 0"><b>Make it official</b><br>Share Cards turn a decided plan into a card for iMessage, WhatsApp or your story. 36 designs.</p>
+      <p style="margin:10px 0 0"><b>Vote from a text</b><br>Friends can vote without installing anything.</p>
+      <p style="margin:10px 0 0"><b>Just the two of you</b><br>Couples get After Dark: a private category of romantic ideas, on only when you both say so.</p>
+      <p style="margin:10px 0 0">Free. No ads. Your plans are yours.</p>
+    </div>
+  </div>
+
+  <div style="font:700 11px 'Sora',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#5D6B76;margin:32px 0 14px">Copy · Google Play</div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:18px;max-width:1120px">
+    <div style="background:#fff;border-radius:26px 20px 30px 22px;padding:22px 24px;box-shadow:0 8px 24px rgba(16,24,32,.07);font-size:14px;line-height:1.6">
+      <div style="font:800 16px 'Sora',sans-serif">Title (30)</div><div>Together Plans: Decide Together</div>
+      <div style="font:800 16px 'Sora',sans-serif;margin-top:14px">Short description (80)</div><div>Propose 3 things, everyone votes, it locks in. End the "what should we do?" loop.</div>
+      <div style="font:800 16px 'Sora',sans-serif;margin-top:14px">Feature graphic (1024×500)</div><div style="margin-top:8px;width:100%;aspect-ratio:1024/500;border-radius:16px;background:#0E8C8C;color:#fff;padding:28px 32px;box-sizing:border-box;position:relative;overflow:hidden"><div style="position:absolute;right:-80px;bottom:-120px;width:320px;height:300px;border-radius:48% 52% 45% 55%/55% 45% 55% 45%;background:rgba(255,255,255,.1)"></div><div style="font:800 12px 'Sora',sans-serif;letter-spacing:.14em;text-transform:uppercase;opacity:.8">Together Plans</div><div style="font:800 40px/1 'Sora',sans-serif;letter-spacing:-.04em;margin-top:10px">47 messages later,<br>still no plan?</div><div style="display:inline-block;margin-top:16px;padding:8px 14px;border-radius:14px 8px 16px 8px;background:#7CB518;color:#101820;font:800 13px 'Sora',sans-serif;transform:rotate(-3deg)">Propose · Vote · Lock it in</div></div>
+      <div style="font:800 16px 'Sora',sans-serif;margin-top:14px">Pre-registration</div><div>Open 3 weeks before launch; reward is the "Founding crew" Share Card template.</div>
+      <div style="font:800 16px 'Sora',sans-serif;margin-top:14px">Content rating</div><div>IARC questionnaire: suggestive themes = yes, sexual content = no, user interaction = yes (private groups). Expected: Mature 17+ (US), PEGI 16.</div>
+    </div>
+    <div style="background:#fff;border-radius:22px 30px 20px 26px;padding:22px 24px;box-shadow:0 8px 24px rgba(16,24,32,.07);font-size:14px;line-height:1.6">
+      <div style="font:800 16px 'Sora',sans-serif">ASO plan</div>
+      <ul style="margin:8px 0 0;padding-left:18px;display:flex;flex-direction:column;gap:6px"><li><b>Primary terms:</b> date night ideas, couples app, group plans, decide where to eat, things to do with friends.</li><li><b>Custom product pages (iOS) / custom listings (Play):</b> one per campaign: "couples" (screens 1,2,5,6), "friends" (1,3,4,6), "wedding" (registry hero). Each has its own link for ads, print QR and creators.</li><li><b>In-app events:</b> "Share Card Sundays" recurring; Valentine's and wedding-season events.</li><li><b>Localisation:</b> en-GB, en-AU, en-CA listings (favourite, organise, colour); local venue names in screenshot 3.</li><li><b>Reviews:</b> ask after the second decided plan, never after the first; reply to every review in 48h.</li><li><b>Test:</b> Play store listing experiments on screenshot 1 headline: "47 messages later" vs "Plan together. Go together." Run 2 weeks.</li></ul>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const row = (cat, name, desc, badge, badgeBg, badgeFg, border) => ({ cat, name, desc, badge: badge || false, badgeBg: badgeBg || '#7CB518', badgeFg: badgeFg || '#101820', border: border || 'transparent' });
+    const shots = [
+      ['1', 'The problem', '47 messages later, still no plan?', 'Propose three things. Everyone votes. It locks in.', '#0E8C8C', '#fff', '-3deg', 'Friday night', 'Sam & Priya · Priya voted · your turn', [row('Dining', 'Noodle Bar Kōji', 'Tonkotsu, counter seats'), row('Nightlife', 'Jazz at the Blue Room', 'Trio set at 8', 'Priya ♥'), row('Movies', 'The Midnight Ride', '9:40 PM at The Marquee')], 'Tap a heart to vote', '#0E8C8C', '#fff'],
+      ['2', 'Consensus', 'Both said yes.', 'The moment it clicks, Together Plans tells everyone and adds it to the calendar.', '#7CB518', '#101820', '2deg', 'It\'s a match', 'Jazz at the Blue Room · Fri 8 PM', [row('Nightlife', 'Jazz at the Blue Room', 'Trio set at 8', 'BOTH ♥', '#0E8C8C', '#fff', '#0E8C8C')], 'Add to calendar', '#101820', '#fff'],
+      ['3', 'Discover', 'Never run out of ideas.', 'Restaurants, films, hikes and nights out near you, straight into a proposal.', '#F4F6F8', '#101820', '-2deg', 'Discover', 'Dining · Movies · Outdoors · Arts · Nightlife', [row('Dining', 'Noodle Bar Kōji', '★ 4.6 · 0.4 mi', 'DINING'), row('Outdoors', 'Sunset hike, Twin Peaks', '45-min loop'), row('Arts', 'SFMOMA, free after 6', 'Photography retrospective')], 'Add to proposal', '#0E8C8C', '#fff'],
+      ['4', 'Groups', 'Works for crews too.', 'Six friends, one vote, one veto each. Majority wins, nobody sulks.', '#101820', '#fff', '3deg', 'Sunday afternoon', 'Sunday crew · 4 of 6 voted', [row('Outdoors', 'Bouldering at Mission Cliffs', 'Day passes, rentals on site'), row('Arts', 'SFMOMA, free after 6', 'Photography retrospective'), row('Dining', 'Dim sum at Dragon Beaux', 'Vetoed by Maya', 'Vetoed', '#101820', '#fff')], false, '', ''],
+      ['5', 'Share Cards', 'Make it official.', 'Turn the plan into a card for iMessage or your story. 36 designs.', '#D9F1F0', '#101820', '-3deg', 'Share Card', 'Pick a design, add a note, send', [row('Poster', 'Sunday afternoon', 'Bold type · teal', 'NEW'), row('Ticket', 'Admit six', 'Stub with barcode'), row('Polaroid', 'Photo + caption', 'Handwritten note')], 'Send Share Card', '#0E8C8C', '#fff'],
+      ['6', 'No install needed', 'They can vote from a text.', 'Friends tap the link and vote. No account, no download.', '#EAF6D3', '#101820', '2deg', 'Vote on Friday night', 'From Sam · no sign-up needed', [row('Dining', 'Noodle Bar Kōji', 'Tonkotsu, counter seats'), row('Nightlife', 'Jazz at the Blue Room', 'Trio set at 8')], 'Tap a heart', '#0E8C8C', '#fff'],
+      ['7 · Play', 'Counter-propose', 'No match? Take 2.', 'Keep the options you liked, swap the rest, votes reset.', '#FBEFD3', '#101820', '-2deg', 'Friday night, take 2', 'Replaces Friday night · votes reset', [row('Dining', 'Noodle Bar Kōji', 'Your vote last time', 'KEPT'), row('Nightlife', 'Jazz at the Blue Room', 'Priya\'s vote last time', 'KEPT'), row('Movies', 'The Midnight Ride', 'Dropped')], 'Send take 2', '#101820', '#fff'],
+      ['8 · Play', 'Couples', 'Just the two of you.', 'After Dark: a private category of romantic ideas, on only when you both say so.', '#2A1219', '#F7E3E7', '3deg', 'Saturday, stay in?', 'Yes · Maybe · Pass · Passes stay private', [row('🕯️ Romantic', 'Cook-off for two', 'Same ingredients, two dishes'), row('🌙 After Dark', 'Blanket and the sky', 'Thermos, constellations', 'BOTH YES', '#B2485E', '#fff', '#B2485E')], 'Lock it in', '#B2485E', '#fff'],
+    ].map(([n, kicker, title, sub, bg, fg, tilt, screenTitle, screenSub, rows, cta, ctaBg, ctaFg]) => ({ n, kicker, title, sub, bg, fg, tilt, screenTitle, screenSub, rows, cta, ctaBg, ctaFg }));
+    return { shots };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#E8ECEF;font-family:'DM Sans',system-ui,sans-serif;color:#101820}
+a{color:#0E8C8C}a:hover{color:#086B6B}
+.dn{--bg:#F4F6F8;--surface:#FFFFFF;--ink:#101820;--ink2:#5D6B76;--line:#DDE3E8;--primary:#0E8C8C;--primary-deep:#086B6B;--primary-soft:#D9F1F0;--on-primary:#FFFFFF;--lime:#7CB518;--lime-soft:#EAF6D3;--on-lime:#101820;--error:#D63A3A;--shadow:0 8px 24px rgba(16,24,32,.07);--dock:0 16px 40px rgba(16,24,32,.16)}
+.dn-dark{--bg:#0F1519;--surface:#18212A;--ink:#EEF3F6;--ink2:#93A3AF;--line:#2A3641;--primary:#2FC4C1;--primary-deep:#5AD6D3;--primary-soft:#154243;--on-primary:#0F1519;--lime:#A8E04B;--lime-soft:#2B4412;--on-lime:#101820;--error:#FF6B6B;--shadow:0 8px 24px rgba(0,0,0,.4);--dock:0 16px 40px rgba(0,0,0,.65)}
+.dv-turn{padding:40px 44px 32px;border-bottom:1px solid rgba(0,0,0,.08);scroll-margin-top:16px}
+.dv-thd{display:flex;align-items:baseline;gap:10px;margin:0 0 20px;flex-wrap:wrap}
+.dv-tid{font:600 10px ui-monospace,Menlo,monospace;padding:3px 7px;background:#1a1a1a;color:#fff;border-radius:4px;text-decoration:none}
+.dv-tname{font:600 13px/1.3 system-ui,sans-serif;color:var(--ink)}
+.dv-opts{display:flex;gap:36px;flex-wrap:wrap;align-items:flex-start}
+.dv-opt{flex:none;display:flex;flex-direction:column;gap:9px;scroll-margin-top:16px;max-width:100%}
+.dv-oid{font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1a1a1a;border-radius:5px;text-decoration:none}
+.dv-olabel{display:flex;align-items:baseline;gap:8px;font:400 11px/1.3 system-ui,sans-serif;color:var(--ink2)}
+.dn-dark .dv-oid{background:rgba(255,255,255,.14);color:#F8F2EC}.dn-dark .dv-tid{background:#F8F2EC;color:#1a1a1a}
+.dv-opt:target .dv-oid{background:#0E8C8C;color:#fff}
+.dv-next{margin:22px 0 0;font:12px/1.5 system-ui,sans-serif;color:var(--ink2)}
+</style>
+</helmet>
+
+<section class="dv-turn dn {{ themeClass }}" id="t5" style="background:var(--bg)">
+<div class="dv-thd"><a class="dv-tid" href="#t5">5</a><span class="dv-tname"><b style="color:#1E9A55">5a APPROVED (teal tile)</b> · 1c + 2c, the two dots become two leaning-in people · each shown as logo (light, dark, small sizes) and icon (ink tile from 2c, teal tile from 2d)</span><button onClick="{{ toggleTheme }}" style="margin-left:auto;height:30px;padding:0 14px;border-radius:999px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);font:700 12px 'Sora',sans-serif;cursor:pointer">{{ themeLabel }} mode</button></div>
+<div class="dv-opts">
+<sc-for list="{{ people }}" as="v" hint-placeholder-count="3">
+<div class="dv-opt" id="{{ v.id }}"><div class="dv-olabel"><a class="dv-oid" href="#{{ v.id }}">{{ v.id }}</a><span>{{ v.label }}</span></div>
+<div style="width:400px;background:var(--surface);border-radius:22px 30px 20px 26px;box-shadow:var(--shadow);overflow:hidden">
+  <div style="height:170px;display:flex;align-items:center;justify-content:center;background:#F4F6F8">{{ v.light }}</div>
+  <div style="height:110px;display:flex;align-items:center;justify-content:center;background:#101820">{{ v.dark }}</div>
+  <div style="padding:16px 20px;display:flex;align-items:center;gap:16px;border-top:1px solid var(--line)"><div style="display:flex;align-items:center;gap:10px">{{ v.sizes }}</div><span style="font-size:11px;color:var(--ink2)">64 · 32 · 16 px</span></div>
+  <div style="padding:4px 20px 18px;display:flex;align-items:flex-end;gap:16px">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="width:120px;height:120px;border-radius:27px;overflow:hidden;box-shadow:0 12px 30px rgba(16,24,32,.22)">{{ v.iconInk }}</div><span style="font-size:10px;color:var(--ink2)">Ink tile (2c)</span></div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="width:120px;height:120px;border-radius:27px;overflow:hidden;box-shadow:0 12px 30px rgba(16,24,32,.22)">{{ v.iconTeal }}</div><span style="font-size:10px;color:var(--ink2)">Teal tile (2d)</span></div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="width:72px;height:72px;border-radius:50%;overflow:hidden">{{ v.iconRound }}</div><span style="font-size:10px;color:var(--ink2)">Android</span></div>
+  </div>
+  <div style="margin:0 20px 16px;border-radius:16px;background:#3A4A5C;padding:14px 12px 10px;display:grid;grid-template-columns:repeat(4,1fr);justify-items:center">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:5px"><span style="width:52px;height:52px;border-radius:12px;background:#E85D4A"></span><span style="font-size:10px;color:#fff">Photos</span></div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:5px"><div style="width:52px;height:52px;border-radius:12px;overflow:hidden">{{ v.iconSmall }}</div><span style="font-size:10px;color:#fff;font-weight:600">DateMeUp</span></div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:5px"><span style="width:52px;height:52px;border-radius:12px;background:#3B82F6"></span><span style="font-size:10px;color:#fff">Mail</span></div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:5px"><span style="width:52px;height:52px;border-radius:12px;background:#F2F2F2"></span><span style="font-size:10px;color:#fff">Calendar</span></div>
+  </div>
+  <p style="font-size:13px;line-height:1.5;color:var(--ink2);margin:0;padding:0 20px 18px">{{ v.note }}</p>
+</div>
+</div>
+</sc-for>
+</div>
+<p class="dv-next">Pick a variant and a tile (e.g. "5c, ink tile"). I'll then produce the final logo and icon files and rebrand the emails.</p>
+</section>
+
+<section class="dv-turn dn {{ themeClass }}" id="t4" style="background:var(--bg)">
+<div class="dv-thd"><a class="dv-tid" href="#t4">4</a><span class="dv-tname">Web dashboard · datemeup.app/dashboard · centered app layout, "Get the app" moved to the footer, Sign out is a button in the account menu</span><button onClick="{{ toggleTheme }}" style="margin-left:auto;height:30px;padding:0 14px;border-radius:999px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);font:700 12px 'Sora',sans-serif;cursor:pointer">{{ themeLabel }} mode</button></div>
+<div class="dv-opts" style="flex-direction:column">
+
+<div class="dv-opt" id="4a"><div class="dv-olabel"><a class="dv-oid" href="#4a">4a</a><span>Single centered column (720) · recommended · reads like the phone app at desktop size · account menu shown open</span></div>
+<x-import component-from-global-scope="ChromeWindow" from="./browser-window.jsx" width="{{ ww }}" height="{{ wh }}" url="datemeup.app/dashboard" hint-size="1440px,1000px">
+<div data-screen-label="Web dashboard 4a" style="min-height:100%;background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;position:relative;overflow:hidden;display:flex;flex-direction:column">
+  <div style="position:absolute;top:-220px;right:-160px;width:560px;height:500px;border-radius:48% 52% 45% 55%/55% 45% 55% 45%;background:var(--primary-soft);opacity:.7"></div>
+  <div style="position:relative;height:72px;border-bottom:1px solid var(--line);background:var(--surface)"><div style="max-width:1080px;margin:0 auto;height:100%;display:flex;align-items:center;gap:16px;padding:0 32px">
+    <div style="display:flex;align-items:center;gap:10px"><svg width="32" height="32" viewBox="0 0 100 100"><path d="M28 44l22-22 22 22" fill="none" stroke="#0E8C8C" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"></path><circle cx="32" cy="72" r="17" fill="#0E8C8C"></circle><circle cx="68" cy="72" r="17" fill="#7CB518"></circle></svg><span style="font:800 19px 'Sora',sans-serif;letter-spacing:-.04em">DateMeUp</span></div>
+    <div style="margin:0 auto;display:flex;padding:4px;border-radius:999px;background:var(--bg);border:1px solid var(--line);gap:2px"><span style="height:36px;padding:0 18px;border-radius:999px;background:var(--primary);color:var(--on-primary);font:700 13px 'Sora',sans-serif;display:flex;align-items:center">Home</span><span style="height:36px;padding:0 18px;border-radius:999px;color:var(--ink2);font:700 13px 'Sora',sans-serif;display:flex;align-items:center">Plans</span><span style="height:36px;padding:0 18px;border-radius:999px;color:var(--ink2);font:700 13px 'Sora',sans-serif;display:flex;align-items:center">Discover</span></div>
+    <div style="display:flex;align-items:center;gap:10px"><span style="height:40px;padding:0 18px;border-radius:22px 16px 22px 16px;background:var(--primary);color:var(--on-primary);font:700 14px 'Sora',sans-serif;display:flex;align-items:center">+ New plan</span><span style="width:40px;height:40px;border-radius:50%;border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--ink2)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 9a6 6 0 0 1 12 0c0 6 2 7 2 7H4s2-1 2-7"></path><path d="M10 20a2 2 0 0 0 4 0"></path></svg></span><span style="width:40px;height:40px;border-radius:50% 45% 55% 50%;background:var(--lime);color:var(--on-lime);font:800 15px 'Sora',sans-serif;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 3px var(--surface),0 0 0 5px var(--primary)">D</span></div>
+  </div></div>
+  <div style="position:absolute;top:80px;right:calc(50% - 540px + 32px);width:260px;background:var(--surface);border-radius:20px 26px 22px 24px;box-shadow:var(--dock);padding:16px;z-index:2;border:1px solid var(--line)">
+    <div style="display:flex;gap:12px;align-items:center"><span style="width:40px;height:40px;border-radius:50% 45% 55% 50%;background:var(--lime);color:var(--on-lime);font:800 15px 'Sora',sans-serif;display:flex;align-items:center;justify-content:center">D</span><div><div style="font:700 14px 'Sora',sans-serif">Demo Reviewer</div><div style="font-size:12px;color:var(--ink2)">demo@datemeup.app</div></div></div>
+    <div style="border-top:1px solid var(--line);margin:14px 0 6px"></div>
+    <div style="display:flex;flex-direction:column;font-size:14px"><span style="padding:9px 6px">Profile &amp; settings</span><span style="padding:9px 6px">Notifications</span><span style="padding:9px 6px">Help</span></div>
+    <span style="margin-top:8px;height:40px;border-radius:20px 14px 20px 14px;border:1.5px solid var(--line);color:var(--error);font:700 13px 'Sora',sans-serif;display:flex;align-items:center;justify-content:center">Sign out</span>
+  </div>
+  <div style="position:relative;flex:1;width:100%;max-width:720px;margin:0 auto;padding:48px 32px 40px;box-sizing:border-box">
+    <div style="font:800 40px/1.02 'Sora',sans-serif;letter-spacing:-.04em">Good afternoon, Demo.</div>
+    <div style="font-size:16px;color:var(--ink2);margin-top:8px">Nothing to vote on right now.</div>
+    <div style="margin-top:28px;position:relative;border-radius:30px 22px 34px 24px;background:var(--surface);box-shadow:var(--shadow);padding:30px 32px;overflow:hidden">
+      <div style="position:absolute;right:-50px;bottom:-60px;width:200px;height:180px;border-radius:48% 52% 45% 55%/55% 45% 55% 45%;background:var(--lime-soft)"></div>
+      <span style="position:absolute;top:22px;right:26px;padding:6px 11px;border-radius:12px 5px 12px 5px;background:var(--lime);color:var(--on-lime);font:800 11px 'Sora',sans-serif;letter-spacing:.04em;transform:rotate(5deg);box-shadow:var(--shadow)">ALL CAUGHT UP ✓</span>
+      <div style="position:relative;font:800 24px/1.1 'Sora',sans-serif;letter-spacing:-.03em">No open proposals</div>
+      <div style="position:relative;font-size:15px;color:var(--ink2);margin-top:8px;max-width:400px;line-height:1.5">Pitch a few ideas to Review Crew. Everyone votes, it locks in.</div>
+      <div style="position:relative;display:flex;gap:10px;margin-top:22px"><span style="height:48px;padding:0 22px;border-radius:26px 18px 26px 18px;background:var(--primary);color:var(--on-primary);font:700 15px 'Sora',sans-serif;display:flex;align-items:center">+ Start a new plan</span><span style="height:48px;padding:0 20px;border-radius:18px 26px 18px 26px;border:1.5px solid var(--line);background:var(--surface);font:700 14px 'Sora',sans-serif;display:flex;align-items:center">Browse Discover</span></div>
+    </div>
+    <div style="font:700 11px 'Sora',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2);margin:36px 0 12px">Your groups</div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="border-radius:22px 30px 20px 26px;background:var(--surface);box-shadow:var(--shadow);padding:16px 18px;display:flex;align-items:center;gap:14px"><span style="width:44px;height:44px;border-radius:50% 45% 55% 50%;background:var(--primary-soft);color:var(--primary-deep);font:800 16px 'Sora',sans-serif;display:flex;align-items:center;justify-content:center">R</span><div style="flex:1"><div style="font:700 16px 'Sora',sans-serif">Review Crew</div><div style="font-size:13px;color:var(--ink2)">No plan yet · last active today</div></div><span style="padding:4px 10px;border-radius:999px;background:var(--lime-soft);color:var(--ink);font:700 11px 'Sora',sans-serif">Active</span><span style="color:var(--ink2);font-size:18px">›</span></div>
+      <div style="border-radius:20px 26px 30px 22px;border:2px dashed var(--line);padding:16px 18px;display:flex;align-items:center;gap:14px;color:var(--ink2);font:700 14px 'Sora',sans-serif"><span style="width:44px;height:44px;border-radius:50%;border:2px dashed var(--line);display:flex;align-items:center;justify-content:center;font-size:20px;box-sizing:border-box">+</span>New group</div>
+    </div>
+  </div>
+  <div style="position:relative;border-top:1px solid var(--line);background:var(--surface)"><div style="max-width:720px;margin:0 auto;padding:18px 32px;display:flex;align-items:center;gap:14px;box-sizing:border-box"><div style="flex:1"><div style="font:700 14px 'Sora',sans-serif">Vote on the go</div><div style="font-size:12px;color:var(--ink2)">DateMeUp for iPhone and Android</div></div><span style="height:38px;padding:0 14px;border-radius:10px;background:#101820;color:#fff;font:700 12px 'Sora',sans-serif;display:flex;align-items:center;gap:6px"> App Store</span><span style="height:38px;padding:0 14px;border-radius:10px;background:#101820;color:#fff;font:700 12px 'Sora',sans-serif;display:flex;align-items:center;gap:6px">▶ Google Play</span></div><div style="text-align:center;font-size:11px;color:var(--ink2);padding:0 0 14px">© 2026 DateMeUp · datemeup.app · Privacy · Terms</div></div>
+</div>
+</x-import>
+</div>
+
+<div class="dv-opt" id="4b"><div class="dv-olabel"><a class="dv-oid" href="#4b">4b</a><span><b style="color:#1E9A55">APPROVED</b> · Centered two columns (1080) · main + slim right rail with groups and account card · adds "Ideas near you" so the empty state isn't empty</span></div>
+<x-import component-from-global-scope="ChromeWindow" from="./browser-window.jsx" width="{{ ww }}" height="{{ wh }}" url="datemeup.app/dashboard" hint-size="1440px,1000px">
+<div data-screen-label="Web dashboard 4b" style="min-height:100%;background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;display:flex;flex-direction:column">
+  <div style="height:72px;border-bottom:1px solid var(--line);background:var(--surface)"><div style="max-width:1080px;margin:0 auto;height:100%;display:flex;align-items:center;gap:16px;padding:0 32px">
+    <div style="display:flex;align-items:center;gap:10px"><svg width="32" height="32" viewBox="0 0 100 100"><path d="M28 44l22-22 22 22" fill="none" stroke="#0E8C8C" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"></path><circle cx="32" cy="72" r="17" fill="#0E8C8C"></circle><circle cx="68" cy="72" r="17" fill="#7CB518"></circle></svg><span style="font:800 19px 'Sora',sans-serif;letter-spacing:-.04em">DateMeUp</span></div>
+    <div style="display:flex;gap:4px;margin-left:28px"><span style="height:38px;padding:0 16px;border-radius:999px;background:var(--primary-soft);color:var(--primary-deep);font:700 13px 'Sora',sans-serif;display:flex;align-items:center">Home</span><span style="height:38px;padding:0 16px;color:var(--ink2);font:700 13px 'Sora',sans-serif;display:flex;align-items:center">Plans</span><span style="height:38px;padding:0 16px;color:var(--ink2);font:700 13px 'Sora',sans-serif;display:flex;align-items:center">Discover</span></div>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:10px"><span style="height:40px;padding:0 18px;border-radius:22px 16px 22px 16px;background:var(--primary);color:var(--on-primary);font:700 14px 'Sora',sans-serif;display:flex;align-items:center">+ New plan</span><span style="width:40px;height:40px;border-radius:50%;border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--ink2)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 9a6 6 0 0 1 12 0c0 6 2 7 2 7H4s2-1 2-7"></path><path d="M10 20a2 2 0 0 0 4 0"></path></svg></span></div>
+  </div></div>
+  <div style="flex:1;width:100%;max-width:1080px;margin:0 auto;padding:44px 32px 40px;box-sizing:border-box;display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:28px;align-items:start">
+    <div>
+      <div style="font:800 38px/1.02 'Sora',sans-serif;letter-spacing:-.04em">Good afternoon, Demo.</div>
+      <div style="font-size:16px;color:var(--ink2);margin-top:8px">Nothing to vote on right now.</div>
+      <div style="margin-top:26px;border-radius:30px 22px 34px 24px;background:var(--primary);color:var(--on-primary);padding:28px 30px;position:relative;overflow:hidden">
+        <div style="position:absolute;right:-60px;top:-70px;width:240px;height:220px;border-radius:48% 52% 45% 55%/55% 45% 55% 45%;background:rgba(255,255,255,.14)"></div>
+        <div style="position:relative;font:800 26px/1.08 'Sora',sans-serif;letter-spacing:-.03em">What are we doing this weekend?</div>
+        <div style="position:relative;font-size:15px;opacity:.9;margin-top:8px">Pitch two or three ideas. Review Crew votes. Done.</div>
+        <span style="position:relative;margin-top:20px;height:48px;padding:0 22px;border-radius:26px 18px 26px 18px;background:var(--surface);color:var(--primary-deep);font:700 15px 'Sora',sans-serif;display:inline-flex;align-items:center">+ Start a new plan</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin:34px 0 12px"><span style="font:700 11px 'Sora',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2)">Ideas near you</span><span style="font:700 13px 'Sora',sans-serif;color:var(--primary)">See all in Discover →</span></div>
+      <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px">
+        <sc-for list="{{ ideas }}" as="i" hint-placeholder-count="3"><div style="border-radius:{{ i.r }};background:var(--surface);box-shadow:var(--shadow);overflow:hidden"><div style="height:120px;background:url({{ i.img }}) center/cover;position:relative"><span style="position:absolute;right:8px;bottom:6px;font-size:9px;color:#fff;opacity:.9">{{ i.credit }}</span></div><div style="padding:12px 14px 14px"><div style="font:700 10px 'Sora',sans-serif;color:var(--primary-deep);letter-spacing:.04em">{{ i.cat }}</div><div style="font:800 15px/1.15 'Sora',sans-serif;letter-spacing:-.02em;margin-top:3px">{{ i.name }}</div><div style="font-size:12px;color:var(--ink2);margin-top:3px">{{ i.meta }}</div><span style="margin-top:10px;height:34px;border-radius:17px 12px 17px 12px;background:var(--primary-soft);color:var(--primary-deep);font:700 12px 'Sora',sans-serif;display:flex;align-items:center;justify-content:center">+ Add to a plan</span></div></div></sc-for>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div style="border-radius:22px 28px 20px 26px;background:var(--surface);box-shadow:var(--shadow);padding:18px"><div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font:800 15px 'Sora',sans-serif">Your groups</span><span style="font:700 12px 'Sora',sans-serif;color:var(--primary)">Manage</span></div><div style="display:flex;align-items:center;gap:12px;margin-top:14px"><span style="width:38px;height:38px;border-radius:50% 45% 55% 50%;background:var(--primary-soft);color:var(--primary-deep);font:800 14px 'Sora',sans-serif;display:flex;align-items:center;justify-content:center">R</span><div style="flex:1"><div style="font:700 14px 'Sora',sans-serif">Review Crew</div><div style="font-size:12px;color:var(--ink2)">No plan yet</div></div><span style="padding:3px 9px;border-radius:999px;background:var(--lime-soft);font:700 10px 'Sora',sans-serif">Active</span></div><div style="margin-top:12px;height:38px;border-radius:19px 14px 19px 14px;border:2px dashed var(--line);color:var(--ink2);font:700 13px 'Sora',sans-serif;display:flex;align-items:center;justify-content:center">+ New group</div></div>
+      <div style="border-radius:26px 20px 28px 22px;background:var(--surface);box-shadow:var(--shadow);padding:18px"><div style="display:flex;align-items:center;gap:12px"><span style="width:44px;height:44px;border-radius:50% 45% 55% 50%;background:var(--lime);color:var(--on-lime);font:800 16px 'Sora',sans-serif;display:flex;align-items:center;justify-content:center">D</span><div style="min-width:0"><div style="font:700 14px 'Sora',sans-serif">Demo Reviewer</div><div style="font-size:12px;color:var(--ink2)">demo@datemeup.app</div></div></div><div style="display:flex;gap:8px;margin-top:14px"><span style="flex:1;height:38px;border-radius:19px 14px 19px 14px;border:1.5px solid var(--line);font:700 12px 'Sora',sans-serif;display:flex;align-items:center;justify-content:center">Settings</span><span style="flex:1;height:38px;border-radius:14px 19px 14px 19px;border:1.5px solid var(--line);color:var(--error);font:700 12px 'Sora',sans-serif;display:flex;align-items:center;justify-content:center">Sign out</span></div></div>
+    </div>
+  </div>
+  <div style="border-top:1px solid var(--line);background:var(--surface)"><div style="max-width:1080px;margin:0 auto;padding:16px 32px;display:flex;align-items:center;gap:14px;box-sizing:border-box"><span style="font-size:12px;color:var(--ink2)">© 2026 DateMeUp · Privacy · Terms</span><span style="margin-left:auto;font:700 13px 'Sora',sans-serif">Vote on the go</span><span style="height:36px;padding:0 12px;border-radius:9px;background:#101820;color:#fff;font:700 12px 'Sora',sans-serif;display:flex;align-items:center"> App Store</span><span style="height:36px;padding:0 12px;border-radius:9px;background:#101820;color:#fff;font:700 12px 'Sora',sans-serif;display:flex;align-items:center">▶ Google Play</span></div></div>
+</div>
+</x-import>
+</div>
+
+</div>
+<p class="dv-next">Both keep the content in one centered container so nothing hugs the left edge. Under 768px either collapses to the native dock layout from the Web file.</p>
+</section>
+
+<section class="dv-turn dn {{ themeClass }}" id="t3" style="background:var(--bg)">
+<div class="dv-thd"><a class="dv-tid" href="#t3">3</a><span class="dv-tname">Mobile welcome screen · iOS + Android · replaces the plain log-in form as the first screen; email log-in moves one tap behind · screens use mark 1c</span></div>
+<div class="dv-opts">
+
+<div class="dv-opt" id="3a"><div class="dv-olabel"><a class="dv-oid" href="#3a">3a</a><span><b style="color:#1E9A55">APPROVED</b> · Sticker stack · shows the product working before sign-up</span></div>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" width="{{ fw }}" height="{{ fh }}" dark="{{ dark }}" hint-size="375px,812px">
+<div data-screen-label="Welcome 3a" style="height:100%;background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;position:relative;overflow:hidden;display:flex;flex-direction:column;padding:62px 24px 34px;box-sizing:border-box">
+  <div style="position:absolute;top:-110px;right:-120px;width:340px;height:310px;border-radius:48% 52% 45% 55%/55% 45% 55% 45%;background:var(--primary-soft)"></div>
+  <div style="position:absolute;bottom:200px;left:-90px;width:200px;height:180px;border-radius:52% 48% 55% 45%/45% 55% 45% 55%;background:var(--lime-soft)"></div>
+  <div style="position:relative;display:flex;align-items:center;gap:8px"><svg width="28" height="28" viewBox="0 0 100 100"><path d="M28 44l22-22 22 22" fill="none" stroke="#0E8C8C" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"></path><circle cx="32" cy="72" r="17" fill="#0E8C8C"></circle><circle cx="68" cy="72" r="17" fill="#7CB518"></circle></svg><span style="font:800 18px 'Sora',sans-serif;letter-spacing:-.04em">DateMeUp</span></div>
+  <div style="position:relative;height:270px;margin-top:22px">
+    <div style="position:absolute;left:18px;top:28px;width:250px;border-radius:24px 30px 22px 28px;background:var(--surface);box-shadow:var(--shadow);padding:14px 16px;transform:rotate(-5deg);opacity:.85"><div style="font:700 10px 'Sora',sans-serif;color:var(--primary-deep)">Movies</div><div style="font:800 15px 'Sora',sans-serif;margin-top:2px">The Midnight Ride</div><div style="font-size:11px;color:var(--ink2)">9:40 PM · The Marquee</div></div>
+    <div style="position:absolute;left:46px;top:96px;width:260px;border-radius:30px 22px 28px 24px;background:var(--surface);box-shadow:var(--dock);padding:16px 18px;border:2px solid var(--primary);transform:rotate(3deg)"><span style="position:absolute;top:-12px;right:16px;padding:5px 10px;border-radius:12px 5px 12px 5px;background:var(--lime);color:var(--on-lime);font:800 11px 'Sora',sans-serif;transform:rotate(6deg)">BOTH ♥</span><div style="font:700 10px 'Sora',sans-serif;color:var(--primary-deep)">Nightlife</div><div style="font:800 17px 'Sora',sans-serif;margin-top:2px">Jazz at the Blue Room</div><div style="font-size:12px;color:var(--ink2);margin-top:2px">Fri · Trio set at 8</div><div style="display:flex;margin-top:10px"><span style="width:26px;height:26px;border-radius:50%;background:var(--primary);color:#fff;font:800 10px 'Sora',sans-serif;display:flex;align-items:center;justify-content:center;border:2px solid var(--surface)">S</span><span style="width:26px;height:26px;border-radius:50%;background:var(--lime);color:#101820;font:800 10px 'Sora',sans-serif;display:flex;align-items:center;justify-content:center;border:2px solid var(--surface);margin-left:-8px">P</span></div></div>
+    <div style="position:absolute;left:10px;top:196px;width:230px;border-radius:22px 28px 24px 30px;background:var(--surface);box-shadow:var(--shadow);padding:12px 16px;transform:rotate(-2deg);opacity:.75"><div style="font:700 10px 'Sora',sans-serif;color:var(--primary-deep)">Dining</div><div style="font:800 14px 'Sora',sans-serif;margin-top:2px">Noodle Bar Kōji</div></div>
+  </div>
+  <div style="position:relative;font:800 38px/.98 'Sora',sans-serif;letter-spacing:-.05em;margin-top:8px">Date night,<br>decided.</div>
+  <div style="position:relative;font-size:15px;line-height:1.45;color:var(--ink2);margin-top:10px">Pitch a few ideas. You both vote. It locks in.</div>
+  <div style="position:relative;margin-top:auto;display:flex;flex-direction:column;gap:10px">
+    <span style="height:52px;border-radius:26px 19px 26px 19px;background:var(--ink);color:var(--bg);font:700 15px 'Sora',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px"> Continue with Apple</span>
+    <span style="height:52px;border-radius:19px 26px 19px 26px;background:var(--surface);border:1.5px solid var(--line);font:700 15px 'Sora',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px"><b style="color:#4285F4">G</b> Continue with Google</span>
+    <span style="height:44px;font:700 14px 'Sora',sans-serif;color:var(--primary);display:flex;align-items:center;justify-content:center">Sign up with email</span>
+    <div style="text-align:center;font-size:13px;color:var(--ink2)">Have an account? <b style="color:var(--ink)">Log in</b></div>
+  </div>
+</div>
+</x-import>
+</div>
+
+<div class="dv-opt" id="3b"><div class="dv-olabel"><a class="dv-oid" href="#3b">3b</a><span>Teal full-bleed · the "47 messages" problem, then the answer · loudest</span></div>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" width="{{ fw }}" height="{{ fh }}" dark="{{ dark }}" hint-size="375px,812px">
+<div data-screen-label="Welcome 3b" style="height:100%;background:#0E8C8C;color:#fff;font-family:'DM Sans',sans-serif;position:relative;overflow:hidden;display:flex;flex-direction:column;padding:62px 24px 34px;box-sizing:border-box">
+  <div style="position:absolute;bottom:-120px;right:-120px;width:360px;height:330px;border-radius:48% 52% 45% 55%/55% 45% 55% 45%;background:rgba(255,255,255,.1)"></div>
+  <div style="position:relative;display:flex;align-items:center;gap:8px"><svg width="28" height="28" viewBox="0 0 100 100"><path d="M28 44l22-22 22 22" fill="none" stroke="#fff" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"></path><circle cx="32" cy="72" r="17" fill="#fff"></circle><circle cx="68" cy="72" r="17" fill="#A8E04B"></circle></svg><span style="font:800 18px 'Sora',sans-serif;letter-spacing:-.04em">DateMeUp</span></div>
+  <div style="position:relative;display:flex;flex-direction:column;gap:6px;margin-top:30px;font-size:13px;opacity:.55">
+    <span style="align-self:flex-start;padding:8px 12px;border-radius:16px 16px 16px 4px;background:rgba(255,255,255,.18)">what do you want to do fri?</span>
+    <span style="align-self:flex-end;padding:8px 12px;border-radius:16px 16px 4px 16px;background:rgba(16,24,32,.3)">idk, you pick</span>
+    <span style="align-self:flex-start;padding:8px 12px;border-radius:16px 16px 16px 4px;background:rgba(255,255,255,.18)">no you pick</span>
+    <span style="align-self:flex-end;padding:8px 12px;border-radius:16px 16px 4px 16px;background:rgba(16,24,32,.3)">sushi? jazz? 🙃</span>
+  </div>
+  <div style="position:relative;margin-top:14px;border-radius:28px 22px 30px 24px;background:#fff;color:#101820;padding:16px 18px;box-shadow:0 18px 40px rgba(0,0,0,.2)"><span style="position:absolute;top:-12px;left:18px;padding:5px 10px;border-radius:12px 5px 12px 5px;background:#7CB518;color:#101820;font:800 11px 'Sora',sans-serif;transform:rotate(-5deg)">SORTED</span><div style="font:700 10px 'Sora',sans-serif;color:#086B6B;margin-top:4px">Friday · 8 PM</div><div style="font:800 18px 'Sora',sans-serif;margin-top:2px">Jazz at the Blue Room</div><div style="font-size:12px;color:#5D6B76;margin-top:2px">Decided in 4 minutes</div></div>
+  <div style="position:relative;font:800 36px/1 'Sora',sans-serif;letter-spacing:-.05em;margin-top:28px">47 messages later, still no plan?</div>
+  <div style="position:relative;font-size:15px;line-height:1.45;opacity:.9;margin-top:10px">Propose. Vote. Lock it in.</div>
+  <div style="position:relative;margin-top:auto;display:flex;flex-direction:column;gap:10px">
+    <span style="height:54px;border-radius:27px 20px 27px 20px;background:#fff;color:#086B6B;font:700 16px 'Sora',sans-serif;display:flex;align-items:center;justify-content:center">Get started</span>
+    <span style="height:52px;border-radius:20px 27px 20px 27px;border:2px solid rgba(255,255,255,.55);font:700 15px 'Sora',sans-serif;display:flex;align-items:center;justify-content:center;box-sizing:border-box">I have an account</span>
+  </div>
+</div>
+</x-import>
+</div>
+
+<div class="dv-opt" id="3c"><div class="dv-olabel"><a class="dv-oid" href="#3c">3c</a><span>Photo-led · a real night out with a blob edge · warmest</span></div>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" width="{{ fw }}" height="{{ fh }}" dark="{{ dark }}" hint-size="375px,812px">
+<div data-screen-label="Welcome 3c" style="height:100%;background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;position:relative;overflow:hidden;display:flex;flex-direction:column">
+  <div style="height:430px;flex:none;position:relative;background:url(https://images.unsplash.com/photo-1511192336575-5a79af67a629?w=900&amp;q=70&amp;auto=format&amp;fit=crop) center/cover;border-radius:0 0 46% 54%/0 0 14% 10%">
+    <div style="position:absolute;inset:0;border-radius:inherit;background:linear-gradient(180deg,rgba(16,24,32,.45),rgba(16,24,32,0) 40%)"></div>
+    <div style="position:absolute;top:60px;left:24px;display:flex;align-items:center;gap:8px;color:#fff"><svg width="28" height="28" viewBox="0 0 100 100"><path d="M28 44l22-22 22 22" fill="none" stroke="#fff" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"></path><circle cx="32" cy="72" r="17" fill="#2FC4C1"></circle><circle cx="68" cy="72" r="17" fill="#A8E04B"></circle></svg><span style="font:800 18px 'Sora',sans-serif;letter-spacing:-.04em">DateMeUp</span></div>
+    <span style="position:absolute;right:22px;bottom:56px;padding:7px 12px;border-radius:12px 5px 12px 5px;background:var(--lime);color:#101820;font:800 11px 'Sora',sans-serif;transform:rotate(-5deg);box-shadow:0 8px 20px rgba(0,0,0,.2)">FRI 8 PM · LOCKED IN</span>
+    <span style="position:absolute;left:24px;bottom:36px;font-size:10px;color:#fff;opacity:.85">Photo · Unsplash</span>
+  </div>
+  <div style="padding:24px 24px 34px;flex:1;display:flex;flex-direction:column">
+    <div style="font:800 34px/1 'Sora',sans-serif;letter-spacing:-.05em">Plan together.<br>Go together.</div>
+    <div style="font-size:15px;line-height:1.45;color:var(--ink2);margin-top:10px">The end of "you pick". For couples and crews.</div>
+    <div style="margin-top:auto;display:flex;flex-direction:column;gap:10px">
+      <span style="height:52px;border-radius:26px 19px 26px 19px;background:var(--primary);color:var(--on-primary);font:700 15px 'Sora',sans-serif;display:flex;align-items:center;justify-content:center"> Continue with Apple</span>
+      <span style="height:52px;border-radius:19px 26px 19px 26px;background:var(--surface);border:1.5px solid var(--line);font:700 15px 'Sora',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px"><b style="color:#4285F4">G</b> Continue with Google</span>
+      <div style="text-align:center;font-size:13px;color:var(--ink2);margin-top:6px">Email instead? <b style="color:var(--primary)">Sign up</b> · <b style="color:var(--ink)">Log in</b></div>
+    </div>
+  </div>
+</div>
+</x-import>
+</div>
+
+<div class="dv-opt" id="3d"><div class="dv-olabel"><a class="dv-oid" href="#3d">3d</a><span>3a on Android · Google first, no Apple button · same layout applies to 3b/3c</span></div>
+<x-import component-from-global-scope="AndroidDevice" from="./android-frame.jsx" width="{{ aw }}" height="{{ ah }}" dark="{{ dark }}" hint-size="412px,892px">
+<div data-screen-label="Welcome 3d Android" style="height:100%;background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;position:relative;overflow:hidden;display:flex;flex-direction:column;padding:28px 24px 28px;box-sizing:border-box">
+  <div style="position:absolute;top:-110px;right:-120px;width:340px;height:310px;border-radius:48% 52% 45% 55%/55% 45% 55% 45%;background:var(--primary-soft)"></div>
+  <div style="position:relative;display:flex;align-items:center;gap:8px"><svg width="28" height="28" viewBox="0 0 100 100"><path d="M28 44l22-22 22 22" fill="none" stroke="#0E8C8C" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"></path><circle cx="32" cy="72" r="17" fill="#0E8C8C"></circle><circle cx="68" cy="72" r="17" fill="#7CB518"></circle></svg><span style="font:800 18px 'Sora',sans-serif;letter-spacing:-.04em">DateMeUp</span></div>
+  <div style="position:relative;height:250px;margin-top:22px">
+    <div style="position:absolute;left:20px;top:20px;width:260px;border-radius:24px 30px 22px 28px;background:var(--surface);box-shadow:var(--shadow);padding:14px 16px;transform:rotate(-5deg);opacity:.85"><div style="font:700 10px 'Sora',sans-serif;color:var(--primary-deep)">Movies</div><div style="font:800 15px 'Sora',sans-serif;margin-top:2px">The Midnight Ride</div></div>
+    <div style="position:absolute;left:56px;top:90px;width:270px;border-radius:30px 22px 28px 24px;background:var(--surface);box-shadow:var(--dock);padding:16px 18px;border:2px solid var(--primary);transform:rotate(3deg)"><span style="position:absolute;top:-12px;right:16px;padding:5px 10px;border-radius:12px 5px 12px 5px;background:var(--lime);color:var(--on-lime);font:800 11px 'Sora',sans-serif;transform:rotate(6deg)">BOTH ♥</span><div style="font:700 10px 'Sora',sans-serif;color:var(--primary-deep)">Nightlife</div><div style="font:800 17px 'Sora',sans-serif;margin-top:2px">Jazz at the Blue Room</div><div style="font-size:12px;color:var(--ink2);margin-top:2px">Fri · Trio set at 8</div></div>
+  </div>
+  <div style="position:relative;font:800 38px/.98 'Sora',sans-serif;letter-spacing:-.05em">Date night,<br>decided.</div>
+  <div style="position:relative;font-size:15px;line-height:1.45;color:var(--ink2);margin-top:10px">Pitch a few ideas. You both vote. It locks in.</div>
+  <div style="position:relative;margin-top:auto;display:flex;flex-direction:column;gap:10px">
+    <span style="height:52px;border-radius:26px 19px 26px 19px;background:var(--primary);color:var(--on-primary);font:700 15px 'Sora',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px"><b style="background:#fff;color:#4285F4;width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:13px">G</b> Continue with Google</span>
+    <span style="height:52px;border-radius:19px 26px 19px 26px;background:var(--surface);border:1.5px solid var(--line);font:700 15px 'Sora',sans-serif;display:flex;align-items:center;justify-content:center">Sign up with email</span>
+    <div style="text-align:center;font-size:13px;color:var(--ink2);margin-top:4px">Have an account? <b style="color:var(--ink)">Log in</b></div>
+  </div>
+</div>
+</x-import>
+</div>
+
+</div>
+</section>
+
+<section class="dv-turn dn {{ themeClass }}" id="t2" style="background:var(--bg)">
+<div class="dv-thd"><a class="dv-tid" href="#t2">2</a><span class="dv-tname">App icon · iOS + Android · each pairs with the logo of the same letter · shown large, as Android adaptive (circle), and on a home screen next to other apps</span></div>
+<div class="dv-opts">
+<sc-for list="{{ icons }}" as="ic" hint-placeholder-count="4">
+<div class="dv-opt" id="{{ ic.id }}"><div class="dv-olabel"><a class="dv-oid" href="#{{ ic.id }}">{{ ic.id }}</a><span>{{ ic.label }}</span></div>
+<div style="width:340px;background:var(--surface);border-radius:22px 30px 20px 26px;box-shadow:var(--shadow);padding:22px">
+  <div style="display:flex;align-items:flex-end;gap:18px"><div style="width:150px;height:150px;border-radius:34px;overflow:hidden;box-shadow:0 14px 34px rgba(16,24,32,.22)">{{ ic.big }}</div><div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="width:96px;height:96px;border-radius:50%;overflow:hidden">{{ ic.round }}</div><span style="font-size:10px;color:var(--ink2)">Android</span></div></div>
+  <div style="margin-top:18px;border-radius:18px;background:{{ ic.wall }};padding:18px 14px 14px;display:grid;grid-template-columns:repeat(4,1fr);gap:10px;justify-items:center">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:5px"><span style="width:56px;height:56px;border-radius:13px;background:#E85D4A"></span><span style="font-size:10px;color:#fff">Photos</span></div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:5px"><div style="width:56px;height:56px;border-radius:13px;overflow:hidden">{{ ic.small }}</div><span style="font-size:10px;color:#fff;font-weight:600">DateMeUp</span></div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:5px"><span style="width:56px;height:56px;border-radius:13px;background:#3B82F6"></span><span style="font-size:10px;color:#fff">Mail</span></div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:5px"><span style="width:56px;height:56px;border-radius:13px;background:#F2F2F2"></span><span style="font-size:10px;color:#fff">Calendar</span></div>
+  </div>
+  <p style="font-size:12px;line-height:1.5;color:var(--ink2);margin:14px 0 0">{{ ic.note }}</p>
+</div>
+</div>
+</sc-for>
+</div>
+</section>
+
+<section class="dv-turn dn {{ themeClass }}" id="t1" style="background:var(--bg)">
+<div class="dv-thd"><a class="dv-tid" href="#t1">1</a><span class="dv-tname">DateMeUp logo · symbol + wordmark · light and dark · replaces the two-figures mark</span></div>
+<div class="dv-opts">
+<sc-for list="{{ logos }}" as="lg" hint-placeholder-count="4">
+<div class="dv-opt" id="{{ lg.id }}"><div class="dv-olabel"><a class="dv-oid" href="#{{ lg.id }}">{{ lg.id }}</a><span>{{ lg.label }}</span></div>
+<div style="width:400px;background:var(--surface);border-radius:22px 30px 20px 26px;box-shadow:var(--shadow);overflow:hidden">
+  <div style="height:170px;display:flex;align-items:center;justify-content:center;gap:14px;background:#F4F6F8">{{ lg.light }}</div>
+  <div style="height:120px;display:flex;align-items:center;justify-content:center;gap:12px;background:#101820">{{ lg.dark }}</div>
+  <div style="padding:16px 20px;display:flex;align-items:center;gap:16px;border-top:1px solid var(--line)"><div style="display:flex;align-items:center;gap:10px">{{ lg.sizes }}</div><span style="font-size:11px;color:var(--ink2)">64 · 32 · 16 px</span></div>
+  <p style="font-size:13px;line-height:1.5;color:var(--ink2);margin:0;padding:0 20px 18px">{{ lg.note }}</p>
+</div>
+</div>
+</sc-for>
+</div>
+<p class="dv-next">Pick one letter for logo and icon (e.g. "1c + 2c"), or mix a logo with a different icon background.</p>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { dark: false };
+  renderVals() {
+    const h = React.createElement;
+    const T = '#0E8C8C', L = '#7CB518', K = '#101820', W = '#FFFFFF';
+    const marks = {
+      a: (p) => [h('path', { key: 1, d: 'M12 18h44a10 10 0 0 1 10 10v20a10 10 0 0 1-10 10H32L20 68V58h-8A10 10 0 0 1 2 48V28a10 10 0 0 1 10-10z', fill: p[0] }), h('path', { key: 2, d: 'M44 36h44a10 10 0 0 1 10 10v20a10 10 0 0 1-10 10h-8v10L68 76H44a10 10 0 0 1-10-10V46a10 10 0 0 1 10-10z', fill: p[1] }), h('path', { key: 3, d: 'M52 56l9 9 17-17', fill: 'none', stroke: p[2], strokeWidth: 7, strokeLinecap: 'round', strokeLinejoin: 'round' })],
+      b: (p) => [h('path', { key: 1, d: 'M50 6C31 6 16 21 16 40c0 25 34 54 34 54s34-29 34-54C84 21 69 6 50 6z', fill: p[0] }), h('circle', { key: 2, cx: 50, cy: 40, r: 18, fill: p[1] }), h('path', { key: 3, d: 'M41 40l7 7 12-13', fill: 'none', stroke: p[2], strokeWidth: 6, strokeLinecap: 'round', strokeLinejoin: 'round' })],
+      c: (p) => [h('path', { key: 1, d: 'M28 44l22-22 22 22', fill: 'none', stroke: p[2], strokeWidth: 11, strokeLinecap: 'round', strokeLinejoin: 'round' }), h('circle', { key: 2, cx: 32, cy: 72, r: 17, fill: p[0] }), h('circle', { key: 3, cx: 68, cy: 72, r: 17, fill: p[1] })],
+      d: (p) => [h('path', { key: 1, d: 'M22 36v16a28 28 0 0 0 56 0V36', fill: 'none', stroke: p[1], strokeWidth: 16, strokeLinecap: 'round' }), h('circle', { key: 2, cx: 50, cy: 32, r: 13, fill: p[0] })],
+      e: (p) => [
+        h('path', { key: 0, d: 'M33 24L50 11L67 24', fill: 'none', stroke: p[2], strokeWidth: 9, strokeLinecap: 'round', strokeLinejoin: 'round' }),
+        h('g', { key: 1, transform: 'rotate(8 34 82)' }, h('circle', { cx: 34, cy: 47, r: 12, fill: p[0] }), h('path', { d: 'M17 98V80a17 17 0 0 1 34 0v18z', fill: p[0] })),
+        h('g', { key: 2, transform: 'rotate(-8 66 84)' }, h('circle', { cx: 66, cy: 49, r: 12, fill: p[1] }), h('path', { d: 'M49 98V82a17 17 0 0 1 34 0v16z', fill: p[1] }))],
+      f: (p) => [
+        h('path', { key: 0, d: 'M30 40L50 15L70 41', fill: 'none', stroke: p[2], strokeWidth: 8, strokeLinecap: 'round', strokeLinejoin: 'round' }),
+        h('g', { key: 1, transform: 'rotate(8 30 82)' }, h('circle', { cx: 30, cy: 46, r: 12, fill: p[0] }), h('path', { d: 'M13 98V80a17 17 0 0 1 34 0v18z', fill: p[0] })),
+        h('g', { key: 2, transform: 'rotate(-8 70 84)' }, h('circle', { cx: 70, cy: 48, r: 12, fill: p[1] }), h('path', { d: 'M53 98V82a17 17 0 0 1 34 0v16z', fill: p[1] }))],
+      g: (p) => [
+        h('path', { key: 0, d: 'M40 72L50 24', stroke: p[0], strokeWidth: 8, strokeLinecap: 'round' }),
+        h('path', { key: 4, d: 'M60 74L50 24', stroke: p[1], strokeWidth: 8, strokeLinecap: 'round' }),
+        h('g', { key: 1, transform: 'rotate(8 26 82)' }, h('circle', { cx: 26, cy: 48, r: 11, fill: p[0] }), h('path', { d: 'M10 98V80a16 16 0 0 1 32 0v18z', fill: p[0] })),
+        h('g', { key: 2, transform: 'rotate(-8 74 84)' }, h('circle', { cx: 74, cy: 50, r: 11, fill: p[1] }), h('path', { d: 'M58 98V82a16 16 0 0 1 32 0v16z', fill: p[1] })),
+        h('circle', { key: 3, cx: 50, cy: 12, r: 4.5, fill: p[2] })],
+    };
+    const svg = (k, p, size, bg, inset) => h('svg', { width: size, height: size, viewBox: '0 0 100 100', style: { display: 'block' } }, bg ? h('rect', { width: 100, height: 100, fill: bg }) : null, h('g', { transform: inset ? 'translate(19 19) scale(.62)' : undefined }, marks[k](p)));
+    const word = (k, color, size, accent) => {
+      const st = { font: `800 ${size}px 'Sora',sans-serif`, letterSpacing: '-.04em', color };
+      if (k === 'a') return h('span', { style: st }, 'Date', h('span', { style: { color: accent } }, 'Me'), 'Up');
+      if (k === 'b') return h('span', { style: st }, 'DateMe', h('span', { style: { color: accent } }, 'Up'));
+      if (k === 'c') return h('span', { style: { ...st, letterSpacing: '-.05em' } }, 'datemeup');
+      return h('span', { style: { ...st, display: 'inline-flex', alignItems: 'baseline' } }, 'dateme', h('svg', { width: size * .62, height: size * .62, viewBox: '0 0 100 100', style: { margin: '0 1px', transform: `translateY(${size * .06}px)` } }, h('path', { d: 'M18 20v28a32 32 0 0 0 64 0V20', fill: 'none', stroke: L, strokeWidth: 20, strokeLinecap: 'round' })), 'p');
+    };
+    const lockup = (k, p, ink, accent, size) => h('div', { style: { display: 'flex', alignItems: 'center', gap: size * .32 } }, svg(k, p, size * 1.3), word(k, ink, size, accent));
+    const L2 = '#A8E04B', T2 = '#2FC4C1';
+    const spec = [
+      ['a', 'Two speech bubbles meet, check in the overlap · "the chat becomes a plan"', [T, L, K], [T2, L2, K], 'Speaks directly to the problem (the group chat) and the answer (decided). Busy at 16px; the check carries it.'],
+      ['b', 'Location pin with a check · "where we\'re going, decided"', [T, L, K], [T2, L2, K], 'Most literal for a going-out app and very legible small. Pins are common in maps and travel apps, so it needs the lime centre to stand apart.'],
+      ['c', 'Two dots and an up-chevron · "me + you, up for it" · recommended', [T, L, T], [T2, L2, W], 'Says the name: two people (Me, you) and Up. Three shapes, holds at 16px, works in one colour, nothing like a calendar or heart.'],
+      ['d', 'Custom "u" in the wordmark · lime cup holding a teal dot', [T, L, T], [T2, L2, W], 'Wordmark-led: the "u" in "up" becomes the symbol and reads as a smile. Friendliest; the symbol alone is less self-explanatory.'],
+    ];
+    const logos = spec.map(([k, label, pl, pd, note]) => ({
+      id: '1' + k, label, note,
+      light: lockup(k, pl, K, T, 40),
+      dark: lockup(k, pd, W, T2, 30),
+      sizes: h(React.Fragment, null, svg(k, pl, 64), svg(k, pl, 32), svg(k, pl, 16)),
+    }));
+    const ispec = [
+      ['a', T, [W, L, K], 'Teal tile, white and lime bubbles', '#1F2B36', 'Strong at large size; at 56px the bubble tails merge. Fine on dark and light wallpapers.'],
+      ['b', T, [W, L, K], 'Teal tile, white pin, lime centre', '#3A4A5C', 'Instantly reads as "going out". The only white-dominant icon of the four, so it pops on dark wallpapers.'],
+      ['c', K, [T2, L2, W], 'Ink tile, teal + lime dots, white chevron · recommended', '#6E8796', 'Dark tile is rare in Lifestyle; the two bright dots read as a pair even at 40px. Matches 1c.'],
+      ['d', T, [W, L, W], 'Teal tile, lime "u" with white dot', '#1F2B36', 'Friendly smile shape; simplest silhouette. Least specific to planning.'],
+    ];
+    const icons = ispec.map(([k, bg, p, label, wall, note]) => ({ id: '2' + k, label, wall, note, big: svg(k, p, 150, bg, true), round: svg(k, p, 96, bg, true), small: svg(k, p, 56, bg, true) }));
+    const pspec = [
+      ['e', 'Chevron above · the 1c dots become heads, bodies below, leaning in · closest to 1c', [T, L, T], [T2, L2, W], [T2, L2, W], [W, L2, W], 'Keeps 1c\'s reading order: "up" on top, the two of you below. The lean closes the gap between the heads so they read as a pair, not two separate dots.'],
+      ['f', 'Chevron joins the heads · a peak that rests on both of them', [T, L, T], [T2, L2, W], [T2, L2, W], [W, L2, W], 'The chevron becomes a shared line between the two, like an arm over the shoulders. Tightest silhouette; at 16px the peak can read as a roof.'],
+      ['g', 'High five · their inner arms rise and meet as the chevron · recommended', [T, L, L], [T2, L2, L2], [T2, L2, L2], [W, L2, W], 'The "up" is something they do together. Most expressive and the most "date me up" energy; each arm keeps its person\'s colour, so it still works in one colour.'],
+    ];
+    const people = pspec.map(([k, label, pl, pd, pInk, pTeal, note]) => ({
+      id: '5' + ({ e: 'a', f: 'b', g: 'c' })[k], label, note,
+      light: h('div', { style: { display: 'flex', alignItems: 'center', gap: 13 } }, svg(k, pl, 52), word('c', K, 40)), dark: h('div', { style: { display: 'flex', alignItems: 'center', gap: 10 } }, svg(k, pd, 39), word('c', W, 30)),
+      sizes: h(React.Fragment, null, svg(k, pl, 64), svg(k, pl, 32), svg(k, pl, 16)),
+      iconInk: svg(k, pInk, 120, K, true), iconTeal: svg(k, pTeal, 120, T, true), iconRound: svg(k, pInk, 72, K, true), iconSmall: svg(k, pInk, 52, K, true),
+    }));
+    const u = (id) => `https://images.unsplash.com/${id}?w=600&q=70&auto=format&fit=crop`;
+    const ideas = [
+      ['Dining · $$', 'Noodle Bar Kōji', '0.4 mi · open till 11', u('photo-1750519422246-bf6a31ef6ee3'), 'Photo · Unsplash', '22px 30px 20px 26px'],
+      ['Nightlife', 'Jazz at the Blue Room', 'Fri · trio at 8', u('photo-1511192336575-5a79af67a629'), 'Photo · Unsplash', '30px 22px 26px 20px'],
+      ['Outdoors', 'Bouldering, Mission Cliffs', 'Day passes · 1.2 mi', u('photo-1522163182402-834f871fd851'), 'Photo · Unsplash', '20px 26px 30px 22px'],
+    ].map(([cat, name, meta, img, credit, r]) => ({ cat, name, meta, img, credit, r }));
+    const dark = this.state.dark;
+    return {
+      dark, themeClass: dark ? 'dn-dark' : '', themeLabel: dark ? 'Dark' : 'Light', toggleTheme: () => this.setState({ dark: !dark }),
+      logos, icons, ideas, people,
+      ww: 1440, wh: 1000, fw: 375, fh: 812, aw: 412, ah: 892,
+    };
+  }
+}
+</script>
+</body>
+</html>
