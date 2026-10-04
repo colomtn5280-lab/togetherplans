@@ -37,16 +37,13 @@ const CATEGORY_CONFIG: Partial<Record<SuggestionCategory | string, CategoryConfi
     domains: ['idealist.org', 'volunteermatch.org', 'createthegood.org', 'catchafire.org', 'justserve.org'],
   },
   'Outdoors': {
+    alwaysFire: true,
     query: (city, state) => `hiking trails outdoor activities near ${city} ${state}`,
     domains: ['alltrails.com', 'hikingproject.com', 'traillink.com', 'recreation.gov'],
   },
   'Hotels': {
     query: (city, state) => `best hotels weekend getaway near ${city} ${state}`,
     domains: ['booking.com', 'hotels.com', 'tripadvisor.com', 'expedia.com'],
-  },
-  'Couples': {
-    query: (city, state) => `romantic date night ideas couples events ${city} ${state}`,
-    domains: ['eventbrite.com', 'tripadvisor.com', 'yelp.com', 'timeout.com'],
   },
   'Family': {
     query: (city, state) => `family friendly activities kids events ${city} ${state} 2026`,
@@ -69,8 +66,9 @@ const CATEGORY_CONFIG: Partial<Record<SuggestionCategory | string, CategoryConfi
     domains: ['yelp.com', 'opentable.com', 'tripadvisor.com', 'eater.com'],
   },
   'Sports': {
-    query: (city, state) => `sports events games activities ${city} ${state} 2026`,
-    domains: ['eventbrite.com', 'ticketmaster.com', 'tripadvisor.com', 'yelp.com'],
+    alwaysFire: false,
+    query: (city, state) => `things to do sports activities near ${city} ${state} games venues`,
+    domains: ['yelp.com', 'tripadvisor.com', 'timeout.com'],
   },
   'Comedy': {
     query: (city, state) => `comedy shows stand up improv nights ${city} ${state}`,
@@ -217,6 +215,10 @@ export async function fetchTavilyFallback(
 
     logger.info(`Tavily: ${results.length} results for ${category} near ${city}`);
 
+    // Categories where Tavily results are real results (not just ideas)
+    const NON_IDEA_CATEGORIES = new Set(['Outdoors', 'Hiking Trails', 'Sports', 'Family', 'Hotels']);
+    const isIdea = !NON_IDEA_CATEGORIES.has(category);
+
     // Map to Suggestion shape — tagged as ideas with sourceUrl for click-through
     return results.map((r, i): Suggestion => {
       const sourceName = labelFromUrl(r.url);
@@ -236,7 +238,7 @@ export async function fetchTavilyFallback(
         durationMinutes: 120,
         source: 'tavily' as const,
         externalId: `tavily-${i}`,
-        isIdea: true,
+        isIdea,
         ticketUrl: r.url,
         attribution: `Via ${sourceName}`,
       };

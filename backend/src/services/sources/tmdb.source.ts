@@ -127,7 +127,7 @@ async function fetchStreamingShows(key: string): Promise<Suggestion[]> {
 }
 
 export async function fetchTmdb(categoryFilter?: string): Promise<Suggestion[]> {
-  const key = process.env.TMDB_API_KEY;
+    const key = process.env.TMDB_API_KEY;
   if (!key) return [];
 
   const wantMovies = !categoryFilter || categoryFilter === 'All' || categoryFilter === 'Movies';
@@ -141,4 +141,60 @@ export async function fetchTmdb(categoryFilter?: string): Promise<Suggestion[]> 
   return results
     .filter((r) => r.status === 'fulfilled')
     .flatMap((r) => (r as PromiseFulfilledResult<Suggestion[]>).value);
+}
+
+/**
+ * Search TMDB for movies and TV shows by query string.
+ * Used by the /api/suggestions/search endpoint for Netflix/Movies search.
+ */
+export async function searchTmdb(query: string): Promise<Suggestion[]> {
+  const key = process.env.TMDB_API_KEY;
+  if (!key || !query.trim()) return [];
+
+  try {
+    const encodedQ = encodeURIComponent(query.trim());
+    const data = await tmdbFetch<{
+      results: Array<{
+        id: number;
+        media_type: 'movie' | 'tv' | 'person';
+        title?: string;
+        name?: string;
+        overview?: string;
+        poster_path?: string;
+        release_date?: string;
+        first_air_date?: string;
+        vote_average?: number;
+      }>;
+    }>(`/search/multi?query=${encodedQ}&language=en-US&page=1`, key);
+
+    if (!data?.results) return [];
+
+    return data.results
+      .filter((r) => r.media_type === 'movie' || r.media_type === 'tv')
+      .slice(0, 20)
+      .map((r): Suggestion => {
+        const isMovie = r.media_type === 'movie';
+        const name = r.title ?? r.name ?? 'Unknown';
+        const score = r.vote_average ? ` — rated ${r.vote_average.toFixed(1)}/10` : '';
+        return {
+          id: `tmdb:${r.media_type}:${r.id}`,
+          name,
+          category: isMovie ? 'Movies' : 'Streaming Night',
+          shortDescription: r.overview?.slice(0, 150) || `${isMovie ? 'Film' : 'TV Series'}${score}.`,
+          imageUrl: r.poster_path ? `${IMG_BASE}${r.poster_path}` : undefined,
+          costTier: '$',
+          dateFriendly: true,
+          groupFriendly: isMovie,
+          durationMinutes: isMovie ? 130 : 150,
+          ticketUrl: isMovie
+            ? `https://www.themoviedb.org/movie/${r.id}`
+            : `https://www.netflix.com/search?q=${encodeURIComponent(name)}`,
+          source: 'tmdb',
+          externalId: `${r.media_type}:${r.id}`,
+          attribution: `${isMovie ? 'Movie' : 'TV'} data © TMDB`,
+        };
+      });
+  } catch {
+    return [];
+  }
 }

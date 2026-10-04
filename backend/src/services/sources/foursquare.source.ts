@@ -74,7 +74,7 @@ const FSQ_CATEGORY_RULES: Array<{
   { ids: ['50327c8591d4c4b30a586d5d'], category: 'Wine & Drinks', costTier: '$$', durationMinutes: 90 },    // Cocktail Bar
   { ids: ['4bf58dd8d48988d1d8941735'], category: 'Wine & Drinks', costTier: '$$', durationMinutes: 120 },   // Winery / Vineyard
   { ids: ['50327c8591d4c4b30a586d5d', '4bf58dd8d48988d11e941735'], category: 'Wine & Drinks', costTier: '$$', durationMinutes: 90 }, // Brewery
-  { ids: ['4bf58dd8d48988d1e4931735'], category: 'Active', costTier: '$', durationMinutes: 120 },           // Bowling Alley (verified — d166 is Sculpture Garden)
+  { ids: ['4bf58dd8d48988d1e4931735'], category: 'Sports', costTier: '$', durationMinutes: 120 },           // Bowling Alley (verified — d166 is Sculpture Garden)
   { ids: ['4bf58dd8d48988d1e6941735'], category: 'Sports', costTier: '$$', durationMinutes: 240 },          // Golf Course
   { ids: ['52e81612bcbc57f1066b79eb'], category: 'Sports', costTier: '$', durationMinutes: 90 },            // Mini Golf Course (verified — d1e7 is Playground)
   { ids: ['58daa1558bbb0b01f18ec1b0'], category: 'Sports', costTier: '$', durationMinutes: 90 },            // Golf Driving Range

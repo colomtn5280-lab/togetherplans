@@ -75,7 +75,7 @@ export interface SuggestionQuery {
   /** Legacy internal category, new category slug/display name, or 'All'. */
   category?: string;
   radiusMiles?: number;
-  dateFilter?: 'tonight' | 'this-weekend' | 'this-week' | 'anytime';
+  dateFilter?: string;
 }
 
 /** Distance in miles between two lat/lng points (Haversine) */

@@ -20,6 +20,7 @@ import {
   View,
 } from 'react-native';
 import * as Location from 'expo-location';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -912,6 +913,111 @@ function AreaControls({
   );
 }
 
+// ── Media Search Bar (Netflix/Movies) ────────────────────────────────────────
+function MediaSearchBar({
+  query,
+  loading,
+  onChangeText,
+  onSubmit,
+  onClear,
+  colors,
+}: {
+  query: string;
+  loading: boolean;
+  onChangeText: (t: string) => void;
+  onSubmit: (q: string) => void;
+  onClear: () => void;
+  colors: any;
+}) {
+  return (
+    <View
+      style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: colors.surface,
+        borderRadius: 16,
+        borderWidth: 1.5,
+        borderColor: colors.line,
+        paddingHorizontal: SPACING.sm,
+        paddingVertical: 6,
+        marginBottom: SPACING.sm,
+        gap: 8,
+      }}
+    >
+      <Text style={{ fontSize: 16 }}>🔍</Text>
+      <TextInput
+        value={query}
+        onChangeText={onChangeText}
+        onSubmitEditing={() => onSubmit(query)}
+        placeholder="Search movies & shows..."
+        placeholderTextColor={colors.ink2}
+        returnKeyType="search"
+        style={{ flex: 1, color: colors.ink, fontSize: 14 }}
+        autoCorrect={false}
+      />
+      {loading && <ActivityIndicator size="small" color={colors.primary} />}
+      {!loading && query.length > 0 && (
+        <TouchableOpacity onPress={onClear} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+          <Text style={{ color: colors.ink2, fontSize: 18, lineHeight: 22 }}>×</Text>
+        </TouchableOpacity>
+      )}
+    </View>
+  );
+}
+
+// ── Date Filter Chips ─────────────────────────────────────────────────────────
+function DateChipsRow({
+  specificDate,
+  onOpenPicker,
+  onClearDate,
+  colors,
+}: {
+  specificDate: Date | null;
+  onOpenPicker: () => void;
+  onClearDate: () => void;
+  colors: any;
+}) {
+  const formatShortDate = (d: Date) =>
+    d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: SPACING.sm }}>
+      <TouchableOpacity
+        onPress={specificDate ? onClearDate : onOpenPicker}
+        activeOpacity={0.8}
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 4,
+          backgroundColor: specificDate ? colors.primary : colors.surface,
+          borderWidth: 1.5,
+          borderColor: specificDate ? colors.primary : colors.line,
+          borderRadius: 16,
+          paddingVertical: 6,
+          paddingHorizontal: 12,
+        }}
+      >
+        <Text style={{ fontSize: 14 }}>📅</Text>
+        <Text
+          style={{
+            color: specificDate ? colors.onPrimary : colors.ink,
+            fontSize: 13,
+            fontWeight: '700',
+          }}
+        >
+          {specificDate ? formatShortDate(specificDate) : 'Pick date'}
+        </Text>
+        {specificDate && (
+          <Text style={{ color: colors.onPrimary, fontSize: 13, marginLeft: 2 }}>×</Text>
+        )}
+      </TouchableOpacity>
+      {!specificDate && (
+        <Text style={{ fontSize: 12, color: colors.ink2 }}>Choose a specific date</Text>
+      )}
+    </View>
+  );
+}
+
 // ── Main Screen ───────────────────────────────────────────────────────────────
 export default function SuggestionsScreen() {
   const { colors } = useTheme();
@@ -933,12 +1039,20 @@ export default function SuggestionsScreen() {
   // 🌙 Tonight near me shortcut — pseudo-selection 'All · Tonight'
   const [tonightActive, setTonightActive] = useState(false);
   const [weekendFallback, setWeekendFallback] = useState(false);
+  // Calendar date picker for specific date
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [specificDate, setSpecificDate] = useState<Date | null>(null);
+  // Netflix/Movies search
+  const [mediaSearchQuery, setMediaSearchQuery] = useState('');
+  const [mediaSearchResults, setMediaSearchResults] = useState<Suggestion[] | null>(null);
+  const [mediaSearchLoading, setMediaSearchLoading] = useState(false);
   // Search area: radius (miles) + optional zip override for getaways.
   // Refs mirror state so the ref-based fetch callbacks never read stale values.
   const [radius, setRadiusState] = useState(25);
   const [zipOverride, setZipOverrideState] = useState<string | null>(null);
   const radiusRef = useRef(25);
   const zipRef = useRef<string | null>(null);
+  const specificDateRef = useRef<string | null>(null);
 
   // Favorite categories (AsyncStorage) — grid shows favourites first.
   // Reloaded on every focus so Profile edits show up immediately.
@@ -950,7 +1064,7 @@ export default function SuggestionsScreen() {
     loadFavCategories().then(setFavIds);
     return unsub;
   }, [navigation]);
-  const orderedCategories = useMemo(() => orderCategoriesByFavorites(favIds), [favIds]);
+  const orderedCategories = useMemo(() => CATEGORIES, []);
 
   const PAGE_SIZE = 10;
   // Use ref for page tracking to avoid stale closures
@@ -970,6 +1084,7 @@ export default function SuggestionsScreen() {
     lng?: number,
     category?: string,
     reset = true,
+    dateFilter?: string,
   ) => {
     if (reset) {
       setLoading(true);
@@ -986,6 +1101,7 @@ export default function SuggestionsScreen() {
         cat,
         radiusRef.current,
         zip,
+        dateFilter,
       );
       const data: Suggestion[] = Array.isArray(res.data) ? res.data : res.data?.results ?? [];
 
@@ -1091,7 +1207,8 @@ export default function SuggestionsScreen() {
     if (tonightActive) {
       fetchTonight(coords?.lat, coords?.lng);
     } else {
-      fetchSuggestions(coords?.lat, coords?.lng, activeCategory?.id, true);
+      const dateFilter = specificDateRef.current ? `specific:${specificDateRef.current}` : undefined;
+      fetchSuggestions(coords?.lat, coords?.lng, activeCategory?.id, true, dateFilter);
     }
   }, [tonightActive, coords, activeCategory, fetchTonight, fetchSuggestions]);
 
@@ -1112,6 +1229,38 @@ export default function SuggestionsScreen() {
     setZipOverrideState(null);
     refetchCurrent();
   }, [refetchCurrent]);
+
+  const handleDatePicked = useCallback((date: Date) => {
+    const dateStr = date.toISOString().split('T')[0]; // YYYY-MM-DD
+    specificDateRef.current = dateStr;
+    setSpecificDate(date);
+    setShowDatePicker(false);
+    const dateFilter = `specific:${dateStr}`;
+    fetchSuggestions(coords?.lat, coords?.lng, activeCategory?.id, true, dateFilter);
+  }, [coords, activeCategory, fetchSuggestions]);
+
+  const handleClearSpecificDate = useCallback(() => {
+    specificDateRef.current = null;
+    setSpecificDate(null);
+    fetchSuggestions(coords?.lat, coords?.lng, activeCategory?.id, true);
+  }, [coords, activeCategory, fetchSuggestions]);
+
+  const handleMediaSearch = useCallback(async (q: string) => {
+    if (!q.trim()) {
+      setMediaSearchResults(null);
+      return;
+    }
+    setMediaSearchLoading(true);
+    try {
+      const res = await api.get('/api/suggestions/search', { params: { q: q.trim() } });
+      const data: Suggestion[] = Array.isArray(res.data) ? res.data : [];
+      setMediaSearchResults(data);
+    } catch (e) {
+      console.warn('Media search failed', e);
+    } finally {
+      setMediaSearchLoading(false);
+    }
+  }, []);
 
   const requestLocation = useCallback(async () => {
     const { status } = await Location.requestForegroundPermissionsAsync();
@@ -1145,7 +1294,11 @@ export default function SuggestionsScreen() {
       setWeekendFallback(false);
     }
     setActiveCategory(cat);
-    fetchSuggestions(coords?.lat, coords?.lng, cat?.id, true);
+    // Reset media search when changing category
+    setMediaSearchQuery('');
+    setMediaSearchResults(null);
+    const dateFilter = specificDateRef.current ? `specific:${specificDateRef.current}` : undefined;
+    fetchSuggestions(coords?.lat, coords?.lng, cat?.id, true, dateFilter);
   };
 
   const handleAdd = useCallback((s: Suggestion) => {
@@ -1180,6 +1333,9 @@ export default function SuggestionsScreen() {
     fetchSuggestions(coords?.lat, coords?.lng, activeCategory?.id, false);
   };
 
+  // Whether the active category supports media search (Netflix/Movies)
+  const isMediaCategory = activeCategory?.id === 'movies' || activeCategory?.id === 'netflix-shows';
+
   // Client-side filter by active category
   const displayedSuggestions = !activeCategory
     ? suggestions
@@ -1191,8 +1347,14 @@ export default function SuggestionsScreen() {
       );
 
   // Split into real results vs seed-catalog ideas (isIdea may be absent)
-  const realResults = displayedSuggestions.filter((s) => s.isIdea !== true);
-  const ideaResults = displayedSuggestions.filter((s) => s.isIdea === true);
+  // If media search is active, use those results instead
+  const effectiveRealResults = (isMediaCategory && mediaSearchResults !== null)
+    ? mediaSearchResults.filter((s) => s.isIdea !== true)
+    : displayedSuggestions.filter((s) => s.isIdea !== true);
+  const realResults = effectiveRealResults;
+  const ideaResults = (isMediaCategory && mediaSearchResults !== null)
+    ? []
+    : displayedSuggestions.filter((s) => s.isIdea === true);
 
   // Already-added key set
   const addedKeys = new Set(planOptions.map((o) => o.name + (o.address ?? '')));
@@ -1224,6 +1386,7 @@ export default function SuggestionsScreen() {
       {loading ? (
         <ScrollView contentContainerStyle={{ padding: SPACING.gutter, paddingBottom: 200 }}>
           <TonightBanner active={tonightActive} weekendFallback={weekendFallback} city={city} onActivate={activateTonight} onClear={clearTonight} colors={colors} />
+          <DateChipsRow specificDate={specificDate} onOpenPicker={() => setShowDatePicker(true)} onClearDate={handleClearSpecificDate} colors={colors} />
           <AreaControls radius={radius} onRadius={handleRadiusChange} zipOverride={zipOverride} onApplyZip={handleApplyZip} onClearZip={handleClearZip} colors={colors} />
           <CategoryGrid activeId={activeCategory?.id ?? null} onSelect={handleCategorySelect} colors={colors} categories={orderedCategories} favIds={favIds} />
           <View style={{ paddingVertical: SPACING.xl, alignItems: 'center' }}>
@@ -1233,6 +1396,7 @@ export default function SuggestionsScreen() {
       ) : isEmpty ? (
         <ScrollView contentContainerStyle={{ padding: SPACING.gutter, paddingBottom: 200 }}>
           <TonightBanner active={tonightActive} weekendFallback={weekendFallback} city={city} onActivate={activateTonight} onClear={clearTonight} colors={colors} />
+          <DateChipsRow specificDate={specificDate} onOpenPicker={() => setShowDatePicker(true)} onClearDate={handleClearSpecificDate} colors={colors} />
           <AreaControls radius={radius} onRadius={handleRadiusChange} zipOverride={zipOverride} onApplyZip={handleApplyZip} onClearZip={handleClearZip} colors={colors} />
           <CategoryGrid activeId={activeCategory?.id ?? null} onSelect={handleCategorySelect} colors={colors} categories={orderedCategories} favIds={favIds} />
           <EmptyState onUseLocation={requestLocation} colors={colors} />
@@ -1244,8 +1408,19 @@ export default function SuggestionsScreen() {
           ListHeaderComponent={
             <>
               <TonightBanner active={tonightActive} weekendFallback={weekendFallback} city={city} onActivate={activateTonight} onClear={clearTonight} colors={colors} />
+              <DateChipsRow specificDate={specificDate} onOpenPicker={() => setShowDatePicker(true)} onClearDate={handleClearSpecificDate} colors={colors} />
               <AreaControls radius={radius} onRadius={handleRadiusChange} zipOverride={zipOverride} onApplyZip={handleApplyZip} onClearZip={handleClearZip} colors={colors} />
               <CategoryGrid activeId={activeCategory?.id ?? null} onSelect={handleCategorySelect} colors={colors} categories={orderedCategories} favIds={favIds} />
+              {isMediaCategory && (
+                <MediaSearchBar
+                  query={mediaSearchQuery}
+                  loading={mediaSearchLoading}
+                  onChangeText={(t) => setMediaSearchQuery(t)}
+                  onSubmit={handleMediaSearch}
+                  onClear={() => { setMediaSearchQuery(''); setMediaSearchResults(null); }}
+                  colors={colors}
+                />
+              )}
             </>
           }
           renderItem={({ item, index }) => {
@@ -1294,6 +1469,24 @@ export default function SuggestionsScreen() {
           : false}
         colors={colors}
       />
+
+      {/* Calendar date picker */}
+      {showDatePicker && (
+        <DateTimePicker
+          value={specificDate ?? new Date()}
+          mode="date"
+          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+          minimumDate={new Date()}
+          onChange={(_event: any, date?: Date) => {
+            if (Platform.OS === 'android') {
+              setShowDatePicker(false);
+              if (date) handleDatePicked(date);
+            } else if (date) {
+              handleDatePicked(date);
+            }
+          }}
+        />
+      )}
     </View>
   );
 }

@@ -21,6 +21,7 @@ import {
 } from 'react-native';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { useTheme } from '@/contexts/ThemeContext';
+import { usePlanBuilder } from '@/contexts/PlanBuilderContext';
 import { CARD_RADII, SHADOWS, SPACING, TYPE } from '@/constants';
 import { DNButton, DNScreenHeader, DNSticker, DNText } from '@/components/ui';
 import { afterDarkAPI } from '@/services/api';
@@ -369,6 +370,7 @@ export default function AfterDarkScreen() {
   const navigation = useNavigation<any>();
   const route = useRoute<RouteT>();
   const groupId = route.params?.groupId;
+  const { addOption } = usePlanBuilder();
 
   const [status, setStatus] = useState<AfterDarkStatus | null>(null);
   const [selectedMood, setSelectedMood] = useState<AfterDarkMood | null>(null);
@@ -661,14 +663,13 @@ export default function AfterDarkScreen() {
                         label="Add to Plan"
                         variant="primary"
                         onPress={() => {
+                          addOption({
+                            name: selectedCatalogItem.title,
+                            category: 'After Dark',
+                            description: selectedCatalogItem.description,
+                          });
                           setSelectedCatalogItem(null);
-                          navigation.navigate('CreateProposal', {
-                            prefillOption: {
-                              name: selectedCatalogItem.title,
-                              category: 'After Dark',
-                              description: selectedCatalogItem.description,
-                            },
-                          } as never);
+                          navigation.navigate('CreateProposal', {});
                         }}
                         style={{ width: '100%', marginBottom: SPACING.sm }}
                       />

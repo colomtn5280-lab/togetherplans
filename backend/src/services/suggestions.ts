@@ -29,6 +29,7 @@ import { fetchPredictHQ } from './sources/predicthq.source';
 import { fetchMobilize } from './sources/mobilize.source';
 import { enrichPhotos } from './photo-enrichment';
 import { fetchAiIdeas } from './sources/ai-ideas.source';
+import { fetchFoursquare } from './sources/foursquare.source';
 import { fetchTavilyFallback, tavilyAlwaysFires } from './sources/tavily.source';
 
 export type { Suggestion, SuggestionCategory, SuggestionQuery };
@@ -42,7 +43,6 @@ const NEW_TO_INTERNAL: Record<string, SuggestionCategory | null> = {
   // slug ids
   'comedy': 'Comedy',
   'concerts': 'Live Music',
-  'couples-events': 'Couples',
   'family-events': 'Family',
   'sports-active': 'Sports',
   'golf': 'Sports', // backward-compat alias — shipped clients still send the old 'golf' slug
@@ -59,7 +59,6 @@ const NEW_TO_INTERNAL: Record<string, SuggestionCategory | null> = {
   'custom': null,
   // display names (mobile/web send these on option.category)
   'Concerts': 'Live Music',
-  'Couples Events': 'Couples',
   'Family Events': 'Family',
   'Sports & Active': 'Sports',
   'Golf': 'Sports', // backward-compat alias — old proposal options / shipped clients send 'Golf'
@@ -231,7 +230,7 @@ function cacheKey(query: SuggestionQuery): string {
   const cat = query.category ?? 'All';
   const rad = query.radiusMiles ?? 25;
   const date = query.dateFilter ?? 'anytime';
-  return `suggestions:v14:${loc}:${cat}:${rad}:${date}`;
+  return `suggestions:v15:${loc}:${cat}:${rad}:${date}`;
 }
 
 // Events expire sooner; places cached longer
@@ -283,6 +282,7 @@ export async function getSuggestions(query: SuggestionQuery): Promise<Suggestion
       { name: 'ticketmaster', fetch: () => fetchTicketmaster(lat!, lng!, radiusMiles, category) },
       { name: 'predicthq', fetch: () => fetchPredictHQ(lat!, lng!, radiusMiles, category) },
       { name: 'overpass', fetch: () => fetchOverpass(lat!, lng!, Math.min(radiusMiles, 30), category) },
+      { name: 'foursquare', fetch: () => fetchFoursquare(lat!, lng!, radiusMiles, category) },
       // Google Places text search fallback for Wellness (OSM is sparse for spas in suburbs)
       ...((category === 'Wellness' || !category) && hasLocation
         ? [{ name: 'places', fetch: () => fetchPlacesWellness(lat!, lng!, radiusMiles) }]
@@ -362,6 +362,11 @@ export async function getSuggestions(query: SuggestionQuery): Promise<Suggestion
       if (query.dateFilter === 'tonight') return s.date === todayStr;
       if (query.dateFilter === 'this-weekend') return s.date === satStr || s.date === sunStr;
       if (query.dateFilter === 'this-week') return s.date >= todayStr && s.date <= endOfWeek.toISOString().split('T')[0];
+      // specific:YYYY-MM-DD — exact date match
+      if (query.dateFilter?.startsWith('specific:')) {
+        const dateStr = query.dateFilter.slice('specific:'.length);
+        return s.date === dateStr;
+      }
       return true;
     });
   }

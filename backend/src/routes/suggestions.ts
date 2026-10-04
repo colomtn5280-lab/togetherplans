@@ -1,6 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { getSuggestions } from '@/services/suggestions';
 import { ALL_CATEGORIES } from '@/constants/categories';
+import { searchTmdb } from '@/services/sources/tmdb.source';
 
 export const suggestionsRouter = Router();
 
@@ -18,6 +19,10 @@ const VALID_CATEGORIES = new Set<string>([
 ]);
 
 const VALID_DATE_FILTERS = new Set(['tonight', 'this-weekend', 'this-week', 'anytime']);
+
+function isValidDateFilter(f: string): boolean {
+  return VALID_DATE_FILTERS.has(f) || /^specific:\d{4}-\d{2}-\d{2}$/.test(f);
+}
 
 /**
  * GET /api/suggestions
@@ -67,7 +72,7 @@ suggestionsRouter.get('/', async (req: Request, res: Response, next: NextFunctio
       : 25;
 
     // Validate dateFilter
-    if (rawDateFilter && !VALID_DATE_FILTERS.has(rawDateFilter)) {
+    if (rawDateFilter && !isValidDateFilter(rawDateFilter)) {
       return res.status(400).json({
         error: `Invalid dateFilter. Valid values: ${[...VALID_DATE_FILTERS].join(', ')}`,
       });
@@ -79,7 +84,7 @@ suggestionsRouter.get('/', async (req: Request, res: Response, next: NextFunctio
       zip,
       category: rawCategory,
       radiusMiles,
-      dateFilter: rawDateFilter as 'tonight' | 'this-weekend' | 'this-week' | 'anytime' | undefined,
+      dateFilter: rawDateFilter as string | undefined,
     });
 
     return res.json(suggestions);
@@ -89,3 +94,21 @@ suggestionsRouter.get('/', async (req: Request, res: Response, next: NextFunctio
 });
 
 
+
+/**
+ * GET /api/suggestions/search?q=...&category=Movies
+ *
+ * Search TMDB for movies or TV shows. Used by mobile Netflix/Movies search bar.
+ */
+suggestionsRouter.get('/search', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const q = typeof req.query.q === 'string' ? req.query.q.trim() : '';
+    if (!q) {
+      return res.json([]);
+    }
+    const results = await searchTmdb(q);
+    return res.json(results);
+  } catch (err) {
+    return next(err);
+  }
+});

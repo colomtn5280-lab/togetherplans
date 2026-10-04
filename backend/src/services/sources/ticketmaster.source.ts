@@ -47,7 +47,7 @@ const SEGMENT_MAP: Record<string, SuggestionCategory> = {
   'Music': 'Live Music',
   'Arts & Theatre': 'Theater & Plays',
   'Comedy': 'Comedy',
-  'Sports': 'Active',
+  'Sports': 'Sports',
   'Film': 'Movies',
   'Miscellaneous': 'Local Experience',
 };
