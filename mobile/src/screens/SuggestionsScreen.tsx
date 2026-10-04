@@ -1384,7 +1384,7 @@ export default function SuggestionsScreen() {
       />
 
       {loading ? (
-        <ScrollView contentContainerStyle={{ padding: SPACING.gutter, paddingBottom: 200 }}>
+        <ScrollView contentContainerStyle={{ paddingHorizontal: SPACING.gutter, paddingTop: SPACING.gutter, paddingBottom: 200 }}>
           <TonightBanner active={tonightActive} weekendFallback={weekendFallback} city={city} onActivate={activateTonight} onClear={clearTonight} colors={colors} />
           <DateChipsRow specificDate={specificDate} onOpenPicker={() => setShowDatePicker(true)} onClearDate={handleClearSpecificDate} colors={colors} />
           <AreaControls radius={radius} onRadius={handleRadiusChange} zipOverride={zipOverride} onApplyZip={handleApplyZip} onClearZip={handleClearZip} colors={colors} />
@@ -1394,7 +1394,7 @@ export default function SuggestionsScreen() {
           </View>
         </ScrollView>
       ) : isEmpty ? (
-        <ScrollView contentContainerStyle={{ padding: SPACING.gutter, paddingBottom: 200 }}>
+        <ScrollView contentContainerStyle={{ paddingHorizontal: SPACING.gutter, paddingTop: SPACING.gutter, paddingBottom: 200 }}>
           <TonightBanner active={tonightActive} weekendFallback={weekendFallback} city={city} onActivate={activateTonight} onClear={clearTonight} colors={colors} />
           <DateChipsRow specificDate={specificDate} onOpenPicker={() => setShowDatePicker(true)} onClearDate={handleClearSpecificDate} colors={colors} />
           <AreaControls radius={radius} onRadius={handleRadiusChange} zipOverride={zipOverride} onApplyZip={handleApplyZip} onClearZip={handleClearZip} colors={colors} />
@@ -1438,7 +1438,7 @@ export default function SuggestionsScreen() {
               />
             );
           }}
-          contentContainerStyle={{ padding: SPACING.gutter, paddingBottom: 200 }}
+          contentContainerStyle={{ paddingHorizontal: SPACING.gutter, paddingTop: SPACING.gutter, paddingBottom: 200 }}
           onEndReached={handleLoadMore}
           onEndReachedThreshold={0.5}
           ListFooterComponent={

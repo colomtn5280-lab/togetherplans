@@ -112,7 +112,7 @@ export default function WelcomeScreen() {
           <Text
             style={[
               styles.subtitle,
-              { color: colors.textSecondary },
+              { color: colors.ink2 },
             ]}
           >
             Date night, decided.
