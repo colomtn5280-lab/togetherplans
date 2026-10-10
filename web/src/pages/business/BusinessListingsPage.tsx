@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { businessApi } from '../../api/client';
 
-interface Listing {
+// ── Types ─────────────────────────────────────────────────────────────────────
+
+interface FeaturedListing {
   id: string;
   title: string;
   description: string;
@@ -14,9 +16,53 @@ interface Listing {
   createdAt: string;
 }
 
+interface DirectListing {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  address?: string;
+  imageUrl?: string;
+  eventDate?: string;
+  price?: string;
+  ticketUrl?: string;
+  createdAt: string;
+}
+
+// ── Constants ─────────────────────────────────────────────────────────────────
+
+const DATE_CATEGORIES = [
+  { id: 'restaurants-dining', label: '🍽️ Restaurants & Dining' },
+  { id: 'live-music-concerts', label: '🎵 Live Music & Concerts' },
+  { id: 'comedy', label: '😂 Comedy' },
+  { id: 'sports-active', label: '⚽ Sports & Active' },
+  { id: 'hiking-trails', label: '🥾 Hiking & Trails' },
+  { id: 'movies', label: '🎬 Movies' },
+  { id: 'streaming-night', label: '🍿 Streaming Night' },
+  { id: 'wellness-spa', label: '🧘 Wellness & Spa' },
+  { id: 'volunteering', label: '🤝 Volunteering' },
+  { id: 'arts-culture', label: '🎨 Arts & Culture' },
+  { id: 'after-dark', label: '🌙 After Dark' },
+  { id: 'family-events', label: '👨‍👩‍👧 Family Events' },
+  { id: 'hotel-stays', label: '🏨 Hotel Stays' },
+  { id: 'experiences', label: '✨ Experiences' },
+  { id: 'custom', label: '🎯 Custom' },
+];
+
+// ── Styles ────────────────────────────────────────────────────────────────────
+
 const s: Record<string, React.CSSProperties> = {
   title: { fontFamily: "'Sora', sans-serif", fontWeight: 800, fontSize: 28, color: '#101820', marginBottom: 4 },
   sub: { color: '#5D6B76', fontSize: 15, marginBottom: 24 },
+  tabRow: { display: 'flex', gap: 4, marginBottom: 28, borderBottom: '2px solid #DDE3E8', paddingBottom: 0 },
+  tab: {
+    padding: '10px 24px', borderRadius: '16px 16px 0 0', border: 'none', cursor: 'pointer',
+    fontFamily: "'Sora', sans-serif", fontWeight: 700, fontSize: 14, transition: 'all .15s',
+    background: 'transparent', color: '#5D6B76',
+  },
+  tabActive: {
+    background: '#fff', color: '#0E8C8C', borderBottom: '2px solid #0E8C8C',
+  },
   header: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24, flexWrap: 'wrap' as const, gap: 16 },
   addBtn: {
     padding: '11px 24px', borderRadius: '22px 16px 22px 16px',
@@ -24,7 +70,7 @@ const s: Record<string, React.CSSProperties> = {
     fontFamily: "'Sora', sans-serif", fontWeight: 700, fontSize: 14,
   },
   listingCard: {
-    background: '#fff', border: '1px solid #DDE3E8', borderRadius: 14, padding: '20px 24px',
+    background: '#fff', border: '1px solid #DDE3E8', borderRadius: 20, padding: '20px 24px',
     marginBottom: 16, boxShadow: '0 8px 24px rgba(16,24,32,.07)',
     display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16,
   },
@@ -39,11 +85,16 @@ const s: Record<string, React.CSSProperties> = {
     display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 20,
   },
   modal: {
-    background: '#fff', borderRadius: 16, padding: '32px', width: '100%', maxWidth: 520,
+    background: '#fff', borderRadius: 24, padding: '32px', width: '100%', maxWidth: 560,
     maxHeight: '90vh', overflowY: 'auto' as const, boxShadow: '0 20px 60px rgba(16,24,32,.2)',
   },
   label: { display: 'block', fontSize: 13, fontWeight: 600, color: '#101820', marginBottom: 6 },
   input: {
+    width: '100%', height: 44, borderRadius: 20, border: '1.5px solid #DDE3E8',
+    padding: '0 14px', fontSize: 15, fontFamily: "'DM Sans', sans-serif", color: '#101820',
+    outline: 'none', boxSizing: 'border-box' as const, background: '#fff',
+  },
+  select: {
     width: '100%', height: 44, borderRadius: 20, border: '1.5px solid #DDE3E8',
     padding: '0 14px', fontSize: 15, fontFamily: "'DM Sans', sans-serif", color: '#101820',
     outline: 'none', boxSizing: 'border-box' as const, background: '#fff',
@@ -74,28 +125,30 @@ const s: Record<string, React.CSSProperties> = {
     border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600,
   },
   empty: {
-    background: '#fff', border: '2px dashed #DDE3E8', borderRadius: 14, padding: '48px',
+    background: '#fff', border: '2px dashed #DDE3E8', borderRadius: 20, padding: '48px',
     textAlign: 'center' as const,
   },
 };
 
-const emptyForm = {
+// ── Featured Listings Tab ─────────────────────────────────────────────────────
+
+const emptyFeaturedForm = {
   title: '', description: '', imageUrl: '', ctaText: 'Learn More',
   ctaUrl: '', startDate: '', endDate: '', active: true,
 };
 
-export function BusinessListingsPage() {
-  const [listings, setListings] = useState<Listing[]>([]);
+function FeaturedListingsTab() {
+  const [listings, setListings] = useState<FeaturedListing[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [form, setForm] = useState({ ...emptyForm });
+  const [form, setForm] = useState({ ...emptyFeaturedForm });
   const [saving, setSaving] = useState(false);
 
   const load = () => {
     setLoading(true);
     businessApi.getListings().then((res) => {
-      const d = res.data as { listings: Listing[] };
+      const d = res.data as { listings: FeaturedListing[] };
       setListings(d.listings);
     }).catch(() => {/* silent */}).finally(() => setLoading(false));
   };
@@ -104,13 +157,8 @@ export function BusinessListingsPage() {
 
   const set = (key: string, val: unknown) => setForm((prev) => ({ ...prev, [key]: val }));
 
-  const openAdd = () => {
-    setForm({ ...emptyForm });
-    setEditingId(null);
-    setShowModal(true);
-  };
-
-  const openEdit = (l: Listing) => {
+  const openAdd = () => { setForm({ ...emptyFeaturedForm }); setEditingId(null); setShowModal(true); };
+  const openEdit = (l: FeaturedListing) => {
     setForm({
       title: l.title, description: l.description, imageUrl: l.imageUrl || '',
       ctaText: l.ctaText, ctaUrl: l.ctaUrl || '',
@@ -133,16 +181,11 @@ export function BusinessListingsPage() {
         imageUrl: form.imageUrl || null,
         ctaUrl: form.ctaUrl || null,
       };
-      if (editingId) {
-        await businessApi.updateListing(editingId, payload);
-      } else {
-        await businessApi.createListing(payload);
-      }
+      if (editingId) await businessApi.updateListing(editingId, payload);
+      else await businessApi.createListing(payload);
       setShowModal(false);
       load();
-    } catch {/* silent */} finally {
-      setSaving(false);
-    }
+    } catch {/* silent */} finally { setSaving(false); }
   };
 
   const handleDelete = async (id: string) => {
@@ -152,12 +195,9 @@ export function BusinessListingsPage() {
   };
 
   return (
-    <div>
+    <>
       <div style={s.header}>
-        <div>
-          <h1 style={s.title}>Listings</h1>
-          <p style={s.sub}>Create featured offers, events, or promotions that appear in suggestions.</p>
-        </div>
+        <div style={{ fontSize: 14, color: '#5D6B76' }}>Featured offers, events, or promotions that appear in suggestions.</div>
         <button style={s.addBtn} onClick={openAdd}>+ Add listing</button>
       </div>
 
@@ -166,12 +206,8 @@ export function BusinessListingsPage() {
       ) : listings.length === 0 ? (
         <div style={s.empty}>
           <div style={{ fontSize: 40, marginBottom: 12 }}>📋</div>
-          <div style={{ fontFamily: "'Sora', sans-serif", fontWeight: 700, fontSize: 16, color: '#101820', marginBottom: 8 }}>
-            No listings yet
-          </div>
-          <div style={{ color: '#5D6B76', fontSize: 14, marginBottom: 20 }}>
-            Create your first featured listing to stand out in suggestions.
-          </div>
+          <div style={{ fontFamily: "'Sora', sans-serif", fontWeight: 700, fontSize: 16, color: '#101820', marginBottom: 8 }}>No listings yet</div>
+          <div style={{ color: '#5D6B76', fontSize: 14, marginBottom: 20 }}>Create your first featured listing to stand out in suggestions.</div>
           <button style={s.addBtn} onClick={openAdd}>Create first listing</button>
         </div>
       ) : (
@@ -180,11 +216,7 @@ export function BusinessListingsPage() {
             <div style={{ flex: 1 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
                 <div style={s.cardTitle}>{l.title}</div>
-                <span style={{
-                  ...s.badge,
-                  background: l.active ? '#D9F1F0' : '#F4F6F8',
-                  color: l.active ? '#086B6B' : '#5D6B76',
-                }}>
+                <span style={{ ...s.badge, background: l.active ? '#D9F1F0' : '#F4F6F8', color: l.active ? '#086B6B' : '#5D6B76' }}>
                   {l.active ? 'Active' : 'Inactive'}
                 </span>
               </div>
@@ -203,7 +235,6 @@ export function BusinessListingsPage() {
         ))
       )}
 
-      {/* Modal */}
       {showModal && (
         <div style={s.overlay} onClick={(e) => e.target === e.currentTarget && setShowModal(false)}>
           <div style={s.modal}>
@@ -259,6 +290,204 @@ export function BusinessListingsPage() {
           </div>
         </div>
       )}
+    </>
+  );
+}
+
+// ── Direct Listings Tab ───────────────────────────────────────────────────────
+
+const emptyDirectForm = {
+  title: '', description: '', category: 'experiences', address: '',
+  imageUrl: '', eventDate: '', price: '', ticketUrl: '',
+};
+
+function DirectListingsTab() {
+  const [listings, setListings] = useState<DirectListing[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showModal, setShowModal] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [form, setForm] = useState({ ...emptyDirectForm });
+  const [saving, setSaving] = useState(false);
+
+  const load = () => {
+    setLoading(true);
+    businessApi.getDirectListings().then((res) => {
+      const d = res.data as { listings?: DirectListing[] } | DirectListing[];
+      setListings(Array.isArray(d) ? d : (d.listings || []));
+    }).catch(() => setListings([])).finally(() => setLoading(false));
+  };
+
+  useEffect(() => { load(); }, []);
+
+  const set = (key: string, val: string) => setForm((prev) => ({ ...prev, [key]: val }));
+
+  const openAdd = () => { setForm({ ...emptyDirectForm }); setEditingId(null); setShowModal(true); };
+  const openEdit = (l: DirectListing) => {
+    setForm({
+      title: l.title, description: l.description, category: l.category,
+      address: l.address || '', imageUrl: l.imageUrl || '',
+      eventDate: l.eventDate ? l.eventDate.slice(0, 16) : '',
+      price: l.price || '', ticketUrl: l.ticketUrl || '',
+    });
+    setEditingId(l.id);
+    setShowModal(true);
+  };
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      const payload = {
+        ...form,
+        eventDate: form.eventDate || null,
+        imageUrl: form.imageUrl || null,
+        address: form.address || null,
+        price: form.price || null,
+        ticketUrl: form.ticketUrl || null,
+      };
+      if (editingId) await businessApi.updateDirectListing(editingId, payload);
+      else await businessApi.createDirectListing(payload);
+      setShowModal(false);
+      load();
+    } catch {/* silent */} finally { setSaving(false); }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Delete this listing?')) return;
+    await businessApi.deleteDirectListing(id).catch(() => {/* silent */});
+    load();
+  };
+
+  const catLabel = (id: string) => DATE_CATEGORIES.find((c) => c.id === id)?.label || id;
+
+  return (
+    <>
+      <div style={s.header}>
+        <div style={{ fontSize: 14, color: '#5D6B76' }}>Events and offerings entered manually — appear directly in DateMeUp searches.</div>
+        <button style={s.addBtn} onClick={openAdd}>+ Add event / offering</button>
+      </div>
+
+      {loading ? (
+        <div style={{ color: '#5D6B76', fontSize: 15 }}>Loading…</div>
+      ) : listings.length === 0 ? (
+        <div style={s.empty}>
+          <div style={{ fontSize: 40, marginBottom: 12 }}>🎟️</div>
+          <div style={{ fontFamily: "'Sora', sans-serif", fontWeight: 700, fontSize: 16, color: '#101820', marginBottom: 8 }}>No direct listings yet</div>
+          <div style={{ color: '#5D6B76', fontSize: 14, marginBottom: 20 }}>Add your events and offerings so couples can find them in DateMeUp.</div>
+          <button style={s.addBtn} onClick={openAdd}>Add first event</button>
+        </div>
+      ) : (
+        listings.map((l) => (
+          <div key={l.id} style={s.listingCard}>
+            {l.imageUrl && (
+              <img src={l.imageUrl} alt={l.title} style={{ width: 64, height: 64, borderRadius: 14, objectFit: 'cover', flexShrink: 0 }} />
+            )}
+            <div style={{ flex: 1 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6, flexWrap: 'wrap' as const }}>
+                <div style={s.cardTitle}>{l.title}</div>
+                <span style={{ ...s.badge, background: '#D9F1F0', color: '#086B6B' }}>{catLabel(l.category)}</span>
+                {l.price && <span style={{ ...s.badge, background: '#EAF6D3', color: '#3A6B00' }}>{l.price}</span>}
+              </div>
+              <div style={s.cardDesc}>{l.description}</div>
+              {l.eventDate && (
+                <div style={{ fontSize: 12, color: '#0E8C8C', fontWeight: 600 }}>
+                  📅 {new Date(l.eventDate).toLocaleString()}
+                </div>
+              )}
+              {l.address && <div style={{ fontSize: 12, color: '#5D6B76', marginTop: 2 }}>📍 {l.address}</div>}
+            </div>
+            <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
+              <button style={s.editBtn} onClick={() => openEdit(l)}>Edit</button>
+              <button style={s.deleteBtn} onClick={() => handleDelete(l.id)}>Delete</button>
+            </div>
+          </div>
+        ))
+      )}
+
+      {showModal && (
+        <div style={s.overlay} onClick={(e) => e.target === e.currentTarget && setShowModal(false)}>
+          <div style={s.modal}>
+            <h2 style={{ fontFamily: "'Sora', sans-serif", fontWeight: 800, fontSize: 20, color: '#101820', marginBottom: 24 }}>
+              {editingId ? 'Edit event / offering' : 'New event / offering'}
+            </h2>
+            <form onSubmit={handleSave}>
+              <div style={s.fieldGroup}>
+                <label style={s.label}>Title *</label>
+                <input type="text" required style={s.input} value={form.title} onChange={(e) => set('title', e.target.value)} placeholder="Jazz Night at The Rooftop" />
+              </div>
+              <div style={s.fieldGroup}>
+                <label style={s.label}>Description *</label>
+                <textarea required style={s.textarea} value={form.description} onChange={(e) => set('description', e.target.value)} placeholder="What is this event?" />
+              </div>
+              <div style={s.fieldGroup}>
+                <label style={s.label}>Category *</label>
+                <select required style={s.select} value={form.category} onChange={(e) => set('category', e.target.value)}>
+                  {DATE_CATEGORIES.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
+                </select>
+              </div>
+              <div style={s.fieldGroup}>
+                <label style={s.label}>Address</label>
+                <input type="text" style={s.input} value={form.address} onChange={(e) => set('address', e.target.value)} placeholder="123 Main St, Denver, CO" />
+              </div>
+              <div style={s.fieldGroup}>
+                <label style={s.label}>Image URL</label>
+                <input type="url" style={s.input} value={form.imageUrl} onChange={(e) => set('imageUrl', e.target.value)} placeholder="https://..." />
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                <div style={s.fieldGroup}>
+                  <label style={s.label}>Event date & time</label>
+                  <input type="datetime-local" style={s.input} value={form.eventDate} onChange={(e) => set('eventDate', e.target.value)} />
+                </div>
+                <div style={s.fieldGroup}>
+                  <label style={s.label}>Price</label>
+                  <input type="text" style={s.input} value={form.price} onChange={(e) => set('price', e.target.value)} placeholder="$25 or Free" />
+                </div>
+              </div>
+              <div style={s.fieldGroup}>
+                <label style={s.label}>Ticket / Booking URL</label>
+                <input type="url" style={s.input} value={form.ticketUrl} onChange={(e) => set('ticketUrl', e.target.value)} placeholder="https://..." />
+              </div>
+              <div style={s.modalFooter}>
+                <button type="button" style={s.cancelBtn} onClick={() => setShowModal(false)}>Cancel</button>
+                <button type="submit" style={s.saveBtn} disabled={saving}>
+                  {saving ? 'Saving…' : editingId ? 'Update' : 'Create'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
+// ── Main Export ───────────────────────────────────────────────────────────────
+
+export function BusinessListingsPage() {
+  const [activeTab, setActiveTab] = useState<'featured' | 'direct'>('featured');
+
+  return (
+    <div>
+      <h1 style={s.title}>Listings</h1>
+      <p style={s.sub}>Manage your featured promotions and direct event listings.</p>
+
+      {/* Tabs */}
+      <div style={s.tabRow}>
+        <button
+          style={{ ...s.tab, ...(activeTab === 'featured' ? s.tabActive : {}) }}
+          onClick={() => setActiveTab('featured')}
+        >
+          📋 Featured Listings
+        </button>
+        <button
+          style={{ ...s.tab, ...(activeTab === 'direct' ? s.tabActive : {}) }}
+          onClick={() => setActiveTab('direct')}
+        >
+          🎟️ Direct Listings
+        </button>
+      </div>
+
+      {activeTab === 'featured' ? <FeaturedListingsTab /> : <DirectListingsTab />}
     </div>
   );
 }

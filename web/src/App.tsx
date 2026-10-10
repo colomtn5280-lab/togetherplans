@@ -39,6 +39,7 @@ import { BusinessDashboardPage } from './pages/business/BusinessDashboardPage';
 import { BusinessProfilePage } from './pages/business/BusinessProfilePage';
 import { BusinessListingsPage } from './pages/business/BusinessListingsPage';
 import { BusinessAnalyticsPage } from './pages/business/BusinessAnalyticsPage';
+import { BusinessOnboardingPage } from './pages/business/BusinessOnboardingPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -179,6 +180,7 @@ export default function App() {
           <Route path="/business" element={<BusinessLandingPage />} />
           <Route path="/business/login" element={<BusinessAuthPage mode="login" />} />
           <Route path="/business/register" element={<BusinessAuthPage mode="register" />} />
+          <Route path="/business/onboarding" element={<BusinessOnboardingPage />} />
           <Route element={<BusinessLayout />}>
             <Route path="/business/dashboard" element={<BusinessDashboardPage />} />
             <Route path="/business/profile" element={<BusinessProfilePage />} />

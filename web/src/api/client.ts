@@ -411,6 +411,17 @@ export const businessApi = {
   getAnalytics: (period: string) => businessClient.get(`/business/me/analytics?period=${period}`),
   logImpression: (data: object) => businessClient.post('/business/impressions', data),
   getPublicStats: () => businessClient.get('/business/public/stats'),
+  // New endpoints for onboarding & subscriptions
+  uploadFile: (type: 'logo' | 'hero', formData: FormData) =>
+    businessClient.post(`/business/upload/${type}`, formData, { headers: { 'Content-Type': 'multipart/form-data' } }),
+  subscribe: (data: { plan: string; successUrl: string; cancelUrl: string }) =>
+    businessClient.post('/business/subscribe', data),
+  getBillingPortal: () => businessClient.get('/business/billing-portal'),
+  updatePlatformIds: (data: object) => businessClient.patch('/business/me/platform-ids', data),
+  getDirectListings: () => businessClient.get('/business/me/direct-listings'),
+  createDirectListing: (data: object) => businessClient.post('/business/me/direct-listings', data),
+  updateDirectListing: (id: string, data: object) => businessClient.patch(`/business/me/direct-listings/${id}`, data),
+  deleteDirectListing: (id: string) => businessClient.delete(`/business/me/direct-listings/${id}`),
 };
 
 export default api;

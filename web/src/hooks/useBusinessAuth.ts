@@ -19,6 +19,20 @@ export interface BusinessProfile {
   tier: string;
   active: boolean;
   verified: boolean;
+  // Onboarding & subscription fields
+  featuredCategory?: string;
+  radiusMiles?: number;
+  logoUrl?: string;
+  heroImageUrl?: string;
+  subscriptionTier?: 'free' | 'featured' | 'premium';
+  subscriptionRenewsAt?: string;
+  platformIds?: {
+    ticketmaster?: string;
+    songkick?: string;
+    opentable?: string;
+    resy?: string;
+    eventbrite?: string;
+  };
 }
 
 export function useBusinessAuth() {
