@@ -1,13 +1,47 @@
 import { Router, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import rateLimit from 'express-rate-limit';
 import { prisma } from '@/services/db';
 import { config } from '@/config';
 import { authenticateBusinessToken, BusinessRequest } from '@/middleware/business-auth';
+import { scrapeBusinessProfile } from '@/services/firecrawl';
 
 export const businessRouter = Router();
 
-// ── Helper ────────────────────────────────────────────────────────────────────
+// ── Rate limiter: 10 req/min per IP for Firecrawl scrape endpoint ─────────────
+const scrapeRateLimit = rateLimit({
+  windowMs: 60_000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests — try again in a minute' },
+});
+
+// ── Firecrawl: POST /scrape-website (NO auth — pre-registration use) ──────────
+
+businessRouter.post('/scrape-website', scrapeRateLimit, async (req, res: Response) => {
+  const { url } = req.body as { url?: unknown };
+
+  if (!url || typeof url !== 'string') {
+    res.status(400).json({ error: 'url is required' });
+    return;
+  }
+
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+      res.status(400).json({ error: 'url must use http or https' });
+      return;
+    }
+  } catch {
+    res.status(400).json({ error: 'Invalid URL' });
+    return;
+  }
+
+  const profile = await scrapeBusinessProfile(url);
+  res.json({ profile });
+});
 
 function signBusinessToken(businessId: string): string {
   return jwt.sign({ businessId, type: 'business' }, config.jwt_secret, {

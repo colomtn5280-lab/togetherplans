@@ -2,6 +2,8 @@ import { Router, Request, Response, NextFunction } from 'express';
 import { getSuggestions } from '@/services/suggestions';
 import { ALL_CATEGORIES } from '@/constants/categories';
 import { searchTmdb } from '@/services/sources/tmdb.source';
+import { requireAuth, AuthRequest } from '@/middleware/auth';
+import { scrapeVenueDetail } from '@/services/firecrawl';
 
 export const suggestionsRouter = Router();
 
@@ -108,6 +110,36 @@ suggestionsRouter.get('/search', async (req: Request, res: Response, next: NextF
     }
     const results = await searchTmdb(q);
     return res.json(results);
+  } catch (err) {
+    return next(err);
+  }
+});
+
+/**
+ * GET /api/suggestions/enrich?url=<encodedUrl>
+ *
+ * Fetch Firecrawl venue detail for a given source URL.
+ * Requires user auth. Used by EventDetail modals.
+ */
+suggestionsRouter.get('/enrich', requireAuth, async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const url = typeof req.query.url === 'string' ? req.query.url.trim() : '';
+
+    if (!url) {
+      return res.status(400).json({ error: 'url query param is required' });
+    }
+
+    try {
+      const parsed = new URL(url);
+      if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+        return res.status(400).json({ error: 'url must use http or https' });
+      }
+    } catch {
+      return res.status(400).json({ error: 'Invalid URL' });
+    }
+
+    const detail = await scrapeVenueDetail(url);
+    return res.json({ detail });
   } catch (err) {
     return next(err);
   }

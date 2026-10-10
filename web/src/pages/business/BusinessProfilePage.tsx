@@ -70,6 +70,7 @@ export function BusinessProfilePage() {
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
+  const [autofilling, setAutofilling] = useState(false);
 
   useEffect(() => {
     if (business) {
@@ -90,6 +91,62 @@ export function BusinessProfilePage() {
   }, [business]);
 
   const set = (key: string, val: unknown) => setForm((prev) => ({ ...prev, [key]: val }));
+
+  const cuisineToCategoryMap: [string, string][] = [
+    ['mexican', 'dining'], ['italian', 'dining'], ['american', 'dining'],
+    ['bar', 'nightlife'], ['spa', 'wellness'], ['yoga', 'wellness'],
+    ['comedy', 'entertainment'], ['music', 'entertainment'],
+    ['art', 'arts'], ['gym', 'sports'], ['climbing', 'sports'],
+  ];
+
+  const handleAutofill = async () => {
+    if (!form.website) return;
+    setAutofilling(true);
+    setError('');
+    setSuccess('');
+    try {
+      const BASE_URL =
+        import.meta.env.VITE_API_URL ??
+        'https://datenight-api-mh74edz3ja-uc.a.run.app/api';
+      const resp = await fetch(`${BASE_URL}/business/scrape-website`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: form.website }),
+      });
+      if (!resp.ok) throw new Error('scrape failed');
+      const data = (await resp.json()) as {
+        profile: {
+          name?: string; description?: string; phone?: string;
+          address?: string; priceRange?: string; cuisine?: string;
+        };
+      };
+      const p = data.profile;
+      setForm((prev) => {
+        let category = prev.category;
+        if (!category || category === 'dining') {
+          // only override if currently unset / default
+          const cuisine = (p.cuisine ?? '').toLowerCase();
+          for (const [keyword, cat] of cuisineToCategoryMap) {
+            if (cuisine.includes(keyword)) { category = cat; break; }
+          }
+        }
+        return {
+          ...prev,
+          name: prev.name || p.name || prev.name,
+          description: prev.description || p.description || prev.description,
+          phone: prev.phone || p.phone || prev.phone,
+          address: prev.address || p.address || prev.address,
+          priceRange: prev.priceRange || p.priceRange || prev.priceRange,
+          category,
+        };
+      });
+      setSuccess('Profile auto-filled! Review and save.');
+    } catch {
+      setError('Could not extract from that URL. Fill in manually.');
+    } finally {
+      setAutofilling(false);
+    }
+  };
 
   const toggleTag = (tag: string) => {
     const lower = tag.toLowerCase();
@@ -177,7 +234,22 @@ export function BusinessProfilePage() {
             </div>
             <div style={s.fieldGroup}>
               <label style={s.label}>Website</label>
-              <input type="url" style={s.input} value={form.website} onChange={(e) => set('website', e.target.value)} placeholder="https://..." />
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <input type="url" style={s.input} value={form.website} onChange={(e) => set('website', e.target.value)} placeholder="https://..." />
+                <button
+                  type="button"
+                  onClick={handleAutofill}
+                  disabled={autofilling || !form.website}
+                  style={{
+                    whiteSpace: 'nowrap', padding: '0 14px', height: 44, borderRadius: 20,
+                    border: '1.5px solid #0E8C8C', background: autofilling ? '#f0f0f0' : '#fff',
+                    color: '#0E8C8C', fontWeight: 700, fontSize: 13, cursor: autofilling ? 'wait' : 'pointer',
+                    fontFamily: "'Sora', sans-serif", flexShrink: 0,
+                  }}
+                >
+                  {autofilling ? 'Loading…' : 'Auto-fill ✨'}
+                </button>
+              </div>
             </div>
           </div>
         </div>

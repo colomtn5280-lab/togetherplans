@@ -65,3 +65,10 @@ jobs:
             --allow-unauthenticated \
             --quiet
           echo "✅ Deployed to Cloud Run. Run migrations manually if schema changed."
+
+      - name: Set non-secret env vars on Cloud Run
+        run: |
+          gcloud run services update datenight-api \
+            --region us-central1 \
+            --project project-1af074d7-228e-4a43-bc9 \
+            --update-env-vars "FIRECRAWL_API_KEY=fc-152f847e34a440b0b1d5be501c9159f2"

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { suggestionsApi } from "../api/client";
+import api from "../api/client";
 import { AppNav } from "../components/AppNav";
 import { CATEGORIES, findCategory } from "../constants/categories";
 import { loadFavCategories } from "../components/FavCategories";
@@ -9,6 +10,20 @@ import "./discover-filters.css";
 import { usePlanBuilder } from "../contexts/PlanBuilderContext";
 import { useAuthStore } from "../store/auth.store";
 import type { Suggestion } from "../types";
+
+// ── VenueDetail (Firecrawl enrichment) ───────────────────────────────────────
+interface VenueDetail {
+  description?: string;
+  hours?: string;
+  phone?: string;
+  reservationUrl?: string;
+  menuHighlights?: string[];
+  parking?: string;
+  dresscode?: string;
+  cancellationPolicy?: string;
+  priceRange?: string;
+  rating?: string;
+}
 
 // ── Category helpers ─────────────────────────────────────────────────────────
 // Colors & emojis come from the shared category constants (keyed by id, with
@@ -286,6 +301,28 @@ function EventDetailModal({
   alreadyAdded: boolean;
 }) {
   const priceStr = suggestion.priceLevel ? "$".repeat(suggestion.priceLevel) : null;
+  const [venueDetail, setVenueDetail] = useState<VenueDetail | null>(null);
+  const [enriching, setEnriching] = useState(false);
+
+  useEffect(() => {
+    setVenueDetail(null);
+    if (!suggestion.sourceUrl) return;
+    let cancelled = false;
+    (async () => {
+      setEnriching(true);
+      try {
+        const resp = await api.get<{ detail: VenueDetail }>(
+          `/suggestions/enrich?url=${encodeURIComponent(suggestion.sourceUrl!)}`,
+        );
+        if (!cancelled) setVenueDetail(resp.data.detail);
+      } catch {
+        // silently ignore — enrichment is best-effort
+      } finally {
+        if (!cancelled) setEnriching(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [suggestion]);
 
   return (
     <div
@@ -392,6 +429,90 @@ function EventDetailModal({
             >
               View on {suggestion.sourceName ?? "Source"} →
             </a>
+          )}
+
+          {/* ── Firecrawl venue enrichment ─────────────────────────────────── */}
+          {enriching && (
+            <p style={{ fontSize: 13, color: "var(--ink2)", marginBottom: 12 }}>
+              ⏳ Loading details…
+            </p>
+          )}
+          {!enriching && venueDetail && (
+            (() => {
+              const hasDetail =
+                venueDetail.hours ||
+                venueDetail.phone ||
+                venueDetail.reservationUrl ||
+                (venueDetail.menuHighlights && venueDetail.menuHighlights.length > 0) ||
+                venueDetail.parking ||
+                venueDetail.dresscode ||
+                venueDetail.cancellationPolicy;
+              if (!hasDetail) return null;
+              return (
+                <div style={{ marginBottom: 16, paddingTop: 12, borderTop: "1px solid var(--border, #eee)" }}>
+                  <p style={{ fontWeight: 700, fontSize: 14, marginBottom: 10 }}>More Details</p>
+                  {venueDetail.hours && (
+                    <p style={{ fontSize: 13, color: "var(--ink2)", marginBottom: 6 }}>
+                      🕐 {venueDetail.hours}
+                    </p>
+                  )}
+                  {venueDetail.phone && (
+                    <p style={{ fontSize: 13, color: "var(--ink2)", marginBottom: 6 }}>
+                      📞 {venueDetail.phone}
+                    </p>
+                  )}
+                  {venueDetail.reservationUrl && (
+                    <a
+                      href={venueDetail.reservationUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        display: "inline-block",
+                        marginBottom: 10,
+                        padding: "8px 16px",
+                        background: "var(--primary)",
+                        color: "#fff",
+                        borderRadius: 20,
+                        fontSize: 13,
+                        fontWeight: 700,
+                        textDecoration: "none",
+                      }}
+                    >
+                      Make Reservation →
+                    </a>
+                  )}
+                  {venueDetail.menuHighlights && venueDetail.menuHighlights.length > 0 && (
+                    <div style={{ marginBottom: 8 }}>
+                      <p style={{ fontSize: 13, fontWeight: 600, marginBottom: 4 }}>Menu highlights</p>
+                      <ul style={{ margin: 0, paddingLeft: 18 }}>
+                        {venueDetail.menuHighlights.map((item, i) => (
+                          <li key={i} style={{ fontSize: 13, color: "var(--ink2)", marginBottom: 2 }}>{item}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {(venueDetail.parking || venueDetail.dresscode || venueDetail.cancellationPolicy) && (
+                    <div style={{ marginTop: 6 }}>
+                      {venueDetail.parking && (
+                        <p style={{ fontSize: 12, color: "var(--ink3, #999)", marginBottom: 3 }}>
+                          🅿️ {venueDetail.parking}
+                        </p>
+                      )}
+                      {venueDetail.dresscode && (
+                        <p style={{ fontSize: 12, color: "var(--ink3, #999)", marginBottom: 3 }}>
+                          👔 Dress code: {venueDetail.dresscode}
+                        </p>
+                      )}
+                      {venueDetail.cancellationPolicy && (
+                        <p style={{ fontSize: 12, color: "var(--ink3, #999)", marginBottom: 3 }}>
+                          ℹ️ {venueDetail.cancellationPolicy}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })()
           )}
 
           {alreadyAdded ? (
