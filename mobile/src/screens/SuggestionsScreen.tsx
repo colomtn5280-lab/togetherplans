@@ -25,7 +25,7 @@ import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/contexts/ThemeContext';
 import { usePlanBuilder } from '@/contexts/PlanBuilderContext';
-import { OPTION_RADII, SHADOWS, SPACING, TYPE } from '@/constants';
+import { API_BASE_URL, OPTION_RADII, SHADOWS, SPACING, TYPE } from '@/constants';
 import { CATEGORIES, Category, getCategoryColorById } from '@/constants/categories';
 import { loadFavCategories, orderCategoriesByFavorites } from '@/components/FavCategories';
 import {
@@ -36,7 +36,7 @@ import {
   DNSticker,
   DNText,
 } from '@/components/ui';
-import { proposalsAPI, api } from '@/services/api';
+import { proposalsAPI, api, getToken } from '@/services/api';
 import type { RootStackParamList, Suggestion } from '@/types';
 
 type RouteT = RouteProp<RootStackParamList, 'Suggestions'>;
@@ -233,6 +233,50 @@ function EventDetailSheet({
   colors: any;
 }) {
   const insets = useSafeAreaInsets();
+
+  // ── Venue enrichment state ─────────────────────────────────────────────────
+  type VenueDetail = {
+    hours?: string;
+    phone?: string;
+    reservationUrl?: string;
+    menuHighlights?: string[];
+    parking?: string;
+    dresscode?: string;
+    cancellationPolicy?: string;
+  };
+  const [venueDetail, setVenueDetail] = useState<VenueDetail | null>(null);
+  const [enriching, setEnriching] = useState(false);
+
+  useEffect(() => {
+    if (!visible || !suggestion?.sourceUrl) {
+      setVenueDetail(null);
+      setEnriching(false);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      setEnriching(true);
+      setVenueDetail(null);
+      try {
+        const token = await getToken();
+        const res = await fetch(
+          `${API_BASE_URL}/api/suggestions/enrich?url=${encodeURIComponent(suggestion.sourceUrl!)}`,
+          { headers: { Authorization: `Bearer ${token ?? ''}` } },
+        );
+        if (!cancelled && res.ok) {
+          const data = await res.json();
+          setVenueDetail(data.detail ?? null);
+        }
+      } catch {
+        // silent — venueDetail stays null
+      } finally {
+        if (!cancelled) setEnriching(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [visible, suggestion?.sourceUrl]);
+  // ──────────────────────────────────────────────────────────────────────────
+
   if (!suggestion) return null;
 
   const priceStr = suggestion.priceLevel ? '$'.repeat(suggestion.priceLevel) : null;
@@ -369,6 +413,63 @@ function EventDetailSheet({
               >
                 {suggestion.description}
               </DNText>
+            ) : null}
+
+            {/* More Details (Firecrawl enrichment) */}
+            {enriching && (
+              <ActivityIndicator size="small" color="#0E8C8C" style={{ marginBottom: SPACING.md, alignSelf: 'flex-start' }} />
+            )}
+            {!enriching && venueDetail && (
+              venueDetail.hours ||
+              venueDetail.phone ||
+              (venueDetail.menuHighlights && venueDetail.menuHighlights.length > 0) ||
+              (venueDetail.reservationUrl && venueDetail.reservationUrl !== suggestion.sourceUrl)
+            ) ? (
+              <View
+                style={{
+                  backgroundColor: '#F5F5F5',
+                  padding: 12,
+                  borderRadius: 12,
+                  marginBottom: 12,
+                }}
+              >
+                {venueDetail.hours ? (
+                  <Text style={{ fontSize: 14, color: '#333', marginBottom: 4 }}>
+                    {'🕐 ' + venueDetail.hours}
+                  </Text>
+                ) : null}
+                {venueDetail.phone ? (
+                  <TouchableOpacity onPress={() => Linking.openURL(`tel:${venueDetail.phone}`)}>
+                    <Text style={{ fontSize: 14, color: '#0E8C8C', marginBottom: 4 }}>
+                      {'📞 ' + venueDetail.phone}
+                    </Text>
+                  </TouchableOpacity>
+                ) : null}
+                {venueDetail.menuHighlights && venueDetail.menuHighlights.length > 0 ? (
+                  <View style={{ marginBottom: 4 }}>
+                    {venueDetail.menuHighlights.slice(0, 4).map((item, idx) => (
+                      <Text key={idx} style={{ fontSize: 13, color: '#555', marginBottom: 2 }}>
+                        {'• ' + item}
+                      </Text>
+                    ))}
+                  </View>
+                ) : null}
+                {venueDetail.reservationUrl && venueDetail.reservationUrl !== suggestion.sourceUrl ? (
+                  <TouchableOpacity
+                    onPress={() => Linking.openURL(venueDetail.reservationUrl!)}
+                    style={{
+                      marginTop: 6,
+                      backgroundColor: '#0E8C8C',
+                      paddingVertical: 8,
+                      paddingHorizontal: 14,
+                      borderRadius: 8,
+                      alignSelf: 'flex-start',
+                    }}
+                  >
+                    <Text style={{ color: '#fff', fontSize: 13, fontWeight: '600' }}>Reserve a Table →</Text>
+                  </TouchableOpacity>
+                ) : null}
+              </View>
             ) : null}
 
             {/* External link */}
