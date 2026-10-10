@@ -418,29 +418,53 @@ def run_etl(
 
     print(f'\n  CSV written: {csvpath} ({len(all_rows):,} rows)')
 
-    # COPY into DB via psql
-    psql_cmd = ['psql', DATABASE_URL, '-c', f"""
-        \\COPY venues(id, overture_id, name, category, fsq_category,
-                      address, city, state, country, website, phone,
-                      confidence, lat, lng, source, location)
-        FROM '{csvpath}' CSV HEADER
-        ON CONFLICT (id) DO UPDATE SET
-          name        = EXCLUDED.name,
-          fsq_category = EXCLUDED.fsq_category,
-          address     = EXCLUDED.address,
-          city        = EXCLUDED.city,
-          state       = EXCLUDED.state,
-          website     = EXCLUDED.website,
-          phone       = EXCLUDED.phone,
-          confidence  = EXCLUDED.confidence,
-          lat         = EXCLUDED.lat,
-          lng         = EXCLUDED.lng,
-          location    = EXCLUDED.location,
-          updated_at  = NOW()
-    """]
-
     print('\n  Loading into PostgreSQL...')
+    # \COPY reads from client filesystem (unlike server-side COPY)
+    # We use a two-step approach:
+    # 1. \COPY into a temp staging table
+    # 2. INSERT ... ON CONFLICT from staging → venues
+    # This avoids the limitation that \COPY doesn't support ON CONFLICT.
+    
+    staging_table = f'venues_stage_{int(__import__("time").time())}'
+    
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.psql', delete=False) as sf:
+        scriptpath = sf.name
+        sf.write(f"""
+CREATE TEMP TABLE {staging_table} (
+  id TEXT, overture_id TEXT, name TEXT, category TEXT, fsq_category TEXT,
+  address TEXT, city TEXT, state TEXT, country TEXT,
+  website TEXT, phone TEXT, confidence DOUBLE PRECISION,
+  lat DOUBLE PRECISION, lng DOUBLE PRECISION,
+  source TEXT, location TEXT
+);
+\\COPY {staging_table}(id,overture_id,name,category,fsq_category,address,city,state,country,website,phone,confidence,lat,lng,source,location) FROM '{csvpath}' CSV HEADER;
+INSERT INTO venues(id, overture_id, name, category, fsq_category,
+                   address, city, state, country, website, phone,
+                   confidence, lat, lng, source, location)
+SELECT id, overture_id, name, category, fsq_category,
+       address, city, state, country, website, phone,
+       confidence, lat, lng, source,
+       ST_GeogFromText(location)
+FROM {staging_table}
+ON CONFLICT (id) DO UPDATE SET
+  name         = EXCLUDED.name,
+  fsq_category = EXCLUDED.fsq_category,
+  address      = EXCLUDED.address,
+  city         = EXCLUDED.city,
+  state        = EXCLUDED.state,
+  website      = EXCLUDED.website,
+  phone        = EXCLUDED.phone,
+  confidence   = EXCLUDED.confidence,
+  lat          = EXCLUDED.lat,
+  lng          = EXCLUDED.lng,
+  location     = EXCLUDED.location,
+  updated_at   = NOW();
+DROP TABLE {staging_table};
+""")
+
+    psql_cmd = ['psql', DATABASE_URL, '-f', scriptpath]
     result = subprocess.run(psql_cmd, capture_output=True, text=True)
+    os.unlink(scriptpath)
     if result.returncode != 0:
         print(f'  ERROR: {result.stderr}')
         raise RuntimeError(f'psql COPY failed: {result.stderr}')
