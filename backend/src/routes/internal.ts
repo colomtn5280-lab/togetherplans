@@ -6,6 +6,7 @@ import { sendVoteReminderEmail } from '@/services/email';
 import { logger } from '@/services/logger';
 import { getSourceHealth } from '@/services/source-health';
 import { runTomorrowReminders } from '@/services/notification-triggers';
+import { runVenueRefresh } from '@/jobs/venue-refresh';
 
 export const internalRouter = Router();
 
@@ -199,5 +200,28 @@ internalRouter.post('/reminders/run', async (_req: Request, res: Response, next:
   } catch (err) {
     return next(err);
   }
+});
+
+/**
+ * POST /api/internal/venue-refresh
+ * Triggers the monthly venue database refresh (Overture Maps + OSM/NPS/IMLS).
+ * Runs the Python ETL scripts as child processes.
+ * Expected runtime: 30-90 minutes for full US load.
+ * Returns immediately with job started status; logs track progress.
+ */
+internalRouter.post('/venue-refresh', async (req: Request, res: Response) => {
+  logger.info('[venue-refresh] Manual trigger via /api/internal/venue-refresh');
+
+  // Return immediately — ETL takes 30-90 min
+  res.json({ status: 'started', message: 'Venue refresh job started. Check logs for progress.' });
+
+  // Run async (don't await — response already sent)
+  runVenueRefresh()
+    .then((results) => {
+      logger.info('[venue-refresh] Complete', { results });
+    })
+    .catch((err) => {
+      logger.error('[venue-refresh] Failed', { err: String(err) });
+    });
 });
 

@@ -33,6 +33,8 @@ import { fetchAiIdeas } from './sources/ai-ideas.source';
 import { fetchFoursquare } from './sources/foursquare.source';
 import { fetchNpsParks, fetchNpsEvents } from './sources/nps.source';
 import { fetchTavilyFallback, tavilyAlwaysFires } from './sources/tavily.source';
+import { getStaticVenues, STATIC_CATEGORIES } from './sources/static.source';
+import { fetchBandsintown } from './sources/bandsintown.source';
 
 export type { Suggestion, SuggestionCategory, SuggestionQuery };
 
@@ -353,19 +355,52 @@ export async function getSuggestions(query: SuggestionQuery): Promise<Suggestion
   const hasLocation = typeof lat === 'number' && typeof lng === 'number';
   logger.info(`Suggestions fetch: ${key} hasLocation=${hasLocation}`);
 
-  // Run all sources in parallel — each fails gracefully; per-source health is tracked
+  // ── Static venue pre-check ────────────────────────────────────────────────
+  // For categories served from the local venue DB, query it first (~5ms).
+  // If we get ≥10 results, skip the equivalent live API sources (Foursquare,
+  // Overpass) and use the static spine instead. Live sources for events
+  // (Ticketmaster, PredictHQ) are never skipped — they provide dated inventory.
+  const categorySlug = query.category ?? '';
+  const isStaticCategory = STATIC_CATEGORIES.has(categorySlug);
+  let staticResults: Suggestion[] = [];
+  let useStaticSpine = false;
+
+  if (hasLocation && isStaticCategory) {
+    try {
+      staticResults = await getStaticVenues(categorySlug, lat!, lng!, radiusMiles);
+      useStaticSpine = staticResults.length >= 10;
+      logger.info(
+        `[static-venues] ${categorySlug}: ${staticResults.length} results → ` +
+        (useStaticSpine ? 'using static spine, skipping Foursquare/Overpass' : 'thin, falling back to live'),
+      );
+    } catch (err) {
+      logger.warn(`[static-venues] pre-check error: ${String(err)}`);
+    }
+  }
+
+
   const namedFetches: Array<{ name: string; fetch: () => Promise<Suggestion[]> }> = [
     ...(hasLocation ? [
       { name: 'ticketmaster', fetch: () => fetchTicketmaster(lat!, lng!, radiusMiles, category) },
       { name: 'predicthq', fetch: () => fetchPredictHQ(lat!, lng!, radiusMiles, category) },
-      { name: 'overpass', fetch: () => fetchOverpass(lat!, lng!, Math.min(radiusMiles, 30), category) },
-      { name: 'foursquare', fetch: () => fetchFoursquare(lat!, lng!, radiusMiles, category) },
+      // Skip Overpass + Foursquare if static spine has adequate coverage (≥10 results).
+      // They provide the same venue data from the same upstream sources,
+      // but the static DB is faster and has no rate limits.
+      ...(!useStaticSpine ? [
+        { name: 'overpass', fetch: () => fetchOverpass(lat!, lng!, Math.min(radiusMiles, 30), category) },
+        { name: 'foursquare', fetch: () => fetchFoursquare(lat!, lng!, radiusMiles, category) },
+      ] : []),
       // NPS: national parks + events — primary for Outdoors, included in All
+      // (NPS events are live; NPS parks are now in static DB too, but keep for events)
       ...(!category || category === 'Outdoors'
         ? [
             { name: 'nps-parks', fetch: () => fetchNpsParks(lat!, lng!, radiusMiles) },
             { name: 'nps-events', fetch: () => fetchNpsEvents(lat!, lng!, radiusMiles) },
           ]
+        : []),
+      // Bandsintown: free live music events (Phase 4) — supplements Ticketmaster
+      ...((!category || category === 'Live Music' || category === 'Comedy') && hasLocation
+        ? [{ name: 'bandsintown', fetch: () => fetchBandsintown(lat!, lng!, radiusMiles, category) }]
         : []),
       // Google Places text search fallback for Wellness (OSM is sparse for spas in suburbs)
       ...((category === 'Wellness' || !category) && hasLocation
@@ -404,6 +439,12 @@ export async function getSuggestions(query: SuggestionQuery): Promise<Suggestion
   // Collect all results
   const allResults: Suggestion[] = [];
   const sourceSummary: string[] = [];
+
+  // Add static results first if using the static spine
+  if (staticResults.length > 0) {
+    allResults.push(...staticResults);
+    sourceSummary.push(`static:${staticResults.length}`);
+  }
 
   for (const result of sourceResults) {
     if (result.status === 'fulfilled') {

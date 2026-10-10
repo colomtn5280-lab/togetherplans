@@ -39,7 +39,9 @@ export type SourceName =
   | 'seed'
   | 'scraped'
   | 'tavily'
-  | 'featured';
+  | 'featured'
+  | 'static'
+  | 'bandsintown';
 
 export interface Suggestion {
   id: string;                      // source:externalId
