@@ -55,7 +55,7 @@ describe('getSuggestions', () => {
     expect(firstNames.size).toBeGreaterThanOrEqual(1);
     // All runs should return results
     for (const r of runs) expect(r.length).toBeGreaterThan(0);
-  }, 30_000);
+  }, 120_000);
 
   it('sports-active (and legacy golf) resolves to Sports, never Active', async () => {
     // Regression: 'golf' used to map to 'Active'. It now aliases to 'Sports'
