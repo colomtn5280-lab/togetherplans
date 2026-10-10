@@ -19,6 +19,7 @@ import { shareCardsRouter } from '@/routes/share-cards';
 import { shareRouter } from '@/routes/share';
 import { safetyRouter } from '@/routes/safety';
 import { businessRouter } from '@/routes/business';
+import { webhooksRouter } from '@/routes/webhooks';
 import { seedAfterDarkCatalog } from '@/seeds/after-dark-catalog';
 
 export function createApp(): express.Express {
@@ -29,6 +30,10 @@ export function createApp(): express.Express {
 
   app.use(helmet());
   app.use(cors({ origin: config.cors_origin, credentials: true }));
+
+  // Raw body for Stripe webhooks — must come BEFORE express.json()
+  app.use('/api/webhooks', express.raw({ type: 'application/json' }), webhooksRouter);
+
   app.use(express.json({ limit: '1mb' }));
 
   const limiter = rateLimit({

@@ -2,12 +2,25 @@ import { Router, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import rateLimit from 'express-rate-limit';
+import multer from 'multer';
 import { prisma } from '@/services/db';
 import { config } from '@/config';
 import { authenticateBusinessToken, BusinessRequest } from '@/middleware/business-auth';
 import { scrapeBusinessProfile } from '@/services/firecrawl';
+import { uploadBusinessAsset } from '@/services/gcs-upload';
+import { getStripeClient, STRIPE_PRICES, tierFromPriceId, PricePlan } from '@/services/stripe';
 
 export const businessRouter = Router();
+
+// ── Multer: memory storage for image uploads ──────────────────────────────────
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+  fileFilter: (_req, file, cb) => {
+    if (['image/jpeg', 'image/png', 'image/webp'].includes(file.mimetype)) cb(null, true);
+    else cb(new Error('Only JPEG, PNG, and WebP images are allowed'));
+  },
+});
 
 // ── Rate limiter: 10 req/min per IP for Firecrawl scrape endpoint ─────────────
 const scrapeRateLimit = rateLimit({
@@ -389,4 +402,140 @@ businessRouter.get('/public/stats', async (_req, res: Response) => {
     console.error('GET /business/public/stats error', err);
     res.status(500).json({ error: 'Internal server error' });
   }
+});
+
+// ── Image Upload: POST /upload/:type (logo or hero) ───────────────────────────
+
+businessRouter.post('/upload/:type', authenticateBusinessToken, upload.single('image'), async (req: BusinessRequest, res: Response) => {
+  try {
+    const assetType = req.params.type as 'logo' | 'hero';
+    if (!['logo', 'hero'].includes(assetType)) { res.status(400).json({ error: 'type must be logo or hero' }); return; }
+    if (!req.file) { res.status(400).json({ error: 'image file required' }); return; }
+
+    const url = await uploadBusinessAsset(req.businessId!, assetType, req.file.buffer, req.file.mimetype);
+
+    const field = assetType === 'logo' ? 'logoUrl' : 'heroImageUrl';
+    await prisma.business.update({ where: { id: req.businessId! }, data: { [field]: url } });
+
+    res.json({ url });
+  } catch (err) {
+    console.error('Upload error', err);
+    res.status(500).json({ error: String(err) });
+  }
+});
+
+// ── Stripe: POST /subscribe — create Stripe checkout session ─────────────────
+
+businessRouter.post('/subscribe', authenticateBusinessToken, async (req: BusinessRequest, res: Response) => {
+  try {
+    const { plan, successUrl, cancelUrl } = req.body as { plan: PricePlan; successUrl: string; cancelUrl: string };
+
+    if (!STRIPE_PRICES[plan]) { res.status(400).json({ error: 'Invalid plan' }); return; }
+
+    const stripe = getStripeClient();
+    const business = await prisma.business.findUnique({ where: { id: req.businessId! } });
+    if (!business) { res.status(404).json({ error: 'Business not found' }); return; }
+
+    // Create or retrieve Stripe customer
+    let customerId = business.stripeCustomerId;
+    if (!customerId) {
+      const customer = await stripe.customers.create({ email: business.email, name: business.name, metadata: { businessId: business.id } });
+      customerId = customer.id;
+      await prisma.business.update({ where: { id: business.id }, data: { stripeCustomerId: customerId } });
+    }
+
+    const session = await stripe.checkout.sessions.create({
+      customer: customerId,
+      line_items: [{ price: STRIPE_PRICES[plan], quantity: 1 }],
+      mode: 'subscription',
+      success_url: successUrl,
+      cancel_url: cancelUrl,
+      metadata: { businessId: business.id, plan },
+    });
+
+    res.json({ url: session.url });
+  } catch (err) {
+    console.error('Subscribe error', err);
+    res.status(500).json({ error: String(err) });
+  }
+});
+
+// ── Stripe: GET /billing-portal — Stripe customer portal ─────────────────────
+
+businessRouter.get('/billing-portal', authenticateBusinessToken, async (req: BusinessRequest, res: Response) => {
+  try {
+    const business = await prisma.business.findUnique({ where: { id: req.businessId! } });
+    if (!business?.stripeCustomerId) { res.status(400).json({ error: 'No billing account found' }); return; }
+
+    const stripe = getStripeClient();
+    const session = await stripe.billingPortal.sessions.create({
+      customer: business.stripeCustomerId,
+      return_url: (req.query.returnUrl as string) || 'https://datemeup.app/business/dashboard',
+    });
+
+    res.json({ url: session.url });
+  } catch (err) {
+    console.error('Billing portal error', err);
+    res.status(500).json({ error: String(err) });
+  }
+});
+
+// ── Platform IDs: PATCH /me/platform-ids ─────────────────────────────────────
+
+businessRouter.patch('/me/platform-ids', authenticateBusinessToken, async (req: BusinessRequest, res: Response) => {
+  try {
+    const allowed = ['ticketmaster', 'songkick', 'opentable', 'resy', 'eventbrite'];
+    const platformIds: Record<string, string> = {};
+    for (const key of allowed) {
+      if (req.body[key] && typeof req.body[key] === 'string') platformIds[key] = req.body[key].trim();
+    }
+    await prisma.business.update({ where: { id: req.businessId! }, data: { platformIds: platformIds as any } as any });
+    res.json({ platformIds });
+  } catch (err) {
+    res.status(500).json({ error: String(err) });
+  }
+});
+
+// ── Direct Listings: CRUD ─────────────────────────────────────────────────────
+
+businessRouter.get('/me/direct-listings', authenticateBusinessToken, async (req: BusinessRequest, res: Response) => {
+  try {
+    const listings = await (prisma as any).businessDirectListing.findMany({
+      where: { businessId: req.businessId! },
+      orderBy: { createdAt: 'desc' },
+    });
+    res.json({ listings });
+  } catch (err) { res.status(500).json({ error: String(err) }); }
+});
+
+businessRouter.post('/me/direct-listings', authenticateBusinessToken, async (req: BusinessRequest, res: Response) => {
+  try {
+    const { title, description, category, address, imageUrl, eventDate, price, ticketUrl } = req.body;
+    if (!title || !description || !category) { res.status(400).json({ error: 'title, description, category required' }); return; }
+    const listing = await (prisma as any).businessDirectListing.create({
+      data: { businessId: req.businessId!, title, description, category, address, imageUrl, eventDate: eventDate ? new Date(eventDate) : null, price, ticketUrl, active: true },
+    });
+    res.status(201).json({ listing });
+  } catch (err) { res.status(500).json({ error: String(err) }); }
+});
+
+businessRouter.patch('/me/direct-listings/:id', authenticateBusinessToken, async (req: BusinessRequest, res: Response) => {
+  try {
+    const existing = await (prisma as any).businessDirectListing.findFirst({ where: { id: req.params.id, businessId: req.businessId! } });
+    if (!existing) { res.status(404).json({ error: 'Not found' }); return; }
+    const allowed = ['title', 'description', 'category', 'address', 'imageUrl', 'eventDate', 'price', 'ticketUrl', 'active'];
+    const data: Record<string, unknown> = {};
+    for (const k of allowed) if (req.body[k] !== undefined) data[k] = k === 'eventDate' ? (req.body[k] ? new Date(req.body[k]) : null) : req.body[k];
+    const listing = await (prisma as any).businessDirectListing.update({ where: { id: req.params.id }, data });
+    res.json({ listing });
+  } catch (err) { res.status(500).json({ error: String(err) }); }
+});
+
+businessRouter.delete('/me/direct-listings/:id', authenticateBusinessToken, async (req: BusinessRequest, res: Response) => {
+  try {
+    const existing = await (prisma as any).businessDirectListing.findFirst({ where: { id: req.params.id, businessId: req.businessId! } });
+    if (!existing) { res.status(404).json({ error: 'Not found' }); return; }
+    await (prisma as any).businessDirectListing.delete({ where: { id: req.params.id } });
+    res.json({ message: 'Deleted' });
+  } catch (err) { res.status(500).json({ error: String(err) }); }
 });

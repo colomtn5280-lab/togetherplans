@@ -260,8 +260,17 @@ model Business {
   verified     Boolean  @default(false)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+  // B2B featured placement fields
+  heroImageUrl         String?
+  featuredCategory     String?
+  featuredRadius       Int     @default(30)
+  featuredSlot         Int?
+  platformIds          Json?
+  stripePriceId        String?
+  subscriptionStatus   String  @default("inactive")
   listings     FeaturedListing[]
   impressions  BusinessImpression[]
+  directListings BusinessDirectListing[]
 }
 
 model FeaturedListing {
@@ -288,6 +297,23 @@ model BusinessImpression {
   metadata     Json?
   createdAt    DateTime @default(now())
   business     Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+}
+
+model BusinessDirectListing {
+  id           String    @id @default(cuid())
+  businessId   String
+  title        String
+  description  String
+  category     String
+  address      String?
+  imageUrl     String?
+  eventDate    DateTime?
+  price        String?
+  ticketUrl    String?
+  active       Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  business     Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
 }
 
 // ── After Dark: Intimate/Playful Activities for Couples ──────────────────────

@@ -38,7 +38,8 @@ export type SourceName =
   | 'places'
   | 'seed'
   | 'scraped'
-  | 'tavily';
+  | 'tavily'
+  | 'featured';
 
 export interface Suggestion {
   id: string;                      // source:externalId

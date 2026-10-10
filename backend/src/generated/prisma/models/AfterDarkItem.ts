@@ -579,14 +579,6 @@ export type AfterDarkItemUncheckedUpdateManyWithoutGroupNestedInput = {
   deleteMany?: Prisma.AfterDarkItemScalarWhereInput | Prisma.AfterDarkItemScalarWhereInput[]
 }
 
-export type IntFieldUpdateOperationsInput = {
-  set?: number
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
 export type AfterDarkItemCreateWithoutCreatorInput = {
   id?: string
   title: string

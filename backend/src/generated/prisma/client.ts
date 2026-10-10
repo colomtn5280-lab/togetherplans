@@ -110,6 +110,11 @@ export type FeaturedListing = Prisma.FeaturedListingModel
  */
 export type BusinessImpression = Prisma.BusinessImpressionModel
 /**
+ * Model BusinessDirectListing
+ * 
+ */
+export type BusinessDirectListing = Prisma.BusinessDirectListingModel
+/**
  * Model AfterDarkItem
  * 
  */

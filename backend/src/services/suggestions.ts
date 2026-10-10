@@ -18,6 +18,7 @@ import { cache } from '@/services/cache';
 import { logger } from '@/services/logger';
 import { recordSourceAttempt, recordSourceSuccess, recordSourceError } from '@/services/source-health';
 import { Suggestion, SuggestionCategory, SuggestionQuery, haversineMiles } from './sources/types';
+import { prisma } from '@/services/db';
 import { getSeedSuggestions } from './sources/seed.source';
 import { fetchOverpass } from './sources/overpass.source';
 import { fetchPlacesWellness } from './sources/places.source';
@@ -217,6 +218,81 @@ function sortSuggestions(suggestions: Suggestion[], _userLat?: number, _userLng?
     if (b.distanceMiles !== undefined) return 1;
     return 0;
   });
+}
+
+// ---------------------------------------------------------------------------
+// Featured Business Injection — paid B2B businesses injected at the top
+// ---------------------------------------------------------------------------
+async function getFeaturedBusinesses(category: string, lat: number, lng: number): Promise<Suggestion[]> {
+  try {
+    const businesses = await prisma.business.findMany({
+      where: {
+        featuredCategory: category,
+        subscriptionStatus: 'active',
+        tier: { in: ['premium', 'featured'] },
+        active: true,
+      } as any,
+      orderBy: [
+        { featuredSlot: 'asc' } as any,
+        { name: 'asc' },
+      ],
+    });
+
+    // Filter by radius (haversine distance)
+    const nearby = (businesses as any[]).filter((b: any) => {
+      if (!b.lat || !b.lng) return true;
+      const dist = haversineMiles(lat, lng, b.lat, b.lng);
+      return dist <= (b.featuredRadius || 30);
+    });
+
+    return nearby.map((b: any, i: number) => ({
+      id: `featured-${b.id}`,
+      name: b.name,
+      category: category as SuggestionCategory,
+      shortDescription: b.description || '',
+      address: b.address || b.city,
+      imageUrl: b.heroImageUrl || b.logoUrl || undefined,
+      costTier: (b.priceRange === '$' ? '$' : b.priceRange === '$$' ? '$$' : b.priceRange === '$$$' ? '$$$' : 'free') as any,
+      source: 'featured' as const,
+      externalId: `featured-${b.id}`,
+      dateFriendly: true,
+      groupFriendly: true,
+      ticketUrl: b.website || undefined,
+      isFeatured: true,
+      featuredTier: b.tier as 'premium' | 'featured',
+      featuredSlot: b.featuredSlot ?? (i + 1),
+    }));
+  } catch (err) {
+    logger.error(`getFeaturedBusinesses error: ${String(err)}`);
+    return [];
+  }
+}
+
+async function getDirectListings(category: string): Promise<Suggestion[]> {
+  try {
+    const listings = await (prisma as any).businessDirectListing.findMany({
+      where: { category, active: true, OR: [{ eventDate: null }, { eventDate: { gte: new Date() } }] },
+      include: { business: { select: { name: true, logoUrl: true, website: true } } },
+      orderBy: { eventDate: 'asc' },
+      take: 10,
+    });
+    return listings.map((l: any) => ({
+      id: `direct-${l.id}`,
+      name: l.title,
+      category: category as SuggestionCategory,
+      shortDescription: `${l.business.name} — ${l.description}`,
+      address: l.address || undefined,
+      imageUrl: l.imageUrl || l.business.logoUrl || undefined,
+      source: 'featured' as const,
+      externalId: `direct-${l.id}`,
+      dateFriendly: true,
+      groupFriendly: true,
+      costTier: 'free' as const,
+      ticketUrl: l.ticketUrl || l.business.website || undefined,
+      date: l.eventDate ? new Date(l.eventDate).toISOString().split('T')[0] : undefined,
+      isDirectListing: true,
+    }));
+  } catch { return []; }
 }
 
 // ---------------------------------------------------------------------------
@@ -459,6 +535,25 @@ export async function getSuggestions(query: SuggestionQuery): Promise<Suggestion
   // Enrich photos for any results still missing imageUrl (PredictHQ, Overpass,
   // seed cards, etc.) — uses Foursquare venue name search, cached 24h.
   await enrichPhotos(final, lat, lng);
+
+  // ── Featured Business Injection ──────────────────────────────────────────────
+  // Inject paid B2B businesses at the front of results, after all organic
+  // sources are assembled. Skip if no location or no category.
+  if (hasLocation && query.category && query.category !== 'All') {
+    const [featured, directListings] = await Promise.all([
+      getFeaturedBusinesses(query.category, lat!, lng!),
+      getDirectListings(query.category),
+    ]);
+
+    if (featured.length > 0 || directListings.length > 0) {
+      // Remove organic results that match featured business names (dedup)
+      const featuredNames = new Set([...featured, ...directListings].map(f => f.name.toLowerCase()));
+      final = final.filter(r => !featuredNames.has(r.name.toLowerCase()));
+      // Inject: Premium/Featured businesses first (max 3), then direct listings, then organic
+      final = [...featured.slice(0, 3), ...directListings, ...final];
+      if (featured.length > 0) logger.info(`Featured injection: ${featured.length} businesses, ${directListings.length} direct listings for ${query.category}`);
+    }
+  }
 
   // Cache it
   await cache.set(key, JSON.stringify(final), cacheTtl(final));

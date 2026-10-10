@@ -71,4 +71,4 @@ jobs:
           gcloud run services update datenight-api \
             --region us-central1 \
             --project project-1af074d7-228e-4a43-bc9 \
-            --update-env-vars "FIRECRAWL_API_KEY=fc-152f847e34a440b0b1d5be501c9159f2"
+            --update-env-vars "FIRECRAWL_API_KEY=fc-152f847e34a440b0b1d5be501c9159f2,STRIPE_SECRET_KEY=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,GCS_BUCKET=datemeup-business-assets"

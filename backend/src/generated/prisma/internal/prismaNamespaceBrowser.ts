@@ -65,6 +65,7 @@ export const ModelName = {
   Business: 'Business',
   FeaturedListing: 'FeaturedListing',
   BusinessImpression: 'BusinessImpression',
+  BusinessDirectListing: 'BusinessDirectListing',
   AfterDarkItem: 'AfterDarkItem'
 } as const
 
@@ -264,7 +265,14 @@ export const BusinessScalarFieldEnum = {
   active: 'active',
   verified: 'verified',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  heroImageUrl: 'heroImageUrl',
+  featuredCategory: 'featuredCategory',
+  featuredRadius: 'featuredRadius',
+  featuredSlot: 'featuredSlot',
+  platformIds: 'platformIds',
+  stripePriceId: 'stripePriceId',
+  subscriptionStatus: 'subscriptionStatus'
 } as const
 
 export type BusinessScalarFieldEnum = (typeof BusinessScalarFieldEnum)[keyof typeof BusinessScalarFieldEnum]
@@ -298,6 +306,25 @@ export const BusinessImpressionScalarFieldEnum = {
 } as const
 
 export type BusinessImpressionScalarFieldEnum = (typeof BusinessImpressionScalarFieldEnum)[keyof typeof BusinessImpressionScalarFieldEnum]
+
+
+export const BusinessDirectListingScalarFieldEnum = {
+  id: 'id',
+  businessId: 'businessId',
+  title: 'title',
+  description: 'description',
+  category: 'category',
+  address: 'address',
+  imageUrl: 'imageUrl',
+  eventDate: 'eventDate',
+  price: 'price',
+  ticketUrl: 'ticketUrl',
+  active: 'active',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BusinessDirectListingScalarFieldEnum = (typeof BusinessDirectListingScalarFieldEnum)[keyof typeof BusinessDirectListingScalarFieldEnum]
 
 
 export const AfterDarkItemScalarFieldEnum = {

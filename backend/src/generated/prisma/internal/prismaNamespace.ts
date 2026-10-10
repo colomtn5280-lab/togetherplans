@@ -411,6 +411,7 @@ export const ModelName = {
   Business: 'Business',
   FeaturedListing: 'FeaturedListing',
   BusinessImpression: 'BusinessImpression',
+  BusinessDirectListing: 'BusinessDirectListing',
   AfterDarkItem: 'AfterDarkItem'
 } as const
 
@@ -427,7 +428,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "blockedUser" | "report" | "group" | "groupMember" | "invitation" | "proposal" | "option" | "guestVote" | "vote" | "refreshToken" | "business" | "featuredListing" | "businessImpression" | "afterDarkItem"
+    modelProps: "user" | "blockedUser" | "report" | "group" | "groupMember" | "invitation" | "proposal" | "option" | "guestVote" | "vote" | "refreshToken" | "business" | "featuredListing" | "businessImpression" | "businessDirectListing" | "afterDarkItem"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1467,6 +1468,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    BusinessDirectListing: {
+      payload: Prisma.$BusinessDirectListingPayload<ExtArgs>
+      fields: Prisma.BusinessDirectListingFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.BusinessDirectListingFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessDirectListingPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.BusinessDirectListingFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessDirectListingPayload>
+        }
+        findFirst: {
+          args: Prisma.BusinessDirectListingFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessDirectListingPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.BusinessDirectListingFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessDirectListingPayload>
+        }
+        findMany: {
+          args: Prisma.BusinessDirectListingFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessDirectListingPayload>[]
+        }
+        create: {
+          args: Prisma.BusinessDirectListingCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessDirectListingPayload>
+        }
+        createMany: {
+          args: Prisma.BusinessDirectListingCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.BusinessDirectListingCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessDirectListingPayload>[]
+        }
+        delete: {
+          args: Prisma.BusinessDirectListingDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessDirectListingPayload>
+        }
+        update: {
+          args: Prisma.BusinessDirectListingUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessDirectListingPayload>
+        }
+        deleteMany: {
+          args: Prisma.BusinessDirectListingDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.BusinessDirectListingUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.BusinessDirectListingUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessDirectListingPayload>[]
+        }
+        upsert: {
+          args: Prisma.BusinessDirectListingUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessDirectListingPayload>
+        }
+        aggregate: {
+          args: Prisma.BusinessDirectListingAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateBusinessDirectListing>
+        }
+        groupBy: {
+          args: Prisma.BusinessDirectListingGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BusinessDirectListingGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.BusinessDirectListingCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BusinessDirectListingCountAggregateOutputType> | number
+        }
+      }
+    }
     AfterDarkItem: {
       payload: Prisma.$AfterDarkItemPayload<ExtArgs>
       fields: Prisma.AfterDarkItemFieldRefs
@@ -1760,7 +1835,14 @@ export const BusinessScalarFieldEnum = {
   active: 'active',
   verified: 'verified',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  heroImageUrl: 'heroImageUrl',
+  featuredCategory: 'featuredCategory',
+  featuredRadius: 'featuredRadius',
+  featuredSlot: 'featuredSlot',
+  platformIds: 'platformIds',
+  stripePriceId: 'stripePriceId',
+  subscriptionStatus: 'subscriptionStatus'
 } as const
 
 export type BusinessScalarFieldEnum = (typeof BusinessScalarFieldEnum)[keyof typeof BusinessScalarFieldEnum]
@@ -1794,6 +1876,25 @@ export const BusinessImpressionScalarFieldEnum = {
 } as const
 
 export type BusinessImpressionScalarFieldEnum = (typeof BusinessImpressionScalarFieldEnum)[keyof typeof BusinessImpressionScalarFieldEnum]
+
+
+export const BusinessDirectListingScalarFieldEnum = {
+  id: 'id',
+  businessId: 'businessId',
+  title: 'title',
+  description: 'description',
+  category: 'category',
+  address: 'address',
+  imageUrl: 'imageUrl',
+  eventDate: 'eventDate',
+  price: 'price',
+  ticketUrl: 'ticketUrl',
+  active: 'active',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BusinessDirectListingScalarFieldEnum = (typeof BusinessDirectListingScalarFieldEnum)[keyof typeof BusinessDirectListingScalarFieldEnum]
 
 
 export const AfterDarkItemScalarFieldEnum = {
@@ -2157,6 +2258,7 @@ export type GlobalOmitConfig = {
   business?: Prisma.BusinessOmit
   featuredListing?: Prisma.FeaturedListingOmit
   businessImpression?: Prisma.BusinessImpressionOmit
+  businessDirectListing?: Prisma.BusinessDirectListingOmit
   afterDarkItem?: Prisma.AfterDarkItemOmit
 }
 

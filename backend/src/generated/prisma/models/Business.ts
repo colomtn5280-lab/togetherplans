@@ -29,11 +29,15 @@ export type AggregateBusiness = {
 export type BusinessAvgAggregateOutputType = {
   lat: number | null
   lng: number | null
+  featuredRadius: number | null
+  featuredSlot: number | null
 }
 
 export type BusinessSumAggregateOutputType = {
   lat: number | null
   lng: number | null
+  featuredRadius: number | null
+  featuredSlot: number | null
 }
 
 export type BusinessMinAggregateOutputType = {
@@ -60,6 +64,12 @@ export type BusinessMinAggregateOutputType = {
   verified: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
+  heroImageUrl: string | null
+  featuredCategory: string | null
+  featuredRadius: number | null
+  featuredSlot: number | null
+  stripePriceId: string | null
+  subscriptionStatus: string | null
 }
 
 export type BusinessMaxAggregateOutputType = {
@@ -86,6 +96,12 @@ export type BusinessMaxAggregateOutputType = {
   verified: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
+  heroImageUrl: string | null
+  featuredCategory: string | null
+  featuredRadius: number | null
+  featuredSlot: number | null
+  stripePriceId: string | null
+  subscriptionStatus: string | null
 }
 
 export type BusinessCountAggregateOutputType = {
@@ -114,6 +130,13 @@ export type BusinessCountAggregateOutputType = {
   verified: number
   createdAt: number
   updatedAt: number
+  heroImageUrl: number
+  featuredCategory: number
+  featuredRadius: number
+  featuredSlot: number
+  platformIds: number
+  stripePriceId: number
+  subscriptionStatus: number
   _all: number
 }
 
@@ -121,11 +144,15 @@ export type BusinessCountAggregateOutputType = {
 export type BusinessAvgAggregateInputType = {
   lat?: true
   lng?: true
+  featuredRadius?: true
+  featuredSlot?: true
 }
 
 export type BusinessSumAggregateInputType = {
   lat?: true
   lng?: true
+  featuredRadius?: true
+  featuredSlot?: true
 }
 
 export type BusinessMinAggregateInputType = {
@@ -152,6 +179,12 @@ export type BusinessMinAggregateInputType = {
   verified?: true
   createdAt?: true
   updatedAt?: true
+  heroImageUrl?: true
+  featuredCategory?: true
+  featuredRadius?: true
+  featuredSlot?: true
+  stripePriceId?: true
+  subscriptionStatus?: true
 }
 
 export type BusinessMaxAggregateInputType = {
@@ -178,6 +211,12 @@ export type BusinessMaxAggregateInputType = {
   verified?: true
   createdAt?: true
   updatedAt?: true
+  heroImageUrl?: true
+  featuredCategory?: true
+  featuredRadius?: true
+  featuredSlot?: true
+  stripePriceId?: true
+  subscriptionStatus?: true
 }
 
 export type BusinessCountAggregateInputType = {
@@ -206,6 +245,13 @@ export type BusinessCountAggregateInputType = {
   verified?: true
   createdAt?: true
   updatedAt?: true
+  heroImageUrl?: true
+  featuredCategory?: true
+  featuredRadius?: true
+  featuredSlot?: true
+  platformIds?: true
+  stripePriceId?: true
+  subscriptionStatus?: true
   _all?: true
 }
 
@@ -321,6 +367,13 @@ export type BusinessGroupByOutputType = {
   verified: boolean
   createdAt: Date
   updatedAt: Date
+  heroImageUrl: string | null
+  featuredCategory: string | null
+  featuredRadius: number
+  featuredSlot: number | null
+  platformIds: runtime.JsonValue | null
+  stripePriceId: string | null
+  subscriptionStatus: string
   _count: BusinessCountAggregateOutputType | null
   _avg: BusinessAvgAggregateOutputType | null
   _sum: BusinessSumAggregateOutputType | null
@@ -372,8 +425,16 @@ export type BusinessWhereInput = {
   verified?: Prisma.BoolFilter<"Business"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Business"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Business"> | Date | string
+  heroImageUrl?: Prisma.StringNullableFilter<"Business"> | string | null
+  featuredCategory?: Prisma.StringNullableFilter<"Business"> | string | null
+  featuredRadius?: Prisma.IntFilter<"Business"> | number
+  featuredSlot?: Prisma.IntNullableFilter<"Business"> | number | null
+  platformIds?: Prisma.JsonNullableFilter<"Business">
+  stripePriceId?: Prisma.StringNullableFilter<"Business"> | string | null
+  subscriptionStatus?: Prisma.StringFilter<"Business"> | string
   listings?: Prisma.FeaturedListingListRelationFilter
   impressions?: Prisma.BusinessImpressionListRelationFilter
+  directListings?: Prisma.BusinessDirectListingListRelationFilter
 }
 
 export type BusinessOrderByWithRelationInput = {
@@ -402,8 +463,16 @@ export type BusinessOrderByWithRelationInput = {
   verified?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  heroImageUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  featuredCategory?: Prisma.SortOrderInput | Prisma.SortOrder
+  featuredRadius?: Prisma.SortOrder
+  featuredSlot?: Prisma.SortOrderInput | Prisma.SortOrder
+  platformIds?: Prisma.SortOrderInput | Prisma.SortOrder
+  stripePriceId?: Prisma.SortOrderInput | Prisma.SortOrder
+  subscriptionStatus?: Prisma.SortOrder
   listings?: Prisma.FeaturedListingOrderByRelationAggregateInput
   impressions?: Prisma.BusinessImpressionOrderByRelationAggregateInput
+  directListings?: Prisma.BusinessDirectListingOrderByRelationAggregateInput
 }
 
 export type BusinessWhereUniqueInput = Prisma.AtLeast<{
@@ -435,8 +504,16 @@ export type BusinessWhereUniqueInput = Prisma.AtLeast<{
   verified?: Prisma.BoolFilter<"Business"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Business"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Business"> | Date | string
+  heroImageUrl?: Prisma.StringNullableFilter<"Business"> | string | null
+  featuredCategory?: Prisma.StringNullableFilter<"Business"> | string | null
+  featuredRadius?: Prisma.IntFilter<"Business"> | number
+  featuredSlot?: Prisma.IntNullableFilter<"Business"> | number | null
+  platformIds?: Prisma.JsonNullableFilter<"Business">
+  stripePriceId?: Prisma.StringNullableFilter<"Business"> | string | null
+  subscriptionStatus?: Prisma.StringFilter<"Business"> | string
   listings?: Prisma.FeaturedListingListRelationFilter
   impressions?: Prisma.BusinessImpressionListRelationFilter
+  directListings?: Prisma.BusinessDirectListingListRelationFilter
 }, "id" | "email">
 
 export type BusinessOrderByWithAggregationInput = {
@@ -465,6 +542,13 @@ export type BusinessOrderByWithAggregationInput = {
   verified?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  heroImageUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  featuredCategory?: Prisma.SortOrderInput | Prisma.SortOrder
+  featuredRadius?: Prisma.SortOrder
+  featuredSlot?: Prisma.SortOrderInput | Prisma.SortOrder
+  platformIds?: Prisma.SortOrderInput | Prisma.SortOrder
+  stripePriceId?: Prisma.SortOrderInput | Prisma.SortOrder
+  subscriptionStatus?: Prisma.SortOrder
   _count?: Prisma.BusinessCountOrderByAggregateInput
   _avg?: Prisma.BusinessAvgOrderByAggregateInput
   _max?: Prisma.BusinessMaxOrderByAggregateInput
@@ -501,6 +585,13 @@ export type BusinessScalarWhereWithAggregatesInput = {
   verified?: Prisma.BoolWithAggregatesFilter<"Business"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Business"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Business"> | Date | string
+  heroImageUrl?: Prisma.StringNullableWithAggregatesFilter<"Business"> | string | null
+  featuredCategory?: Prisma.StringNullableWithAggregatesFilter<"Business"> | string | null
+  featuredRadius?: Prisma.IntWithAggregatesFilter<"Business"> | number
+  featuredSlot?: Prisma.IntNullableWithAggregatesFilter<"Business"> | number | null
+  platformIds?: Prisma.JsonNullableWithAggregatesFilter<"Business">
+  stripePriceId?: Prisma.StringNullableWithAggregatesFilter<"Business"> | string | null
+  subscriptionStatus?: Prisma.StringWithAggregatesFilter<"Business"> | string
 }
 
 export type BusinessCreateInput = {
@@ -529,8 +620,16 @@ export type BusinessCreateInput = {
   verified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  heroImageUrl?: string | null
+  featuredCategory?: string | null
+  featuredRadius?: number
+  featuredSlot?: number | null
+  platformIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  stripePriceId?: string | null
+  subscriptionStatus?: string
   listings?: Prisma.FeaturedListingCreateNestedManyWithoutBusinessInput
   impressions?: Prisma.BusinessImpressionCreateNestedManyWithoutBusinessInput
+  directListings?: Prisma.BusinessDirectListingCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateInput = {
@@ -559,8 +658,16 @@ export type BusinessUncheckedCreateInput = {
   verified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  heroImageUrl?: string | null
+  featuredCategory?: string | null
+  featuredRadius?: number
+  featuredSlot?: number | null
+  platformIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  stripePriceId?: string | null
+  subscriptionStatus?: string
   listings?: Prisma.FeaturedListingUncheckedCreateNestedManyWithoutBusinessInput
   impressions?: Prisma.BusinessImpressionUncheckedCreateNestedManyWithoutBusinessInput
+  directListings?: Prisma.BusinessDirectListingUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUpdateInput = {
@@ -589,8 +696,16 @@ export type BusinessUpdateInput = {
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  heroImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  featuredCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  featuredRadius?: Prisma.IntFieldUpdateOperationsInput | number
+  featuredSlot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  platformIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  stripePriceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionStatus?: Prisma.StringFieldUpdateOperationsInput | string
   listings?: Prisma.FeaturedListingUpdateManyWithoutBusinessNestedInput
   impressions?: Prisma.BusinessImpressionUpdateManyWithoutBusinessNestedInput
+  directListings?: Prisma.BusinessDirectListingUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateInput = {
@@ -619,8 +734,16 @@ export type BusinessUncheckedUpdateInput = {
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  heroImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  featuredCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  featuredRadius?: Prisma.IntFieldUpdateOperationsInput | number
+  featuredSlot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  platformIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  stripePriceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionStatus?: Prisma.StringFieldUpdateOperationsInput | string
   listings?: Prisma.FeaturedListingUncheckedUpdateManyWithoutBusinessNestedInput
   impressions?: Prisma.BusinessImpressionUncheckedUpdateManyWithoutBusinessNestedInput
+  directListings?: Prisma.BusinessDirectListingUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessCreateManyInput = {
@@ -649,6 +772,13 @@ export type BusinessCreateManyInput = {
   verified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  heroImageUrl?: string | null
+  featuredCategory?: string | null
+  featuredRadius?: number
+  featuredSlot?: number | null
+  platformIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  stripePriceId?: string | null
+  subscriptionStatus?: string
 }
 
 export type BusinessUpdateManyMutationInput = {
@@ -677,6 +807,13 @@ export type BusinessUpdateManyMutationInput = {
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  heroImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  featuredCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  featuredRadius?: Prisma.IntFieldUpdateOperationsInput | number
+  featuredSlot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  platformIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  stripePriceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionStatus?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type BusinessUncheckedUpdateManyInput = {
@@ -705,6 +842,13 @@ export type BusinessUncheckedUpdateManyInput = {
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  heroImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  featuredCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  featuredRadius?: Prisma.IntFieldUpdateOperationsInput | number
+  featuredSlot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  platformIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  stripePriceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionStatus?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type StringNullableListFilter<$PrismaModel = never> = {
@@ -741,11 +885,20 @@ export type BusinessCountOrderByAggregateInput = {
   verified?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  heroImageUrl?: Prisma.SortOrder
+  featuredCategory?: Prisma.SortOrder
+  featuredRadius?: Prisma.SortOrder
+  featuredSlot?: Prisma.SortOrder
+  platformIds?: Prisma.SortOrder
+  stripePriceId?: Prisma.SortOrder
+  subscriptionStatus?: Prisma.SortOrder
 }
 
 export type BusinessAvgOrderByAggregateInput = {
   lat?: Prisma.SortOrder
   lng?: Prisma.SortOrder
+  featuredRadius?: Prisma.SortOrder
+  featuredSlot?: Prisma.SortOrder
 }
 
 export type BusinessMaxOrderByAggregateInput = {
@@ -772,6 +925,12 @@ export type BusinessMaxOrderByAggregateInput = {
   verified?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  heroImageUrl?: Prisma.SortOrder
+  featuredCategory?: Prisma.SortOrder
+  featuredRadius?: Prisma.SortOrder
+  featuredSlot?: Prisma.SortOrder
+  stripePriceId?: Prisma.SortOrder
+  subscriptionStatus?: Prisma.SortOrder
 }
 
 export type BusinessMinOrderByAggregateInput = {
@@ -798,11 +957,19 @@ export type BusinessMinOrderByAggregateInput = {
   verified?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  heroImageUrl?: Prisma.SortOrder
+  featuredCategory?: Prisma.SortOrder
+  featuredRadius?: Prisma.SortOrder
+  featuredSlot?: Prisma.SortOrder
+  stripePriceId?: Prisma.SortOrder
+  subscriptionStatus?: Prisma.SortOrder
 }
 
 export type BusinessSumOrderByAggregateInput = {
   lat?: Prisma.SortOrder
   lng?: Prisma.SortOrder
+  featuredRadius?: Prisma.SortOrder
+  featuredSlot?: Prisma.SortOrder
 }
 
 export type BusinessScalarRelationFilter = {
@@ -826,6 +993,14 @@ export type BusinessUpdatephotosInput = {
 export type BusinessUpdatetagsInput = {
   set?: string[]
   push?: string | string[]
+}
+
+export type IntFieldUpdateOperationsInput = {
+  set?: number
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
 }
 
 export type BusinessCreateNestedOneWithoutListingsInput = {
@@ -856,6 +1031,20 @@ export type BusinessUpdateOneRequiredWithoutImpressionsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.BusinessUpdateToOneWithWhereWithoutImpressionsInput, Prisma.BusinessUpdateWithoutImpressionsInput>, Prisma.BusinessUncheckedUpdateWithoutImpressionsInput>
 }
 
+export type BusinessCreateNestedOneWithoutDirectListingsInput = {
+  create?: Prisma.XOR<Prisma.BusinessCreateWithoutDirectListingsInput, Prisma.BusinessUncheckedCreateWithoutDirectListingsInput>
+  connectOrCreate?: Prisma.BusinessCreateOrConnectWithoutDirectListingsInput
+  connect?: Prisma.BusinessWhereUniqueInput
+}
+
+export type BusinessUpdateOneRequiredWithoutDirectListingsNestedInput = {
+  create?: Prisma.XOR<Prisma.BusinessCreateWithoutDirectListingsInput, Prisma.BusinessUncheckedCreateWithoutDirectListingsInput>
+  connectOrCreate?: Prisma.BusinessCreateOrConnectWithoutDirectListingsInput
+  upsert?: Prisma.BusinessUpsertWithoutDirectListingsInput
+  connect?: Prisma.BusinessWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.BusinessUpdateToOneWithWhereWithoutDirectListingsInput, Prisma.BusinessUpdateWithoutDirectListingsInput>, Prisma.BusinessUncheckedUpdateWithoutDirectListingsInput>
+}
+
 export type BusinessCreateWithoutListingsInput = {
   id?: string
   name: string
@@ -882,7 +1071,15 @@ export type BusinessCreateWithoutListingsInput = {
   verified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  heroImageUrl?: string | null
+  featuredCategory?: string | null
+  featuredRadius?: number
+  featuredSlot?: number | null
+  platformIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  stripePriceId?: string | null
+  subscriptionStatus?: string
   impressions?: Prisma.BusinessImpressionCreateNestedManyWithoutBusinessInput
+  directListings?: Prisma.BusinessDirectListingCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutListingsInput = {
@@ -911,7 +1108,15 @@ export type BusinessUncheckedCreateWithoutListingsInput = {
   verified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  heroImageUrl?: string | null
+  featuredCategory?: string | null
+  featuredRadius?: number
+  featuredSlot?: number | null
+  platformIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  stripePriceId?: string | null
+  subscriptionStatus?: string
   impressions?: Prisma.BusinessImpressionUncheckedCreateNestedManyWithoutBusinessInput
+  directListings?: Prisma.BusinessDirectListingUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutListingsInput = {
@@ -956,7 +1161,15 @@ export type BusinessUpdateWithoutListingsInput = {
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  heroImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  featuredCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  featuredRadius?: Prisma.IntFieldUpdateOperationsInput | number
+  featuredSlot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  platformIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  stripePriceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionStatus?: Prisma.StringFieldUpdateOperationsInput | string
   impressions?: Prisma.BusinessImpressionUpdateManyWithoutBusinessNestedInput
+  directListings?: Prisma.BusinessDirectListingUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutListingsInput = {
@@ -985,7 +1198,15 @@ export type BusinessUncheckedUpdateWithoutListingsInput = {
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  heroImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  featuredCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  featuredRadius?: Prisma.IntFieldUpdateOperationsInput | number
+  featuredSlot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  platformIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  stripePriceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionStatus?: Prisma.StringFieldUpdateOperationsInput | string
   impressions?: Prisma.BusinessImpressionUncheckedUpdateManyWithoutBusinessNestedInput
+  directListings?: Prisma.BusinessDirectListingUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessCreateWithoutImpressionsInput = {
@@ -1014,7 +1235,15 @@ export type BusinessCreateWithoutImpressionsInput = {
   verified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  heroImageUrl?: string | null
+  featuredCategory?: string | null
+  featuredRadius?: number
+  featuredSlot?: number | null
+  platformIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  stripePriceId?: string | null
+  subscriptionStatus?: string
   listings?: Prisma.FeaturedListingCreateNestedManyWithoutBusinessInput
+  directListings?: Prisma.BusinessDirectListingCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutImpressionsInput = {
@@ -1043,7 +1272,15 @@ export type BusinessUncheckedCreateWithoutImpressionsInput = {
   verified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  heroImageUrl?: string | null
+  featuredCategory?: string | null
+  featuredRadius?: number
+  featuredSlot?: number | null
+  platformIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  stripePriceId?: string | null
+  subscriptionStatus?: string
   listings?: Prisma.FeaturedListingUncheckedCreateNestedManyWithoutBusinessInput
+  directListings?: Prisma.BusinessDirectListingUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutImpressionsInput = {
@@ -1088,7 +1325,15 @@ export type BusinessUpdateWithoutImpressionsInput = {
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  heroImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  featuredCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  featuredRadius?: Prisma.IntFieldUpdateOperationsInput | number
+  featuredSlot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  platformIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  stripePriceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionStatus?: Prisma.StringFieldUpdateOperationsInput | string
   listings?: Prisma.FeaturedListingUpdateManyWithoutBusinessNestedInput
+  directListings?: Prisma.BusinessDirectListingUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutImpressionsInput = {
@@ -1117,7 +1362,179 @@ export type BusinessUncheckedUpdateWithoutImpressionsInput = {
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  heroImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  featuredCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  featuredRadius?: Prisma.IntFieldUpdateOperationsInput | number
+  featuredSlot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  platformIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  stripePriceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionStatus?: Prisma.StringFieldUpdateOperationsInput | string
   listings?: Prisma.FeaturedListingUncheckedUpdateManyWithoutBusinessNestedInput
+  directListings?: Prisma.BusinessDirectListingUncheckedUpdateManyWithoutBusinessNestedInput
+}
+
+export type BusinessCreateWithoutDirectListingsInput = {
+  id?: string
+  name: string
+  email: string
+  passwordHash: string
+  category: string
+  description?: string
+  address?: string
+  city?: string
+  state?: string
+  zipCode?: string
+  lat?: number | null
+  lng?: number | null
+  website?: string | null
+  phone?: string | null
+  logoUrl?: string | null
+  photos?: Prisma.BusinessCreatephotosInput | string[]
+  priceRange?: string
+  tags?: Prisma.BusinessCreatetagsInput | string[]
+  tier?: string
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  active?: boolean
+  verified?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  heroImageUrl?: string | null
+  featuredCategory?: string | null
+  featuredRadius?: number
+  featuredSlot?: number | null
+  platformIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  stripePriceId?: string | null
+  subscriptionStatus?: string
+  listings?: Prisma.FeaturedListingCreateNestedManyWithoutBusinessInput
+  impressions?: Prisma.BusinessImpressionCreateNestedManyWithoutBusinessInput
+}
+
+export type BusinessUncheckedCreateWithoutDirectListingsInput = {
+  id?: string
+  name: string
+  email: string
+  passwordHash: string
+  category: string
+  description?: string
+  address?: string
+  city?: string
+  state?: string
+  zipCode?: string
+  lat?: number | null
+  lng?: number | null
+  website?: string | null
+  phone?: string | null
+  logoUrl?: string | null
+  photos?: Prisma.BusinessCreatephotosInput | string[]
+  priceRange?: string
+  tags?: Prisma.BusinessCreatetagsInput | string[]
+  tier?: string
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  active?: boolean
+  verified?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  heroImageUrl?: string | null
+  featuredCategory?: string | null
+  featuredRadius?: number
+  featuredSlot?: number | null
+  platformIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  stripePriceId?: string | null
+  subscriptionStatus?: string
+  listings?: Prisma.FeaturedListingUncheckedCreateNestedManyWithoutBusinessInput
+  impressions?: Prisma.BusinessImpressionUncheckedCreateNestedManyWithoutBusinessInput
+}
+
+export type BusinessCreateOrConnectWithoutDirectListingsInput = {
+  where: Prisma.BusinessWhereUniqueInput
+  create: Prisma.XOR<Prisma.BusinessCreateWithoutDirectListingsInput, Prisma.BusinessUncheckedCreateWithoutDirectListingsInput>
+}
+
+export type BusinessUpsertWithoutDirectListingsInput = {
+  update: Prisma.XOR<Prisma.BusinessUpdateWithoutDirectListingsInput, Prisma.BusinessUncheckedUpdateWithoutDirectListingsInput>
+  create: Prisma.XOR<Prisma.BusinessCreateWithoutDirectListingsInput, Prisma.BusinessUncheckedCreateWithoutDirectListingsInput>
+  where?: Prisma.BusinessWhereInput
+}
+
+export type BusinessUpdateToOneWithWhereWithoutDirectListingsInput = {
+  where?: Prisma.BusinessWhereInput
+  data: Prisma.XOR<Prisma.BusinessUpdateWithoutDirectListingsInput, Prisma.BusinessUncheckedUpdateWithoutDirectListingsInput>
+}
+
+export type BusinessUpdateWithoutDirectListingsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.StringFieldUpdateOperationsInput | string
+  city?: Prisma.StringFieldUpdateOperationsInput | string
+  state?: Prisma.StringFieldUpdateOperationsInput | string
+  zipCode?: Prisma.StringFieldUpdateOperationsInput | string
+  lat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  lng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  photos?: Prisma.BusinessUpdatephotosInput | string[]
+  priceRange?: Prisma.StringFieldUpdateOperationsInput | string
+  tags?: Prisma.BusinessUpdatetagsInput | string[]
+  tier?: Prisma.StringFieldUpdateOperationsInput | string
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  heroImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  featuredCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  featuredRadius?: Prisma.IntFieldUpdateOperationsInput | number
+  featuredSlot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  platformIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  stripePriceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  listings?: Prisma.FeaturedListingUpdateManyWithoutBusinessNestedInput
+  impressions?: Prisma.BusinessImpressionUpdateManyWithoutBusinessNestedInput
+}
+
+export type BusinessUncheckedUpdateWithoutDirectListingsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.StringFieldUpdateOperationsInput | string
+  city?: Prisma.StringFieldUpdateOperationsInput | string
+  state?: Prisma.StringFieldUpdateOperationsInput | string
+  zipCode?: Prisma.StringFieldUpdateOperationsInput | string
+  lat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  lng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  photos?: Prisma.BusinessUpdatephotosInput | string[]
+  priceRange?: Prisma.StringFieldUpdateOperationsInput | string
+  tags?: Prisma.BusinessUpdatetagsInput | string[]
+  tier?: Prisma.StringFieldUpdateOperationsInput | string
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  heroImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  featuredCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  featuredRadius?: Prisma.IntFieldUpdateOperationsInput | number
+  featuredSlot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  platformIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  stripePriceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  listings?: Prisma.FeaturedListingUncheckedUpdateManyWithoutBusinessNestedInput
+  impressions?: Prisma.BusinessImpressionUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 
@@ -1128,11 +1545,13 @@ export type BusinessUncheckedUpdateWithoutImpressionsInput = {
 export type BusinessCountOutputType = {
   listings: number
   impressions: number
+  directListings: number
 }
 
 export type BusinessCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   listings?: boolean | BusinessCountOutputTypeCountListingsArgs
   impressions?: boolean | BusinessCountOutputTypeCountImpressionsArgs
+  directListings?: boolean | BusinessCountOutputTypeCountDirectListingsArgs
 }
 
 /**
@@ -1157,6 +1576,13 @@ export type BusinessCountOutputTypeCountListingsArgs<ExtArgs extends runtime.Typ
  */
 export type BusinessCountOutputTypeCountImpressionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.BusinessImpressionWhereInput
+}
+
+/**
+ * BusinessCountOutputType without action
+ */
+export type BusinessCountOutputTypeCountDirectListingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.BusinessDirectListingWhereInput
 }
 
 
@@ -1186,8 +1612,16 @@ export type BusinessSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   verified?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  heroImageUrl?: boolean
+  featuredCategory?: boolean
+  featuredRadius?: boolean
+  featuredSlot?: boolean
+  platformIds?: boolean
+  stripePriceId?: boolean
+  subscriptionStatus?: boolean
   listings?: boolean | Prisma.Business$listingsArgs<ExtArgs>
   impressions?: boolean | Prisma.Business$impressionsArgs<ExtArgs>
+  directListings?: boolean | Prisma.Business$directListingsArgs<ExtArgs>
   _count?: boolean | Prisma.BusinessCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["business"]>
 
@@ -1217,6 +1651,13 @@ export type BusinessSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   verified?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  heroImageUrl?: boolean
+  featuredCategory?: boolean
+  featuredRadius?: boolean
+  featuredSlot?: boolean
+  platformIds?: boolean
+  stripePriceId?: boolean
+  subscriptionStatus?: boolean
 }, ExtArgs["result"]["business"]>
 
 export type BusinessSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1245,6 +1686,13 @@ export type BusinessSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   verified?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  heroImageUrl?: boolean
+  featuredCategory?: boolean
+  featuredRadius?: boolean
+  featuredSlot?: boolean
+  platformIds?: boolean
+  stripePriceId?: boolean
+  subscriptionStatus?: boolean
 }, ExtArgs["result"]["business"]>
 
 export type BusinessSelectScalar = {
@@ -1273,12 +1721,20 @@ export type BusinessSelectScalar = {
   verified?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  heroImageUrl?: boolean
+  featuredCategory?: boolean
+  featuredRadius?: boolean
+  featuredSlot?: boolean
+  platformIds?: boolean
+  stripePriceId?: boolean
+  subscriptionStatus?: boolean
 }
 
-export type BusinessOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "passwordHash" | "category" | "description" | "address" | "city" | "state" | "zipCode" | "lat" | "lng" | "website" | "phone" | "logoUrl" | "photos" | "priceRange" | "tags" | "tier" | "stripeCustomerId" | "stripeSubscriptionId" | "active" | "verified" | "createdAt" | "updatedAt", ExtArgs["result"]["business"]>
+export type BusinessOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "passwordHash" | "category" | "description" | "address" | "city" | "state" | "zipCode" | "lat" | "lng" | "website" | "phone" | "logoUrl" | "photos" | "priceRange" | "tags" | "tier" | "stripeCustomerId" | "stripeSubscriptionId" | "active" | "verified" | "createdAt" | "updatedAt" | "heroImageUrl" | "featuredCategory" | "featuredRadius" | "featuredSlot" | "platformIds" | "stripePriceId" | "subscriptionStatus", ExtArgs["result"]["business"]>
 export type BusinessInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   listings?: boolean | Prisma.Business$listingsArgs<ExtArgs>
   impressions?: boolean | Prisma.Business$impressionsArgs<ExtArgs>
+  directListings?: boolean | Prisma.Business$directListingsArgs<ExtArgs>
   _count?: boolean | Prisma.BusinessCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type BusinessIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1289,6 +1745,7 @@ export type $BusinessPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
   objects: {
     listings: Prisma.$FeaturedListingPayload<ExtArgs>[]
     impressions: Prisma.$BusinessImpressionPayload<ExtArgs>[]
+    directListings: Prisma.$BusinessDirectListingPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1316,6 +1773,13 @@ export type $BusinessPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     verified: boolean
     createdAt: Date
     updatedAt: Date
+    heroImageUrl: string | null
+    featuredCategory: string | null
+    featuredRadius: number
+    featuredSlot: number | null
+    platformIds: runtime.JsonValue | null
+    stripePriceId: string | null
+    subscriptionStatus: string
   }, ExtArgs["result"]["business"]>
   composites: {}
 }
@@ -1712,6 +2176,7 @@ export interface Prisma__BusinessClient<T, Null = never, ExtArgs extends runtime
   readonly [Symbol.toStringTag]: "PrismaPromise"
   listings<T extends Prisma.Business$listingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Business$listingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FeaturedListingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   impressions<T extends Prisma.Business$impressionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Business$impressionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BusinessImpressionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  directListings<T extends Prisma.Business$directListingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Business$directListingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BusinessDirectListingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1766,6 +2231,13 @@ export interface BusinessFieldRefs {
   readonly verified: Prisma.FieldRef<"Business", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"Business", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Business", 'DateTime'>
+  readonly heroImageUrl: Prisma.FieldRef<"Business", 'String'>
+  readonly featuredCategory: Prisma.FieldRef<"Business", 'String'>
+  readonly featuredRadius: Prisma.FieldRef<"Business", 'Int'>
+  readonly featuredSlot: Prisma.FieldRef<"Business", 'Int'>
+  readonly platformIds: Prisma.FieldRef<"Business", 'Json'>
+  readonly stripePriceId: Prisma.FieldRef<"Business", 'String'>
+  readonly subscriptionStatus: Prisma.FieldRef<"Business", 'String'>
 }
     
 
@@ -2204,6 +2676,30 @@ export type Business$impressionsArgs<ExtArgs extends runtime.Types.Extensions.In
   take?: number
   skip?: number
   distinct?: Prisma.BusinessImpressionScalarFieldEnum | Prisma.BusinessImpressionScalarFieldEnum[]
+}
+
+/**
+ * Business.directListings
+ */
+export type Business$directListingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the BusinessDirectListing
+   */
+  select?: Prisma.BusinessDirectListingSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the BusinessDirectListing
+   */
+  omit?: Prisma.BusinessDirectListingOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BusinessDirectListingInclude<ExtArgs> | null
+  where?: Prisma.BusinessDirectListingWhereInput
+  orderBy?: Prisma.BusinessDirectListingOrderByWithRelationInput | Prisma.BusinessDirectListingOrderByWithRelationInput[]
+  cursor?: Prisma.BusinessDirectListingWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.BusinessDirectListingScalarFieldEnum | Prisma.BusinessDirectListingScalarFieldEnum[]
 }
 
 /**
