@@ -578,6 +578,7 @@ export function ProposalPage() {
             </h3>
             <div
               style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}
+              className="proposal-options-grid"
               data-testid="proposal-items"
             >
               {options.map((option, i) => {
@@ -1012,6 +1013,14 @@ export function ProposalPage() {
         <style>{`
           @media (max-width: 768px) {
             .proposal-grid {
+              grid-template-columns: 1fr !important;
+            }
+            .proposal-options-grid {
+              grid-template-columns: 1fr !important;
+            }
+          }
+          @media (max-width: 480px) {
+            .proposal-options-grid {
               grid-template-columns: 1fr !important;
             }
           }
