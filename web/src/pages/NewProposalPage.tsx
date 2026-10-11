@@ -381,7 +381,7 @@ export function NewProposalPage() {
                   Nothing added yet
                 </div>
                 <div style={{ fontSize: 14, marginBottom: 24 }}>
-                  Browse Discover and tap + Add to Plan on anything that looks good.
+                  Browse Discover and tap + Add to Date on anything that looks good.
                 </div>
                 <Link
                   to="/discover"

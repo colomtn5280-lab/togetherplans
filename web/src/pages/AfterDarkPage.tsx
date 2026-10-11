@@ -8,6 +8,7 @@
 
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import "./add-to-date-button.css";
 import { afterDarkApi, groupsApi } from "../api/client";
 import { AppNav } from "../components/AppNav";
 import { useAuthStore } from "../store/auth.store";
@@ -404,35 +405,14 @@ function AfterDarkCard({
         {isSpicy ? "🔥 Spicy" : "💫 Romantic"}
       </div>
 
-      {/* Add to Plan button */}
+      {/* Add to Date button */}
       <button
+        className="dmu-add"
+        aria-pressed="false"
         onClick={() => onAddToPlan(item)}
-        style={{
-          width: "100%",
-          padding: "10px 0",
-          background: isDarkBg ? "rgba(255,255,255,0.15)" : "rgba(178,72,94,0.15)",
-          border: isDarkBg ? "1px solid rgba(255,255,255,0.25)" : "1px solid #B2485E",
-          borderRadius: 12,
-          color: isDarkBg ? "#F7E3E7" : "#B2485E",
-          fontFamily: "'DM Sans', sans-serif",
-          fontWeight: 700,
-          fontSize: 13,
-          cursor: "pointer",
-          marginTop: "auto",
-          transition: "background 0.2s",
-        }}
-        onMouseEnter={(e) => {
-          (e.currentTarget as HTMLButtonElement).style.background = isDarkBg
-            ? "rgba(255,255,255,0.25)"
-            : "rgba(178,72,94,0.25)";
-        }}
-        onMouseLeave={(e) => {
-          (e.currentTarget as HTMLButtonElement).style.background = isDarkBg
-            ? "rgba(255,255,255,0.15)"
-            : "rgba(178,72,94,0.15)";
-        }}
+        style={{ marginTop: "auto" }}
       >
-        + Add to Plan
+        Add to Date
       </button>
     </div>
   );

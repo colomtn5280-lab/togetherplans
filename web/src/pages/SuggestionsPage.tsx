@@ -7,6 +7,7 @@ import { AppNav } from "../components/AppNav";
 import { CATEGORIES, findCategory } from "../constants/categories";
 import { loadFavCategories } from "../components/FavCategories";
 import "./discover-filters.css";
+import "./add-to-date-button.css";
 import { usePlanBuilder } from "../contexts/PlanBuilderContext";
 import { useAuthStore } from "../store/auth.store";
 import type { Suggestion } from "../types";
@@ -516,25 +517,16 @@ function EventDetailModal({
           )}
 
           {alreadyAdded ? (
-            <div
-              style={{
-                background: "var(--lime-soft)",
-                borderRadius: 20,
-                padding: "12px",
-                textAlign: "center",
-                color: "var(--lime)",
-                fontWeight: 700,
-              }}
-            >
-              ✓ Added to plan
-            </div>
+            <button className="dmu-add" aria-pressed="true" disabled>
+              Added
+            </button>
           ) : (
             <button
-              className="dn-btn dn-btn--primary"
-              style={{ width: "100%" }}
+              className="dmu-add"
+              aria-pressed="false"
               onClick={() => { onAdd(); onClose(); }}
             >
-              Add to Plan
+              Add to Date
             </button>
           )}
         </div>
@@ -1162,8 +1154,9 @@ export function SuggestionsPage() {
                   )}
 
                   <button
-                    className={`dn-btn dn-btn--sm ${added ? "dn-btn--tonal" : "dn-btn--primary"}`}
-                    style={{ marginTop: "auto", width: "100%" }}
+                    className="dmu-add"
+                    aria-pressed={added ? "true" : "false"}
+                    style={{ marginTop: "auto" }}
                     onClick={() => {
                       if (!isAuthenticated) {
                         navigate("/signup");
@@ -1172,7 +1165,7 @@ export function SuggestionsPage() {
                       setDetailSuggestion(s);
                     }}
                   >
-                    {added ? "✓ In Plan" : isAuthenticated ? "+ Add to Plan" : "Sign up to save your plan →"}
+                    {added ? "Added" : isAuthenticated ? "Add to Date" : "Sign up to save your plan →"}
                   </button>
                 </div>
               );
@@ -1220,8 +1213,9 @@ export function SuggestionsPage() {
                       </p>
                     )}
                     <button
-                      className={`dn-btn dn-btn--sm ${added ? "dn-btn--tonal" : "dn-btn--secondary"}`}
-                      style={{ marginTop: "auto", width: "100%" }}
+                      className="dmu-add"
+                      aria-pressed={added ? "true" : "false"}
+                      style={{ marginTop: "auto" }}
                       onClick={() => {
                         if (!isAuthenticated) {
                           navigate("/signup");
@@ -1242,7 +1236,7 @@ export function SuggestionsPage() {
                         });
                       }}
                     >
-                      {added ? "✓ In Plan" : isAuthenticated ? "+ Add to Plan" : "Sign up to save your plan →"}
+                      {added ? "Added" : isAuthenticated ? "Add to Date" : "Sign up to save your plan →"}
                     </button>
                   </div>
                 );

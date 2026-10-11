@@ -36,6 +36,7 @@ import {
   DNSticker,
   DNText,
 } from '@/components/ui';
+import { AddToDateButton } from '@/components/AddToDateButton';
 import { proposalsAPI, api, getToken } from '@/services/api';
 import type { RootStackParamList, Suggestion } from '@/types';
 
@@ -484,26 +485,11 @@ function EventDetailSheet({
               </TouchableOpacity>
             )}
 
-            {/* Add to Plan CTA */}
+            {/* Add to Date CTA */}
             {alreadyAdded ? (
-              <View
-                style={{
-                  backgroundColor: colors.limeSoft,
-                  borderRadius: 20,
-                  paddingVertical: 14,
-                  alignItems: 'center',
-                }}
-              >
-                <DNText variant="buttonSm" color={colors.lime}>
-                  ✓ Added to plan
-                </DNText>
-              </View>
+              <AddToDateButton added onPress={() => {}} />
             ) : (
-              <DNButton
-                label="Add to Plan"
-                variant="primary"
-                onPress={() => onAdd(suggestion)}
-              />
+              <AddToDateButton onPress={() => onAdd(suggestion)} />
             )}
           </View>
         </ScrollView>
@@ -613,14 +599,10 @@ function SuggestionCard({
           )}
         </View>
 
-        {/* Already added indicator */}
-        {alreadyAdded && (
-          <View style={{ marginTop: SPACING.xs }}>
-            <DNText variant="secondary" color={colors.lime}>
-              ✓ In your plan
-            </DNText>
-          </View>
-        )}
+        {/* Add to Date button — full width, card bottom, 14px gap from distance line */}
+        <View style={{ marginTop: 14 }}>
+          <AddToDateButton added={alreadyAdded} onPress={onPress} />
+        </View>
       </View>
     </TouchableOpacity>
   );
@@ -650,42 +632,23 @@ function IdeaCard({
         borderColor: colors.primary,
         padding: SPACING.md,
         marginBottom: SPACING.sm,
-        flexDirection: 'row',
-        alignItems: 'center',
+        flexDirection: 'column',
       }}
     >
-      <Text style={{ fontSize: 32, marginRight: SPACING.md }}>{emoji}</Text>
-      <View style={{ flex: 1 }}>
-        <DNText variant="heading" color="#1A1A1A">
-          {suggestion.name}
-        </DNText>
-        {suggestion.description ? (
-          <DNText variant="secondary" color="#4A4A4A" style={{ marginTop: 2 }} numberOfLines={2}>
-            {suggestion.description}
+      <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: SPACING.sm }}>
+        <Text style={{ fontSize: 32, marginRight: SPACING.md }}>{emoji}</Text>
+        <View style={{ flex: 1 }}>
+          <DNText variant="heading" color="#1A1A1A">
+            {suggestion.name}
           </DNText>
-        ) : null}
-        <View style={{ marginTop: SPACING.xs, flexDirection: 'row' }}>
-          {alreadyAdded ? (
-            <DNText variant="secondary" color={colors.lime}>
-              ✓ In your plan
+          {suggestion.description ? (
+            <DNText variant="secondary" color="#4A4A4A" style={{ marginTop: 2 }} numberOfLines={2}>
+              {suggestion.description}
             </DNText>
-          ) : (
-            <TouchableOpacity
-              onPress={onAdd}
-              style={{
-                backgroundColor: colors.primary,
-                borderRadius: 14,
-                paddingVertical: 6,
-                paddingHorizontal: 14,
-              }}
-            >
-              <DNText variant="buttonSm" color={colors.onPrimary}>
-                Add to Plan
-              </DNText>
-            </TouchableOpacity>
-          )}
+          ) : null}
         </View>
       </View>
+      <AddToDateButton added={alreadyAdded} onPress={onAdd} />
     </View>
   );
 }

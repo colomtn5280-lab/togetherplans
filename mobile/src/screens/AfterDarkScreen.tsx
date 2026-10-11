@@ -24,6 +24,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { usePlanBuilder } from '@/contexts/PlanBuilderContext';
 import { CARD_RADII, SHADOWS, SPACING, TYPE } from '@/constants';
 import { DNButton, DNScreenHeader, DNSticker, DNText } from '@/components/ui';
+import { AddToDateButton } from '@/components/AddToDateButton';
 import { afterDarkAPI } from '@/services/api';
 import type { AfterDarkStatus, AfterDarkMood, AfterDarkSuggestion, AfterDarkItem, RootStackParamList } from '@/types';
 
@@ -659,9 +660,7 @@ export default function AfterDarkScreen() {
                           {selectedCatalogItem.tier === 'ROMANTIC' ? '💫 Romantic' : '🔥 Spicy'}
                         </Text>
                       </View>
-                      <DNButton
-                        label="Add to Plan"
-                        variant="primary"
+                      <AddToDateButton
                         onPress={() => {
                           addOption({
                             name: selectedCatalogItem.title,
