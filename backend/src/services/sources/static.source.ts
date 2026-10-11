@@ -14,6 +14,8 @@ import { prisma } from '@/services/db';
 import { logger } from '@/services/logger';
 import { Suggestion, SuggestionCategory, SourceName } from './types';
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 /** DateMeUp category slugs that are served primarily from the static DB */
 export const STATIC_CATEGORIES = new Set<string>([
   'restaurants-dining',

@@ -48,6 +48,7 @@ interface BitEvent {
   lineup?: string[];
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- reserved for future artist-detail enrichment
 interface BitArtist {
   name: string;
   url?: string;

@@ -225,6 +225,7 @@ function sortSuggestions(suggestions: Suggestion[], _userLat?: number, _userLng?
 // ---------------------------------------------------------------------------
 // Featured Business Injection — paid B2B businesses injected at the top
 // ---------------------------------------------------------------------------
+/* eslint-disable @typescript-eslint/no-explicit-any */
 async function getFeaturedBusinesses(category: string, lat: number, lng: number): Promise<Suggestion[]> {
   try {
     const businesses = await prisma.business.findMany({

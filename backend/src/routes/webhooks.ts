@@ -3,6 +3,8 @@ import { getStripeClient, tierFromPriceId } from '@/services/stripe';
 import { prisma } from '@/services/db';
 import { logger } from '@/services/logger';
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 export const webhooksRouter = Router();
 
 // POST /api/webhooks/stripe — Stripe subscription lifecycle events

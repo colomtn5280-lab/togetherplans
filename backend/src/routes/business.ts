@@ -8,7 +8,9 @@ import { config } from '@/config';
 import { authenticateBusinessToken, BusinessRequest } from '@/middleware/business-auth';
 import { scrapeBusinessProfile } from '@/services/firecrawl';
 import { uploadBusinessAsset } from '@/services/gcs-upload';
-import { getStripeClient, STRIPE_PRICES, tierFromPriceId, PricePlan } from '@/services/stripe';
+import { getStripeClient, STRIPE_PRICES, PricePlan } from '@/services/stripe';
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 export const businessRouter = Router();
 

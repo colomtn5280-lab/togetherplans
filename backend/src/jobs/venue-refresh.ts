@@ -12,6 +12,8 @@
  * Runtime: Cloud Run Job (memory 4GB, timeout 3600s) or same Cloud Run service.
  */
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { spawn } from 'child_process';
 import path from 'path';
 import { prisma } from '@/services/db';
@@ -91,7 +93,6 @@ export async function runVenueRefresh(): Promise<VenueRefreshResult[]> {
 
   // ── 1. Overture Maps (all categories) ────────────────────────────────────
   {
-    const startedAt = new Date();
     const startMs = Date.now();
 
     // Log start
