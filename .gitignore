@@ -1,1 +1,7 @@
 google-service-account.json
+
+# MemPalace per-project files (issue #185)
+mempalace.yaml
+entities.json
+scripts/phase4-executions.json
+scripts/morning_report.py
