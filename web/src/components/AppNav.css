@@ -244,3 +244,14 @@
     display: none;
   }
 }
+
+/* Align top nav with the dmu-wrap container used by page content */
+nav[style*="sticky"] > *:first-child {
+  /* logo */
+}
+/* Use max-width to match dmu-wrap on the nav's flex row */
+nav[style*="sticky"] {
+  max-width: 100%;
+  padding-left: max(32px, calc((100vw - 1080px) / 2));
+  padding-right: max(32px, calc((100vw - 1080px) / 2));
+}

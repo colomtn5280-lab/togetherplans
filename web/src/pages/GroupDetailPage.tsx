@@ -4,6 +4,8 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { groupsApi, invitationsApi, safetyApi } from "../api/client";
 import { AppNav } from "../components/AppNav";
 import type { InviteMethod, Invitation, Proposal } from "../types";
+import "./groups.css";
+import "./group-detail.css";
 
 const INVITE_METHODS: InviteMethod[] = ["email", "sms", "qr", "link", "code"];
 
@@ -131,158 +133,86 @@ export function GroupDetailPage() {
   return (
     <>
       <AppNav />
-      <main
-        style={{
-          maxWidth: "var(--content-max)",
-          margin: "0 auto",
-          padding: "32px var(--gutter)",
-        }}
-      >
-        {/* Breadcrumb */}
-        <div style={{ marginBottom: 24 }}>
-          <Link
-            to="/groups"
-            style={{
-              color: "var(--ink2)",
-              fontSize: 13,
-              fontFamily: "var(--font-display)",
-              fontWeight: 700,
-            }}
-          >
-            ← Groups
-          </Link>
-        </div>
+      <main>
+        <div className="dmu-wrap dmu-gd-grid">
 
-        {/* ── Group Header ── */}
-        <div
-          className="dn-card"
-          style={{ marginBottom: 32, padding: "28px 28px 24px" }}
-        >
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "flex-start",
-              flexWrap: "wrap",
-              gap: 16,
-            }}
-          >
-            {/* Name + avatars */}
-            <div>
-              <h1 style={{ marginBottom: 12 }}>{group.name}</h1>
-              {group.description && (
-                <p style={{ color: "var(--ink2)", marginBottom: 14 }}>
-                  {group.description}
-                </p>
-              )}
-              {/* Member avatars */}
-              {group.members && group.members.length > 0 && (
-                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                  <div style={{ display: "flex" }}>
-                    {group.members.slice(0, 6).map((m, idx) => {
-                      const name =
-                        m.user?.displayName ?? m.firstName ?? m.email ?? m.userId ?? "?";
-                      return (
-                        <div
-                          key={m.userId}
-                          title={name}
-                          style={{
-                            width: 36,
-                            height: 36,
-                            borderRadius: "50%",
-                            background:
-                              idx % 2 === 0 ? "var(--primary)" : "var(--lime)",
-                            color:
-                              idx % 2 === 0
-                                ? "var(--on-primary, #fff)"
-                                : "var(--on-lime, #fff)",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            fontFamily: "var(--font-display)",
-                            fontWeight: 800,
-                            fontSize: 13,
-                            marginLeft: idx === 0 ? 0 : -10,
-                            border: "2px solid var(--surface)",
-                            zIndex: 10 - idx,
-                            position: "relative",
-                            flexShrink: 0,
-                          }}
-                        >
-                          {name.charAt(0).toUpperCase()}
-                        </div>
-                      );
-                    })}
-                  </div>
-                  <span style={{ color: "var(--ink2)", fontSize: 13, marginLeft: 6 }}>
-                    {group.members.length} member{group.members.length !== 1 ? "s" : ""}
-                  </span>
-                </div>
+          {/* Back link */}
+          <Link to="/groups" className="dmu-back">← Your groups</Link>
+
+          {/* ── Group Header ── */}
+          <div className="dmu-gd-head">
+            {/* Avatar stack */}
+            <div className="dmu-stack dmu-stack-lg">
+              {group.members && group.members.length > 0
+                ? group.members.slice(0, 4).map((m: any, idx: number) => {
+                    const name = m.user?.displayName ?? m.firstName ?? m.email ?? m.userId ?? "?";
+                    return (
+                      <div key={m.userId} title={name} className={`dmu-av ${idx % 2 === 0 ? "dmu-av-teal" : "dmu-av-lime"}`}>
+                        {name.charAt(0).toUpperCase()}
+                      </div>
+                    );
+                  })
+                : <div className="dmu-av dmu-av-teal">{group.name.charAt(0).toUpperCase()}</div>}
+              {/* Dashed slot for pending partner (couples) */}
+              {(group.members?.length ?? 0) < 2 && (
+                <div className="dmu-av dmu-av-empty">?</div>
               )}
             </div>
 
-            {/* Actions */}
-            <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-              <Link
-                to={`/groups/${groupId}/proposals/new`}
-                className="dn-btn"
-                style={{ textDecoration: "none" }}
-              >
-                + New Proposal
-              </Link>
+            <div className="dmu-gd-title">
+              <h1 className="dmu-hello" style={{ fontSize: 28 }}>{group.name}</h1>
+              <p className="dmu-sub" style={{ margin: 0 }}>
+                {(group.members?.length ?? 0) <= 2 ? "Couple" : "Group"} · {group.members?.length ?? 1} member{(group.members?.length ?? 1) !== 1 ? "s" : ""}
+                {(group.members?.length ?? 0) < 2 ? " · Partner hasn't joined yet" : ""}
+              </p>
             </div>
-          </div>
-        </div>
 
-        {/* 2-column layout */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "2fr 1fr",
-            gap: 32,
-            alignItems: "start",
-          }}
-          className="group-detail-grid"
-        >
-          {/* Left: Recent proposals */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-            <h3
-              style={{
-                color: "var(--ink2)",
-                fontSize: 13,
-                textTransform: "uppercase",
-                letterSpacing: "0.06em",
-                fontFamily: "var(--font-display)",
-                fontWeight: 700,
-              }}
+            <Link
+              to={`/groups/${groupId}/proposals/new`}
+              className="dmu-btn dmu-btn-primary dmu-gd-cta"
+              style={{ textDecoration: "none" }}
             >
-              Recent proposals
-            </h3>
+              + New proposal
+            </Link>
+          </div>
+
+          {/* 2-column layout */}
+          <div
+            style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) 300px", gap: 28, alignItems: "start", marginTop: 32 }}
+            className="group-detail-grid"
+          >
+            {/* Left: Recent proposals */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              <div className="dmu-section-head">
+                <span>Proposals</span>
+              </div>
 
             {recentProposals.length === 0 ? (
-              <div
-                className="dn-card dn-card--alt1"
-                style={{ textAlign: "center", padding: "40px 32px" }}
-              >
-                <div style={{ fontSize: 48, marginBottom: 12 }}>🗺️</div>
-                <h3 style={{ marginBottom: 8 }}>No plans yet — start one!</h3>
-                <p
-                  style={{
-                    color: "var(--ink2)",
-                    fontSize: 14,
-                    marginBottom: 20,
-                  }}
-                >
-                  Propose ideas and let everyone vote on the perfect plan.
-                </p>
-                <Link
-                  to={`/groups/${groupId}/proposals/new`}
-                  className="dn-btn"
-                  style={{ textDecoration: "none" }}
-                >
+              <div className="dmu-gd-empty">
+                <div className="dmu-gd-empty-art">
+                  <span className="dmu-card-a">🍜 Dinner?</span>
+                  <span className="dmu-card-b">🎭 Show</span>
+                  <span className="dmu-card-c">🌄 Hike</span>
+                </div>
+                <h2>No plans yet. Start one.</h2>
+                <p>Propose ideas and let everyone vote on the perfect plan.</p>
+                <div className="dmu-gd-empty-actions">
+                  <Link
+                    to={`/groups/${groupId}/proposals/new`}
+                    className="dmu-btn dmu-btn-primary"
+                    style={{ textDecoration: "none" }}
+                  >
                   + New Proposal
-                </Link>
-              </div>
+                                    </Link>
+                                    <Link
+                                      to="/suggestions"
+                                      className="dmu-btn dmu-btn-ghost dmu-btn-auto"
+                                      style={{ textDecoration: "none" }}
+                                    >
+                                      Browse ideas
+                                    </Link>
+                                  </div>
+                                </div>
             ) : (
               <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                 {recentProposals.map((p, i) => {
@@ -850,12 +780,30 @@ export function GroupDetailPage() {
         </div>
 
         <style>{`
-          @media (max-width: 768px) {
-            .group-detail-grid {
-              grid-template-columns: 1fr !important;
-            }
+          @media (max-width: 960px) {
+            .group-detail-grid { grid-template-columns: 1fr !important; }
+          }
+          @media (max-width: 767px) {
+            .group-detail-grid { grid-template-columns: 1fr !important; }
           }
         `}</style>
+        </div>{/* dmu-wrap */}
+
+        {/* Slim footer */}
+        <footer className="dmu-foot">
+          <div className="dmu-wrap dmu-foot-in">
+            <div className="dmu-legal">
+              <Link to="/privacy">Privacy</Link> · <Link to="/terms">Terms</Link>
+            </div>
+            <span className="dmu-foot-label">Vote on the go</span>
+            <a href="https://apps.apple.com/app/id6806890578" target="_blank" rel="noopener noreferrer" className="dmu-store">
+              <span>🍎</span> App Store
+            </a>
+            <a href="https://play.google.com/store/apps/details?id=app.datemeup.datenight" target="_blank" rel="noopener noreferrer" className="dmu-store">
+              <span>▶</span> Google Play
+            </a>
+          </div>
+        </footer>
       </main>
     </>
   );

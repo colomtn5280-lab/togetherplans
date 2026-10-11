@@ -1,3 +1,4 @@
+import "./pages/dashboard.css"; // shared dmu-* shell: tokens, header, buttons, avatars, footer
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import {

@@ -1,0 +1,128 @@
+/* DateMeUp · Web dashboard (design 4b) · production CSS. Pair with web/dashboard.html. */
+:root{
+  --ink:#101820;--ink2:#5D6B76;--line:#DDE3E8;--bg:#F4F6F8;--surface:#fff;
+  --primary:#0E8C8C;--primary-deep:#086B6B;--primary-soft:#D9F1F0;--on-primary:#fff;
+  --lime:#7CB518;--lime-soft:#EAF6D3;--amber:#E39B12;--error:#D63A3A;
+  --shadow:0 8px 24px rgba(16,24,32,.07);
+}
+@media (prefers-color-scheme:dark){:root{
+  --ink:#EEF3F6;--ink2:#93A3AF;--line:#2A3641;--bg:#0F1519;--surface:#18212A;
+  --primary:#2FC4C1;--primary-deep:#5AD6D3;--primary-soft:#163A3B;--on-primary:#0F1519;
+  --lime:#A8E04B;--lime-soft:#2A3A1A;--amber:#F3B84A;--error:#FF6B6B;--shadow:0 8px 24px rgba(0,0,0,.4);
+}}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0}
+body{min-height:100vh;display:flex;flex-direction:column;background:var(--bg);color:var(--ink);font:400 15px/1.5 'DM Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:var(--primary);text-decoration:none}
+a:hover{color:var(--primary-deep)}
+h1,h2,h3{margin:0;font-family:'Sora',sans-serif}
+button{font:inherit}
+
+.dmu-wrap{width:100%;max-width:1080px;margin:0 auto;padding:0 32px}
+
+/* Top bar */
+.dmu-top{background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10}
+.dmu-top-in{height:72px;display:flex;align-items:center;gap:16px}
+.dmu-brand{display:flex;align-items:center;gap:10px;color:var(--ink);font:800 20px 'Sora',sans-serif;letter-spacing:-.05em}
+.dmu-brand:hover{color:var(--ink)}
+.dmu-nav{display:flex;gap:4px;margin-left:28px}
+.dmu-nav a{height:38px;padding:0 16px;border-radius:999px;display:flex;align-items:center;color:var(--ink2);font:700 13px 'Sora',sans-serif}
+.dmu-nav a:hover{color:var(--ink);background:var(--bg)}
+.dmu-nav a[aria-current="page"]{background:var(--primary-soft);color:var(--primary-deep)}
+.dmu-top-actions{margin-left:auto;display:flex;align-items:center;gap:10px}
+.dmu-icon-btn{width:40px;height:40px;border-radius:50%;border:1.5px solid var(--line);background:var(--surface);color:var(--ink2);display:flex;align-items:center;justify-content:center;cursor:pointer}
+.dmu-icon-btn:hover{color:var(--ink)}
+
+/* Buttons (sticker radii) */
+.dmu-btn{appearance:none;border:0;display:inline-flex;align-items:center;justify-content:center;gap:6px;height:40px;padding:0 18px;border-radius:22px 16px 22px 16px;font:700 14px 'Sora',sans-serif;cursor:pointer;transition:transform .15s,background .15s,box-shadow .15s;white-space:nowrap}
+.dmu-btn:focus-visible,.dmu-add:focus-visible,.dmu-nav a:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
+.dmu-btn-primary{background:var(--primary);color:var(--on-primary)}
+.dmu-btn-primary:hover{background:var(--primary-deep);color:var(--on-primary);transform:translateY(-1px)}
+.dmu-btn-light{height:48px;padding:0 22px;border-radius:26px 18px 26px 18px;background:#fff;color:#086B6B;font-size:15px;box-shadow:0 8px 20px rgba(0,0,0,.12)}
+.dmu-btn-light:hover{color:#086B6B;transform:translateY(-1px)}
+.dmu-btn-ghost{width:100%;height:38px;border-radius:19px 14px 19px 14px;background:transparent;border:1.5px solid var(--line);color:var(--ink);font-size:12px}
+.dmu-btn-ghost:hover{background:var(--bg);color:var(--ink)}
+.dmu-danger{border-radius:14px 19px 14px 19px;color:var(--error)}
+.dmu-danger:hover{color:var(--error);border-color:var(--error)}
+.dmu-btn-dashed{width:100%;height:38px;margin-top:14px;border-radius:19px 14px 19px 14px;border:2px dashed var(--line);color:var(--ink2);font-size:13px;background:transparent}
+.dmu-btn-dashed:hover{border-color:var(--primary);color:var(--primary)}
+
+/* Layout */
+.dmu-grid{flex:1;display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:28px;align-items:start;padding-top:44px;padding-bottom:48px}
+.dmu-hello{font-weight:800;font-size:38px;line-height:1.02;letter-spacing:-.04em}
+.dmu-sub{margin:8px 0 0;font-size:16px;color:var(--ink2)}
+
+/* Empty-state hero (replaces outlined box) */
+.dmu-hero{position:relative;overflow:hidden;margin-top:26px;padding:30px 30px 28px;border-radius:30px 22px 34px 24px;background:#0E8C8C;color:#fff}
+.dmu-hero::before{content:"";position:absolute;right:-60px;top:-70px;width:240px;height:220px;border-radius:48% 52% 45% 55%/55% 45% 55% 45%;background:rgba(255,255,255,.14)}
+.dmu-hero>*{position:relative}
+.dmu-hero-sticker{display:inline-block;padding:5px 10px;border-radius:12px 6px 14px 6px;background:#7CB518;color:#101820;font:800 10px 'Sora',sans-serif;letter-spacing:.08em;transform:rotate(-3deg)}
+.dmu-hero h2{margin-top:14px;font-weight:800;font-size:26px;line-height:1.08;letter-spacing:-.03em;max-width:480px}
+.dmu-hero p{margin:8px 0 20px;font-size:15px;opacity:.9}
+
+/* Section head */
+.dmu-section-head{display:flex;justify-content:space-between;align-items:baseline;margin:36px 0 12px}
+.dmu-section-head span{font:700 11px 'Sora',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2)}
+.dmu-section-head a{font:700 13px 'Sora',sans-serif}
+
+/* Idea cards */
+.dmu-ideas{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.dmu-idea{display:flex;flex-direction:column;background:var(--surface);box-shadow:var(--shadow);overflow:hidden}
+.dmu-idea:nth-child(3n+1){border-radius:22px 30px 20px 26px}
+.dmu-idea:nth-child(3n+2){border-radius:30px 22px 26px 20px}
+.dmu-idea:nth-child(3n){border-radius:20px 26px 30px 22px}
+.dmu-idea-img{position:relative;height:120px;background:var(--primary-soft) center/cover no-repeat}
+.dmu-credit{position:absolute;right:8px;bottom:6px;font-size:9px;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.5)}
+.dmu-idea-body{flex:1;display:flex;flex-direction:column;padding:12px 14px 14px}
+.dmu-cat{font:700 10px 'Sora',sans-serif;letter-spacing:.04em;color:var(--primary-deep)}
+.dmu-idea h3{margin-top:3px;font-weight:800;font-size:15px;line-height:1.15;letter-spacing:-.02em}
+.dmu-meta{margin-top:3px;font-size:12px;color:var(--ink2)}
+.dmu-add{appearance:none;border:0;margin-top:auto;width:100%;height:38px;display:flex;align-items:center;justify-content:center;gap:6px;border-radius:20px 14px 20px 14px;background:var(--primary);color:var(--on-primary);font:700 13px 'Sora',sans-serif;cursor:pointer;transition:transform .15s,background .15s}
+.dmu-idea-body .dmu-meta+.dmu-add{margin-top:12px}
+.dmu-add::before{content:"+";font:800 16px/1 'Sora',sans-serif}
+.dmu-add:hover{background:var(--primary-deep);transform:translateY(-1px)}
+.dmu-add[aria-pressed="true"]{background:var(--lime-soft);color:var(--ink);border-radius:14px 20px 14px 20px}
+.dmu-add[aria-pressed="true"]::before{content:"✓";font-size:13px}
+
+/* Rail cards */
+.dmu-rail{display:flex;flex-direction:column;gap:16px}
+.dmu-card{background:var(--surface);box-shadow:var(--shadow);padding:18px;border-radius:22px 28px 20px 26px}
+.dmu-card+.dmu-card{border-radius:26px 20px 28px 22px}
+.dmu-card-head{display:flex;justify-content:space-between;align-items:baseline}
+.dmu-card-head h2{font-weight:800;font-size:15px}
+.dmu-card-head a{font:700 12px 'Sora',sans-serif}
+.dmu-groups{list-style:none;margin:10px 0 0;padding:0;display:flex;flex-direction:column}
+.dmu-groups a{display:flex;align-items:center;gap:12px;padding:8px;margin:0 -8px;border-radius:14px;color:var(--ink)}
+.dmu-groups a:hover{background:var(--bg);color:var(--ink)}
+.dmu-av{flex:none;width:38px;height:38px;border-radius:50% 45% 55% 50%;display:flex;align-items:center;justify-content:center;font:800 14px 'Sora',sans-serif}
+.dmu-av-teal{background:var(--primary-soft);color:var(--primary-deep)}
+.dmu-av-lime{background:var(--lime-soft);color:var(--ink)}
+.dmu-av-amber{background:#FBEFD3;color:#8A5A00}
+.dmu-av-lg{width:44px;height:44px;font-size:16px;background:var(--lime);color:#101820}
+.dmu-g-text{min-width:0;display:flex;flex-direction:column}
+.dmu-g-text b{font:700 14px 'Sora',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dmu-g-text small{font-size:12px;color:var(--ink2)}
+.dmu-acct{display:flex;align-items:center;gap:12px}
+.dmu-acct-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+.dmu-acct-actions form{margin:0}
+
+/* Footer: slim, not a work area */
+.dmu-foot{background:var(--surface);border-top:1px solid var(--line)}
+.dmu-foot-in{display:flex;align-items:center;gap:12px;padding-top:16px;padding-bottom:16px}
+.dmu-legal{font-size:12px;color:var(--ink2)}
+.dmu-legal a{color:var(--ink2)}
+.dmu-foot-label{margin-left:auto;font:700 13px 'Sora',sans-serif}
+.dmu-store{height:36px;padding:0 12px;border-radius:9px;background:#101820;color:#fff;display:inline-flex;align-items:center;gap:7px;font:700 12px 'Sora',sans-serif}
+.dmu-store:hover{color:#fff;background:#24303B}
+
+/* Tablet / mobile */
+@media (max-width:960px){.dmu-grid{grid-template-columns:1fr}.dmu-rail{display:grid;grid-template-columns:1fr 1fr;align-items:start}}
+@media (max-width:767px){
+  .dmu-wrap{padding:0 18px}
+  .dmu-nav,.dmu-top-actions .dmu-btn{display:none} /* native bottom dock takes over (see DateNight Web.dc.html mobile) */
+  .dmu-grid{padding-top:24px}
+  .dmu-hello{font-size:30px}
+  .dmu-ideas{grid-template-columns:1fr}
+  .dmu-rail{grid-template-columns:1fr}
+  .dmu-foot-in{flex-wrap:wrap}.dmu-foot-label{margin-left:0;width:100%}
+}

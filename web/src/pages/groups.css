@@ -1,0 +1,56 @@
+/* DateMeUp · Your groups (/plans) · load after dashboard.css (shared shell: header, buttons, avatars, footer) */
+.dmu-me{width:40px;height:40px;border-radius:50% 45% 55% 50%;background:var(--lime);color:#101820;display:flex;align-items:center;justify-content:center;font:800 15px 'Sora',sans-serif}
+.dmu-me:hover{color:#101820}
+
+.dmu-page{flex:1;padding-top:44px;padding-bottom:56px}
+.dmu-page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.dmu-page-head .dmu-btn{height:44px;padding:0 20px}
+
+.dmu-filter{display:inline-flex;gap:2px;padding:4px;margin-top:24px;border-radius:999px;background:var(--surface);border:1.5px solid var(--line)}
+.dmu-filter button{appearance:none;border:0;height:34px;padding:0 16px;border-radius:999px;background:transparent;color:var(--ink2);font:700 13px 'Sora',sans-serif;cursor:pointer;white-space:nowrap}
+.dmu-filter button:hover{color:var(--ink)}
+.dmu-filter button[aria-selected="true"]{background:var(--primary);color:var(--on-primary)}
+.dmu-filter button:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
+
+.dmu-groups-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:20px}
+
+.dmu-group{display:flex;flex-direction:column;min-height:220px;padding:20px;background:var(--surface);box-shadow:var(--shadow);color:var(--ink);transition:transform .15s,box-shadow .15s}
+.dmu-group:nth-child(4n+1){border-radius:22px 30px 20px 26px}
+.dmu-group:nth-child(4n+2){border-radius:30px 22px 26px 20px}
+.dmu-group:nth-child(4n+3){border-radius:20px 26px 30px 22px}
+.dmu-group:nth-child(4n){border-radius:26px 20px 22px 30px}
+.dmu-group:hover{color:var(--ink);transform:translateY(-2px);box-shadow:0 14px 32px rgba(16,24,32,.12)}
+.dmu-group:focus-visible{outline:3px solid var(--primary);outline-offset:3px}
+
+.dmu-group-top{display:flex;align-items:center;justify-content:space-between}
+.dmu-stack{display:flex;padding-left:8px}
+.dmu-stack .dmu-av{width:40px;height:40px;margin-left:-8px;border:3px solid var(--surface);font-size:14px}
+.dmu-pill{padding:4px 10px;border-radius:999px;font:700 11px 'Sora',sans-serif}
+.dmu-pill-active{background:var(--lime-soft);color:var(--ink)}
+.dmu-pill-quiet{background:var(--bg);color:var(--ink2)}
+
+.dmu-group h2{margin-top:16px;font-weight:800;font-size:19px;line-height:1.15;letter-spacing:-.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dmu-group-meta{margin-top:4px;font-size:13px;color:var(--ink2)}
+
+.dmu-open{margin-top:auto;display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:16px 20px 16px 20px;background:var(--primary-soft)}
+.dmu-group-meta+.dmu-open{margin-top:18px}
+.dmu-open-dot{flex:none;width:10px;height:10px;border-radius:50%;background:var(--primary)}
+.dmu-open-text{min-width:0;flex:1;display:flex;flex-direction:column}
+.dmu-open-text b{font:700 14px 'Sora',sans-serif;color:var(--primary-deep);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dmu-open-text small{font-size:12px;color:var(--ink2)}
+.dmu-open-go{font:800 16px 'Sora',sans-serif;color:var(--primary-deep)}
+
+.dmu-group-new{align-items:center;justify-content:center;text-align:center;gap:6px;background:transparent;box-shadow:none;border:2px dashed var(--line)}
+.dmu-group-new:hover{border-color:var(--primary);box-shadow:none}
+.dmu-new-plus{width:48px;height:48px;margin-bottom:6px;border-radius:50% 45% 55% 50%;background:var(--primary-soft);color:var(--primary-deep);display:flex;align-items:center;justify-content:center;font:800 22px 'Sora',sans-serif}
+.dmu-group-new b{font:800 16px 'Sora',sans-serif}
+.dmu-group-new small{font-size:13px;color:var(--ink2)}
+
+@media (max-width:960px){.dmu-groups-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:767px){
+  .dmu-page{padding-top:24px}
+  .dmu-groups-grid{grid-template-columns:1fr}
+  .dmu-group{min-height:0}
+  .dmu-filter{max-width:100%;overflow-x:auto}
+  .dmu-me{display:none}
+}
