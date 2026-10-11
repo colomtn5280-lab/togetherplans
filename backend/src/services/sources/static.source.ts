@@ -17,34 +17,46 @@ import { Suggestion, SuggestionCategory, SourceName } from './types';
 /** DateMeUp category slugs that are served primarily from the static DB */
 export const STATIC_CATEGORIES = new Set<string>([
   'restaurants-dining',
-  'after-dark',
+  'wine-drinks',       // stored in DB as 'after-dark' (bars/nightlife)
   'wellness-spa',
   'sports-active',
   'hotel-stays',
   // Phase 2
-  'arts-culture',
-  'live-music-concerts',
+  'performing-arts',   // stored in DB as 'arts-culture'
+  'concerts',          // stored in DB as 'live-music-concerts'
   'comedy',
   'movies',
-  'experiences',
+  'local-experiences', // stored in DB as 'experiences'
   'family-events',
   'hiking-trails',
 ]);
 
-/** Map DateMeUp slug → internal SuggestionCategory */
+/**
+ * API slug → DB category value.
+ * The ETL stored some categories under different slugs than the current API uses.
+ * These are the translations needed at query time.
+ */
+const API_TO_DB_SLUG: Record<string, string> = {
+  'wine-drinks':      'after-dark',
+  'performing-arts':  'arts-culture',
+  'concerts':         'live-music-concerts',
+  'local-experiences':'experiences',
+};
+
+/** Map DateMeUp API slug → internal SuggestionCategory */
 const SLUG_TO_INTERNAL: Record<string, SuggestionCategory> = {
   'restaurants-dining': 'Dining',
-  'after-dark': 'Wine & Drinks', // closest internal type
-  'wellness-spa': 'Wellness',
-  'sports-active': 'Sports',
-  'hotel-stays': 'Hotels',
-  'arts-culture': 'Arts & Culture',
-  'live-music-concerts': 'Live Music',
-  'comedy': 'Comedy',
-  'movies': 'Movies',
-  'experiences': 'Local Experience',
-  'family-events': 'Family',
-  'hiking-trails': 'Outdoors',
+  'wine-drinks':        'Wine & Drinks',
+  'wellness-spa':       'Wellness',
+  'sports-active':      'Sports',
+  'hotel-stays':        'Hotels',
+  'performing-arts':    'Theater & Plays',
+  'concerts':           'Live Music',
+  'comedy':             'Comedy',
+  'movies':             'Movies',
+  'local-experiences':  'Local Experience',
+  'family-events':      'Family',
+  'hiking-trails':      'Outdoors',
 };
 
 /**
@@ -69,6 +81,8 @@ export async function getStaticVenues(
 ): Promise<Suggestion[]> {
   const radiusMeters = radiusMiles * 1609.34;
   const internalCategory = SLUG_TO_INTERNAL[categorySlug];
+  // Translate API slug → DB category value (some slugs differ from what ETL stored)
+  const dbSlug = API_TO_DB_SLUG[categorySlug] ?? categorySlug;
 
   try {
     let rows: Array<{
@@ -129,7 +143,7 @@ export async function getStaticVenues(
           lat, lng, phone, website, price_level, rating, source,
           ST_Distance(location, ST_MakePoint(${lng}, ${lat})::geography) AS dist_m
         FROM venues
-        WHERE category = ${categorySlug}
+        WHERE category = ${dbSlug}
           AND country = 'US'
           AND date_closed IS NULL
           AND ST_DWithin(
