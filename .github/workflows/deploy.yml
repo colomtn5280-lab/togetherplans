@@ -75,16 +75,22 @@ jobs:
 
       - name: Deploy venue-etl Cloud Run Job (image update only — does not execute)
         run: |
-          gcloud run jobs deploy venue-etl \
-            --source ./backend \
-            --dockerfile Dockerfile.etl \
+          # Build ETL image via Cloud Build (Dockerfile.etl in backend/)
+          gcloud builds submit ./backend \
+            --dockerfile ./backend/Dockerfile.etl \
+            --tag us-central1-docker.pkg.dev/project-1af074d7-228e-4a43-bc9/cloud-run-source-deploy/venue-etl:latest \
+            --project project-1af074d7-228e-4a43-bc9 \
+            --region us-central1 \
+            --quiet \
+          && gcloud run jobs deploy venue-etl \
+            --image us-central1-docker.pkg.dev/project-1af074d7-228e-4a43-bc9/cloud-run-source-deploy/venue-etl:latest \
             --region us-central1 \
             --project project-1af074d7-228e-4a43-bc9 \
             --memory 4Gi \
             --cpu 2 \
             --task-timeout 7200 \
             --max-retries 0 \
-            --set-secrets "DATABASE_URL=DATABASE_URL:latest" \
+            --set-secrets "DATABASE_URL=DATABASE_URL:latest,NPS_API_KEY=NPS_API_KEY:latest" \
             --quiet \
           && echo "✅ venue-etl job image updated" \
           || echo "⚠ venue-etl job deploy failed (non-blocking)"
