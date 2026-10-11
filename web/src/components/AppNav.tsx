@@ -269,7 +269,7 @@ export function AppNav() {
                     opacity: groupsLoading ? 0.7 : 1,
                   }}
                 >
-                  + New Plan
+                  New Date Plan
                 </button>
 
                 {/* Inline group picker dropdown */}

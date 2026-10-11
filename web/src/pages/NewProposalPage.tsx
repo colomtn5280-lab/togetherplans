@@ -5,7 +5,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
-import { proposalsApi, groupsApi } from "../api/client";
+import { proposalsApi, groupsApi, invitationsApi } from "../api/client";
 import { AppNav } from "../components/AppNav";
 import { usePlanBuilder } from "../contexts/PlanBuilderContext";
 import { useAuthStore } from "../store/auth.store";
@@ -221,6 +221,9 @@ export function NewProposalPage() {
   const [groups, setGroups] = useState<Group[]>([]);
   const [selectedGroupId, setSelectedGroupId] = useState<string>("");
   const [partnerName, setPartnerName] = useState("your partner");
+  const [personalMessage, setPersonalMessage] = useState("");
+  const [partnerContact, setPartnerContact] = useState("");
+  const [partnerContactError, setPartnerContactError] = useState("");
   const [titleError, setTitleError] = useState("");
   const [optionsError, setOptionsError] = useState("");
   const [success, setSuccess] = useState(false);
@@ -250,6 +253,9 @@ export function NewProposalPage() {
   }, []);
 
   const isSoloStart = groupsLoaded && groups.length === 0;
+  // Partner has not yet joined if the selected group has only 1 member
+  const selectedGroup = groups.find((g) => g.id === selectedGroupId);
+  const partnerNotJoined = !isSoloStart && selectedGroup && (selectedGroup.members?.length ?? 0) < 2;
   const firstName = authUser?.firstName ?? authUser?.displayName?.split(" ")[0] ?? "Your";
 
   const mutation = useMutation({
@@ -259,6 +265,13 @@ export function NewProposalPage() {
       if (options.length < 1) { setOptionsError("Add at least 1 activity"); throw new Error("no options"); }
       if (options.length > 5) { setOptionsError("Maximum 5 options"); throw new Error("too many"); }
       setOptionsError("");
+
+      // Issue 6: block send if partner hasn't joined and no contact entered
+      if (partnerNotJoined && !partnerContact.trim()) {
+        setPartnerContactError("Enter your partner's email or phone so they can vote.");
+        throw new Error("no partner contact");
+      }
+      setPartnerContactError("");
 
       let groupId = selectedGroupId;
       if (!groupId) {
@@ -275,7 +288,23 @@ export function NewProposalPage() {
         eventDate: o.eventDate, rating: o.rating, priceLevel: o.priceLevel, sourceName: o.sourceName,
       }));
 
-      const res = await proposalsApi.create({ groupId, title: title.trim(), dateTime: dt.toISOString(), options: apiOptions });
+      // If partner hasn't joined yet, create invite with their contact
+      if (partnerNotJoined && partnerContact.trim()) {
+        const isEmail = partnerContact.includes("@");
+        await invitationsApi.create({
+          groupId,
+          method: isEmail ? "email" : "sms",
+          target: partnerContact.trim(),
+        }).catch(() => {}); // non-fatal — link still works
+      }
+
+      const res = await proposalsApi.create({
+        groupId,
+        title: title.trim(),
+        dateTime: dt.toISOString(),
+        options: apiOptions,
+        ...(personalMessage.trim() ? { message: personalMessage.trim() } : {}),
+      } as any);
       const id = (res.data as any)?.id ?? (res.data as any)?.proposal?.id ?? "";
       return { id, solo: isSoloStart };
     },
@@ -500,6 +529,50 @@ export function NewProposalPage() {
                 ✨ We'll start <strong>{firstName}'s plans</strong> for you — then share a link with whoever you're planning with. They can vote without signing up.
               </div>
             )}
+
+            {/* Issue 6: Partner contact required if partner hasn't joined */}
+            {partnerNotJoined && (
+              <div style={{ marginBottom: 20 }}>
+                <label style={{ display: "block", fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 11, letterSpacing: ".1em", textTransform: "uppercase", color: "var(--ink2)", marginBottom: 8 }}>
+                  Partner's email or phone *
+                </label>
+                <input
+                  type="text"
+                  value={partnerContact}
+                  onChange={(e) => { setPartnerContact(e.target.value); setPartnerContactError(""); }}
+                  placeholder="partner@email.com or +1 555 000 0000"
+                  style={{ ...inputStyle, borderColor: partnerContactError ? "var(--error)" : "var(--line)" }}
+                  onFocus={(e) => { (e.target as HTMLInputElement).style.borderColor = "var(--primary)"; (e.target as HTMLInputElement).style.boxShadow = "0 0 0 3px var(--primary-soft)"; }}
+                  onBlur={(e) => { (e.target as HTMLInputElement).style.borderColor = partnerContactError ? "var(--error)" : "var(--line)"; (e.target as HTMLInputElement).style.boxShadow = "none"; }}
+                />
+                {partnerContactError && <p style={{ color: "var(--error)", fontSize: 12, marginTop: 6, fontWeight: 600 }}>{partnerContactError}</p>}
+                <p style={{ fontSize: 12, color: "var(--ink2)", marginTop: 6 }}>
+                  We'll send them a voting link. No account needed.
+                </p>
+              </div>
+            )}
+
+            {/* Issue 5: Personalized message */}
+            <div style={{ marginBottom: 20 }}>
+              <label style={{ display: "block", fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 11, letterSpacing: ".1em", textTransform: "uppercase", color: "var(--ink2)", marginBottom: 8 }}>
+                Personal message <span style={{ fontWeight: 400, textTransform: "none", letterSpacing: 0 }}>(optional)</span>
+              </label>
+              <textarea
+                value={personalMessage}
+                onChange={(e) => setPersonalMessage(e.target.value)}
+                placeholder="Hey! I put together some ideas for us — can't wait to hear what you think 💚"
+                rows={3}
+                style={{
+                  ...inputStyle,
+                  borderRadius: 20,
+                  padding: "12px 18px",
+                  resize: "none",
+                  lineHeight: 1.5,
+                }}
+                onFocus={(e) => { (e.target as HTMLTextAreaElement).style.borderColor = "var(--primary)"; (e.target as HTMLTextAreaElement).style.boxShadow = "0 0 0 3px var(--primary-soft)"; }}
+                onBlur={(e) => { (e.target as HTMLTextAreaElement).style.borderColor = "var(--line)"; (e.target as HTMLTextAreaElement).style.boxShadow = "none"; }}
+              />
+            </div>
 
             {/* Mutation error */}
             {mutation.isError && (

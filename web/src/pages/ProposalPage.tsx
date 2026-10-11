@@ -846,14 +846,15 @@ export function ProposalPage() {
               </div>
             )}
 
-            {/* Cancel button */}
+            {/* Delete / Cancel Date Plan */}
             {(proposal.status === "OPEN" || proposal.status === "pending") && (
               <button
-                className="dn-btn dn-btn--secondary"
+                className="dmu-btn dmu-btn-ghost dmu-danger"
+                style={{ width: "100%", marginTop: 8 }}
                 onClick={() => cancelMutation.mutate(undefined as never)}
                 disabled={cancelMutation.isPending}
               >
-                {cancelMutation.isPending ? "Cancelling…" : "Cancel proposal"}
+                {cancelMutation.isPending ? "Cancelling…" : "Delete Date Plan"}
               </button>
             )}
           </div>

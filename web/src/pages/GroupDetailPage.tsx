@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { groupsApi, invitationsApi, safetyApi } from "../api/client";
 import { AppNav } from "../components/AppNav";
@@ -42,11 +42,13 @@ function formatDate(dateStr?: string) {
 export function GroupDetailPage() {
   const { groupId } = useParams<{ groupId: string }>();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [inviteMethod, setInviteMethod] = useState<InviteMethod>("link");
   const [inviteEmail, setInviteEmail] = useState("");
   const [invitePhone, setInvitePhone] = useState("");
   const [generatedInvite, setGeneratedInvite] = useState<Invitation | null>(null);
   const [copied, setCopied] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   // Safety: block / report state
   const [openMenuUserId, setOpenMenuUserId] = useState<string | null>(null);
@@ -95,6 +97,14 @@ export function GroupDetailPage() {
     onSuccess: (data) => {
       setGeneratedInvite(data);
       queryClient.invalidateQueries({ queryKey: ["group", groupId] });
+    },
+  });
+
+  const deleteGroupMutation = useMutation({
+    mutationFn: () => groupsApi.delete(groupId!),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["groups"] });
+      navigate("/groups", { replace: true });
     },
   });
 
@@ -172,7 +182,7 @@ export function GroupDetailPage() {
               className="dmu-btn dmu-btn-primary dmu-gd-cta"
               style={{ textDecoration: "none" }}
             >
-              + New proposal
+              New Date Plan
             </Link>
           </div>
 
@@ -202,7 +212,7 @@ export function GroupDetailPage() {
                     className="dmu-btn dmu-btn-primary"
                     style={{ textDecoration: "none" }}
                   >
-                  + New Proposal
+                  New Date Plan
                                     </Link>
                                     <Link
                                       to="/suggestions"
@@ -777,6 +787,47 @@ export function GroupDetailPage() {
               )}
             </div>
           </div>
+        </div>
+
+        {/* Delete Group */}
+        <div style={{ marginTop: 24, paddingTop: 20, borderTop: "1px solid var(--line)" }}>
+          {!confirmDelete ? (
+            <button
+              className="dmu-btn dmu-btn-ghost dmu-danger"
+              style={{ width: "100%" }}
+              onClick={() => setConfirmDelete(true)}
+            >
+              Delete group
+            </button>
+          ) : (
+            <div style={{ background: "var(--surface)", borderRadius: "22px 16px 22px 16px", padding: "18px 20px", border: "1.5px solid var(--error)" }}>
+              <p style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 14, marginBottom: 12, color: "var(--ink)" }}>
+                Delete this group? This can't be undone. All plans will be removed.
+              </p>
+              <div style={{ display: "flex", gap: 8 }}>
+                <button
+                  className="dmu-btn dmu-btn-primary"
+                  style={{ flex: 1, background: "var(--error)", height: 40 }}
+                  onClick={() => deleteGroupMutation.mutate()}
+                  disabled={deleteGroupMutation.isPending}
+                >
+                  {deleteGroupMutation.isPending ? "Deleting…" : "Yes, delete"}
+                </button>
+                <button
+                  className="dmu-btn dmu-btn-ghost"
+                  style={{ flex: 1, height: 40 }}
+                  onClick={() => setConfirmDelete(false)}
+                >
+                  Cancel
+                </button>
+              </div>
+              {deleteGroupMutation.isError && (
+                <p style={{ color: "var(--error)", fontSize: 12, marginTop: 8 }}>
+                  Could not delete group. You may not be the owner.
+                </p>
+              )}
+            </div>
+          )}
         </div>
 
         <style>{`
