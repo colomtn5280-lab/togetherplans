@@ -1,36 +1,31 @@
 # DateMeUp — Venue ETL Cloud Run Job
 # Runs the Overture Maps + OSM/NPS/IMLS ETL scripts.
-# Separate from the API image so it can carry heavier tools (DuckDB, AWS CLI, psql)
+# Separate from the API image so it can carry heavier tools (DuckDB, psql)
 # without bloating the API container.
 #
 # Triggered via: gcloud run jobs execute venue-etl [--args ...]
+# Default (no --args): runs Phase 2 Overture ETL
+# Override script:     --args="scripts/load-osm-trails.py,--source,all"
 
 FROM python:3.12-slim
 
 WORKDIR /app
 
-# System deps: psql client for COPY, AWS CLI for S3 access, curl
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    postgresql-client \
-    curl \
-    unzip \
+# System deps: psql client for COPY
+RUN apt-get update && apt-get install -y --no-install-recommends postgresql-client \
     && rm -rf /var/lib/apt/lists/*
 
-# AWS CLI v2 (for Overture Maps S3 public bucket — no credentials needed)
-RUN curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o /tmp/awscliv2.zip \
-    && unzip -q /tmp/awscliv2.zip -d /tmp \
-    && /tmp/aws/install \
-    && rm -rf /tmp/awscliv2.zip /tmp/aws
+# Python deps: DuckDB for Parquet + S3 reads (httpfs extension built-in),
+#              psycopg2 for DB, requests for APIs (NPS, Overpass)
+RUN pip install --no-cache-dir "duckdb==1.1.3" "psycopg2-binary==2.9.10" "requests==2.32.3"
 
-# Python deps: DuckDB for Parquet + S3 reads, psycopg2 for DB, requests for APIs
-RUN pip install --no-cache-dir \
-    duckdb==1.1.3 \
-    psycopg2-binary==2.9.10 \
-    requests==2.32.3
+# Pre-install DuckDB extensions at build time (avoids runtime network calls in Cloud Run)
+RUN python3 -c "import duckdb; c=duckdb.connect(); c.execute('INSTALL httpfs'); c.execute('INSTALL spatial'); c.close(); print('DuckDB extensions ok')"
 
 # Copy ETL scripts
 COPY scripts/ ./scripts/
 
-# Default: run Phase 2 Overture ETL for all states
-# Override CMD args via --args in gcloud run jobs execute
-CMD ["python3", "scripts/load-fsq-venues.py", "--phase", "2"]
+# ENTRYPOINT + CMD: --args in gcloud run jobs execute replaces CMD only.
+# Default runs Phase 2 Overture ETL; override with --args to run other scripts.
+ENTRYPOINT ["python3"]
+CMD ["scripts/load-fsq-venues.py", "--phase", "2"]
