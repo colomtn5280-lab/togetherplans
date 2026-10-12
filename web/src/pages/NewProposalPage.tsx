@@ -1,11 +1,13 @@
 /**
  * NewProposalPage — Finalize step
  * Redesigned to match Jarvis 9.24.26 design system.
+ * Flow update 10.12.26: partner name/contact entry moved to the point of
+ * sending (via the InviteModal on ProposalPage) — no longer blocks the form.
  */
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
-import { proposalsApi, groupsApi, invitationsApi } from "../api/client";
+import { proposalsApi, groupsApi } from "../api/client";
 import { AppNav } from "../components/AppNav";
 import { usePlanBuilder } from "../contexts/PlanBuilderContext";
 import { useAuthStore } from "../store/auth.store";
@@ -66,137 +68,118 @@ function suggestTitle(opts: PlanBuilderOption[]): string {
   return `${categories[0].replace(/\s*(Night|Show|Events?)$/i, '')} Night`;
 }
 
-// ── Confetti ──────────────────────────────────────────────────────────────────
-const CONFETTI_COLORS = ["#0E8C8C", "#7CB518", "#2FC4C1", "#A8E04B", "#FCE44E", "#F87171", "#E39B12"];
-function Confetti() {
-  const pieces = Array.from({ length: 50 }, (_, i) => ({
-    id: i,
-    left: `${Math.random() * 100}%`,
-    delay: `${Math.random() * 1.5}s`,
-    duration: `${2 + Math.random() * 2}s`,
-    color: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
-    size: `${8 + Math.floor(Math.random() * 10)}px`,
-  }));
-  return (
-    <>
-      <style>{`
-        @keyframes confettiFall {
-          0%   { transform: translateY(-20px) rotate(0deg);   opacity: 1; }
-          100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
-        }
-        .confetti-piece {
-          position: fixed; pointer-events: none; z-index: 9999;
-          border-radius: 2px;
-          animation: confettiFall linear forwards;
-        }
-      `}</style>
-      {pieces.map((p) => (
-        <div
-          key={p.id}
-          className="confetti-piece"
-          style={{
-            left: p.left, top: "-20px",
-            width: p.size, height: p.size,
-            background: p.color,
-            animationDelay: p.delay,
-            animationDuration: p.duration,
-          }}
-        />
-      ))}
-    </>
-  );
-}
-
-// ── Activity Card (Jarvis .opt style) ─────────────────────────────────────────
-const OPT_RADII = [
-  "22px 30px 20px 26px",
-  "30px 22px 26px 20px",
-  "20px 26px 30px 22px",
-  "26px 20px 22px 30px",
-];
-
+// ── Option card ───────────────────────────────────────────────────────────────
 function OptionCard({ opt, index, onRemove }: { opt: PlanBuilderOption; index: number; onRemove: () => void }) {
-  const radius = OPT_RADII[index % OPT_RADII.length];
-  const bg = getCategoryColor(opt.category);
-  const emoji = getCategoryEmoji(opt.category);
-
+  const catColor = getCategoryColor(opt.category);
+  const catEmoji = getCategoryEmoji(opt.category);
+  const radii = [
+    "22px 30px 20px 26px",
+    "30px 22px 26px 20px",
+    "20px 26px 30px 22px",
+  ];
   return (
     <div style={{
-      position: "relative",
-      borderRadius: radius,
+      display: "grid",
+      gridTemplateColumns: "120px minmax(0,1fr)",
       background: "var(--surface)",
-      padding: "14px 16px",
-      display: "flex",
-      alignItems: "center",
-      gap: 14,
-      marginBottom: 10,
+      borderRadius: radii[index % 3],
+      overflow: "hidden",
       boxShadow: "0 4px 16px rgba(16,24,32,.07)",
+      marginBottom: 12,
+      position: "relative",
     }}>
-      {/* Category dot */}
-      <div style={{
-        width: 46,
-        height: 46,
-        borderRadius: "50% 45% 55% 50%",
-        background: bg,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        fontSize: 22,
-        flexShrink: 0,
-      }}>
-        {opt.imageUrl
-          ? <img src={opt.imageUrl} alt="" style={{ width: 46, height: 46, borderRadius: "50% 45% 55% 50%", objectFit: "cover" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
-          : emoji}
+      {/* Thumbnail */}
+      {opt.imageUrl ? (
+        <img
+          src={opt.imageUrl}
+          alt={opt.name}
+          style={{ width: "100%", height: "100%", minHeight: 100, objectFit: "cover", display: "block" }}
+          onError={(e) => {
+            const img = e.target as HTMLImageElement;
+            const fb = img.nextElementSibling as HTMLElement | null;
+            if (fb) fb.style.display = "flex";
+            img.style.display = "none";
+          }}
+        />
+      ) : null}
+      <div
+        style={{
+          width: "100%",
+          minHeight: 100,
+          background: catColor,
+          display: opt.imageUrl ? "none" : "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: 32,
+        }}
+        aria-hidden="true"
+      >
+        {catEmoji}
       </div>
 
-      {/* Text */}
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: 14, lineHeight: 1.2 }}>
+      {/* Body */}
+      <div style={{ padding: "12px 14px 12px 12px", display: "flex", flexDirection: "column", gap: 4 }}>
+        <div style={{
+          fontSize: 10,
+          fontFamily: "var(--font-display)",
+          fontWeight: 700,
+          letterSpacing: ".04em",
+          color: "var(--primary)",
+          textTransform: "uppercase",
+        }}>
+          {opt.category}
+        </div>
+        <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: 14, lineHeight: 1.3, color: "var(--ink)" }}>
           {opt.name}
         </div>
         {opt.address && (
-          <div style={{ fontSize: 12, color: "var(--ink2)", marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-            {opt.address}
-          </div>
+          <div style={{ fontSize: 11, color: "var(--ink2)", lineHeight: 1.3 }}>📍 {opt.address}</div>
         )}
-        {opt.category && (
-          <div style={{ fontSize: 11, color: "var(--ink2)", marginTop: 1 }}>{opt.category}</div>
+        {opt.eventDate && (
+          <div style={{ fontSize: 11, color: "var(--ink2)" }}>
+            📅 {new Date(opt.eventDate).toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" })}
+          </div>
         )}
       </div>
 
-      {/* Remove button */}
+      {/* Remove */}
       <button
         onClick={onRemove}
         aria-label="Remove"
         style={{
-          width: 32, height: 32,
+          position: "absolute",
+          top: 8,
+          right: 8,
+          width: 28,
+          height: 28,
           borderRadius: "50%",
-          border: "1.5px solid var(--line)",
-          background: "var(--bg)",
-          color: "var(--ink2)",
+          border: "none",
+          background: "rgba(255,255,255,.85)",
+          color: "var(--error)",
           cursor: "pointer",
-          fontSize: 16,
-          display: "flex", alignItems: "center", justifyContent: "center",
-          flexShrink: 0,
-          transition: "background .15s, color .15s",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: 14,
+          fontWeight: 800,
+          lineHeight: 1,
+          backdropFilter: "blur(4px)",
         }}
-        onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "var(--error-soft)"; (e.currentTarget as HTMLButtonElement).style.color = "var(--error)"; }}
-        onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "var(--bg)"; (e.currentTarget as HTMLButtonElement).style.color = "var(--ink2)"; }}
       >
-        ×
+        ✕
       </button>
     </div>
   );
 }
 
-// ── Main Page ─────────────────────────────────────────────────────────────────
+// ── Main component ────────────────────────────────────────────────────────────
 export function NewProposalPage() {
-  const location = useLocation();
   const navigate = useNavigate();
-  const authUser = useAuthStore((s) => s.user);
+  const location = useLocation();
   const { options: pbOptions, clearPlan } = usePlanBuilder();
+  const authUser = useAuthStore((s) => s.user);
 
-  const stateOptions: PlanBuilderOption[] = (location.state as any)?.options ?? [];
+  const stateOptions: PlanBuilderOption[] = (location.state as { options?: PlanBuilderOption[] } | null)?.options ?? [];
   const [options, setOptions] = useState<PlanBuilderOption[]>(
     stateOptions.length > 0 ? stateOptions : pbOptions
   );
@@ -222,12 +205,8 @@ export function NewProposalPage() {
   const [selectedGroupId, setSelectedGroupId] = useState<string>("");
   const [partnerName, setPartnerName] = useState("your partner");
   const [personalMessage, setPersonalMessage] = useState("");
-  const [partnerContact, setPartnerContact] = useState("");
-  const [partnerContactError, setPartnerContactError] = useState("");
   const [titleError, setTitleError] = useState("");
   const [optionsError, setOptionsError] = useState("");
-  const [success, setSuccess] = useState(false);
-  const [createdId, setCreatedId] = useState("");
   const [groupsLoaded, setGroupsLoaded] = useState(false);
   const titleInitialized = useRef(false);
 
@@ -253,7 +232,7 @@ export function NewProposalPage() {
   }, []);
 
   const isSoloStart = groupsLoaded && groups.length === 0;
-  // Partner has not yet joined if the selected group has only 1 member
+  // Partner hasn't joined if selected group has only 1 member
   const selectedGroup = groups.find((g) => g.id === selectedGroupId);
   const partnerNotJoined = !isSoloStart && selectedGroup && (selectedGroup.members?.length ?? 0) < 2;
   const firstName = authUser?.firstName ?? authUser?.displayName?.split(" ")[0] ?? "Your";
@@ -265,13 +244,6 @@ export function NewProposalPage() {
       if (options.length < 1) { setOptionsError("Add at least 1 activity"); throw new Error("no options"); }
       if (options.length > 5) { setOptionsError("Maximum 5 options"); throw new Error("too many"); }
       setOptionsError("");
-
-      // Issue 6: block send if partner hasn't joined and no contact entered
-      if (partnerNotJoined && !partnerContact.trim()) {
-        setPartnerContactError("Enter your partner's email or phone so they can vote.");
-        throw new Error("no partner contact");
-      }
-      setPartnerContactError("");
 
       let groupId = selectedGroupId;
       if (!groupId) {
@@ -288,16 +260,6 @@ export function NewProposalPage() {
         eventDate: o.eventDate, rating: o.rating, priceLevel: o.priceLevel, sourceName: o.sourceName,
       }));
 
-      // If partner hasn't joined yet, create invite with their contact
-      if (partnerNotJoined && partnerContact.trim()) {
-        const isEmail = partnerContact.includes("@");
-        await invitationsApi.create({
-          groupId,
-          method: isEmail ? "email" : "sms",
-          target: partnerContact.trim(),
-        }).catch(() => {}); // non-fatal — link still works
-      }
-
       const res = await proposalsApi.create({
         groupId,
         title: title.trim(),
@@ -306,45 +268,22 @@ export function NewProposalPage() {
         ...(personalMessage.trim() ? { message: personalMessage.trim() } : {}),
       } as any);
       const id = (res.data as any)?.id ?? (res.data as any)?.proposal?.id ?? "";
-      return { id, solo: isSoloStart };
+      return { id, groupId };
     },
-    onSuccess: ({ id, solo }: { id: string; solo: boolean }) => {
+    onSuccess: ({ id }: { id: string; groupId: string }) => {
       clearPlan();
-      if (solo && id) { navigate(`/proposals/${id}`, { state: { openInvite: true } }); return; }
-      setCreatedId(id);
-      setSuccess(true);
+      // Always navigate to the proposal detail page.
+      // If solo-start or partner hasn't joined yet, open the invite sheet immediately
+      // so the user can share the link right then — no prior blocking of the form.
+      const needsInvite = isSoloStart || !!partnerNotJoined;
+      navigate(`/proposals/${id}`, { state: { openInvite: needsInvite } });
     },
   });
 
-  // ── Success Screen ───────────────────────────────────────────────────────────
-  if (success) {
-    return (
-      <>
-        <Confetti />
-        <AppNav />
-        <main style={{ minHeight: "80vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 40, textAlign: "center" }}>
-          <div style={{ fontSize: 80, marginBottom: 16 }}>🎉</div>
-          <div style={{ display: "inline-block", padding: "6px 14px", borderRadius: "12px 6px 14px 6px", background: "var(--lime)", color: "#101820", fontFamily: "var(--font-display)", fontWeight: 800, fontSize: 11, letterSpacing: ".06em", marginBottom: 16 }}>
-            LOCKED IN
-          </div>
-          <h1 style={{ fontFamily: "var(--font-display)", fontSize: 40, fontWeight: 800, letterSpacing: "-.04em", marginBottom: 12 }}>
-            Plan sent to {partnerName}!
-          </h1>
-          <p style={{ color: "var(--ink2)", marginBottom: 36, maxWidth: 380, fontSize: 17 }}>
-            They'll vote on your options. You'll hear back when a decision is locked in.
-          </p>
-          <div style={{ display: "flex", flexDirection: "column", gap: 12, width: "100%", maxWidth: 300 }}>
-            <Link to={`/proposals/${createdId}`} className="dn-btn" style={{ justifyContent: "center" }}>
-              View Plan
-            </Link>
-            <Link to="/discover" className="dn-btn dn-btn--tonal" style={{ justifyContent: "center" }}>
-              Keep Exploring
-            </Link>
-          </div>
-        </main>
-      </>
-    );
-  }
+  const mutationErrMsg = mutation.isError
+    ? (mutation.error as AxiosError<ApiError>)?.response?.data?.error
+    : null;
+  void mutationErrMsg; // used inline below
 
   const inputStyle: React.CSSProperties = {
     width: "100%",
@@ -530,29 +469,22 @@ export function NewProposalPage() {
               </div>
             )}
 
-            {/* Issue 6: Partner contact required if partner hasn't joined */}
+            {/* Partner not yet joined — informational only, no block */}
             {partnerNotJoined && (
-              <div style={{ marginBottom: 20 }}>
-                <label style={{ display: "block", fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 11, letterSpacing: ".1em", textTransform: "uppercase", color: "var(--ink2)", marginBottom: 8 }}>
-                  Partner's email or phone *
-                </label>
-                <input
-                  type="text"
-                  value={partnerContact}
-                  onChange={(e) => { setPartnerContact(e.target.value); setPartnerContactError(""); }}
-                  placeholder="partner@email.com or +1 555 000 0000"
-                  style={{ ...inputStyle, borderColor: partnerContactError ? "var(--error)" : "var(--line)" }}
-                  onFocus={(e) => { (e.target as HTMLInputElement).style.borderColor = "var(--primary)"; (e.target as HTMLInputElement).style.boxShadow = "0 0 0 3px var(--primary-soft)"; }}
-                  onBlur={(e) => { (e.target as HTMLInputElement).style.borderColor = partnerContactError ? "var(--error)" : "var(--line)"; (e.target as HTMLInputElement).style.boxShadow = "none"; }}
-                />
-                {partnerContactError && <p style={{ color: "var(--error)", fontSize: 12, marginTop: 6, fontWeight: 600 }}>{partnerContactError}</p>}
-                <p style={{ fontSize: 12, color: "var(--ink2)", marginTop: 6 }}>
-                  We'll send them a voting link. No account needed.
-                </p>
+              <div style={{
+                background: "var(--lime-soft)",
+                borderRadius: "16px 10px 16px 10px",
+                padding: "14px 18px",
+                fontSize: 13,
+                color: "var(--ink)",
+                marginBottom: 20,
+                lineHeight: 1.4,
+              }}>
+                💌 You'll get a link to share with {partnerName} right after — they can vote without an account.
               </div>
             )}
 
-            {/* Issue 5: Personalized message */}
+            {/* Personalized message */}
             <div style={{ marginBottom: 20 }}>
               <label style={{ display: "block", fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 11, letterSpacing: ".1em", textTransform: "uppercase", color: "var(--ink2)", marginBottom: 8 }}>
                 Personal message <span style={{ fontWeight: 400, textTransform: "none", letterSpacing: 0 }}>(optional)</span>
@@ -581,7 +513,7 @@ export function NewProposalPage() {
               </div>
             )}
 
-            {/* Submit button — full Jarvis .btn.lg treatment */}
+            {/* Submit button */}
             <button
               onClick={() => mutation.mutate()}
               disabled={mutation.isPending}
