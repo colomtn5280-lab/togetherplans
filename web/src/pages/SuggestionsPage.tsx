@@ -1161,7 +1161,19 @@ export function SuggestionsPage() {
                         navigate("/signup");
                         return;
                       }
-                      setDetailSuggestion(s);
+                      if (added) return;
+                      addOption({
+                        name: s.name ?? "",
+                        category: s.category ?? "experiences",
+                        address: s.address,
+                        description: s.shortDescription || s.description,
+                        imageUrl: s.imageUrl,
+                        sourceUrl: s.sourceUrl,
+                        eventDate: s.eventDate ?? s.date ?? undefined,
+                        rating: s.rating,
+                        priceLevel: s.priceLevel,
+                        sourceName: s.sourceName || s.source,
+                      });
                     }}
                   >
                     {added ? "Added" : isAuthenticated ? "Add to Date" : "Sign up to save your plan →"}
