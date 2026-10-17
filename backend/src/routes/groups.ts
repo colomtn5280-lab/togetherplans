@@ -67,6 +67,27 @@ groupsRouter.get('/:id', async (req: AuthRequest, res: Response, next) => {
   }
 });
 
+// GET /api/groups/:id/proposals — list proposals for a group
+groupsRouter.get('/:id/proposals', async (req: AuthRequest, res: Response, next) => {
+  try {
+    const membership = await prisma.groupMember.findFirst({
+      where: { groupId: req.params.id, userId: req.userId },
+    });
+    if (!membership) return res.status(404).json({ error: 'Group not found' });
+    const proposals = await prisma.proposal.findMany({
+      where: { groupId: req.params.id },
+      include: {
+        options: { include: { votes: true } },
+        creator: { select: { id: true, displayName: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+    return res.json(proposals);
+  } catch (err) {
+    return next(err);
+  }
+});
+
 // PATCH /api/groups/:id — rename group (OWNER only)
 groupsRouter.patch('/:id', async (req: AuthRequest, res: Response, next) => {
   try {
