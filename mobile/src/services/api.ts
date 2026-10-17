@@ -92,8 +92,14 @@ export const proposalsAPI = {
     api.post('/api/proposals', { groupId, title, dateTime, options }),
   get: (id: string) => api.get(`/api/proposals/${id}`),
   cancel: (id: string) => api.patch(`/api/proposals/${id}/cancel`),
-  vote: (proposalId: string, optionId: string, sentiment: string = 'APPROVE') =>
-    api.post(`/api/proposals/${proposalId}/vote`, { optionId, sentiment }),
+  vote: (proposalId: string, optionId: string, sentiment: string = 'APPROVE', comment?: string) =>
+    api.post(`/api/proposals/${proposalId}/vote`, { optionId, sentiment, comment }),
+  getComments: (proposalId: string) =>
+    api.get(`/api/proposals/${proposalId}/comments`),
+  addComment: (proposalId: string, body: string) =>
+    api.post(`/api/proposals/${proposalId}/comments`, { body }),
+  deleteComment: (proposalId: string, commentId: string) =>
+    api.delete(`/api/proposals/${proposalId}/comments/${commentId}`),
   retractVote: (proposalId: string) =>
     api.delete(`/api/proposals/${proposalId}/votes`),
   counter: (proposalId: string, title: string, description?: string) =>

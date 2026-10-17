@@ -13,10 +13,12 @@ import {
   ScrollView,
   Share,
   StyleSheet,
+  TextInput,
   TouchableOpacity,
   View,
   Text,
 } from 'react-native';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Clipboard from 'expo-clipboard';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
@@ -236,6 +238,26 @@ export default function ProposalDetailScreen() {
   const [loading, setLoading] = useState(true);
   const [partnerName, setPartnerName] = useState('Partner');
   const [proposerName, setProposerName] = useState<string>('');
+  const [voteComments, setVoteComments] = useState<Record<string, string>>({});
+  const [newComment, setNewComment] = useState('');
+  const queryClient = useQueryClient();
+
+  // Comments query
+  const { data: comments } = useQuery({
+    queryKey: ['proposal-comments', proposalId],
+    queryFn: async () => { const r = await proposalsAPI.getComments(proposalId); return r.data; },
+    enabled: !!proposalId,
+  });
+
+  // Comment mutations
+  const addCommentMutation = useMutation({
+    mutationFn: (body: string) => proposalsAPI.addComment(proposalId, body),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['proposal-comments', proposalId] }),
+  });
+  const deleteCommentMutation = useMutation({
+    mutationFn: (commentId: string) => proposalsAPI.deleteComment(proposalId, commentId),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['proposal-comments', proposalId] }),
+  });
 
   // Guest-vote share link state
   const shareUrlRef = useRef<string | null>(null);
@@ -311,6 +333,13 @@ export default function ProposalDetailScreen() {
           })
         );
         setMyVoteMap(voteMap);
+        // Initialize voteComments from existing vote comments
+        const commentInit: Record<string, string> = {};
+        p.options.forEach((o: any) => {
+          const v = (o.votes ?? []).find((v: any) => v.userId === user.id);
+          if (v?.comment) commentInit[o.id] = v.comment;
+        });
+        setVoteComments(commentInit);
       } else if (user && p.votes) {
         // Fallback: flat votes array
         const voteMap = new Map<string, string>(
@@ -406,7 +435,7 @@ export default function ProposalDetailScreen() {
     await dismissDecision();
   };
 
-  const handleVote = async (optionId: string, sentiment: 'APPROVE' | 'MAYBE' | 'REJECT') => {
+  const handleVote = async (optionId: string, sentiment: 'APPROVE' | 'MAYBE' | 'REJECT', comment?: string) => {
     if (!proposal) return;
     const prevMap = new Map(myVoteMap);
 
@@ -415,10 +444,17 @@ export default function ProposalDetailScreen() {
     next.set(optionId, sentiment);
     setMyVoteMap(next);
     try {
-      await proposalsAPI.vote(proposal.id, optionId, sentiment);
+      await proposalsAPI.vote(proposal.id, optionId, sentiment, comment);
     } catch {
       setMyVoteMap(prevMap); // revert
     }
+  };
+
+  const voteMutation = {
+    mutate: ({ optionId, sentiment, comment }: { optionId: string; sentiment: string; comment?: string }) => {
+      if (!proposal) return;
+      proposalsAPI.vote(proposal.id, optionId, sentiment, comment).catch(() => {});
+    },
   };
 
   if (loading || !proposal) {
@@ -745,6 +781,12 @@ export default function ProposalDetailScreen() {
                       {guestVotes > 0 ? ` · +${guestVotes} guest` : ''}
                     </DNText>
                   )}
+                  {(option.votes ?? []).filter((v: any) => v.comment).map((v: any) => (
+                    <View key={v.id} style={styles.voteNote}>
+                      <Text style={styles.voteNoteName}>{(v.user?.displayName ?? '').split(' ')[0]}:</Text>
+                      <Text style={styles.voteNoteText}>"{v.comment}"</Text>
+                    </View>
+                  ))}
                 </View>
 
                 {/* Vote buttons */}
@@ -779,6 +821,22 @@ export default function ProposalDetailScreen() {
                         </Text>
                       </Pressable>
                     </View>
+                    {myVoteMap.get(option.id) && (
+                      <TextInput
+                        style={styles.voteCommentInput}
+                        placeholder="Add a note (optional)"
+                        value={voteComments[option.id] ?? ''}
+                        onChangeText={(text) => setVoteComments(prev => ({ ...prev, [option.id]: text }))}
+                        onEndEditing={() => {
+                          const comment = voteComments[option.id] ?? '';
+                          const sentiment = myVoteMap.get(option.id)!;
+                          voteMutation.mutate({ optionId: option.id, sentiment, comment });
+                        }}
+                        maxLength={200}
+                        multiline
+                        numberOfLines={2}
+                      />
+                    )}
                   </View>
                 )}
 
@@ -832,6 +890,38 @@ export default function ProposalDetailScreen() {
               </Text>
             </View>
           )}
+
+          {/* Discussion */}
+          <View style={styles.discussionSection}>
+            <Text style={styles.discussionTitle}>Discussion</Text>
+            {(comments ?? []).map((c: any) => (
+              <View key={c.id} style={styles.commentRow}>
+                <Text style={styles.commentName}>{(c.user?.displayName ?? '').split(' ')[0]}</Text>
+                <Text style={styles.commentBody}>{c.body}</Text>
+                {c.userId === user?.id && (
+                  <Pressable onPress={() => deleteCommentMutation.mutate(c.id)}>
+                    <Text style={styles.commentDel}>×</Text>
+                  </Pressable>
+                )}
+              </View>
+            ))}
+            <View style={styles.commentInputRow}>
+              <TextInput
+                style={styles.commentInput}
+                placeholder="Say something..."
+                value={newComment}
+                onChangeText={setNewComment}
+                maxLength={500}
+                onSubmitEditing={() => { if (newComment.trim()) { addCommentMutation.mutate(newComment.trim()); setNewComment(''); } }}
+              />
+              <Pressable
+                style={styles.commentSendBtn}
+                onPress={() => { if (newComment.trim()) { addCommentMutation.mutate(newComment.trim()); setNewComment(''); } }}
+              >
+                <Text style={styles.commentSendText}>Send</Text>
+              </Pressable>
+            </View>
+          </View>
 
           {/* DECIDED: gentle next-step nudge (share stays primary in the header) */}
           {isDecided && (
@@ -924,4 +1014,29 @@ const styles = StyleSheet.create({
     color: '#086B6B',
     textAlign: 'center',
   },
+  voteCommentInput: {
+    marginTop: 6,
+    padding: 8,
+    borderWidth: 1,
+    borderColor: '#D0D9E0',
+    borderRadius: 10,
+    fontFamily: 'Sora_400Regular',
+    fontSize: 12,
+    color: '#2D3748',
+    backgroundColor: '#fafafa',
+    minHeight: 44,
+  },
+  voteNote: { flexDirection: 'row', gap: 4, marginTop: 4 },
+  voteNoteName: { fontFamily: 'Sora_700Bold', fontSize: 11, color: '#2D3748' },
+  voteNoteText: { fontFamily: 'Sora_400Regular', fontSize: 11, color: '#4A5568', fontStyle: 'italic', flex: 1 },
+  discussionSection: { marginTop: 24, paddingTop: 16, borderTopWidth: 1, borderTopColor: '#E2E8F0' },
+  discussionTitle: { fontFamily: 'Sora_700Bold', fontSize: 15, color: '#2D3748', marginBottom: 12 },
+  commentRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 6, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: '#F7FAFC' },
+  commentName: { fontFamily: 'Sora_700Bold', fontSize: 13, color: '#0E8C8C' },
+  commentBody: { fontFamily: 'Sora_400Regular', fontSize: 13, color: '#2D3748', flex: 1 },
+  commentDel: { fontSize: 18, color: '#CBD5E0', paddingLeft: 4 },
+  commentInputRow: { flexDirection: 'row', gap: 8, marginTop: 12, alignItems: 'center' },
+  commentInput: { flex: 1, padding: 10, borderWidth: 1, borderColor: '#D0D9E0', borderRadius: 22, fontFamily: 'Sora_400Regular', fontSize: 13, color: '#2D3748', backgroundColor: '#fafafa' },
+  commentSendBtn: { backgroundColor: '#0E8C8C', paddingHorizontal: 16, height: 40, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
+  commentSendText: { fontFamily: 'Sora_700Bold', fontSize: 13, color: '#fff' },
 });
