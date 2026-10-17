@@ -341,7 +341,7 @@ function EventDetailSheet({
               <DNSticker
                 label={suggestion.category}
                 color={colors.primarySoft}
-                textColor={colors.primary}
+                textColor={colors.ink2}
                 rotationIndex={0}
               />
             </View>
@@ -552,7 +552,7 @@ function SuggestionCard({
           <DNSticker
             label={suggestion.category}
             color={colors.primarySoft}
-            textColor={colors.primary}
+            textColor={colors.ink2}
             style={{ position: 'absolute', top: 10, left: 10, transform: [{ rotate: '-4deg' }] }}
           />
         )}
