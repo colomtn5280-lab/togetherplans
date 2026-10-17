@@ -9,6 +9,7 @@ import {
   Image,
   Linking,
   Modal,
+  Pressable,
   ScrollView,
   Share,
   StyleSheet,
@@ -230,10 +231,11 @@ export default function ProposalDetailScreen() {
   const { proposalId } = route.params;
   const openInvite = route.params.openInvite ?? false;
   const [proposal, setProposal] = useState<Proposal | null>(null);
-  const [myVotedOptionId, setMyVotedOptionId] = useState<string | null>(null);
+  const [myVotedOptionIds, setMyVotedOptionIds] = useState<Set<string>>(new Set());
   const [showDecision, setShowDecision] = useState(false);
   const [loading, setLoading] = useState(true);
   const [partnerName, setPartnerName] = useState('Partner');
+  const [proposerName, setProposerName] = useState<string>('');
 
   // Guest-vote share link state
   const shareUrlRef = useRef<string | null>(null);
@@ -300,19 +302,23 @@ export default function ProposalDetailScreen() {
       const p: Proposal = res.data;
       setProposal(p);
 
-      // Derive my voted option from nested votes in each option
+      // Derive my voted options from nested votes in each option
       if (user && p.options) {
-        const votedOption = p.options.find(
-          (o) => o.votes && o.votes.some((v) => v.userId === user.id)
+        const votedIds = new Set<string>(
+          p.options
+            .filter((o) => o.votes && o.votes.some((v) => v.userId === user.id))
+            .map((o) => o.id)
         );
-        setMyVotedOptionId(votedOption?.id ?? null);
+        setMyVotedOptionIds(votedIds);
       } else if (user && p.votes) {
         // Fallback: flat votes array
-        const myVote = p.votes.find((v) => v.userId === user.id);
-        setMyVotedOptionId(myVote?.optionId ?? null);
+        const votedIds = new Set<string>(
+          p.votes.filter((v) => v.userId === user.id).map((v) => v.optionId).filter(Boolean)
+        );
+        setMyVotedOptionIds(votedIds);
       }
 
-      // M5: fetch group members to get real partner name
+      // M5: fetch group members to get real partner name + proposer name
       if (p.groupId && user) {
         try {
           const groupRes = await groupsAPI.get(p.groupId);
@@ -324,6 +330,14 @@ export default function ProposalDetailScreen() {
           } else if (others.length > 1) {
             setPartnerName('A member');
           }
+          // Resolve proposer name from members list, fallback to creator field on response
+          const proposerMember = members.find((m) => m.userId === p.proposerId);
+          const resolvedProposerName =
+            proposerMember?.user?.displayName ??
+            (p as any).creator?.displayName ??
+            (p as any).proposer?.displayName ??
+            '';
+          setProposerName(resolvedProposerName);
         } catch {}
       }
 
@@ -391,23 +405,27 @@ export default function ProposalDetailScreen() {
 
   const handleVote = async (optionId: string) => {
     if (!proposal) return;
-    const prev = myVotedOptionId;
+    const prevIds = new Set(myVotedOptionIds);
 
-    if (myVotedOptionId === optionId) {
-      // Tapping the same option → retract vote
-      setMyVotedOptionId(null);
+    if (myVotedOptionIds.has(optionId)) {
+      // Tapping the same option → retract vote (toggle off)
+      const next = new Set(myVotedOptionIds);
+      next.delete(optionId);
+      setMyVotedOptionIds(next);
       try {
         await proposalsAPI.retractVote(proposal.id);
       } catch {
-        setMyVotedOptionId(prev); // revert
+        setMyVotedOptionIds(prevIds); // revert
       }
     } else {
-      // Vote for a different option
-      setMyVotedOptionId(optionId);
+      // Vote for this option (additive — keeps previous votes)
+      const next = new Set(myVotedOptionIds);
+      next.add(optionId);
+      setMyVotedOptionIds(next);
       try {
         await proposalsAPI.vote(proposal.id, optionId);
       } catch {
-        setMyVotedOptionId(prev); // revert
+        setMyVotedOptionIds(prevIds); // revert
       }
     }
   };
@@ -460,8 +478,8 @@ export default function ProposalDetailScreen() {
   }
 
   const partnerVoted = !!partnerVotedOptionId;
-  const iVoted = !!myVotedOptionId;
-  const mismatch = partnerVoted && iVoted && partnerVotedOptionId !== myVotedOptionId;
+  const iVoted = myVotedOptionIds.size > 0;
+  const mismatch = partnerVoted && iVoted && !myVotedOptionIds.has(partnerVotedOptionId!);
   const waitingForMe = partnerVoted && !iVoted;
 
   const isDecided = proposal.status === 'DECIDED' || (proposal.status === 'ACCEPTED' && proposal.consensus?.reached);
@@ -638,7 +656,7 @@ export default function ProposalDetailScreen() {
           {/* Option cards */}
           {proposal.options.map((option, idx) => {
             const radii = OPTION_RADII[idx % 4];
-            const votedByMe = myVotedOptionId === option.id;
+            const votedByMe = myVotedOptionIds.has(option.id);
             const votedByPartner = partnerVotedOptionId === option.id;
             const displayName = option.name ?? option.title ?? '';
             const displayLocation = option.address ?? option.location ?? '';
@@ -738,17 +756,84 @@ export default function ProposalDetailScreen() {
                   )}
                 </View>
 
-                {/* Vote stamp */}
-                <VoteStamp
-                  votedByMe={votedByMe}
-                  votedByPartner={votedByPartner}
-                  partnerName={partnerName}
-                  onPress={() => handleVote(option.id)}
-                  colors={colors}
-                />
+                {/* Vote button */}
+                {isOpen && (
+                  <View style={{ paddingHorizontal: SPACING.md, paddingBottom: SPACING.md }}>
+                    <Pressable
+                      onPress={() => handleVote(option.id)}
+                      style={{
+                        height: 44,
+                        borderRadius: 0,
+                        borderTopLeftRadius: 22,
+                        borderTopRightRadius: 16,
+                        borderBottomRightRadius: 22,
+                        borderBottomLeftRadius: 16,
+                        backgroundColor: votedByMe ? colors.primary : '#D9F1F0',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      <Text style={{
+                        fontFamily: 'Sora_700Bold',
+                        fontSize: 14,
+                        color: votedByMe ? '#fff' : '#086B6B',
+                      }}>
+                        {votedByMe ? '✓ I\'m in 👍' : '👍 I\'m in'}
+                      </Text>
+                    </Pressable>
+                  </View>
+                )}
+
+                {/* Partner sticker */}
+                {votedByPartner && (
+                  <View style={{ position: 'absolute', bottom: isOpen ? 60 : 12, right: 12 }}>
+                    <DNSticker
+                      label={`${partnerName ?? 'Partner'} ♥`}
+                      color={colors.limeSoft}
+                      textColor={colors.lime}
+                      size="sm"
+                    />
+                  </View>
+                )}
               </View>
             );
           })}
+
+          {/* Done voting banner */}
+          {myVotedOptionIds.size > 0 && proposal?.status === 'OPEN' && (
+            <View style={{ marginTop: 12 }}>
+              <Pressable
+                onPress={() => {
+                  const name = proposerName || 'them';
+                  Share.share({ message: `Hey! I'm in for our plan — check it out 👍` });
+                }}
+                style={{
+                  height: 48,
+                  borderTopLeftRadius: 22,
+                  borderTopRightRadius: 16,
+                  borderBottomRightRadius: 22,
+                  borderBottomLeftRadius: 16,
+                  backgroundColor: colors.primary,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '100%',
+                }}
+              >
+                <Text style={{ fontFamily: 'Sora_700Bold', fontSize: 15, color: '#fff' }}>
+                  Let {proposerName || 'them'} know 👍
+                </Text>
+              </Pressable>
+              <Text style={{
+                textAlign: 'center',
+                marginTop: 8,
+                fontFamily: 'Sora_700Bold',
+                fontSize: 13,
+                color: colors.primaryDeep ?? colors.primary,
+              }}>
+                You're in for {myVotedOptionIds.size} option{myVotedOptionIds.size !== 1 ? 's' : ''}
+              </Text>
+            </View>
+          )}
 
           {/* DECIDED: gentle next-step nudge (share stays primary in the header) */}
           {isDecided && (
