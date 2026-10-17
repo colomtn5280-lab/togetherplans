@@ -20,6 +20,7 @@ import { shareRouter } from '@/routes/share';
 import { safetyRouter } from '@/routes/safety';
 import { businessRouter } from '@/routes/business';
 import { webhooksRouter } from '@/routes/webhooks';
+import { inviteCardsRouter } from '@/services/invite-cards/routes';
 import { seedAfterDarkCatalog } from '@/seeds/after-dark-catalog';
 
 export function createApp(): express.Express {
@@ -63,6 +64,7 @@ export function createApp(): express.Express {
   app.use('/api/users', usersRouter);
   app.use('/api/internal', internalRouter);
   app.use('/api/share-cards', shareCardsRouter);
+  app.use('/api/invite-cards', inviteCardsRouter);
   app.use('/api/share', shareRouter);
   app.use('/api/after-dark', afterDarkRouter);
   app.use('/api/safety', safetyRouter);

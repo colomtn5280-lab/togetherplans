@@ -66,6 +66,7 @@ export const ModelName = {
   FeaturedListing: 'FeaturedListing',
   BusinessImpression: 'BusinessImpression',
   BusinessDirectListing: 'BusinessDirectListing',
+  InviteCard: 'InviteCard',
   AfterDarkItem: 'AfterDarkItem'
 } as const
 
@@ -325,6 +326,23 @@ export const BusinessDirectListingScalarFieldEnum = {
 } as const
 
 export type BusinessDirectListingScalarFieldEnum = (typeof BusinessDirectListingScalarFieldEnum)[keyof typeof BusinessDirectListingScalarFieldEnum]
+
+
+export const InviteCardScalarFieldEnum = {
+  id: 'id',
+  proposalId: 'proposalId',
+  templateId: 'templateId',
+  mode: 'mode',
+  note: 'note',
+  photoUrl: 'photoUrl',
+  renderedPng: 'renderedPng',
+  renderedPdf: 'renderedPdf',
+  skipped: 'skipped',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type InviteCardScalarFieldEnum = (typeof InviteCardScalarFieldEnum)[keyof typeof InviteCardScalarFieldEnum]
 
 
 export const AfterDarkItemScalarFieldEnum = {

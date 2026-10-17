@@ -412,6 +412,7 @@ export const ModelName = {
   FeaturedListing: 'FeaturedListing',
   BusinessImpression: 'BusinessImpression',
   BusinessDirectListing: 'BusinessDirectListing',
+  InviteCard: 'InviteCard',
   AfterDarkItem: 'AfterDarkItem'
 } as const
 
@@ -428,7 +429,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "blockedUser" | "report" | "group" | "groupMember" | "invitation" | "proposal" | "option" | "guestVote" | "vote" | "refreshToken" | "business" | "featuredListing" | "businessImpression" | "businessDirectListing" | "afterDarkItem"
+    modelProps: "user" | "blockedUser" | "report" | "group" | "groupMember" | "invitation" | "proposal" | "option" | "guestVote" | "vote" | "refreshToken" | "business" | "featuredListing" | "businessImpression" | "businessDirectListing" | "inviteCard" | "afterDarkItem"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1542,6 +1543,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    InviteCard: {
+      payload: Prisma.$InviteCardPayload<ExtArgs>
+      fields: Prisma.InviteCardFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.InviteCardFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InviteCardPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.InviteCardFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InviteCardPayload>
+        }
+        findFirst: {
+          args: Prisma.InviteCardFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InviteCardPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.InviteCardFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InviteCardPayload>
+        }
+        findMany: {
+          args: Prisma.InviteCardFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InviteCardPayload>[]
+        }
+        create: {
+          args: Prisma.InviteCardCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InviteCardPayload>
+        }
+        createMany: {
+          args: Prisma.InviteCardCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.InviteCardCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InviteCardPayload>[]
+        }
+        delete: {
+          args: Prisma.InviteCardDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InviteCardPayload>
+        }
+        update: {
+          args: Prisma.InviteCardUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InviteCardPayload>
+        }
+        deleteMany: {
+          args: Prisma.InviteCardDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.InviteCardUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.InviteCardUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InviteCardPayload>[]
+        }
+        upsert: {
+          args: Prisma.InviteCardUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InviteCardPayload>
+        }
+        aggregate: {
+          args: Prisma.InviteCardAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateInviteCard>
+        }
+        groupBy: {
+          args: Prisma.InviteCardGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.InviteCardGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.InviteCardCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.InviteCardCountAggregateOutputType> | number
+        }
+      }
+    }
     AfterDarkItem: {
       payload: Prisma.$AfterDarkItemPayload<ExtArgs>
       fields: Prisma.AfterDarkItemFieldRefs
@@ -1895,6 +1970,23 @@ export const BusinessDirectListingScalarFieldEnum = {
 } as const
 
 export type BusinessDirectListingScalarFieldEnum = (typeof BusinessDirectListingScalarFieldEnum)[keyof typeof BusinessDirectListingScalarFieldEnum]
+
+
+export const InviteCardScalarFieldEnum = {
+  id: 'id',
+  proposalId: 'proposalId',
+  templateId: 'templateId',
+  mode: 'mode',
+  note: 'note',
+  photoUrl: 'photoUrl',
+  renderedPng: 'renderedPng',
+  renderedPdf: 'renderedPdf',
+  skipped: 'skipped',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type InviteCardScalarFieldEnum = (typeof InviteCardScalarFieldEnum)[keyof typeof InviteCardScalarFieldEnum]
 
 
 export const AfterDarkItemScalarFieldEnum = {
@@ -2259,6 +2351,7 @@ export type GlobalOmitConfig = {
   featuredListing?: Prisma.FeaturedListingOmit
   businessImpression?: Prisma.BusinessImpressionOmit
   businessDirectListing?: Prisma.BusinessDirectListingOmit
+  inviteCard?: Prisma.InviteCardOmit
   afterDarkItem?: Prisma.AfterDarkItemOmit
 }
 

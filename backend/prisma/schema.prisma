@@ -159,6 +159,7 @@ model Proposal {
   counters   Proposal[]  @relation("CounterProposals")
   options    Option[]
   guestVotes GuestVote[]
+  inviteCard InviteCard?
 
   @@index([groupId])
 }
@@ -316,7 +317,25 @@ model BusinessDirectListing {
   business     Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
 }
 
-// ── After Dark: Intimate/Playful Activities for Couples ──────────────────────
+// ── Invite Cards ──────────────────────────────────────────────────────────────
+
+model InviteCard {
+  id          String   @id @default(uuid())
+  proposalId  String   @unique
+  templateId  String   // e.g. "1a", "2c", "3l"
+  mode        String   @default("vote") // "vote" | "official"
+  note        String?  // personal message from sender
+  photoUrl    String?  // GCS URL of user-uploaded photo
+  renderedPng String?  // GCS URL of rendered 1080x1920 PNG
+  renderedPdf String?  // GCS URL of rendered PDF
+  skipped     Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  proposal Proposal @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+
+  @@index([proposalId])
+}
 
 model AfterDarkItem {
   id            String   @id @default(uuid())

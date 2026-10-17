@@ -115,6 +115,11 @@ export type BusinessImpression = Prisma.BusinessImpressionModel
  */
 export type BusinessDirectListing = Prisma.BusinessDirectListingModel
 /**
+ * Model InviteCard
+ * 
+ */
+export type InviteCard = Prisma.InviteCardModel
+/**
  * Model AfterDarkItem
  * 
  */

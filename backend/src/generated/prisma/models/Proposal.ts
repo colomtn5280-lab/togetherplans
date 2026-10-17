@@ -236,6 +236,7 @@ export type ProposalWhereInput = {
   counters?: Prisma.ProposalListRelationFilter
   options?: Prisma.OptionListRelationFilter
   guestVotes?: Prisma.GuestVoteListRelationFilter
+  inviteCard?: Prisma.XOR<Prisma.InviteCardNullableScalarRelationFilter, Prisma.InviteCardWhereInput> | null
 }
 
 export type ProposalOrderByWithRelationInput = {
@@ -256,6 +257,7 @@ export type ProposalOrderByWithRelationInput = {
   counters?: Prisma.ProposalOrderByRelationAggregateInput
   options?: Prisma.OptionOrderByRelationAggregateInput
   guestVotes?: Prisma.GuestVoteOrderByRelationAggregateInput
+  inviteCard?: Prisma.InviteCardOrderByWithRelationInput
 }
 
 export type ProposalWhereUniqueInput = Prisma.AtLeast<{
@@ -279,6 +281,7 @@ export type ProposalWhereUniqueInput = Prisma.AtLeast<{
   counters?: Prisma.ProposalListRelationFilter
   options?: Prisma.OptionListRelationFilter
   guestVotes?: Prisma.GuestVoteListRelationFilter
+  inviteCard?: Prisma.XOR<Prisma.InviteCardNullableScalarRelationFilter, Prisma.InviteCardWhereInput> | null
 }, "id" | "shareToken">
 
 export type ProposalOrderByWithAggregationInput = {
@@ -330,6 +333,7 @@ export type ProposalCreateInput = {
   counters?: Prisma.ProposalCreateNestedManyWithoutParentInput
   options?: Prisma.OptionCreateNestedManyWithoutProposalInput
   guestVotes?: Prisma.GuestVoteCreateNestedManyWithoutProposalInput
+  inviteCard?: Prisma.InviteCardCreateNestedOneWithoutProposalInput
 }
 
 export type ProposalUncheckedCreateInput = {
@@ -347,6 +351,7 @@ export type ProposalUncheckedCreateInput = {
   counters?: Prisma.ProposalUncheckedCreateNestedManyWithoutParentInput
   options?: Prisma.OptionUncheckedCreateNestedManyWithoutProposalInput
   guestVotes?: Prisma.GuestVoteUncheckedCreateNestedManyWithoutProposalInput
+  inviteCard?: Prisma.InviteCardUncheckedCreateNestedOneWithoutProposalInput
 }
 
 export type ProposalUpdateInput = {
@@ -364,6 +369,7 @@ export type ProposalUpdateInput = {
   counters?: Prisma.ProposalUpdateManyWithoutParentNestedInput
   options?: Prisma.OptionUpdateManyWithoutProposalNestedInput
   guestVotes?: Prisma.GuestVoteUpdateManyWithoutProposalNestedInput
+  inviteCard?: Prisma.InviteCardUpdateOneWithoutProposalNestedInput
 }
 
 export type ProposalUncheckedUpdateInput = {
@@ -381,6 +387,7 @@ export type ProposalUncheckedUpdateInput = {
   counters?: Prisma.ProposalUncheckedUpdateManyWithoutParentNestedInput
   options?: Prisma.OptionUncheckedUpdateManyWithoutProposalNestedInput
   guestVotes?: Prisma.GuestVoteUncheckedUpdateManyWithoutProposalNestedInput
+  inviteCard?: Prisma.InviteCardUncheckedUpdateOneWithoutProposalNestedInput
 }
 
 export type ProposalCreateManyInput = {
@@ -658,6 +665,20 @@ export type ProposalUpdateOneRequiredWithoutGuestVotesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ProposalUpdateToOneWithWhereWithoutGuestVotesInput, Prisma.ProposalUpdateWithoutGuestVotesInput>, Prisma.ProposalUncheckedUpdateWithoutGuestVotesInput>
 }
 
+export type ProposalCreateNestedOneWithoutInviteCardInput = {
+  create?: Prisma.XOR<Prisma.ProposalCreateWithoutInviteCardInput, Prisma.ProposalUncheckedCreateWithoutInviteCardInput>
+  connectOrCreate?: Prisma.ProposalCreateOrConnectWithoutInviteCardInput
+  connect?: Prisma.ProposalWhereUniqueInput
+}
+
+export type ProposalUpdateOneRequiredWithoutInviteCardNestedInput = {
+  create?: Prisma.XOR<Prisma.ProposalCreateWithoutInviteCardInput, Prisma.ProposalUncheckedCreateWithoutInviteCardInput>
+  connectOrCreate?: Prisma.ProposalCreateOrConnectWithoutInviteCardInput
+  upsert?: Prisma.ProposalUpsertWithoutInviteCardInput
+  connect?: Prisma.ProposalWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProposalUpdateToOneWithWhereWithoutInviteCardInput, Prisma.ProposalUpdateWithoutInviteCardInput>, Prisma.ProposalUncheckedUpdateWithoutInviteCardInput>
+}
+
 export type ProposalCreateWithoutCreatorInput = {
   id?: string
   title: string
@@ -672,6 +693,7 @@ export type ProposalCreateWithoutCreatorInput = {
   counters?: Prisma.ProposalCreateNestedManyWithoutParentInput
   options?: Prisma.OptionCreateNestedManyWithoutProposalInput
   guestVotes?: Prisma.GuestVoteCreateNestedManyWithoutProposalInput
+  inviteCard?: Prisma.InviteCardCreateNestedOneWithoutProposalInput
 }
 
 export type ProposalUncheckedCreateWithoutCreatorInput = {
@@ -688,6 +710,7 @@ export type ProposalUncheckedCreateWithoutCreatorInput = {
   counters?: Prisma.ProposalUncheckedCreateNestedManyWithoutParentInput
   options?: Prisma.OptionUncheckedCreateNestedManyWithoutProposalInput
   guestVotes?: Prisma.GuestVoteUncheckedCreateNestedManyWithoutProposalInput
+  inviteCard?: Prisma.InviteCardUncheckedCreateNestedOneWithoutProposalInput
 }
 
 export type ProposalCreateOrConnectWithoutCreatorInput = {
@@ -747,6 +770,7 @@ export type ProposalCreateWithoutGroupInput = {
   counters?: Prisma.ProposalCreateNestedManyWithoutParentInput
   options?: Prisma.OptionCreateNestedManyWithoutProposalInput
   guestVotes?: Prisma.GuestVoteCreateNestedManyWithoutProposalInput
+  inviteCard?: Prisma.InviteCardCreateNestedOneWithoutProposalInput
 }
 
 export type ProposalUncheckedCreateWithoutGroupInput = {
@@ -763,6 +787,7 @@ export type ProposalUncheckedCreateWithoutGroupInput = {
   counters?: Prisma.ProposalUncheckedCreateNestedManyWithoutParentInput
   options?: Prisma.OptionUncheckedCreateNestedManyWithoutProposalInput
   guestVotes?: Prisma.GuestVoteUncheckedCreateNestedManyWithoutProposalInput
+  inviteCard?: Prisma.InviteCardUncheckedCreateNestedOneWithoutProposalInput
 }
 
 export type ProposalCreateOrConnectWithoutGroupInput = {
@@ -805,6 +830,7 @@ export type ProposalCreateWithoutCountersInput = {
   parent?: Prisma.ProposalCreateNestedOneWithoutCountersInput
   options?: Prisma.OptionCreateNestedManyWithoutProposalInput
   guestVotes?: Prisma.GuestVoteCreateNestedManyWithoutProposalInput
+  inviteCard?: Prisma.InviteCardCreateNestedOneWithoutProposalInput
 }
 
 export type ProposalUncheckedCreateWithoutCountersInput = {
@@ -821,6 +847,7 @@ export type ProposalUncheckedCreateWithoutCountersInput = {
   remindedAt?: Date | string | null
   options?: Prisma.OptionUncheckedCreateNestedManyWithoutProposalInput
   guestVotes?: Prisma.GuestVoteUncheckedCreateNestedManyWithoutProposalInput
+  inviteCard?: Prisma.InviteCardUncheckedCreateNestedOneWithoutProposalInput
 }
 
 export type ProposalCreateOrConnectWithoutCountersInput = {
@@ -842,6 +869,7 @@ export type ProposalCreateWithoutParentInput = {
   counters?: Prisma.ProposalCreateNestedManyWithoutParentInput
   options?: Prisma.OptionCreateNestedManyWithoutProposalInput
   guestVotes?: Prisma.GuestVoteCreateNestedManyWithoutProposalInput
+  inviteCard?: Prisma.InviteCardCreateNestedOneWithoutProposalInput
 }
 
 export type ProposalUncheckedCreateWithoutParentInput = {
@@ -858,6 +886,7 @@ export type ProposalUncheckedCreateWithoutParentInput = {
   counters?: Prisma.ProposalUncheckedCreateNestedManyWithoutParentInput
   options?: Prisma.OptionUncheckedCreateNestedManyWithoutProposalInput
   guestVotes?: Prisma.GuestVoteUncheckedCreateNestedManyWithoutProposalInput
+  inviteCard?: Prisma.InviteCardUncheckedCreateNestedOneWithoutProposalInput
 }
 
 export type ProposalCreateOrConnectWithoutParentInput = {
@@ -895,6 +924,7 @@ export type ProposalUpdateWithoutCountersInput = {
   parent?: Prisma.ProposalUpdateOneWithoutCountersNestedInput
   options?: Prisma.OptionUpdateManyWithoutProposalNestedInput
   guestVotes?: Prisma.GuestVoteUpdateManyWithoutProposalNestedInput
+  inviteCard?: Prisma.InviteCardUpdateOneWithoutProposalNestedInput
 }
 
 export type ProposalUncheckedUpdateWithoutCountersInput = {
@@ -911,6 +941,7 @@ export type ProposalUncheckedUpdateWithoutCountersInput = {
   remindedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   options?: Prisma.OptionUncheckedUpdateManyWithoutProposalNestedInput
   guestVotes?: Prisma.GuestVoteUncheckedUpdateManyWithoutProposalNestedInput
+  inviteCard?: Prisma.InviteCardUncheckedUpdateOneWithoutProposalNestedInput
 }
 
 export type ProposalUpsertWithWhereUniqueWithoutParentInput = {
@@ -943,6 +974,7 @@ export type ProposalCreateWithoutOptionsInput = {
   parent?: Prisma.ProposalCreateNestedOneWithoutCountersInput
   counters?: Prisma.ProposalCreateNestedManyWithoutParentInput
   guestVotes?: Prisma.GuestVoteCreateNestedManyWithoutProposalInput
+  inviteCard?: Prisma.InviteCardCreateNestedOneWithoutProposalInput
 }
 
 export type ProposalUncheckedCreateWithoutOptionsInput = {
@@ -959,6 +991,7 @@ export type ProposalUncheckedCreateWithoutOptionsInput = {
   remindedAt?: Date | string | null
   counters?: Prisma.ProposalUncheckedCreateNestedManyWithoutParentInput
   guestVotes?: Prisma.GuestVoteUncheckedCreateNestedManyWithoutProposalInput
+  inviteCard?: Prisma.InviteCardUncheckedCreateNestedOneWithoutProposalInput
 }
 
 export type ProposalCreateOrConnectWithoutOptionsInput = {
@@ -991,6 +1024,7 @@ export type ProposalUpdateWithoutOptionsInput = {
   parent?: Prisma.ProposalUpdateOneWithoutCountersNestedInput
   counters?: Prisma.ProposalUpdateManyWithoutParentNestedInput
   guestVotes?: Prisma.GuestVoteUpdateManyWithoutProposalNestedInput
+  inviteCard?: Prisma.InviteCardUpdateOneWithoutProposalNestedInput
 }
 
 export type ProposalUncheckedUpdateWithoutOptionsInput = {
@@ -1007,6 +1041,7 @@ export type ProposalUncheckedUpdateWithoutOptionsInput = {
   remindedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   counters?: Prisma.ProposalUncheckedUpdateManyWithoutParentNestedInput
   guestVotes?: Prisma.GuestVoteUncheckedUpdateManyWithoutProposalNestedInput
+  inviteCard?: Prisma.InviteCardUncheckedUpdateOneWithoutProposalNestedInput
 }
 
 export type ProposalCreateWithoutGuestVotesInput = {
@@ -1023,6 +1058,7 @@ export type ProposalCreateWithoutGuestVotesInput = {
   parent?: Prisma.ProposalCreateNestedOneWithoutCountersInput
   counters?: Prisma.ProposalCreateNestedManyWithoutParentInput
   options?: Prisma.OptionCreateNestedManyWithoutProposalInput
+  inviteCard?: Prisma.InviteCardCreateNestedOneWithoutProposalInput
 }
 
 export type ProposalUncheckedCreateWithoutGuestVotesInput = {
@@ -1039,6 +1075,7 @@ export type ProposalUncheckedCreateWithoutGuestVotesInput = {
   remindedAt?: Date | string | null
   counters?: Prisma.ProposalUncheckedCreateNestedManyWithoutParentInput
   options?: Prisma.OptionUncheckedCreateNestedManyWithoutProposalInput
+  inviteCard?: Prisma.InviteCardUncheckedCreateNestedOneWithoutProposalInput
 }
 
 export type ProposalCreateOrConnectWithoutGuestVotesInput = {
@@ -1071,6 +1108,7 @@ export type ProposalUpdateWithoutGuestVotesInput = {
   parent?: Prisma.ProposalUpdateOneWithoutCountersNestedInput
   counters?: Prisma.ProposalUpdateManyWithoutParentNestedInput
   options?: Prisma.OptionUpdateManyWithoutProposalNestedInput
+  inviteCard?: Prisma.InviteCardUpdateOneWithoutProposalNestedInput
 }
 
 export type ProposalUncheckedUpdateWithoutGuestVotesInput = {
@@ -1087,6 +1125,91 @@ export type ProposalUncheckedUpdateWithoutGuestVotesInput = {
   remindedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   counters?: Prisma.ProposalUncheckedUpdateManyWithoutParentNestedInput
   options?: Prisma.OptionUncheckedUpdateManyWithoutProposalNestedInput
+  inviteCard?: Prisma.InviteCardUncheckedUpdateOneWithoutProposalNestedInput
+}
+
+export type ProposalCreateWithoutInviteCardInput = {
+  id?: string
+  title: string
+  dateTime: Date | string
+  status?: $Enums.ProposalStatus
+  shareToken?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  remindedAt?: Date | string | null
+  group: Prisma.GroupCreateNestedOneWithoutProposalsInput
+  creator: Prisma.UserCreateNestedOneWithoutProposalsInput
+  parent?: Prisma.ProposalCreateNestedOneWithoutCountersInput
+  counters?: Prisma.ProposalCreateNestedManyWithoutParentInput
+  options?: Prisma.OptionCreateNestedManyWithoutProposalInput
+  guestVotes?: Prisma.GuestVoteCreateNestedManyWithoutProposalInput
+}
+
+export type ProposalUncheckedCreateWithoutInviteCardInput = {
+  id?: string
+  groupId: string
+  creatorId: string
+  title: string
+  dateTime: Date | string
+  status?: $Enums.ProposalStatus
+  shareToken?: string | null
+  parentId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  remindedAt?: Date | string | null
+  counters?: Prisma.ProposalUncheckedCreateNestedManyWithoutParentInput
+  options?: Prisma.OptionUncheckedCreateNestedManyWithoutProposalInput
+  guestVotes?: Prisma.GuestVoteUncheckedCreateNestedManyWithoutProposalInput
+}
+
+export type ProposalCreateOrConnectWithoutInviteCardInput = {
+  where: Prisma.ProposalWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProposalCreateWithoutInviteCardInput, Prisma.ProposalUncheckedCreateWithoutInviteCardInput>
+}
+
+export type ProposalUpsertWithoutInviteCardInput = {
+  update: Prisma.XOR<Prisma.ProposalUpdateWithoutInviteCardInput, Prisma.ProposalUncheckedUpdateWithoutInviteCardInput>
+  create: Prisma.XOR<Prisma.ProposalCreateWithoutInviteCardInput, Prisma.ProposalUncheckedCreateWithoutInviteCardInput>
+  where?: Prisma.ProposalWhereInput
+}
+
+export type ProposalUpdateToOneWithWhereWithoutInviteCardInput = {
+  where?: Prisma.ProposalWhereInput
+  data: Prisma.XOR<Prisma.ProposalUpdateWithoutInviteCardInput, Prisma.ProposalUncheckedUpdateWithoutInviteCardInput>
+}
+
+export type ProposalUpdateWithoutInviteCardInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  dateTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  status?: Prisma.EnumProposalStatusFieldUpdateOperationsInput | $Enums.ProposalStatus
+  shareToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  remindedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  group?: Prisma.GroupUpdateOneRequiredWithoutProposalsNestedInput
+  creator?: Prisma.UserUpdateOneRequiredWithoutProposalsNestedInput
+  parent?: Prisma.ProposalUpdateOneWithoutCountersNestedInput
+  counters?: Prisma.ProposalUpdateManyWithoutParentNestedInput
+  options?: Prisma.OptionUpdateManyWithoutProposalNestedInput
+  guestVotes?: Prisma.GuestVoteUpdateManyWithoutProposalNestedInput
+}
+
+export type ProposalUncheckedUpdateWithoutInviteCardInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  groupId?: Prisma.StringFieldUpdateOperationsInput | string
+  creatorId?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  dateTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  status?: Prisma.EnumProposalStatusFieldUpdateOperationsInput | $Enums.ProposalStatus
+  shareToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  remindedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  counters?: Prisma.ProposalUncheckedUpdateManyWithoutParentNestedInput
+  options?: Prisma.OptionUncheckedUpdateManyWithoutProposalNestedInput
+  guestVotes?: Prisma.GuestVoteUncheckedUpdateManyWithoutProposalNestedInput
 }
 
 export type ProposalCreateManyCreatorInput = {
@@ -1116,6 +1239,7 @@ export type ProposalUpdateWithoutCreatorInput = {
   counters?: Prisma.ProposalUpdateManyWithoutParentNestedInput
   options?: Prisma.OptionUpdateManyWithoutProposalNestedInput
   guestVotes?: Prisma.GuestVoteUpdateManyWithoutProposalNestedInput
+  inviteCard?: Prisma.InviteCardUpdateOneWithoutProposalNestedInput
 }
 
 export type ProposalUncheckedUpdateWithoutCreatorInput = {
@@ -1132,6 +1256,7 @@ export type ProposalUncheckedUpdateWithoutCreatorInput = {
   counters?: Prisma.ProposalUncheckedUpdateManyWithoutParentNestedInput
   options?: Prisma.OptionUncheckedUpdateManyWithoutProposalNestedInput
   guestVotes?: Prisma.GuestVoteUncheckedUpdateManyWithoutProposalNestedInput
+  inviteCard?: Prisma.InviteCardUncheckedUpdateOneWithoutProposalNestedInput
 }
 
 export type ProposalUncheckedUpdateManyWithoutCreatorInput = {
@@ -1174,6 +1299,7 @@ export type ProposalUpdateWithoutGroupInput = {
   counters?: Prisma.ProposalUpdateManyWithoutParentNestedInput
   options?: Prisma.OptionUpdateManyWithoutProposalNestedInput
   guestVotes?: Prisma.GuestVoteUpdateManyWithoutProposalNestedInput
+  inviteCard?: Prisma.InviteCardUpdateOneWithoutProposalNestedInput
 }
 
 export type ProposalUncheckedUpdateWithoutGroupInput = {
@@ -1190,6 +1316,7 @@ export type ProposalUncheckedUpdateWithoutGroupInput = {
   counters?: Prisma.ProposalUncheckedUpdateManyWithoutParentNestedInput
   options?: Prisma.OptionUncheckedUpdateManyWithoutProposalNestedInput
   guestVotes?: Prisma.GuestVoteUncheckedUpdateManyWithoutProposalNestedInput
+  inviteCard?: Prisma.InviteCardUncheckedUpdateOneWithoutProposalNestedInput
 }
 
 export type ProposalUncheckedUpdateManyWithoutGroupInput = {
@@ -1232,6 +1359,7 @@ export type ProposalUpdateWithoutParentInput = {
   counters?: Prisma.ProposalUpdateManyWithoutParentNestedInput
   options?: Prisma.OptionUpdateManyWithoutProposalNestedInput
   guestVotes?: Prisma.GuestVoteUpdateManyWithoutProposalNestedInput
+  inviteCard?: Prisma.InviteCardUpdateOneWithoutProposalNestedInput
 }
 
 export type ProposalUncheckedUpdateWithoutParentInput = {
@@ -1248,6 +1376,7 @@ export type ProposalUncheckedUpdateWithoutParentInput = {
   counters?: Prisma.ProposalUncheckedUpdateManyWithoutParentNestedInput
   options?: Prisma.OptionUncheckedUpdateManyWithoutProposalNestedInput
   guestVotes?: Prisma.GuestVoteUncheckedUpdateManyWithoutProposalNestedInput
+  inviteCard?: Prisma.InviteCardUncheckedUpdateOneWithoutProposalNestedInput
 }
 
 export type ProposalUncheckedUpdateManyWithoutParentInput = {
@@ -1330,6 +1459,7 @@ export type ProposalSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   counters?: boolean | Prisma.Proposal$countersArgs<ExtArgs>
   options?: boolean | Prisma.Proposal$optionsArgs<ExtArgs>
   guestVotes?: boolean | Prisma.Proposal$guestVotesArgs<ExtArgs>
+  inviteCard?: boolean | Prisma.Proposal$inviteCardArgs<ExtArgs>
   _count?: boolean | Prisma.ProposalCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["proposal"]>
 
@@ -1389,6 +1519,7 @@ export type ProposalInclude<ExtArgs extends runtime.Types.Extensions.InternalArg
   counters?: boolean | Prisma.Proposal$countersArgs<ExtArgs>
   options?: boolean | Prisma.Proposal$optionsArgs<ExtArgs>
   guestVotes?: boolean | Prisma.Proposal$guestVotesArgs<ExtArgs>
+  inviteCard?: boolean | Prisma.Proposal$inviteCardArgs<ExtArgs>
   _count?: boolean | Prisma.ProposalCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ProposalIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1411,6 +1542,7 @@ export type $ProposalPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     counters: Prisma.$ProposalPayload<ExtArgs>[]
     options: Prisma.$OptionPayload<ExtArgs>[]
     guestVotes: Prisma.$GuestVotePayload<ExtArgs>[]
+    inviteCard: Prisma.$InviteCardPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1824,6 +1956,7 @@ export interface Prisma__ProposalClient<T, Null = never, ExtArgs extends runtime
   counters<T extends Prisma.Proposal$countersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Proposal$countersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProposalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   options<T extends Prisma.Proposal$optionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Proposal$optionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   guestVotes<T extends Prisma.Proposal$guestVotesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Proposal$guestVotesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$GuestVotePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  inviteCard<T extends Prisma.Proposal$inviteCardArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Proposal$inviteCardArgs<ExtArgs>>): Prisma.Prisma__InviteCardClient<runtime.Types.Result.GetResult<Prisma.$InviteCardPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2353,6 +2486,25 @@ export type Proposal$guestVotesArgs<ExtArgs extends runtime.Types.Extensions.Int
   take?: number
   skip?: number
   distinct?: Prisma.GuestVoteScalarFieldEnum | Prisma.GuestVoteScalarFieldEnum[]
+}
+
+/**
+ * Proposal.inviteCard
+ */
+export type Proposal$inviteCardArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the InviteCard
+   */
+  select?: Prisma.InviteCardSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the InviteCard
+   */
+  omit?: Prisma.InviteCardOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InviteCardInclude<ExtArgs> | null
+  where?: Prisma.InviteCardWhereInput
 }
 
 /**
