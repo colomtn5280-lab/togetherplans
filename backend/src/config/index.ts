@@ -10,7 +10,7 @@ export const config = {
   host: process.env.HOST || '0.0.0.0',
   log_level: process.env.LOG_LEVEL || 'info',
   jwt_secret: process.env.JWT_SECRET || 'dev-secret',
-  jwt_expires_in: process.env.JWT_EXPIRES_IN || '7d',
+  jwt_expires_in: process.env.JWT_EXPIRES_IN || '30d',
   cors_origin: process.env.CORS_ORIGIN
     ? process.env.CORS_ORIGIN.split(',').map((o) => o.trim())
     : ['http://localhost:5173', 'http://localhost:3000', 'http://localhost:8081'],

@@ -7,7 +7,7 @@ import type { InviteMethod, Invitation, Proposal } from "../types";
 import "./groups.css";
 import "./group-detail.css";
 
-const INVITE_METHODS: InviteMethod[] = ["email", "sms", "qr", "link", "code"];
+// INVITE_METHODS kept for legacy reference
 
 function statusLabel(status: string) {
   if (status === "OPEN" || status === "pending") return "OPEN";
@@ -110,8 +110,13 @@ export function GroupDetailPage() {
 
   const handleCopy = () => {
     if (!generatedInvite) return;
-    const token = generatedInvite.token ?? generatedInvite.inviteCode ?? "";
-    const link = `${window.location.origin}/join/${token}`;
+    // Backend returns full inviteUrl — extract token from it as fallback
+    const token = generatedInvite.token ?? generatedInvite.inviteCode ??
+      generatedInvite.inviteUrl?.split('/join/')[1] ??
+      generatedInvite.inviteUrl?.split('/accept/')[1] ?? "";
+    const link = generatedInvite.inviteUrl?.startsWith('http')
+      ? generatedInvite.inviteUrl
+      : `${window.location.origin}/join/${token}`;
     // Use clipboard API with execCommand fallback for older browsers
     if (navigator.clipboard && window.isSecureContext) {
       navigator.clipboard.writeText(link).then(() => {
@@ -323,22 +328,26 @@ export function GroupDetailPage() {
           </div>
 
           {/* Right: Invite panel */}
-          <div
-            className="dn-card dn-card--alt2"
-            style={{ display: "flex", flexDirection: "column", gap: 20 }}
-          >
-            <h3>Invite members</h3>
+          <div className="dmu-card" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            <div className="dmu-card-head"><h2>Invite members</h2></div>
 
             {/* Method chips */}
             <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-              {INVITE_METHODS.map((m) => (
+              {(["link", "email", "sms", "username"] as InviteMethod[]).map((m) => (
                 <button
                   key={m}
-                  className={`dn-chip${inviteMethod === m ? " selected" : ""}`}
+                  className="dmu-chip"
+                  data-selected={inviteMethod === m ? "true" : undefined}
+                  style={{
+                    background: inviteMethod === m ? "var(--primary)" : "var(--bg)",
+                    color: inviteMethod === m ? "var(--on-primary, #fff)" : "var(--ink2)",
+                    border: "none", borderRadius: "999px", padding: "6px 16px",
+                    font: "700 12px 'Sora',sans-serif", letterSpacing: ".04em",
+                    cursor: "pointer", transition: "background .15s",
+                  }}
                   onClick={() => {
                     setInviteMethod(m);
                     setGeneratedInvite(null);
-                    // Auto-generate link invite when link tab is selected
                     if (m === "link") {
                       setTimeout(() => inviteMutation.mutate(), 50);
                     }
@@ -411,15 +420,17 @@ export function GroupDetailPage() {
                   <input
                     className="dn-input"
                     readOnly
-                    value={`${window.location.origin}/join/${
-                      generatedInvite.token ?? generatedInvite.inviteCode ?? ""
-                    }`}
+                    value={
+                      generatedInvite.inviteUrl?.startsWith('http')
+                        ? generatedInvite.inviteUrl
+                        : `${window.location.origin}/join/${generatedInvite.token ?? generatedInvite.inviteCode ?? ""}`
+                    }
                     style={{ fontSize: 12 }}
                   />
                   <button
-                    className="dn-btn dn-btn--sm dn-btn--tonal"
+                    className="dmu-btn dmu-btn-primary"
                     onClick={handleCopy}
-                    style={{ flexShrink: 0 }}
+                    style={{ flexShrink: 0, height: 40, padding: "0 14px", fontSize: 13 }}
                   >
                     {copied ? "✓" : "Copy"}
                   </button>
@@ -474,7 +485,8 @@ export function GroupDetailPage() {
             <button
               onClick={() => inviteMutation.mutate()}
               disabled={inviteMutation.isPending}
-              className="dn-btn"
+              className="dmu-btn dmu-btn-primary"
+              style={{ width: "100%" }}
             >
               {inviteMutation.isPending ? "Generating…" : "Generate invite"}
             </button>

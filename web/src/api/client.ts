@@ -1,7 +1,6 @@
 import axios from "axios";
 import type { AxiosInstance, AxiosResponse, AxiosError } from "axios";
 import { ALL_CATEGORIES } from "../constants/categories";
-import { useAuthStore } from "../store/auth.store";
 import type {
   LoginResponse,
   SignupResponse,
@@ -63,10 +62,6 @@ api.interceptors.response.use(
     };
 
     if (error.response?.status === 401 && !original._retry) {
-      // Only auto-refresh on auth endpoints — never force-logout on arbitrary 401s
-      const url = original.url ?? "";
-      const isAuthEndpoint = url.includes("/auth/refresh") || url.includes("/auth/me");
-
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
@@ -87,10 +82,7 @@ api.interceptors.response.use(
       if (!refreshToken) {
         processQueue(error, null);
         isRefreshing = false;
-        // Only redirect to login if hitting a protected auth endpoint
-        if (isAuthEndpoint) {
-          useAuthStore.getState().clearAuth();
-        }
+        // Stay logged in — let ProtectedRoute handle redirect if needed
         return Promise.reject(error);
       }
 
@@ -125,10 +117,9 @@ api.interceptors.response.use(
         return api(original);
       } catch (refreshError) {
         processQueue(refreshError, null);
-        // Only clear auth after 2 retries both failed — not on first blip
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("refreshToken");
-        useAuthStore.getState().clearAuth();
+        isRefreshing = false;
+        // Do not clear auth — a network blip should not sign the user out.
+        // The next request will retry refresh.
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;

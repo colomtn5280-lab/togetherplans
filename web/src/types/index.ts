@@ -67,14 +67,15 @@ export interface Invitation {
   invitationId?: string;
   token?: string;
   inviteCode?: string; // legacy alias for token
+  inviteUrl?: string;  // full URL returned by backend
   groupId?: string;
   groupName?: string;
   inviterName?: string;
-  method: "email" | "sms" | "qr" | "link" | "code";
+  method: "email" | "sms" | "qr" | "link" | "code" | "username";
   expiresAt: string;
 }
 
-export type InviteMethod = "email" | "sms" | "qr" | "link" | "code";
+export type InviteMethod = "email" | "sms" | "qr" | "link" | "code" | "username";
 
 // New backend proposal shape
 export interface ProposalOption {
