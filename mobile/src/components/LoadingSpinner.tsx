@@ -1,5 +1,5 @@
 /**
- * LoadingSpinner — animated teal ring spinner for TogetherPlans mobile.
+ * LoadingSpinner — animated teal ring spinner for DateMeUp mobile.
  * No external deps — uses Animated.timing with rotation interpolation.
  */
 import React, { useEffect, useRef } from 'react';

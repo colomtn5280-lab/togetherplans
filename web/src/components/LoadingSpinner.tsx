@@ -1,5 +1,5 @@
 /**
- * LoadingSpinner — animated teal ring spinner for TogetherPlans web.
+ * LoadingSpinner — animated teal ring spinner for DateMeUp web.
  * Pure CSS, no external deps. Keyframes in index.css.
  */
 interface LoadingSpinnerProps {

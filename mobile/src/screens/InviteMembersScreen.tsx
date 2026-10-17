@@ -205,7 +205,7 @@ function MethodCard({
             onPress={async () => {
               try {
                 await Share.share({
-                  message: `Join me on TogetherPlans: ${inviteUrl}`,
+                  message: `Join me on DateMeUp: ${inviteUrl}`,
                   url: inviteUrl,
                 });
               } catch {
