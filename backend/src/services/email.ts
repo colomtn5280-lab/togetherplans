@@ -3,9 +3,7 @@ import path from 'path';
 import { Resend } from 'resend';
 import { logger } from '@/services/logger';
 
-// FROM_ADDRESS: using togetherplans.app (verified Resend domain) until
-// datemeup.app verification completes. Switch back after Resend confirms.
-const FROM_ADDRESS = 'DateMeUp <hello@togetherplans.app>';
+const FROM_ADDRESS = 'DateMeUp <hello@datemeup.app>';
 
 let resend: Resend | null = null;
 
