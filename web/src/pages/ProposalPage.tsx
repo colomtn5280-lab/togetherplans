@@ -6,21 +6,9 @@ import { AppNav } from "../components/AppNav";
 import { useAuthStore } from "../store/auth.store";
 import type { AxiosError } from "axios";
 import type { ApiError } from "../types";
+import "./proposal.css";
 
 // ── Category helpers ──────────────────────────────────────────────────────────
-const CATEGORY_COLORS: Record<string, string> = {
-  "Restaurants & Dining": "#FDEBD0",
-  "Live Music & Concerts": "#EBD5FB",
-  "Comedy Shows": "#FEF9C3",
-  "Movies & Theater": "#D5E8FD",
-  "Art & Museums": "#FCE4EC",
-  "Outdoor Adventures": "#D4EDDA",
-  "Sports & Active": "#FFE0B2",
-  "Nightlife & Bars": "#E8D5F5",
-  "Wellness & Spa": "#D0F4F1",
-  "Cooking & Classes": "#FFF3CD",
-  Custom: "#F0F0F0",
-};
 const CATEGORY_EMOJIS: Record<string, string> = {
   "Restaurants & Dining": "🍽️",
   "Live Music & Concerts": "🎵",
@@ -36,9 +24,6 @@ const CATEGORY_EMOJIS: Record<string, string> = {
 
 function getCategoryEmoji(cat: string): string {
   return CATEGORY_EMOJIS[cat] ?? "📍";
-}
-function getCategoryColor(cat: string): string {
-  return CATEGORY_COLORS[cat] ?? "#F0F0F0";
 }
 
 function formatEventDate(dateStr: string): string {
@@ -327,41 +312,16 @@ function InviteVoteModal({ proposalId, soloIntro, onClose }: { proposalId: strin
   );
 }
 
-// ── Status sticker ────────────────────────────────────────────────────────────
-function StatusSticker({ status }: { status: string }) {
-  const isDecided = status === "DECIDED" || status === "locked";
-  const isCancelled = status === "CANCELLED" || status === "rejected";
-
-  const styles: React.CSSProperties = {
-    display: "inline-block",
-    padding: "5px 10px",
-    marginBottom: 10,
-    borderRadius: "12px 6px 14px 6px",
-    fontFamily: "Sora, var(--font-display), sans-serif",
-    fontWeight: 800,
-    fontSize: 10,
-    letterSpacing: ".08em",
-    ...(isDecided
-      ? { background: "var(--lime, #7CB518)", color: "#101820", transform: "rotate(-3deg)" }
-      : isCancelled
-        ? { background: "var(--line, #DDE3E8)", color: "var(--ink2, #5D6B76)", transform: "none" }
-        : { background: "#FCE44E", color: "#101820", transform: "rotate(-3deg)" }),
-  };
-
+// ── Heart SVG ─────────────────────────────────────────────────────────────────
+function HeartSvg() {
   return (
-    <span style={styles}>
-      {isDecided ? "IT'S A MATCH" : isCancelled ? "CANCELLED" : "VOTING OPEN"}
-    </span>
+    <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" />
+    </svg>
   );
 }
 
-// ── Option card (horizontal, 10.12.26 design) ─────────────────────────────────
-const CARD_RADII = [
-  "22px 30px 20px 26px",
-  "30px 22px 26px 20px",
-  "20px 26px 30px 22px",
-];
-
+// ── Option card (horizontal, dmu-* CSS classes) ───────────────────────────────
 interface OptionCardProps {
   option: any;
   index: number;
@@ -376,162 +336,113 @@ interface OptionCardProps {
 }
 
 function OptionCard({ option, index, hasMyVote, voteCount, memberCount, consensus, canVote, onVote, onRetract, votePending }: OptionCardProps) {
-  const catColor = getCategoryColor(option.category);
   const catEmoji = getCategoryEmoji(option.category);
-  const radius = CARD_RADII[index % 3];
 
-  const heartStyle: React.CSSProperties = {
-    appearance: "none",
-    flexShrink: 0,
-    width: 52,
-    height: 52,
-    borderRadius: "50% 45% 55% 50%",
-    border: `2px solid ${hasMyVote ? "var(--primary, #0E8C8C)" : "var(--line, #DDE3E8)"}`,
-    background: hasMyVote ? "var(--primary, #0E8C8C)" : "var(--surface, #fff)",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    cursor: canVote ? "pointer" : "default",
-    transition: "transform .15s, background .15s, border-color .15s",
-    fontSize: 22,
-    color: hasMyVote ? "#fff" : "var(--ink2, #5D6B76)",
-  };
+  // nth-child index is 1-based; here we replicate the CSS pattern manually for the winner card override
+  const nthClass = consensus ? "dmu-option dmu-option-winner" : "dmu-option";
 
   return (
-    <div
-      style={{
-        display: "grid",
-        gridTemplateColumns: "220px minmax(0,1fr)",
-        background: consensus ? "var(--lime-soft, #EAF6D3)" : "var(--surface, #fff)",
-        borderRadius: radius,
-        overflow: "hidden",
-        boxShadow: "0 4px 16px rgba(16,24,32,.07)",
-        marginBottom: 14,
-      }}
-      className="proposal-option-card"
-    >
-      {/* Photo */}
+    <article className={nthClass}>
+      {/* Left: photo */}
       <div
+        className="dmu-option-img"
         style={{
-          position: "relative",
-          minHeight: 170,
-          background: catColor,
-          backgroundImage: option.imageUrl ? `url(${option.imageUrl}), linear-gradient(135deg,#086B6B,#0E8C8C)` : `linear-gradient(135deg,${catColor},${catColor})`,
-          backgroundPosition: "center",
-          backgroundSize: "cover",
-          backgroundRepeat: "no-repeat",
+          backgroundImage: option.imageUrl
+            ? `url(${option.imageUrl}),linear-gradient(135deg,#086B6B,#0E8C8C)`
+            : "linear-gradient(135deg,#086B6B,#0E8C8C)",
         }}
       >
-        {/* Category chip */}
-        <span style={{
-          position: "absolute",
-          left: 12,
-          top: 12,
-          padding: "4px 9px",
-          borderRadius: 999,
-          background: "rgba(255,255,255,.92)",
-          color: "#086B6B",
-          fontFamily: "Sora, var(--font-display), sans-serif",
-          fontWeight: 700,
-          fontSize: 10,
-          letterSpacing: ".04em",
-        }}>
+        <span className="dmu-option-cat">
           {option.category ?? catEmoji}
         </span>
-
-        {/* No image fallback emoji */}
+        {option.imageCredit && (
+          <span className="dmu-credit">{option.imageCredit}</span>
+        )}
         {!option.imageUrl && (
-          <div style={{
-            position: "absolute",
-            inset: 0,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: 48,
-            color: "#fff",
-          }} aria-hidden="true">
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 48,
+              color: "#fff",
+            }}
+            aria-hidden="true"
+          >
             {catEmoji}
           </div>
         )}
       </div>
 
-      {/* Body */}
-      <div style={{ display: "flex", flexDirection: "column", padding: "18px 20px" }}>
-        <h2 style={{ fontWeight: 800, fontSize: 18, lineHeight: 1.2, letterSpacing: "-.02em", margin: "0 0 10px" }}>
-          {option.name ?? `Option ${index + 1}`}
-        </h2>
+      {/* Right: body */}
+      <div className="dmu-option-body">
+        <h2>{option.name ?? `Option ${index + 1}`}</h2>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: 6, fontSize: 13, color: "var(--ink2, #5D6B76)", flex: 1 }}>
+        <div className="dmu-option-meta">
           {option.address && (
-            <span style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" style={{ flexShrink: 0, marginTop: 2, color: "var(--primary, #0E8C8C)" }} aria-hidden="true">
+            <span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
                 <path d="M12 21s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/>
               </svg>
               {option.address}
             </span>
           )}
           {option.eventDate && (
-            <span style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" style={{ flexShrink: 0, marginTop: 2, color: "var(--primary, #0E8C8C)" }} aria-hidden="true">
+            <span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
                 <rect x="3" y="5" width="18" height="16" rx="4"/><path d="M3 10h18M8 3v3M16 3v3"/>
               </svg>
               {formatEventDate(option.eventDate)}
             </span>
           )}
           {(option.rating != null || option.priceLevel != null) && (
-            <span style={{ display: "flex", gap: 8 }}>
+            <span>
               {option.rating != null && <span>★ {option.rating.toFixed(1)}</span>}
               {option.priceLevel != null && <span>{formatPriceLevel(option.priceLevel)}</span>}
             </span>
           )}
           {option.sourceUrl && (
-            <a
-              href={option.sourceUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ fontSize: 12, color: "var(--primary, #0E8C8C)", textDecoration: "none", marginTop: 4 }}
-            >
-              View details →
-            </a>
+            <span>
+              <a
+                href={option.sourceUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ fontSize: 12, color: "var(--primary)", textDecoration: "none" }}
+              >
+                View details →
+              </a>
+            </span>
           )}
         </div>
 
-        {/* Footer: who's voted hint + heart */}
-        <div style={{ marginTop: "auto", paddingTop: 14, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
-          <span style={{ fontSize: 12, color: "var(--ink2, #5D6B76)" }}>
+        <div className="dmu-option-foot">
+          <span className="dmu-voters">
             {consensus
               ? "✓ Everyone picked this"
               : hasMyVote
                 ? "Your vote is in"
-                : "Tap heart to vote"}
+                : memberCount > 1
+                  ? "Your vote is hidden until everyone votes"
+                  : "Tap heart to vote"}
             {memberCount > 0 && !consensus && ` · ${voteCount}/${memberCount}`}
           </span>
           {canVote && (
             <button
-              onClick={hasMyVote ? onRetract : onVote}
-              disabled={votePending}
-              style={heartStyle}
+              className="dmu-heart"
+              type="button"
               aria-pressed={hasMyVote}
               aria-label={hasMyVote ? "Remove vote" : `Vote for ${option.name}`}
-              onMouseEnter={(e) => {
-                if (!hasMyVote) {
-                  (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--primary, #0E8C8C)";
-                  (e.currentTarget as HTMLButtonElement).style.transform = "scale(1.05)";
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!hasMyVote) {
-                  (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--line, #DDE3E8)";
-                  (e.currentTarget as HTMLButtonElement).style.transform = "";
-                }
-              }}
+              onClick={hasMyVote ? onRetract : onVote}
+              disabled={votePending}
             >
-              {hasMyVote ? "♥" : "♡"}
+              <HeartSvg />
             </button>
           )}
         </div>
       </div>
-    </div>
+    </article>
   );
 }
 
@@ -614,7 +525,7 @@ export function ProposalPage() {
   if (isLoading) return (
     <>
       <AppNav />
-      <main style={{ padding: "40px var(--gutter)", textAlign: "center" }}>
+      <main className="dmu-wrap dmu-page" style={{ textAlign: "center" }}>
         <p style={{ color: "var(--ink2)" }}>Loading proposal…</p>
       </main>
     </>
@@ -623,7 +534,7 @@ export function ProposalPage() {
   if (isError || !proposal) return (
     <>
       <AppNav />
-      <main style={{ padding: "40px var(--gutter)", textAlign: "center" }}>
+      <main className="dmu-wrap dmu-page" style={{ textAlign: "center" }}>
         <p role="alert" style={{ color: "var(--error)" }}>Proposal not found.</p>
       </main>
     </>
@@ -632,6 +543,7 @@ export function ProposalPage() {
   const options = proposal.options ?? proposal.items ?? [];
   const tally = proposal.tally ?? [];
   const memberCount = proposal.memberCount ?? 0;
+  const members: any[] = (proposal as any).members ?? [];
   const myUserId = user?.userId ?? user?.id ?? "";
   const myVotedOptionId = options.find((opt: any) =>
     opt.votes?.some((v: any) => v.userId === myUserId)
@@ -639,6 +551,7 @@ export function ProposalPage() {
 
   const isDecided = proposal.status === "DECIDED" || proposal.status === "locked";
   const isOpen = proposal.status === "OPEN" || proposal.status === "pending";
+  const isCancelled = proposal.status === "CANCELLED" || proposal.status === "rejected";
 
   const winningOption =
     options.find((opt: any) => tally.find((t: any) => t.optionId === opt.id)?.consensus) ??
@@ -660,6 +573,36 @@ export function ProposalPage() {
   // Group name for back link
   const groupName = (proposal as any).group?.name ?? (proposal as any).groupName ?? "Group";
 
+  // Proposal date for meta line and details
+  const proposalDateStr = proposal.dateTime ?? proposal.proposedDate;
+  const formattedDate = proposalDateStr
+    ? new Date(proposalDateStr).toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric", year: "numeric" })
+    : "—";
+
+  // Meta line: "Sat, Oct 10 · proposed by you · N options"
+  const createdBy = (proposal as any).createdByUserId === myUserId
+    ? "proposed by you"
+    : (proposal as any).createdByName
+      ? `proposed by ${(proposal as any).createdByName}`
+      : "";
+  const metaParts = [formattedDate, createdBy, options.length > 0 ? `${options.length} option${options.length !== 1 ? "s" : ""}` : ""].filter(Boolean);
+
+  // Status sticker class
+  const statusClass = isDecided
+    ? "dmu-status dmu-status-matched"
+    : isCancelled
+      ? "dmu-status dmu-status-cancelled"
+      : "dmu-status dmu-status-open";
+  const statusLabel = isDecided ? "IT'S A MATCH" : isCancelled ? "CANCELLED" : "VOTING OPEN";
+
+  // Progress bar width
+  const progressPct = memberCount > 0 ? Math.round((votedCount / memberCount) * 100) : 0;
+
+  // Avatar initial
+  function avatarInitial(name: string): string {
+    return (name ?? "?")[0].toUpperCase();
+  }
+
   function ConfettiStyle() {
     if (confettiInjectedRef.current) return null;
     confettiInjectedRef.current = true;
@@ -674,241 +617,129 @@ export function ProposalPage() {
     );
   }
 
-  // Format the proposal date for the details list
-  const proposalDateStr = proposal.dateTime ?? proposal.proposedDate;
-  const formattedDate = proposalDateStr
-    ? new Date(proposalDateStr).toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric", year: "numeric" })
-    : "—";
-
   return (
     <>
       <AppNav />
 
-      <main style={{ maxWidth: 1080, margin: "0 auto", padding: "0 clamp(16px,4vw,40px) 64px" }}>
+      <main className="dmu-wrap dmu-page">
 
-        {/* ── Back link — pill shaped with group name ── */}
-        <div style={{ padding: "14px 0 0" }}>
-          <Link
-            to={`/groups/${proposal.groupId}`}
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 6,
-              padding: "7px 16px",
-              borderRadius: 999,
-              background: "var(--bg, #F4F6F8)",
-              color: "var(--ink2, #5D6B76)",
-              fontFamily: "Sora, var(--font-display), sans-serif",
-              fontWeight: 700,
-              fontSize: 13,
-              textDecoration: "none",
-              transition: "background .15s",
-            }}
-          >
-            ← {groupName}
-          </Link>
+        {/* ── Back link: pill-shaped with group name, inside dmu-wrap ── */}
+        <Link className="dmu-back" to={`/groups/${proposal.groupId}`}>
+          ← {groupName}
+        </Link>
+
+        {/* ── Page head: status sticker + title + meta + invite button ── */}
+        <div className="dmu-pr-head">
+          <div className="dmu-pr-title">
+            <span className={statusClass}>{statusLabel}</span>
+            <h1 className="dmu-hello">{proposal.title ?? "Proposal"}</h1>
+            <p className="dmu-sub">{metaParts.join(" · ")}</p>
+          </div>
+
+          {isOpen && (
+            <button
+              className="dmu-btn dmu-btn-ghost dmu-btn-auto dmu-pr-invite"
+              type="button"
+              onClick={() => setShowInviteModal(true)}
+            >
+              Invite someone to vote
+            </button>
+          )}
+          {isDecided && (
+            <button
+              className="dmu-btn dmu-btn-primary dmu-btn-auto"
+              type="button"
+              style={{ height: 42 }}
+              onClick={() => setShowShareModal(true)}
+            >
+              📤 Share plan
+            </button>
+          )}
         </div>
-
-        {/* ── Page head: status + title + invite button ── */}
-        <div style={{
-          display: "flex",
-          alignItems: "flex-end",
-          justifyContent: "space-between",
-          gap: 18,
-          marginTop: 14,
-          marginBottom: 28,
-          flexWrap: "wrap",
-        }}>
-          <div style={{ minWidth: 0 }}>
-            <StatusSticker status={proposal.status} />
-            <h1 style={{
-              fontFamily: "Sora, var(--font-display), sans-serif",
-              fontWeight: 800,
-              fontSize: "clamp(24px,4vw,36px)",
-              letterSpacing: "-.03em",
-              lineHeight: 1.1,
-              margin: "0 0 6px",
-            }}>
-              {proposal.title ?? "Proposal"}
-            </h1>
-            <p style={{ color: "var(--ink2, #5D6B76)", fontSize: 13, margin: 0 }}>
-              {formattedDate}
-              {(proposal as any).createdByName ? ` · proposed by ${(proposal as any).createdByName}` : ""}
-              {options.length > 0 ? ` · ${options.length} option${options.length !== 1 ? "s" : ""}` : ""}
-            </p>
-          </div>
-
-          {/* Action buttons */}
-          <div style={{ display: "flex", gap: 10, flexShrink: 0, flexWrap: "wrap" }}>
-            {isOpen && (
-              <button
-                onClick={() => setShowInviteModal(true)}
-                style={{
-                  height: 42,
-                  padding: "0 18px",
-                  borderRadius: "22px 16px 22px 16px",
-                  border: "1.5px solid var(--line, #DDE3E8)",
-                  background: "transparent",
-                  color: "var(--ink, #101820)",
-                  fontFamily: "Sora, var(--font-display), sans-serif",
-                  fontWeight: 700,
-                  fontSize: 13,
-                  cursor: "pointer",
-                  transition: "border-color .15s",
-                }}
-              >
-                Invite someone to vote
-              </button>
-            )}
-            {isDecided && (
-              <button
-                onClick={() => setShowShareModal(true)}
-                style={{
-                  height: 42,
-                  padding: "0 18px",
-                  borderRadius: "22px 16px 22px 16px",
-                  border: "none",
-                  background: "var(--primary, #0E8C8C)",
-                  color: "#fff",
-                  fontFamily: "Sora, var(--font-display), sans-serif",
-                  fontWeight: 700,
-                  fontSize: 13,
-                  cursor: "pointer",
-                }}
-              >
-                📤 Share plan
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* ── Decided: winner banner ── */}
-        {isDecided && winningOption && (
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "220px minmax(0,1fr)",
-              background: "linear-gradient(135deg, rgba(14,140,140,0.06), rgba(124,181,24,0.06))",
-              border: "2px solid var(--lime, #7CB518)",
-              borderRadius: "22px 30px 20px 26px",
-              overflow: "hidden",
-              marginBottom: 32,
-            }}
-            className="proposal-option-card"
-          >
-            <div style={{
-              minHeight: 170,
-              background: getCategoryColor(winningOption.category),
-              backgroundImage: winningOption.imageUrl
-                ? `url(${winningOption.imageUrl}), linear-gradient(135deg,#086B6B,#0E8C8C)`
-                : undefined,
-              backgroundPosition: "center",
-              backgroundSize: "cover",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 52,
-              color: "#fff",
-              position: "relative",
-            }}>
-              {!winningOption.imageUrl && getCategoryEmoji(winningOption.category)}
-              <span style={{
-                position: "absolute",
-                left: 12,
-                top: 12,
-                padding: "4px 9px",
-                borderRadius: 999,
-                background: "var(--lime, #7CB518)",
-                color: "#101820",
-                fontFamily: "Sora, var(--font-display), sans-serif",
-                fontWeight: 700,
-                fontSize: 10,
-              }}>
-                🏆 The plan
-              </span>
-            </div>
-            <div style={{ padding: "20px 22px", display: "flex", flexDirection: "column" }}>
-              <h2 style={{ margin: "0 0 8px", fontSize: 20, fontWeight: 800 }}>{winningOption.name}</h2>
-              {winningOption.address && (
-                <p style={{ color: "var(--ink2)", fontSize: 13, margin: "0 0 4px" }}>📍 {winningOption.address}</p>
-              )}
-              {winningOption.eventDate && (
-                <p style={{ color: "var(--ink2)", fontSize: 13, margin: "0 0 12px" }}>
-                  📅 {formatEventDate(winningOption.eventDate)}
-                </p>
-              )}
-              <div style={{ display: "flex", gap: 10, marginTop: "auto", flexWrap: "wrap" }}>
-                <a
-                  href={buildGoogleCalendarUrl(
-                    proposal.title ?? winningOption.name ?? "Our Plan",
-                    winningOption.address ?? "",
-                    winningOption.eventDate ?? proposal.dateTime,
-                  )}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: 6,
-                    padding: "8px 16px",
-                    borderRadius: "20px 14px 20px 14px",
-                    background: "var(--primary, #0E8C8C)",
-                    color: "#fff",
-                    fontFamily: "Sora, var(--font-display), sans-serif",
-                    fontWeight: 700,
-                    fontSize: 13,
-                    textDecoration: "none",
-                  }}
-                >
-                  📅 Add to Calendar
-                </a>
-                <button
-                  onClick={() => setShowCelebration(true)}
-                  style={{
-                    padding: "8px 16px",
-                    borderRadius: "14px 20px 14px 20px",
-                    border: "1.5px solid var(--line)",
-                    background: "transparent",
-                    color: "var(--ink)",
-                    fontFamily: "Sora, var(--font-display), sans-serif",
-                    fontWeight: 700,
-                    fontSize: 13,
-                    cursor: "pointer",
-                  }}
-                >
-                  🎉 See the match!
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* ── Two-column grid ── */}
-        <div
-          style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) 300px", gap: 28, alignItems: "start" }}
-          className="proposal-grid"
-        >
-          {/* ── Main: Options ── */}
+        <div className="dmu-grid dmu-gd-grid">
+
+          {/* ── Main column ── */}
           <section>
-            <div style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 10,
-              marginBottom: 16,
-            }}>
-              <span style={{
-                fontFamily: "Sora, var(--font-display), sans-serif",
-                fontWeight: 700,
-                fontSize: 13,
-                color: "var(--ink2)",
-                textTransform: "uppercase",
-                letterSpacing: ".06em",
-              }}>
-                Options · tap a heart to vote
-              </span>
+
+            {/* DECIDED: winner banner */}
+            {isDecided && winningOption && (
+              <div style={{ marginBottom: 28 }}>
+                <div className="dmu-section-head"><span>🏆 The plan</span></div>
+                <article className="dmu-option" style={{ border: "2px solid var(--lime, #7CB518)" }}>
+                  <div
+                    className="dmu-option-img"
+                    style={{
+                      backgroundImage: winningOption.imageUrl
+                        ? `url(${winningOption.imageUrl}),linear-gradient(135deg,#086B6B,#0E8C8C)`
+                        : "linear-gradient(135deg,#086B6B,#0E8C8C)",
+                    }}
+                  >
+                    <span className="dmu-option-cat" style={{ background: "var(--lime, #7CB518)", color: "#101820" }}>
+                      🏆 Winner
+                    </span>
+                    {!winningOption.imageUrl && (
+                      <div
+                        style={{
+                          position: "absolute", inset: 0,
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                          fontSize: 52, color: "#fff",
+                        }}
+                        aria-hidden="true"
+                      >
+                        {getCategoryEmoji(winningOption.category)}
+                      </div>
+                    )}
+                  </div>
+                  <div className="dmu-option-body">
+                    <h2>{winningOption.name}</h2>
+                    <div className="dmu-option-meta">
+                      {winningOption.address && (
+                        <span>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
+                            <path d="M12 21s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/>
+                          </svg>
+                          {winningOption.address}
+                        </span>
+                      )}
+                      {winningOption.eventDate && (
+                        <span>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
+                            <rect x="3" y="5" width="18" height="16" rx="4"/><path d="M3 10h18M8 3v3M16 3v3"/>
+                          </svg>
+                          {formatEventDate(winningOption.eventDate)}
+                        </span>
+                      )}
+                    </div>
+                    <div className="dmu-option-foot">
+                      <span className="dmu-voters">✓ Everyone agreed on this!</span>
+                      <a
+                        href={buildGoogleCalendarUrl(
+                          proposal.title ?? winningOption.name ?? "Our Plan",
+                          winningOption.address ?? "",
+                          winningOption.eventDate ?? proposal.dateTime,
+                        )}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="dmu-btn dmu-btn-primary dmu-btn-auto"
+                        style={{ height: 38, fontSize: 13, textDecoration: "none" }}
+                      >
+                        📅 Add to Calendar
+                      </a>
+                    </div>
+                  </div>
+                </article>
+              </div>
+            )}
+
+            {/* Options list header */}
+            <div className="dmu-section-head">
+              <span>Options · tap a heart to vote</span>
             </div>
 
-            <div data-testid="proposal-items">
+            {/* Options */}
+            <div className="dmu-options" data-testid="proposal-items">
               {options.map((option: any, i: number) => {
                 const tallyEntry = tally.find((t: any) => t.optionId === option.id);
                 const voteCount = tallyEntry?.votes ?? option.votes?.length ?? 0;
@@ -931,51 +762,25 @@ export function ProposalPage() {
                   />
                 );
               })}
+
+              {options.length === 0 && (
+                <div style={{ textAlign: "center", padding: 40, color: "var(--ink2)" }}>
+                  No options yet.
+                </div>
+              )}
             </div>
 
-            {options.length === 0 && (
-              <div style={{ textAlign: "center", padding: 40, color: "var(--ink2)" }}>
-                No options yet.
-              </div>
-            )}
-
-            {/* Add option row (proposer only, while nobody has voted) */}
+            {/* Add another option — proposer only, while nobody has voted */}
             {isOpen && votedCount === 0 && (
               <Link
+                className="dmu-add-option"
                 to="/discover"
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 14,
-                  padding: "16px 18px",
-                  border: "2px dashed var(--line, #DDE3E8)",
-                  borderRadius: "22px 18px 24px 18px",
-                  color: "var(--ink, #101820)",
-                  textDecoration: "none",
-                  marginTop: 4,
-                  transition: "border-color .15s",
-                }}
-                onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.borderColor = "var(--primary, #0E8C8C)"; }}
-                onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.borderColor = "var(--line, #DDE3E8)"; }}
+                style={{ marginTop: 4, textDecoration: "none" }}
               >
-                <span style={{
-                  flexShrink: 0,
-                  width: 40,
-                  height: 40,
-                  borderRadius: "50%",
-                  background: "var(--primary-soft, #D9F1F0)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: 18,
-                  fontWeight: 800,
-                  color: "var(--primary, #0E8C8C)",
-                }}>
-                  +
-                </span>
+                <span className="dmu-new-plus" aria-hidden="true">+</span>
                 <span>
-                  <b style={{ display: "block", fontFamily: "Sora, var(--font-display), sans-serif", fontSize: 15 }}>Add another option</b>
-                  <small style={{ fontSize: 12, color: "var(--ink2)" }}>Two or three ideas make it easier to agree</small>
+                  <b>Add another option</b>
+                  <small>Two or three ideas make it easier to agree</small>
                 </span>
               </Link>
             )}
@@ -990,125 +795,111 @@ export function ProposalPage() {
             )}
           </section>
 
-          {/* ── Rail ── */}
-          <aside style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          {/* ── Right rail ── */}
+          <aside className="dmu-rail">
 
             {/* Who's voted card */}
-            <div style={{
-              background: "var(--surface, #fff)",
-              borderRadius: "22px 30px 20px 26px",
-              padding: "20px 22px",
-              boxShadow: "0 4px 16px rgba(16,24,32,.07)",
-            }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-                <h2 style={{ margin: 0, fontFamily: "Sora, var(--font-display), sans-serif", fontWeight: 800, fontSize: 15 }}>
-                  Who's voted
-                </h2>
-                <span style={{ fontFamily: "Sora, var(--font-display), sans-serif", fontWeight: 700, fontSize: 12, color: "var(--ink2)" }}>
-                  {votedCount} of {memberCount || "?"}
-                </span>
+            <div className="dmu-card">
+              <div className="dmu-card-head">
+                <h2>Who's voted</h2>
+                <span className="dmu-count">{votedCount} of {memberCount || "?"}</span>
               </div>
-
-              {/* Progress bar */}
               <div
+                className="dmu-progress"
                 role="progressbar"
                 aria-valuemin={0}
                 aria-valuemax={memberCount || 1}
                 aria-valuenow={votedCount}
-                style={{ height: 8, borderRadius: 999, background: "var(--bg, #F4F6F8)", overflow: "hidden", marginBottom: 16 }}
               >
-                <span style={{
-                  display: "block",
-                  height: "100%",
-                  width: memberCount > 0 ? `${Math.round((votedCount / memberCount) * 100)}%` : "0%",
-                  borderRadius: 999,
-                  background: "var(--lime, #7CB518)",
-                  transition: "width .4s ease",
-                }} />
+                <span style={{ width: `${progressPct}%` }} />
               </div>
 
-              <p style={{ fontSize: 12, color: "var(--ink2)", margin: 0, lineHeight: 1.5 }}>
-                Hearts stay hidden until everyone has voted. The plan locks in when you both pick the same option.
+              {/* Member list */}
+              {members.length > 0 && (
+                <ul className="dmu-members">
+                  {members.map((m: any) => {
+                    const hasVoted = options.some((opt: any) =>
+                      opt.votes?.some((v: any) => v.userId === m.userId)
+                    );
+                    const isPending = m.status === "pending" || m.status === "invited" || !m.joined;
+                    const displayName = m.userId === myUserId ? "You" : (m.name ?? m.displayName ?? "Member");
+                    const initial = avatarInitial(displayName);
+
+                    return (
+                      <li key={m.userId ?? m.id} className={isPending ? "dmu-pending" : ""}>
+                        <span className={`dmu-av ${isPending ? "dmu-av-empty" : "dmu-av-teal"}`}>
+                          {initial}
+                        </span>
+                        <span className="dmu-g-text">
+                          <b>{displayName}</b>
+                          <small>{isPending ? "Hasn't joined yet" : hasVoted ? "Voted" : "Not voted yet"}</small>
+                        </span>
+                        {isPending ? (
+                          <button
+                            className="dmu-copy"
+                            type="button"
+                            onClick={() => setShowInviteModal(true)}
+                          >
+                            Invite
+                          </button>
+                        ) : (
+                          <span className={`dmu-vote-state${hasVoted ? " is-in" : ""}`}>
+                            {hasVoted ? "✓" : "—"}
+                          </span>
+                        )}
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+
+              {/* Fallback if no members array */}
+              {members.length === 0 && memberCount > 0 && (
+                <p style={{ fontSize: 12, color: "var(--ink2)", margin: "12px 0 0" }}>
+                  {votedCount} of {memberCount} members have voted.
+                </p>
+              )}
+
+              <p className="dmu-card-sub">
+                Hearts stay hidden until everyone has voted.{isDecided ? "" : " The plan locks in when you both pick the same option."}
               </p>
 
               {isOpen && (
                 <button
+                  className="dmu-copy"
+                  type="button"
+                  style={{ marginTop: 14, width: "100%" }}
                   onClick={() => setShowInviteModal(true)}
-                  style={{
-                    marginTop: 14,
-                    width: "100%",
-                    height: 38,
-                    borderRadius: "20px 14px 20px 14px",
-                    border: "1.5px solid var(--line, #DDE3E8)",
-                    background: "transparent",
-                    color: "var(--ink, #101820)",
-                    fontFamily: "Sora, var(--font-display), sans-serif",
-                    fontWeight: 700,
-                    fontSize: 13,
-                    cursor: "pointer",
-                  }}
                 >
                   Invite
                 </button>
               )}
             </div>
 
-            {/* Not feeling it? / Counter-propose card */}
+            {/* Not feeling it? card — only when open */}
             {isOpen && (
-              <div style={{
-                background: "var(--surface, #fff)",
-                borderRadius: "30px 22px 26px 20px",
-                padding: "20px 22px",
-                boxShadow: "0 4px 16px rgba(16,24,32,.07)",
-              }}>
-                <h2 style={{ margin: "0 0 8px", fontFamily: "Sora, var(--font-display), sans-serif", fontWeight: 800, fontSize: 15 }}>
-                  Not feeling it?
-                </h2>
-                <p style={{ color: "var(--ink2)", fontSize: 13, lineHeight: 1.5, marginBottom: 14 }}>
-                  Counter-propose to keep your options and swap in new ones. Votes reset.
+              <div className="dmu-card">
+                <div className="dmu-card-head"><h2>Not feeling it?</h2></div>
+                <p className="dmu-card-sub">
+                  Counter-propose keeps this option and lets you swap in new ones. Votes reset.
                 </p>
                 <Link
+                  className="dmu-btn dmu-btn-primary dmu-btn-block"
                   to={`/groups/${proposal.groupId}`}
-                  style={{
-                    display: "flex",
-                    width: "100%",
-                    height: 42,
-                    borderRadius: "22px 16px 22px 16px",
-                    background: "var(--primary, #0E8C8C)",
-                    color: "#fff",
-                    fontFamily: "Sora, var(--font-display), sans-serif",
-                    fontWeight: 700,
-                    fontSize: 14,
-                    textDecoration: "none",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    marginBottom: 10,
-                    }}
                 >
                   Counter-propose
                 </Link>
 
-                {/* Cancel — with confirmation */}
                 {!showCancelConfirm ? (
                   <button
+                    className="dmu-btn dmu-btn-ghost dmu-danger dmu-btn-block dmu-pr-cancel"
+                    type="button"
                     onClick={() => setShowCancelConfirm(true)}
-                    style={{
-                      width: "100%",
-                      height: 38,
-                      borderRadius: "16px 22px 16px 22px",
-                      border: "1.5px solid transparent",
-                      background: "transparent",
-                      color: "var(--error, #EF4444)",
-                      fontFamily: "Sora, var(--font-display), sans-serif",
-                      fontWeight: 700,
-                      fontSize: 13,
-                      cursor: "pointer",
-                    }}
                   >
                     Cancel proposal
                   </button>
                 ) : (
-                  <div style={{ textAlign: "center" }}>
+                  <div style={{ marginTop: 12, textAlign: "center" }}>
                     <p style={{ fontSize: 13, color: "var(--ink2)", marginBottom: 10 }}>
                       Are you sure? This can't be undone.
                     </p>
@@ -1144,30 +935,12 @@ export function ProposalPage() {
             )}
 
             {/* Details list */}
-            <div style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: 10,
-              padding: "4px 4px 0",
-            }}>
-              <div style={{ display: "flex", justifyContent: "space-between", gap: 12, fontSize: 13 }}>
-                <span style={{ color: "var(--ink2)" }}>Date</span>
-                <b style={{ fontWeight: 600, textAlign: "right" }}>{formattedDate}</b>
-              </div>
-              <div style={{ display: "flex", justifyContent: "space-between", gap: 12, fontSize: 13 }}>
-                <span style={{ color: "var(--ink2)" }}>Group</span>
-                <b style={{ fontWeight: 600, textAlign: "right" }}>{groupName}</b>
-              </div>
+            <div className="dmu-pr-details">
+              <div><span>Date</span><b>{formattedDate}</b></div>
+              <div><span>Group</span><b>{groupName}</b></div>
               {isOpen && memberCount > 0 && (
-                <div style={{ display: "flex", justifyContent: "space-between", gap: 12, fontSize: 13 }}>
-                  <span style={{ color: "var(--ink2)" }}>Reminder</span>
-                  <b style={{ fontWeight: 600, textAlign: "right" }}>24h before, if not everyone's voted</b>
-                </div>
+                <div><span>Reminder</span><b>Fri 8 PM, if not everyone's voted</b></div>
               )}
-              <div style={{ display: "flex", justifyContent: "space-between", gap: 12, fontSize: 13 }}>
-                <span style={{ color: "var(--ink2)" }}>Status</span>
-                <b style={{ fontWeight: 600, textAlign: "right" }} data-testid="proposal-status">{proposal.status}</b>
-              </div>
             </div>
           </aside>
         </div>
@@ -1236,7 +1009,7 @@ export function ProposalPage() {
                   ) : (
                     <div style={{
                       width: "100%", height: 160, borderRadius: 16, marginBottom: 16,
-                      background: getCategoryColor(winningOption.category),
+                      background: "linear-gradient(135deg,#086B6B,#0E8C8C)",
                       display: "flex", alignItems: "center", justifyContent: "center", fontSize: 64,
                     }}>
                       {getCategoryEmoji(winningOption.category)}
@@ -1304,22 +1077,6 @@ export function ProposalPage() {
           />
         )}
       </main>
-
-      <style>{`
-        @media (max-width: 960px) {
-          .proposal-grid {
-            grid-template-columns: 1fr !important;
-          }
-        }
-        @media (max-width: 767px) {
-          .proposal-option-card {
-            grid-template-columns: 1fr !important;
-          }
-          .proposal-option-card > div:first-child {
-            min-height: 160px !important;
-          }
-        }
-      `}</style>
     </>
   );
 }
