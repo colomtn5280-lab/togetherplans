@@ -316,16 +316,16 @@ function InviteVoteModal({ proposalId, soloIntro, onClose }: { proposalId: strin
 interface OptionCardProps {
   option: any;
   index: number;
-  hasMyVote: boolean;
+  mySentiment: string | null;
   voteCount: number;
   memberCount: number;
   consensus: boolean;
   canVote: boolean;
-  onVote: () => void;
+  onVote: (sentiment: 'APPROVE' | 'MAYBE' | 'REJECT') => void;
   votePending: boolean;
 }
 
-function OptionCard({ option, index, hasMyVote, voteCount, memberCount, consensus, canVote, onVote, votePending }: OptionCardProps) {
+function OptionCard({ option, index, mySentiment, voteCount, memberCount, consensus, canVote, onVote, votePending }: OptionCardProps) {
   const catEmoji = getCategoryEmoji(option.category);
 
   // nth-child index is 1-based; here we replicate the CSS pattern manually for the winner card override
@@ -411,24 +411,40 @@ function OptionCard({ option, index, hasMyVote, voteCount, memberCount, consensu
           <span className="dmu-voters">
             {consensus
               ? "✓ Everyone picked this"
-              : hasMyVote
-                ? "You're in for this one"
+              : mySentiment
+                ? "You've voted on this one"
                 : memberCount > 1
                   ? "Tap to vote — you can approve multiple options"
                   : "Tap to vote — you can approve multiple options"}
             {memberCount > 0 && !consensus && ` · ${voteCount}/${memberCount}`}
           </span>
           {canVote && (
-            <button
-              className="dmu-vote-btn"
-              type="button"
-              aria-pressed={hasMyVote}
-              aria-label={hasMyVote ? `Remove vote for ${option.name}` : `Vote for ${option.name}`}
-              onClick={onVote}
-              disabled={votePending}
-            >
-              {hasMyVote ? "✓ I'm in 👍" : "I'm in 👍"}
-            </button>
+            <div className="dmu-vote-row">
+              <button
+                className="dmu-vote-btn dmu-vote-approve"
+                aria-pressed={mySentiment === 'APPROVE'}
+                onClick={() => onVote('APPROVE')}
+                disabled={votePending}
+              >
+                {mySentiment === 'APPROVE' ? "✓ I'm in 👍" : "I'm in 👍"}
+              </button>
+              <button
+                className="dmu-vote-btn dmu-vote-maybe"
+                aria-pressed={mySentiment === 'MAYBE'}
+                onClick={() => onVote('MAYBE')}
+                disabled={votePending}
+              >
+                {mySentiment === 'MAYBE' ? "✓ Maybe 🤔" : "Maybe 🤔"}
+              </button>
+              <button
+                className="dmu-vote-btn dmu-vote-reject"
+                aria-pressed={mySentiment === 'REJECT'}
+                onClick={() => onVote('REJECT')}
+                disabled={votePending}
+              >
+                {mySentiment === 'REJECT' ? "✗ Don't think so 🙅" : "Don't think so 🙅"}
+              </button>
+            </div>
           )}
         </div>
       </div>
@@ -481,9 +497,9 @@ export function ProposalPage() {
     }
   }, [proposal]);
 
-  const voteMutation = useMutation<unknown, AxiosError<ApiError>, { optionId: string }>({
-    mutationFn: async ({ optionId }) => {
-      const res = await proposalsApi.vote(proposalId!, optionId);
+  const voteMutation = useMutation<unknown, AxiosError<ApiError>, { optionId: string; sentiment: 'APPROVE' | 'MAYBE' | 'REJECT' }>({
+    mutationFn: async ({ optionId, sentiment }) => {
+      const res = await proposalsApi.vote(proposalId!, optionId, sentiment);
       return res.data;
     },
     onSuccess: () => {
@@ -525,10 +541,14 @@ export function ProposalPage() {
   const memberCount = proposal.memberCount ?? 0;
   const members: any[] = (proposal as any).members ?? [];
   const myUserId = user?.userId ?? user?.id ?? "";
-  const myVotedOptionIds = new Set<string>(
+  // Map of optionId -> sentiment ('APPROVE'|'MAYBE'|'REJECT')
+  const myVoteMap = new Map<string, string>(
     options
       .filter((opt: any) => opt.votes?.some((v: any) => v.userId === myUserId))
-      .map((opt: any) => opt.id)
+      .map((opt: any) => {
+        const v = opt.votes.find((v: any) => v.userId === myUserId);
+        return [opt.id, v?.sentiment ?? 'APPROVE'];
+      })
   );
 
   const isDecided = proposal.status === "DECIDED" || proposal.status === "locked";
@@ -726,19 +746,18 @@ export function ProposalPage() {
                 const tallyEntry = tally.find((t: any) => t.optionId === option.id);
                 const voteCount = tallyEntry?.votes ?? option.votes?.length ?? 0;
                 const consensus = tallyEntry?.consensus ?? false;
-                const hasMyVote = myVotedOptionIds.has(option.id);
 
                 return (
                   <OptionCard
                     key={option.id}
                     option={option}
                     index={i}
-                    hasMyVote={hasMyVote}
+                    mySentiment={myVoteMap.get(option.id) ?? null}
                     voteCount={voteCount}
                     memberCount={memberCount}
                     consensus={consensus}
                     canVote={isOpen}
-                    onVote={() => voteMutation.mutate({ optionId: option.id })}
+                    onVote={(sentiment) => voteMutation.mutate({ optionId: option.id, sentiment })}
                     votePending={voteMutation.isPending}
                   />
                 );
@@ -752,7 +771,7 @@ export function ProposalPage() {
             </div>
 
             {/* Done voting banner */}
-            {myVotedOptionIds.size > 0 && isOpen && (() => {
+            {myVoteMap.size > 0 && isOpen && (() => {
               const proposerRaw: string | undefined =
                 (proposal as any).createdByName ??
                 (proposal as any).creatorName ??
@@ -768,7 +787,7 @@ export function ProposalPage() {
               return (
                 <div style={{ marginTop: 16 }}>
                   <p style={{ fontSize: 13, color: "var(--ink2)", margin: "0 0 8px", textAlign: "center" }}>
-                    You're in for {myVotedOptionIds.size} option{myVotedOptionIds.size !== 1 ? "s" : ""}
+                    You've voted on {myVoteMap.size} option{myVoteMap.size !== 1 ? "s" : ""}
                   </p>
                   <button
                     className="dmu-btn dmu-btn-primary dmu-btn-block"

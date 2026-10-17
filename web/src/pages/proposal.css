@@ -59,3 +59,10 @@
 .dmu-vote-btn:hover{background:#0E8C8C;color:#fff}
 .dmu-vote-btn[aria-pressed="true"]{background:#0E8C8C;color:#fff}
 .dmu-vote-btn:disabled{opacity:.5;cursor:default}
+.dmu-vote-row{display:flex;gap:6px;width:100%;margin-top:8px}
+.dmu-vote-row .dmu-vote-btn{flex:1;height:40px;font-size:12px;white-space:nowrap;padding:0 6px}
+.dmu-vote-approve[aria-pressed="true"]{background:#0E8C8C;color:#fff}
+.dmu-vote-maybe[aria-pressed="true"]{background:#F59E0B;color:#fff}
+.dmu-vote-reject[aria-pressed="true"]{background:#9CA3AF;color:#fff}
+.dmu-vote-maybe{background:#FEF3C7;color:#92400E}
+.dmu-vote-reject{background:#F3F4F6;color:#6B7280}

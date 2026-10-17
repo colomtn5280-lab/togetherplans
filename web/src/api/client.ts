@@ -234,8 +234,9 @@ export const proposalsApi = {
   vote: (
     proposalId: string,
     optionId: string,
+    sentiment: 'APPROVE' | 'MAYBE' | 'REJECT' = 'APPROVE',
   ): Promise<AxiosResponse<{ message: string }>> =>
-    api.post(`/proposals/${proposalId}/vote`, { optionId }),
+    api.post(`/proposals/${proposalId}/vote`, { optionId, sentiment }),
 
   retractVote: (
     proposalId: string,
