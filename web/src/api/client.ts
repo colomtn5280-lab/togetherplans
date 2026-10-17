@@ -235,8 +235,18 @@ export const proposalsApi = {
     proposalId: string,
     optionId: string,
     sentiment: 'APPROVE' | 'MAYBE' | 'REJECT' = 'APPROVE',
+    comment?: string,
   ): Promise<AxiosResponse<{ message: string }>> =>
-    api.post(`/proposals/${proposalId}/vote`, { optionId, sentiment }),
+    api.post(`/proposals/${proposalId}/vote`, { optionId, sentiment, comment }),
+
+  getComments: (proposalId: string) =>
+    api.get(`/proposals/${proposalId}/comments`),
+
+  addComment: (proposalId: string, body: string) =>
+    api.post(`/proposals/${proposalId}/comments`, { body }),
+
+  deleteComment: (proposalId: string, commentId: string) =>
+    api.delete(`/proposals/${proposalId}/comments/${commentId}`),
 
   retractVote: (
     proposalId: string,

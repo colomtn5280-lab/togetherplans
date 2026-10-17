@@ -321,12 +321,14 @@ interface OptionCardProps {
   memberCount: number;
   consensus: boolean;
   canVote: boolean;
-  onVote: (sentiment: 'APPROVE' | 'MAYBE' | 'REJECT') => void;
+  onVote: (sentiment: 'APPROVE' | 'MAYBE' | 'REJECT', comment?: string) => void;
   votePending: boolean;
+  existingComment?: string;
 }
 
-function OptionCard({ option, index, mySentiment, voteCount, memberCount, consensus, canVote, onVote, votePending }: OptionCardProps) {
+function OptionCard({ option, index, mySentiment, voteCount, memberCount, consensus, canVote, onVote, votePending, existingComment }: OptionCardProps) {
   const catEmoji = getCategoryEmoji(option.category);
+  const [voteComment, setVoteComment] = useState(existingComment ?? '');
 
   // nth-child index is 1-based; here we replicate the CSS pattern manually for the winner card override
   const nthClass = consensus ? "dmu-option dmu-option-winner" : "dmu-option";
@@ -446,6 +448,27 @@ function OptionCard({ option, index, mySentiment, voteCount, memberCount, consen
               </button>
             </div>
           )}
+          {mySentiment && (
+            <textarea
+              className="dmu-vote-comment"
+              placeholder="Add a note (optional)"
+              maxLength={200}
+              value={voteComment}
+              onChange={e => setVoteComment(e.target.value)}
+              onBlur={() => {
+                if (voteComment !== (existingComment ?? '')) {
+                  onVote(mySentiment as 'APPROVE'|'MAYBE'|'REJECT', voteComment);
+                }
+              }}
+              rows={2}
+            />
+          )}
+          {option.votes?.filter((v: any) => v.comment).map((v: any) => (
+            <div key={v.id} className="dmu-vote-note">
+              <span className="dmu-vote-note-name">{v.user?.displayName?.split(' ')[0]}:</span>
+              <span className="dmu-vote-note-text">"{v.comment}"</span>
+            </div>
+          ))}
         </div>
       </div>
     </article>
@@ -497,9 +520,9 @@ export function ProposalPage() {
     }
   }, [proposal]);
 
-  const voteMutation = useMutation<unknown, AxiosError<ApiError>, { optionId: string; sentiment: 'APPROVE' | 'MAYBE' | 'REJECT' }>({
-    mutationFn: async ({ optionId, sentiment }) => {
-      const res = await proposalsApi.vote(proposalId!, optionId, sentiment);
+  const voteMutation = useMutation<unknown, AxiosError<ApiError>, { optionId: string; sentiment: 'APPROVE' | 'MAYBE' | 'REJECT'; comment?: string }>({
+    mutationFn: async ({ optionId, sentiment, comment }) => {
+      const res = await proposalsApi.vote(proposalId!, optionId, sentiment, comment);
       return res.data;
     },
     onSuccess: () => {
@@ -516,6 +539,24 @@ export function ProposalPage() {
       queryClient.invalidateQueries({ queryKey: ["proposal", proposalId] });
       setShowCancelConfirm(false);
     },
+  });
+
+  const [newComment, setNewComment] = useState('');
+
+  const { data: comments = [] } = useQuery({
+    queryKey: ['proposal-comments', proposalId],
+    queryFn: async () => { const r = await proposalsApi.getComments(proposalId!); return r.data; },
+    enabled: !!proposalId,
+  });
+
+  const addCommentMutation = useMutation({
+    mutationFn: (body: string) => proposalsApi.addComment(proposalId!, body),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['proposal-comments', proposalId] }),
+  });
+
+  const deleteCommentMutation = useMutation({
+    mutationFn: (commentId: string) => proposalsApi.deleteComment(proposalId!, commentId),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['proposal-comments', proposalId] }),
   });
 
   if (isLoading) return (
@@ -757,8 +798,9 @@ export function ProposalPage() {
                     memberCount={memberCount}
                     consensus={consensus}
                     canVote={isOpen}
-                    onVote={(sentiment) => voteMutation.mutate({ optionId: option.id, sentiment })}
+                    onVote={(sentiment, comment) => voteMutation.mutate({ optionId: option.id, sentiment, comment })}
                     votePending={voteMutation.isPending}
+                    existingComment={option.votes?.find((v: any) => v.userId === myUserId)?.comment ?? undefined}
                   />
                 );
               })}
@@ -821,6 +863,35 @@ export function ProposalPage() {
                 {(voteMutation.error as AxiosError<ApiError>)?.response?.data?.message ?? "Vote action failed"}
               </p>
             )}
+
+            {/* Discussion thread */}
+            <section className="dmu-discussion">
+              <h3 className="dmu-discussion-title">Discussion</h3>
+              {(comments as any[]).map((c: any) => (
+                <div key={c.id} className="dmu-comment">
+                  <span className="dmu-comment-name">{c.user?.displayName?.split(' ')[0]}</span>
+                  <span className="dmu-comment-body">{c.body}</span>
+                  <span className="dmu-comment-time">{new Date(c.createdAt).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>
+                  {c.userId === myUserId && (
+                    <button className="dmu-comment-del" onClick={() => deleteCommentMutation.mutate(c.id)}>×</button>
+                  )}
+                </div>
+              ))}
+              <div className="dmu-comment-input-row">
+                <input
+                  className="dmu-comment-input"
+                  placeholder="Say something..."
+                  value={newComment}
+                  onChange={e => setNewComment(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter' && newComment.trim()) { addCommentMutation.mutate(newComment.trim()); setNewComment(''); } }}
+                  maxLength={500}
+                />
+                <button
+                  className="dmu-comment-send"
+                  onClick={() => { if (newComment.trim()) { addCommentMutation.mutate(newComment.trim()); setNewComment(''); } }}
+                >Send</button>
+              </div>
+            </section>
           </section>
 
           {/* ── Right rail ── */}

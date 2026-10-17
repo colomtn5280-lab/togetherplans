@@ -66,3 +66,20 @@
 .dmu-vote-reject[aria-pressed="true"]{background:#9CA3AF;color:#fff}
 .dmu-vote-maybe{background:#FEF3C7;color:#92400E}
 .dmu-vote-reject{background:#F3F4F6;color:#6B7280}
+.dmu-vote-comment{width:100%;margin-top:6px;padding:8px 10px;border:1px solid #D0D9E0;border-radius:10px;font:400 13px 'Sora',sans-serif;color:#2D3748;background:#fafafa;resize:none;box-sizing:border-box}
+.dmu-vote-comment:focus{outline:none;border-color:#0E8C8C}
+.dmu-vote-note{display:flex;gap:4px;font-size:12px;color:#4A5568;margin-top:4px;font-style:italic}
+.dmu-vote-note-name{font-weight:700;font-style:normal;color:#2D3748}
+.dmu-discussion{margin-top:24px;padding-top:16px;border-top:1px solid #E2E8F0}
+.dmu-discussion-title{font:700 15px 'Sora',sans-serif;color:#2D3748;margin:0 0 12px}
+.dmu-comment{display:flex;align-items:baseline;gap:6px;padding:8px 0;border-bottom:1px solid #F7FAFC;font-size:13px}
+.dmu-comment-name{font:700 13px 'Sora',sans-serif;color:#0E8C8C;white-space:nowrap}
+.dmu-comment-body{flex:1;color:#2D3748}
+.dmu-comment-time{font-size:11px;color:#A0AEC0;white-space:nowrap}
+.dmu-comment-del{background:none;border:none;color:#CBD5E0;cursor:pointer;font-size:16px;padding:0 0 0 4px}
+.dmu-comment-del:hover{color:#E53E3E}
+.dmu-comment-input-row{display:flex;gap:8px;margin-top:12px}
+.dmu-comment-input{flex:1;padding:10px 14px;border:1px solid #D0D9E0;border-radius:22px;font:400 13px 'Sora',sans-serif;color:#2D3748;background:#fafafa}
+.dmu-comment-input:focus{outline:none;border-color:#0E8C8C}
+.dmu-comment-send{padding:0 18px;height:40px;background:#0E8C8C;color:#fff;border:none;border-radius:22px;font:700 13px 'Sora',sans-serif;cursor:pointer}
+.dmu-comment-send:hover{background:#086B6B}
