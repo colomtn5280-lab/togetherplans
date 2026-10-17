@@ -257,7 +257,7 @@ export function SignupPage() {
               color: "var(--ink)",
             }}
           >
-            DateMeUp
+            TogetherPlans
           </div>
         </div>
 
