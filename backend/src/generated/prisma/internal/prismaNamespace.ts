@@ -407,6 +407,7 @@ export const ModelName = {
   Option: 'Option',
   GuestVote: 'GuestVote',
   Vote: 'Vote',
+  ProposalComment: 'ProposalComment',
   RefreshToken: 'RefreshToken',
   Business: 'Business',
   FeaturedListing: 'FeaturedListing',
@@ -429,7 +430,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "blockedUser" | "report" | "group" | "groupMember" | "invitation" | "proposal" | "option" | "guestVote" | "vote" | "refreshToken" | "business" | "featuredListing" | "businessImpression" | "businessDirectListing" | "inviteCard" | "afterDarkItem"
+    modelProps: "user" | "blockedUser" | "report" | "group" | "groupMember" | "invitation" | "proposal" | "option" | "guestVote" | "vote" | "proposalComment" | "refreshToken" | "business" | "featuredListing" | "businessImpression" | "businessDirectListing" | "inviteCard" | "afterDarkItem"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1173,6 +1174,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ProposalComment: {
+      payload: Prisma.$ProposalCommentPayload<ExtArgs>
+      fields: Prisma.ProposalCommentFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ProposalCommentFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProposalCommentPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ProposalCommentFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProposalCommentPayload>
+        }
+        findFirst: {
+          args: Prisma.ProposalCommentFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProposalCommentPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ProposalCommentFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProposalCommentPayload>
+        }
+        findMany: {
+          args: Prisma.ProposalCommentFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProposalCommentPayload>[]
+        }
+        create: {
+          args: Prisma.ProposalCommentCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProposalCommentPayload>
+        }
+        createMany: {
+          args: Prisma.ProposalCommentCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ProposalCommentCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProposalCommentPayload>[]
+        }
+        delete: {
+          args: Prisma.ProposalCommentDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProposalCommentPayload>
+        }
+        update: {
+          args: Prisma.ProposalCommentUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProposalCommentPayload>
+        }
+        deleteMany: {
+          args: Prisma.ProposalCommentDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ProposalCommentUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ProposalCommentUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProposalCommentPayload>[]
+        }
+        upsert: {
+          args: Prisma.ProposalCommentUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProposalCommentPayload>
+        }
+        aggregate: {
+          args: Prisma.ProposalCommentAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateProposalComment>
+        }
+        groupBy: {
+          args: Prisma.ProposalCommentGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProposalCommentGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ProposalCommentCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProposalCommentCountAggregateOutputType> | number
+        }
+      }
+    }
     RefreshToken: {
       payload: Prisma.$RefreshTokenPayload<ExtArgs>
       fields: Prisma.RefreshTokenFieldRefs
@@ -1868,10 +1943,23 @@ export const VoteScalarFieldEnum = {
   optionId: 'optionId',
   userId: 'userId',
   sentiment: 'sentiment',
+  comment: 'comment',
   createdAt: 'createdAt'
 } as const
 
 export type VoteScalarFieldEnum = (typeof VoteScalarFieldEnum)[keyof typeof VoteScalarFieldEnum]
+
+
+export const ProposalCommentScalarFieldEnum = {
+  id: 'id',
+  proposalId: 'proposalId',
+  userId: 'userId',
+  body: 'body',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProposalCommentScalarFieldEnum = (typeof ProposalCommentScalarFieldEnum)[keyof typeof ProposalCommentScalarFieldEnum]
 
 
 export const RefreshTokenScalarFieldEnum = {
@@ -2347,6 +2435,7 @@ export type GlobalOmitConfig = {
   option?: Prisma.OptionOmit
   guestVote?: Prisma.GuestVoteOmit
   vote?: Prisma.VoteOmit
+  proposalComment?: Prisma.ProposalCommentOmit
   refreshToken?: Prisma.RefreshTokenOmit
   business?: Prisma.BusinessOmit
   featuredListing?: Prisma.FeaturedListingOmit

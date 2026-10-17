@@ -33,6 +33,7 @@ model User {
   proposals       Proposal[]
   votes           Vote[]
   refreshTokens   RefreshToken[]
+  proposalComments ProposalComment[]
   blocking        BlockedUser[] @relation("BlockerRelation")
   blockedBy       BlockedUser[] @relation("BlockedRelation")
   reports         Report[]      @relation("ReporterRelation")
@@ -159,6 +160,7 @@ model Proposal {
   counters   Proposal[]  @relation("CounterProposals")
   options    Option[]
   guestVotes GuestVote[]
+  comments   ProposalComment[]
   inviteCard InviteCard?
 
   @@index([groupId])
@@ -212,6 +214,7 @@ model Vote {
   optionId  String
   userId    String
   sentiment String   @default("APPROVE") // APPROVE | MAYBE | REJECT
+  comment   String?  // optional note shown alongside the sentiment
   createdAt DateTime @default(now())
 
   option Option @relation(fields: [optionId], references: [id], onDelete: Cascade)
@@ -219,6 +222,20 @@ model Vote {
 
   @@unique([optionId, userId])
   @@index([optionId])
+}
+
+model ProposalComment {
+  id         String   @id @default(uuid())
+  proposalId String
+  userId     String
+  body       String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  proposal Proposal @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([proposalId])
 }
 
 model RefreshToken {

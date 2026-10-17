@@ -150,7 +150,7 @@ proposalsRouter.get('/:id', async (req: AuthRequest, res: Response, next) => {
     const proposal = await prisma.proposal.findUnique({
       where: { id: req.params.id },
       include: {
-        options: { include: { votes: true, guestVotes: { select: { guestId: true, guestName: true } } } },
+        options: { include: { votes: { include: { user: { select: { id: true, displayName: true } } } }, guestVotes: { select: { guestId: true, guestName: true } } } },
         counters: true,
       },
     });
@@ -245,7 +245,7 @@ proposalsRouter.patch('/:id/cancel', async (req: AuthRequest, res: Response, nex
 // Calling with same sentiment again toggles the vote off (removes it).
 proposalsRouter.post('/:id/vote', async (req: AuthRequest, res: Response, next) => {
   try {
-    const { optionId, sentiment = 'APPROVE' } = req.body || {};
+    const { optionId, sentiment = 'APPROVE', comment } = req.body || {};
     if (!optionId) return res.status(400).json({ error: 'optionId is required' });
     if (!['APPROVE', 'MAYBE', 'REJECT'].includes(sentiment)) {
       return res.status(400).json({ error: 'sentiment must be APPROVE, MAYBE, or REJECT' });
@@ -280,7 +280,7 @@ proposalsRouter.post('/:id/vote', async (req: AuthRequest, res: Response, next) 
       // Different sentiment — update in place
       const vote = await prisma.vote.update({
         where: { id: existing.id },
-        data: { sentiment },
+        data: { sentiment, comment: comment !== undefined ? comment : existing.comment },
       });
       const { decided, winnerId, voteCount, memberCount } = await checkProposalConsensus(option.proposalId);
       return res.status(200).json({ vote, decided, voteCount, memberCount, winnerId });
@@ -288,7 +288,7 @@ proposalsRouter.post('/:id/vote', async (req: AuthRequest, res: Response, next) 
 
     // New vote
     const vote = await prisma.vote.create({
-      data: { optionId, userId: req.userId as string, sentiment },
+      data: { optionId, userId: req.userId as string, sentiment, comment: comment ?? null },
     });
 
     const { decided, winnerId, voteCount, memberCount } = await checkProposalConsensus(option.proposalId);
@@ -316,6 +316,55 @@ proposalsRouter.delete('/:id/votes', async (req: AuthRequest, res: Response, nex
   } catch (err) {
     return next(err);
   }
+});
+
+// GET /api/proposals/:id/comments
+proposalsRouter.get('/:id/comments', async (req: AuthRequest, res: Response, next) => {
+  try {
+    const proposal = await prisma.proposal.findUnique({ where: { id: req.params.id } });
+    if (!proposal) return res.status(404).json({ error: 'Proposal not found' });
+    const membership = await prisma.groupMember.findFirst({
+      where: { groupId: proposal.groupId, userId: req.userId },
+    });
+    if (!membership) return res.status(403).json({ error: 'Not a member' });
+    const comments = await prisma.proposalComment.findMany({
+      where: { proposalId: req.params.id },
+      include: { user: { select: { id: true, displayName: true } } },
+      orderBy: { createdAt: 'asc' },
+    });
+    return res.json(comments);
+  } catch (err) { return next(err); }
+});
+
+// POST /api/proposals/:id/comments
+proposalsRouter.post('/:id/comments', async (req: AuthRequest, res: Response, next) => {
+  try {
+    const { body } = req.body || {};
+    if (!body?.trim()) return res.status(400).json({ error: 'body is required' });
+    if (body.length > 500) return res.status(400).json({ error: 'Comment too long (max 500 chars)' });
+    const proposal = await prisma.proposal.findUnique({ where: { id: req.params.id } });
+    if (!proposal) return res.status(404).json({ error: 'Proposal not found' });
+    const membership = await prisma.groupMember.findFirst({
+      where: { groupId: proposal.groupId, userId: req.userId },
+    });
+    if (!membership) return res.status(403).json({ error: 'Not a member' });
+    const comment = await prisma.proposalComment.create({
+      data: { proposalId: req.params.id, userId: req.userId as string, body: body.trim() },
+      include: { user: { select: { id: true, displayName: true } } },
+    });
+    return res.status(201).json(comment);
+  } catch (err) { return next(err); }
+});
+
+// DELETE /api/proposals/:id/comments/:commentId
+proposalsRouter.delete('/:id/comments/:commentId', async (req: AuthRequest, res: Response, next) => {
+  try {
+    const comment = await prisma.proposalComment.findUnique({ where: { id: req.params.commentId } });
+    if (!comment || comment.proposalId !== req.params.id) return res.status(404).json({ error: 'Not found' });
+    if (comment.userId !== req.userId) return res.status(403).json({ error: 'Not your comment' });
+    await prisma.proposalComment.delete({ where: { id: req.params.commentId } });
+    return res.json({ deleted: true });
+  } catch (err) { return next(err); }
 });
 
 // POST /api/proposals/:id/nudge — push + email unvoted members

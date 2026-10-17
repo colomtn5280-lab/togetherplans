@@ -90,6 +90,11 @@ export type GuestVote = Prisma.GuestVoteModel
  */
 export type Vote = Prisma.VoteModel
 /**
+ * Model ProposalComment
+ * 
+ */
+export type ProposalComment = Prisma.ProposalCommentModel
+/**
  * Model RefreshToken
  * 
  */
