@@ -21,7 +21,9 @@ export interface CardData {
   date: string;          // formatted date e.g. "Sat, Oct 10 · 8 PM"
   note?: string;         // personal message from sender
   photoUrl?: string;     // user-uploaded photo URL
-  // Mode-specific
+  // Sender info
+  initiatorName: string;   // proposal creator's display name
+  memberCount?: number;    // group member count (2 = couple, 3+ = crew)
   mode: 'vote' | 'official';
   kicker: string;        // "Is it a date?" | "It's on."
   cta: string;           // "Vote now" | "See the plan"
@@ -143,7 +145,7 @@ export function renderCardHtml(templateId: string, data: CardData): string {
     wantedFor: data.activity,
     tarotName: data.group,
     tarotReading: data.mode === 'vote' ? 'The stars say vote now.' : 'It is written.',
-    formalLine: `${data.group} cordially invites you`,
+    formalLine: `${data.initiatorName} cordially invites you`,
     bingoCenter: '★',
     q1: data.opt1 || data.activity,
     q2: data.opt2 || '',

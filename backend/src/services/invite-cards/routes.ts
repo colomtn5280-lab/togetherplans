@@ -118,7 +118,8 @@ inviteCardsRouter.post('/:proposalId/render', async (req: AuthRequest, res: Resp
       prisma.proposal.findUnique({
         where: { id: proposalId },
         include: {
-          group: true,
+          group: { include: { members: true } },
+          creator: { select: { displayName: true } },
           options: { include: { votes: true } },
         },
       }),
@@ -141,6 +142,8 @@ inviteCardsRouter.post('/:proposalId/render', async (req: AuthRequest, res: Resp
       date: dateStr,
       note: card.note || undefined,
       photoUrl: card.photoUrl || undefined,
+      initiatorName: proposal.creator.displayName || 'Your host',
+      memberCount: proposal.group.members.length,
       mode,
       kicker: mode === 'vote' ? 'Is it a date?' : "It's on.",
       cta: mode === 'vote' ? 'Vote now' : 'See the plan',
