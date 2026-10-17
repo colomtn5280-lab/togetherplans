@@ -1,6 +1,6 @@
 /* DateMeUp · Web dashboard (design 4b) · production CSS. Pair with web/dashboard.html. */
 :root{
-  --ink:#101820;--ink2:#5D6B76;--line:#DDE3E8;--bg:#F4F6F8;--surface:#fff;
+  --ink:#101820;--ink2:#5D6B76;--line:#C2CDD5;--bg:#D0D9E0;--surface:#fff;
   --primary:#0E8C8C;--primary-deep:#086B6B;--primary-soft:#D9F1F0;--on-primary:#fff;
   --lime:#7CB518;--lime-soft:#EAF6D3;--amber:#E39B12;--error:#D63A3A;
   --shadow:0 8px 24px rgba(16,24,32,.07);
@@ -71,7 +71,7 @@ button{font:inherit}
 .dmu-idea:nth-child(3n+1){border-radius:22px 30px 20px 26px}
 .dmu-idea:nth-child(3n+2){border-radius:30px 22px 26px 20px}
 .dmu-idea:nth-child(3n){border-radius:20px 26px 30px 22px}
-.dmu-idea-img{position:relative;height:120px;background:var(--primary-soft) center/cover no-repeat}
+.dmu-idea-img{position:relative;height:120px;background-color:#0E8C8C;background-position:center;background-size:cover;background-repeat:no-repeat}
 .dmu-credit{position:absolute;right:8px;bottom:6px;font-size:9px;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.5)}
 .dmu-idea-body{flex:1;display:flex;flex-direction:column;padding:12px 14px 14px}
 .dmu-cat{font:700 10px 'Sora',sans-serif;letter-spacing:.04em;color:var(--primary-deep)}

@@ -1,15 +1,18 @@
-/* DateMeUp · "Add to Date" bubble button (replaces the rectangular "+ Add to Plan" button on suggestion cards) */
+/* DateMeUp · "Add to Date" bubble button · soft tint (option 2c, Oct 17 2026) */
 .dmu-add{appearance:none;-webkit-appearance:none;border:0;width:100%;height:44px;padding:0 18px;
   display:inline-flex;align-items:center;justify-content:center;gap:8px;
-  border-radius:23px 17px 23px 17px;background:var(--tp-primary,#0E8C8C);color:var(--tp-on-primary,#fff);
+  border-radius:23px 17px 23px 17px;background:#D9F1F0;color:#086B6B;
   font:700 14px 'Sora',sans-serif;letter-spacing:-.01em;cursor:pointer;
-  box-shadow:0 6px 16px rgba(14,140,140,.22);transition:transform .15s,box-shadow .15s,background .15s}
+  transition:transform .15s,background .15s,color .15s}
 .dmu-add::before{content:"+";font:800 18px/1 'Sora',sans-serif;margin-top:-2px}
-.dmu-add:hover{transform:translateY(-1px);box-shadow:0 10px 22px rgba(14,140,140,.3);background:#086B6B}
+.dmu-add:hover{transform:translateY(-1px);background:#0E8C8C;color:#fff}
 .dmu-add:active{transform:translateY(0) scale(.98)}
 .dmu-add:focus-visible{outline:3px solid var(--tp-primary,#0E8C8C);outline-offset:2px}
 /* added state: <button class="dmu-add" aria-pressed="true">Added</button> */
-.dmu-add[aria-pressed="true"]{background:#EAF6D3;color:#101820;box-shadow:none;border-radius:17px 23px 17px 23px}
+.dmu-add[aria-pressed="true"]{background:#EAF6D3;color:#3F6A06;border-radius:17px 23px 17px 23px}
+.dmu-add[aria-pressed="true"]:hover{background:#DDEFC0;color:#3F6A06}
 .dmu-add[aria-pressed="true"]::before{content:"✓";font-size:14px;margin-top:0}
 .dmu-add:disabled{opacity:.5;cursor:default;transform:none}
-@media (prefers-color-scheme:dark){.dmu-add{--tp-primary:#2FC4C1;--tp-on-primary:#0F1519;box-shadow:none}.dmu-add:hover{background:#5AD6D3}.dmu-add[aria-pressed="true"]{background:#2A3A1A;color:#EEF3F6}}
+/* category label above the name: grey, not teal */
+.dmu-idea-cat{font:700 11px 'Sora',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#5D6B76}
+@media (prefers-color-scheme:dark){.dmu-add{background:#163A3B;color:#7FE0DD}.dmu-add:hover{background:#2FC4C1;color:#0F1519}.dmu-add[aria-pressed="true"],.dmu-add[aria-pressed="true"]:hover{background:#2A3A1A;color:#C6EE85}.dmu-idea-cat{color:#93A3AF}}

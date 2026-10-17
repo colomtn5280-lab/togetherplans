@@ -8,7 +8,7 @@ export const API_BASE_URL = 'https://datenight-api-mh74edz3ja-uc.a.run.app';
 // ── Colors ────────────────────────────────────────────────────────────────────
 export const COLORS = {
   // Background / surface
-  bg:            '#F4F6F8',
+  bg:            '#D0D9E0',
   bgDark:        '#0F1519',
   surface:       '#FFFFFF',
   surfaceDark:   '#18212A',
@@ -18,7 +18,7 @@ export const COLORS = {
   inkDark:       '#EEF3F6',
   ink2:          '#5D6B76',
   ink2Dark:      '#93A3AF',
-  line:          '#DDE3E8',
+  line:          '#C2CDD5',
   lineDark:      '#2A3641',
 
   // Primary — teal
@@ -61,10 +61,10 @@ export const COLORS = {
   cobaltText:    '#FFFFFF',
 
   // Shortcuts (used throughout app — default to light)
-  background:    '#F4F6F8',
+  background:    '#D0D9E0',
   text:          '#101820',
   textSecondary: '#5D6B76',
-  border:        '#DDE3E8',
+  border:        '#C2CDD5',
 } as const;
 
 // ── Light / Dark palette helpers ───────────────────────────────────────────────

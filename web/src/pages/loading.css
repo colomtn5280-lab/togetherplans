@@ -1,0 +1,63 @@
+/* DateMeUp · Loading states · production CSS. Load after dashboard.css. Spec: LOADING.md */
+
+/* 1. Logo loader (route changes, first load). Figures lean in, chevron hops. */
+.dmu-loader{display:flex;flex-direction:column;align-items:center;gap:14px;color:var(--ink2);font:600 14px 'Sora',sans-serif}
+.dmu-loader svg{width:var(--dmu-loader-size,72px);height:var(--dmu-loader-size,72px);overflow:visible}
+.dmu-loader .l-chev{animation:dmu-hop 1.2s cubic-bezier(.5,0,.3,1) infinite;transform-origin:50px 18px}
+.dmu-loader .l-a{animation:dmu-lean-a 1.2s ease-in-out infinite;transform-origin:34px 98px}
+.dmu-loader .l-b{animation:dmu-lean-b 1.2s ease-in-out infinite;transform-origin:66px 98px}
+@keyframes dmu-hop{0%,100%{transform:translateY(0)}35%{transform:translateY(-9px)}55%{transform:translateY(0)}}
+@keyframes dmu-lean-a{0%,100%{transform:rotate(0)}40%,60%{transform:rotate(9deg)}}
+@keyframes dmu-lean-b{0%,100%{transform:rotate(0)}40%,60%{transform:rotate(-9deg)}}
+
+/* Full-page overlay: fades in, content behind stays put */
+.dmu-page-loading{position:fixed;inset:0;z-index:50;display:grid;place-items:center;background:color-mix(in srgb,var(--bg) 88%,transparent);opacity:0;visibility:hidden;transition:opacity .2s ease,visibility 0s .2s}
+.dmu-page-loading.is-on{opacity:1;visibility:visible;transition:opacity .2s ease}
+
+/* 2. Top progress bar (in-app navigation; pairs with or replaces the overlay) */
+.dmu-progress{position:fixed;top:0;left:0;right:0;height:3px;z-index:60;pointer-events:none;opacity:0;transition:opacity .25s}
+.dmu-progress::before{content:"";position:absolute;inset:0;width:var(--p,0%);background:linear-gradient(90deg,var(--primary),var(--lime));border-radius:0 3px 3px 0;transition:width .4s ease}
+.dmu-progress.is-on{opacity:1}
+
+/* 3. Button busy state (submits). Width is locked by JS so the button doesn't jump. */
+.dmu-btn[aria-busy="true"]{position:relative;color:transparent!important;pointer-events:none;cursor:progress}
+.dmu-btn-loader{position:absolute;inset:0;display:grid;place-items:center;color:var(--on-primary)}
+.dmu-btn-loader svg{width:22px;height:22px;overflow:visible}
+.dmu-btn-ghost .dmu-btn-loader,.dmu-btn-dashed .dmu-btn-loader,.dmu-btn-light .dmu-btn-loader{color:var(--primary)}
+.dmu-btn-loader .l-chev{animation:dmu-hop 1.2s cubic-bezier(.5,0,.3,1) infinite;transform-origin:50px 18px}
+.dmu-btn-loader .l-a{animation:dmu-lean-a 1.2s ease-in-out infinite;transform-origin:34px 98px}
+.dmu-btn-loader .l-b{animation:dmu-lean-b 1.2s ease-in-out infinite;transform-origin:66px 98px}
+.dmu-btn:disabled:not([aria-busy="true"]){opacity:.5;cursor:not-allowed}
+@keyframes dmu-spin{to{transform:rotate(1turn)}}
+
+/* Region loader: centred logo in the space the results will fill */
+.dmu-region-loader{grid-column:1/-1;min-height:max(var(--dmu-region-min,0px),200px);display:grid;place-items:center}
+
+/* 4. Skeletons (optional; not used by default) */
+.dmu-skel{position:relative;overflow:hidden;background:#E3E9EE;border-radius:10px}
+@media (prefers-color-scheme:dark){.dmu-skel{background:#26323C}}
+.dmu-skel::after{content:"";position:absolute;inset:0;transform:translateX(-100%);background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--surface) 70%,transparent),transparent);animation:dmu-shimmer 1.3s ease-in-out infinite}
+@keyframes dmu-shimmer{to{transform:translateX(100%)}}
+.dmu-skel-card{background:var(--surface);border:1px solid var(--line);border-radius:22px 30px 20px 26px;padding:12px;display:grid;gap:10px}
+.dmu-skel-card .s-img{aspect-ratio:4/3;border-radius:16px 22px 14px 20px}
+.dmu-skel-card .s-line{height:12px}
+.dmu-skel-card .s-line.short{width:55%}
+.dmu-skel-card .s-title{height:16px;width:80%}
+.dmu-skel-card .s-row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.dmu-skel-card .s-btn{height:32px;width:96px;border-radius:18px 12px 18px 12px}
+
+/* Region swap: loaded content fades + rises in */
+[aria-busy="true"].dmu-region{min-height:var(--dmu-region-min,0)}
+.dmu-enter{animation:dmu-enter .32s cubic-bezier(.2,.7,.3,1) both}
+.dmu-enter > *{animation:dmu-enter .32s cubic-bezier(.2,.7,.3,1) both;animation-delay:calc(var(--i,0) * 40ms)}
+@keyframes dmu-enter{from{opacity:0;transform:translateY(6px)}}
+
+@media (prefers-reduced-motion:reduce){
+  .dmu-loader .l-chev,.dmu-loader .l-a,.dmu-loader .l-b,.dmu-btn-loader .l-chev,.dmu-btn-loader .l-a,.dmu-btn-loader .l-b{animation:none}
+  .dmu-btn-loader svg{animation:dmu-pulse 1.4s ease-in-out infinite}
+  .dmu-loader svg{animation:dmu-pulse 1.4s ease-in-out infinite}
+  .dmu-skel::after{animation:none}
+  .dmu-enter,.dmu-enter > *{animation-name:dmu-fade}
+  @keyframes dmu-pulse{50%{opacity:.45}}
+  @keyframes dmu-fade{from{opacity:0}}
+}

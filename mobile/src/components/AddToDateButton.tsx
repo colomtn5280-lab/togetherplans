@@ -1,14 +1,15 @@
 /**
  * AddToDateButton
  *
- * Teal bubble button for suggestion cards.
+ * Soft-tint bubble button for suggestion cards. v2 10.17.26
  * Spec: ADD_TO_DATE_BUTTON.md (Design Pack 9)
  *   - 44px tall, full card width
- *   - Asymmetric radius: 23/17/23/17 (TL/TR/BR/BL)
- *   - Added state: lime background, mirrored radii (17/23/17/23)
+ *   - Default: primarySoft (#D9F1F0) bg, primaryDeep (#086B6B) text
+ *   - Pressed: solid teal (#0E8C8C) bg, white text
+ *   - Added state: lime-soft (#EAF6D3) bg, lime-deep (#3F6A06) text, mirrored radii
  *   - Light haptic impact on add (iOS); CONFIRM on Android
  */
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   Animated,
   Platform,
@@ -33,9 +34,10 @@ export function AddToDateButton({
   disabled = false,
   style,
 }: AddToDateButtonProps) {
-  const { colors } = useTheme();
+  const { colors, dark } = useTheme();
   const scale = useRef(new Animated.Value(1)).current;
   const lastPress = useRef(0);
+  const [pressed, setPressed] = useState(false);
 
   const handlePress = async () => {
     const now = Date.now();
@@ -57,6 +59,7 @@ export function AddToDateButton({
   };
 
   const onPressIn = () => {
+    setPressed(true);
     Animated.spring(scale, {
       toValue: 0.98,
       useNativeDriver: true,
@@ -66,6 +69,7 @@ export function AddToDateButton({
   };
 
   const onPressOut = () => {
+    setPressed(false);
     Animated.spring(scale, {
       toValue: 1,
       useNativeDriver: true,
@@ -73,6 +77,21 @@ export function AddToDateButton({
       bounciness: 2,
     }).start();
   };
+
+  // Determine background and text colors
+  let bgColor: string;
+  let textColor: string;
+
+  if (added) {
+    bgColor = dark ? '#2A3A1A' : '#EAF6D3';
+    textColor = dark ? '#C6EE85' : '#3F6A06';
+  } else if (pressed) {
+    bgColor = '#0E8C8C';
+    textColor = '#FFFFFF';
+  } else {
+    bgColor = dark ? '#163A3B' : '#D9F1F0';
+    textColor = dark ? '#7FE0DD' : '#086B6B';
+  }
 
   return (
     <Animated.View style={[{ transform: [{ scale }] }, style]}>
@@ -85,7 +104,7 @@ export function AddToDateButton({
           styles.base,
           added
             ? {
-                backgroundColor: colors.limeSoft ?? '#EAF6D3',
+                backgroundColor: bgColor,
                 borderTopLeftRadius: 17,
                 borderTopRightRadius: 23,
                 borderBottomRightRadius: 17,
@@ -94,7 +113,7 @@ export function AddToDateButton({
                 elevation: 0,
               }
             : {
-                backgroundColor: colors.primary,
+                backgroundColor: bgColor,
                 borderTopLeftRadius: 23,
                 borderTopRightRadius: 17,
                 borderBottomRightRadius: 23,
@@ -109,7 +128,7 @@ export function AddToDateButton({
         <Text
           style={[
             styles.label,
-            { color: added ? '#101820' : colors.onPrimary ?? '#fff' },
+            { color: textColor },
           ]}
         >
           {added ? '✓ Added' : '+ Add to Date'}
@@ -126,10 +145,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#0E8C8C',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.22,
-    shadowRadius: 10,
-    elevation: 4,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 8,
+    elevation: 2,
   },
   label: {
     fontFamily: 'Sora_700Bold',
