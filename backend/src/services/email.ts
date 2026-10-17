@@ -4,6 +4,55 @@ import { Resend } from 'resend';
 import { logger } from '@/services/logger';
 
 const FROM_ADDRESS = 'DateMeUp <hello@datemeup.app>';
+const APP_URL = process.env.APP_URL || 'https://datemeup.app';
+
+// ─── Deliverability headers ────────────────────────────────────────────────────
+// List-Unsubscribe is required by Yahoo + Gmail for bulk senders (2024 policy).
+// The one-click POST endpoint lets recipients unsubscribe without leaving their
+// email client — this is the format Yahoo/Gmail prefer.
+const LIST_UNSUB_URL = `${APP_URL}/settings/notifications`;
+const LIST_UNSUB = `<${LIST_UNSUB_URL}>, <mailto:unsub@datemeup.app?subject=unsubscribe>`;
+const LIST_UNSUB_POST = 'List-Unsubscribe=One-Click';
+
+// Strip HTML tags to generate a plain-text fallback for every email.
+function htmlToText(html: string): string {
+  return html
+    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/p>/gi, '\n\n')
+    .replace(/<\/tr>/gi, '\n')
+    .replace(/<\/h[1-6]>/gi, '\n\n')
+    .replace(/<a[^>]+href="([^"]+)"[^>]*>(.*?)<\/a>/gi, '$2 ($1)')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#x27;/g, "'")
+    .replace(/&nbsp;/g, ' ')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
+// Central helper — adds deliverability headers + plain-text to every send
+function buildSendOptions(opts: {
+  to: string;
+  subject: string;
+  html: string;
+}): Parameters<import('resend').Resend['emails']['send']>[0] {
+  return {
+    from: FROM_ADDRESS,
+    to: opts.to,
+    subject: opts.subject,
+    html: opts.html,
+    text: htmlToText(opts.html),
+    headers: {
+      'List-Unsubscribe': LIST_UNSUB,
+      'List-Unsubscribe-Post': LIST_UNSUB_POST,
+    },
+  };
+}
 
 let resend: Resend | null = null;
 
@@ -89,7 +138,7 @@ export async function sendVerifyEmail(
   const { t01 } = getTemplates();
   const html = renderTemplate(t01, { first_name: firstName, email, token });
   try {
-    await client.emails.send({ from: FROM_ADDRESS, to, subject: 'Confirm your email', html });
+    await client.emails.send(buildSendOptions({ to, subject: 'Confirm your email', html }));
     logger.info('Verify email sent', { to });
   } catch (err) {
     logger.error('Failed to send verify email', { to, err });
@@ -104,7 +153,7 @@ export async function sendWelcomeEmail(to: string, email: string): Promise<void>
   const { t02 } = getTemplates();
   const html = renderTemplate(t02, { email });
   try {
-    await client.emails.send({ from: FROM_ADDRESS, to, subject: 'Welcome. Now invite one person.', html });
+    await client.emails.send(buildSendOptions({ to, subject: 'Welcome. Now invite one person.', html }));
     logger.info('Welcome email sent', { to });
   } catch (err) {
     logger.error('Failed to send welcome email', { to, err });
@@ -123,7 +172,7 @@ export async function sendPasswordResetEmail(
   const { t03 } = getTemplates();
   const html = renderTemplate(t03, { email, token });
   try {
-    await client.emails.send({ from: FROM_ADDRESS, to, subject: 'Reset your password', html });
+    await client.emails.send(buildSendOptions({ to, subject: 'Reset your password', html }));
     logger.info('Password reset email sent', { to });
   } catch (err) {
     logger.error('Failed to send password reset email', { to, err });
@@ -143,12 +192,7 @@ export async function sendGroupInviteEmail(
   const { t04 } = getTemplates();
   const html = renderTemplate(t04, { inviter, group_name: groupName, token });
   try {
-    await client.emails.send({
-      from: FROM_ADDRESS,
-      to,
-      subject: `${inviter} invited you to ${groupName}`,
-      html,
-    });
+    await client.emails.send(buildSendOptions({ to, subject: `${inviter} invited you to ${groupName}`, html }));
     logger.info('Group invite email sent', { to });
   } catch (err) {
     logger.error('Failed to send group invite email', { to, err });
@@ -168,12 +212,7 @@ export async function sendNewProposalEmail(
   const { t05 } = getTemplates();
   const html = renderTemplate(t05, { proposer, proposal_title: proposalTitle, proposal_id: proposalId });
   try {
-    await client.emails.send({
-      from: FROM_ADDRESS,
-      to,
-      subject: `${proposer} proposed for ${proposalTitle}`,
-      html,
-    });
+    await client.emails.send(buildSendOptions({ to, subject: `${proposer} proposed for ${proposalTitle}`, html }));
     logger.info('New proposal email sent', { to });
   } catch (err) {
     logger.error('Failed to send new proposal email', { to, err });
@@ -192,12 +231,7 @@ export async function sendStatusUpdateEmail(
   const { t06 } = getTemplates();
   const html = renderTemplate(t06, { proposer: voterName, proposal_id: proposalId });
   try {
-    await client.emails.send({
-      from: FROM_ADDRESS,
-      to,
-      subject: `${voterName} voted`,
-      html,
-    });
+    await client.emails.send(buildSendOptions({ to, subject: `${voterName} voted`, html }));
     logger.info('Status update email sent', { to });
   } catch (err) {
     logger.error('Failed to send status update email', { to, err });
@@ -217,12 +251,7 @@ export async function sendVoteReminderEmail(
   const { t07 } = getTemplates();
   const html = renderTemplate(t07, { email, proposal_id: proposalId, proposal_title: proposalTitle });
   try {
-    await client.emails.send({
-      from: FROM_ADDRESS,
-      to,
-      subject: `${proposalTitle} needs your vote`,
-      html,
-    });
+    await client.emails.send(buildSendOptions({ to, subject: `${proposalTitle} needs your vote`, html }));
     logger.info('Vote reminder email sent', { to });
   } catch (err) {
     logger.error('Failed to send vote reminder email', { to, err });
@@ -242,12 +271,7 @@ export async function sendItsAMatchEmail(
   const { t08 } = getTemplates();
   const html = renderTemplate(t08, { email, proposal_id: proposalId, proposal_title: proposalTitle });
   try {
-    await client.emails.send({
-      from: FROM_ADDRESS,
-      to,
-      subject: `It's a match: ${proposalTitle}`,
-      html,
-    });
+    await client.emails.send(buildSendOptions({ to, subject: `It's a match: ${proposalTitle}`, html }));
     logger.info("It's a match email sent", { to });
   } catch (err) {
     logger.error("Failed to send it's a match email", { to, err });
@@ -273,12 +297,7 @@ export async function sendTake2Email(
     proposer: proposerName,
   });
   try {
-    await client.emails.send({
-      from: FROM_ADDRESS,
-      to,
-      subject: `No match on ${proposalTitle}. ${proposerName} sent take 2`,
-      html,
-    });
+    await client.emails.send(buildSendOptions({ to, subject: `No match on ${proposalTitle}. ${proposerName} sent take 2`, html }));
     logger.info('Take 2 email sent', { to });
   } catch (err) {
     logger.error('Failed to send take 2 email', { to, err });
@@ -298,12 +317,7 @@ export async function sendPlanChangedEmail(
   const { t10 } = getTemplates();
   const html = renderTemplate(t10, { email, proposal_id: proposalId, proposal_title: proposalTitle });
   try {
-    await client.emails.send({
-      from: FROM_ADDRESS,
-      to,
-      subject: `Change to ${proposalTitle}`,
-      html,
-    });
+    await client.emails.send(buildSendOptions({ to, subject: `Change to ${proposalTitle}`, html }));
     logger.info('Plan changed email sent', { to });
   } catch (err) {
     logger.error('Failed to send plan changed email', { to, err });
@@ -329,12 +343,7 @@ export async function sendShareCardEmail(
     inviter: senderName,
   });
   try {
-    await client.emails.send({
-      from: FROM_ADDRESS,
-      to,
-      subject: `${senderName} made it official`,
-      html,
-    });
+    await client.emails.send(buildSendOptions({ to, subject: `${senderName} made it official`, html }));
     logger.info('Share card email sent', { to });
   } catch (err) {
     logger.error('Failed to send share card email', { to, err });
@@ -350,12 +359,7 @@ export async function sendAccountDeletedEmail(to: string, email: string): Promis
   const date = new Date().toDateString();
   const html = renderTemplate(t12, { email, date });
   try {
-    await client.emails.send({
-      from: FROM_ADDRESS,
-      to,
-      subject: 'Your DateMeUp account is deleted',
-      html,
-    });
+    await client.emails.send(buildSendOptions({ to, subject: 'Your DateMeUp account is deleted', html }));
     logger.info('Account deleted email sent', { to });
   } catch (err) {
     logger.error('Failed to send account deleted email', { to, err });
