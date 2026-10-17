@@ -12,6 +12,39 @@ type Method = (typeof METHODS)[number];
 
 const INVITE_TTL_HOURS = 72;
 
+// GET /api/invitations/:token — public preview (no auth required)
+// Returns group + inviter info so the join page can render without being logged in.
+// Also returns ACCEPTED invitations so the client can redirect to the group.
+invitationsRouter.get('/:token', async (req: AuthRequest, res: Response, next) => {
+  try {
+    const invitation = await prisma.invitation.findUnique({
+      where: { token: req.params.token },
+      include: {
+        group: { select: { id: true, name: true, groupType: true } },
+        inviter: { select: { id: true, displayName: true } },
+      },
+    });
+    if (!invitation) return res.status(404).json({ error: 'Invitation not found' });
+    if (invitation.expiresAt < new Date() && invitation.status === 'PENDING') {
+      return res.status(410).json({ error: 'Invitation expired' });
+    }
+    return res.json({
+      id: invitation.id,
+      token: invitation.token,
+      groupId: invitation.groupId,
+      group: invitation.group,
+      inviter: invitation.inviter,
+      method: invitation.method,
+      status: invitation.status,
+      expiresAt: invitation.expiresAt,
+      createdAt: invitation.createdAt,
+    });
+  } catch (err) {
+    return next(err);
+  }
+});
+
+// All routes below require authentication
 invitationsRouter.use(requireAuth);
 
 // POST /api/invitations — create an invitation to a group
@@ -58,36 +91,6 @@ invitationsRouter.post('/', async (req: AuthRequest, res: Response, next) => {
   }
 });
 
-// GET /api/invitations/:token — look up invitation details (preview before accepting)
-invitationsRouter.get('/:token', async (req: AuthRequest, res: Response, next) => {
-  try {
-    const invitation = await prisma.invitation.findUnique({
-      where: { token: req.params.token },
-      include: {
-        group: { select: { id: true, name: true, groupType: true } },
-        inviter: { select: { id: true, displayName: true } },
-      },
-    });
-    if (!invitation) return res.status(404).json({ error: 'Invitation not found' });
-    if (invitation.expiresAt < new Date()) {
-      return res.status(410).json({ error: 'Invitation expired' });
-    }
-    return res.json({
-      id: invitation.id,
-      token: invitation.token,
-      groupId: invitation.groupId,
-      group: invitation.group,
-      inviter: invitation.inviter,
-      method: invitation.method,
-      status: invitation.status,
-      expiresAt: invitation.expiresAt,
-      createdAt: invitation.createdAt,
-    });
-  } catch (err) {
-    return next(err);
-  }
-});
-
 // POST /api/invitations/accept/:token — accept an invitation
 invitationsRouter.post('/accept/:token', async (req: AuthRequest, res: Response, next) => {
   try {
@@ -120,9 +123,7 @@ invitationsRouter.post('/accept/:token', async (req: AuthRequest, res: Response,
       }),
     ]);
 
-    // Guest→member vote carryover: if the joiner voted as a guest before
-    // signing up, convert those guest votes now that they're a member.
-    // Optional guestId comes from the web client's localStorage.
+    // Guest→member vote carryover
     const { guestId } = (req.body as { guestId?: string }) || {};
     let claim: { converted: number; pending: number } | undefined;
     if (guestId && typeof guestId === 'string' && /^[A-Za-z0-9-]{8,64}$/.test(guestId)) {

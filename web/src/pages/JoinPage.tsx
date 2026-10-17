@@ -35,7 +35,18 @@ export function JoinPage() {
         const raw = res.data as Invitation & {
           group?: { id?: string; name?: string };
           inviter?: { displayName?: string };
+          status?: string;
         };
+        // If already accepted, redirect straight to the group
+        if (raw.status === 'ACCEPTED') {
+          const gid = raw.groupId ?? raw.group?.id;
+          if (gid) {
+            navigate(`/groups/${gid}`, { replace: true });
+          } else {
+            navigate('/groups', { replace: true });
+          }
+          return;
+        }
         const details: InviteDetails = {
           groupName: raw.groupName ?? raw.group?.name,
           groupId: raw.groupId ?? raw.group?.id,
