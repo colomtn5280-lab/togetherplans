@@ -4,7 +4,6 @@
  * uploads both to GCS, and returns the public URLs.
  */
 
-import path from 'path';
 import { Storage } from '@google-cloud/storage';
 import { renderCardHtml, CardData } from './templates';
 import { logger } from '@/services/logger';

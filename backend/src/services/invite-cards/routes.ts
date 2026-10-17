@@ -138,7 +138,7 @@ inviteCardsRouter.post('/:proposalId/render', async (req: AuthRequest, res: Resp
       title: proposal.title,
       group: proposal.group.name,
       activity: options[0]?.name || proposal.title,
-      address: (options[0] as any)?.address || '',
+      address: (options[0] as { address?: string })?.address || '',
       date: dateStr,
       note: card.note || undefined,
       photoUrl: card.photoUrl || undefined,
