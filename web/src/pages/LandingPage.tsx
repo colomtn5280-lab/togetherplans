@@ -8,9 +8,9 @@ export default function LandingPage() {
         <div className="blob b1" /><div className="blob b2" />
         <div className="wrap">
           <nav className="nav">
-            <Link className="brand" to="/" aria-label="DateMeUp home">
-              <img src="/mark-teal.svg" alt="DateMeUp mark" width={36} height={36} />
-              <b>DateMeUp</b>
+            <Link className="brand" to="/" aria-label="TogetherPlans home">
+              <img src="/mark-teal.svg" alt="TogetherPlans mark" width={36} height={36} />
+              <b>TogetherPlans</b>
             </Link>
             <div className="nav-links">
               <a href="#how">How it works</a>
@@ -27,7 +27,7 @@ export default function LandingPage() {
             <div>
               <span className="sticker">FOR COUPLES &amp; GROUPS</span>
               <h1>Plan together.<br />Go together<span className="dot">.</span></h1>
-              <p>47 messages later, still no plan? Propose a few options, everyone votes, and DateMeUp locks in the winner.</p>
+              <p>47 messages later, still no plan? Propose a few options, everyone votes, and TogetherPlans locks in the winner.</p>
               <div className="hero-ctas">
                 <Link className="btn lg" to="/signup">Start a plan, free</Link>
                 <a className="btn lg ghost" href="#how">See how it works</a>
@@ -104,7 +104,7 @@ export default function LandingPage() {
           </section>
 
           <footer className="landing-footer">
-            <span>© 2026 DateMeUp · datemeup.app</span>
+            <span>© 2026 TogetherPlans · togetherplans.app</span>
             <div className="links">
               <a href="/privacy">Privacy</a>
               <a href="/terms">Terms</a>

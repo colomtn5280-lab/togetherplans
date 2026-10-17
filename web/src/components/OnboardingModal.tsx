@@ -9,11 +9,11 @@ interface OnboardingModalProps {
 const STEPS = [
   {
     emoji: "🎉",
-    title: "Welcome to DateMeUp",
+    title: "Welcome to TogetherPlans",
     illustration: (
       <div style={{ fontSize: 64, marginBottom: 16, lineHeight: 1 }}>🗓️✨</div>
     ),
-    body: "DateMeUp makes it easy to plan date nights, outings, and adventures with the people you love. Propose ideas, everyone votes, and the best plan wins — together.",
+    body: "TogetherPlans makes it easy to plan date nights, outings, and adventures with the people you love. Propose ideas, everyone votes, and the best plan wins — together.",
     cta: null,
   },
   {
@@ -104,7 +104,9 @@ export function OnboardingModal({ onClose }: OnboardingModalProps) {
           padding: "40px 36px 32px",
           position: "relative",
           textAlign: "center",
-          animation: "dn-pulse 0s", // reset; use card shadow
+          background: "var(--surface, #ffffff)",
+          borderRadius: "28px 20px 32px 20px",
+          boxShadow: "0 20px 60px rgba(0,0,0,0.18)",
         }}
       >
         {/* Skip */}

@@ -45,9 +45,9 @@ export function BusinessLayout() {
       {/* Sidebar */}
       <aside style={bz.side}>
         <div style={bz.logo}>
-          <img src="/mark-teal.svg" alt="DateMeUp" style={{ width: 28, height: 28 }} />
+          <img src="/mark-teal.svg" alt="TogetherPlans" style={{ width: 28, height: 28 }} />
           <div>
-            <div style={bz.logoText}>DateMeUp</div>
+            <div style={bz.logoText}>TogetherPlans</div>
             <span style={bz.badge}>Business</span>
           </div>
         </div>

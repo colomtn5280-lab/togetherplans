@@ -234,7 +234,7 @@ export function GuestVotePage() {
         <Link to="/signup" className="dn-btn dn-btn--primary" style={{ marginTop: 8 }}>
           Plan your own night →
         </Link>
-        <a href="https://datemeup.app" style={{ color: "var(--ink2)", fontSize: 13 }}>datemeup.app</a>
+        <a href="https://togetherplans.app" style={{ color: "var(--ink2)", fontSize: 13 }}>togetherplans.app</a>
       </main>
     );
   }
@@ -251,11 +251,11 @@ export function GuestVotePage() {
     <main style={{ maxWidth: 520, margin: "0 auto", padding: "28px 18px 60px" }}>
       {/* Branding */}
       <div style={{ textAlign: "center", marginBottom: 20 }}>
-        <a href="https://datemeup.app" style={{
+        <a href="https://togetherplans.app" style={{
           fontFamily: "'Sora', system-ui, sans-serif", fontWeight: 800,
           fontSize: 15, color: "var(--primary)", textDecoration: "none", letterSpacing: "-0.01em",
         }}>
-          DateMeUp
+          TogetherPlans
         </a>
       </div>
 
@@ -385,7 +385,7 @@ export function GuestVotePage() {
 
       {/* Footer branding */}
       <p style={{ textAlign: "center", color: "var(--ink2)", fontSize: 12, marginTop: 28 }}>
-        Made with <a href="https://datemeup.app" style={{ color: "var(--primary)", fontWeight: 700 }}>DateMeUp</a> — plan together, go together.
+        Made with <a href="https://togetherplans.app" style={{ color: "var(--primary)", fontWeight: 700 }}>TogetherPlans</a> — plan together, go together.
       </p>
     </main>
   );

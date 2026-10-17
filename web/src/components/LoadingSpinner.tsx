@@ -1,5 +1,5 @@
 /**
- * LoadingSpinner — DMU logo loader SVG for DateMeUp web.
+ * LoadingSpinner — DMU logo loader SVG for TogetherPlans web.
  * Animates via CSS keyframes in loading.css (l-a, l-b, l-chev classes).
  */
 
