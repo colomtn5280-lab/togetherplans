@@ -264,7 +264,13 @@ proposalsRouter.post('/:id/vote', async (req: AuthRequest, res: Response, next) 
     const existing = await prisma.vote.findUnique({
       where: { optionId_userId: { optionId, userId: req.userId as string } },
     });
-    if (existing) return res.status(409).json({ error: 'Already voted for this option' });
+
+    if (existing) {
+      // Toggle off — remove this approval
+      await prisma.vote.delete({ where: { id: existing.id } });
+      const { decided, winnerId, voteCount, memberCount } = await checkProposalConsensus(option.proposalId);
+      return res.status(200).json({ toggled: 'off', decided, voteCount, memberCount, winnerId });
+    }
 
     const vote = await prisma.vote.create({
       data: { optionId, userId: req.userId as string },

@@ -1,8 +1,8 @@
 /**
  * Consensus evaluation — the single source of truth for deciding a proposal.
  *
- * Rule: ALL group members have voted AND one option has a strict majority
- * (votes > memberCount / 2). Single-member groups never auto-decide.
+ * Rule (approval voting): ALL group members have approved at least one option AND
+ * at least one option has been approved by ALL members. Single-member groups never auto-decide.
  *
  * Used by:
  *  - POST /api/proposals/:id/vote        (member votes)
@@ -43,7 +43,8 @@ export async function checkProposalConsensus(proposalId: string): Promise<Consen
     where: { option: { proposalId } },
   });
   const allVoted = distinctVoters.length >= memberCount;
-  const winner = allOptions.find((o) => o.votes.length > memberCount / 2);
+  // Approval voting: consensus = all members voted AND at least one option approved by everyone
+  const winner = allOptions.find((o) => o.votes.length >= memberCount);
   let decided = false;
 
   // Require at least 2 members to trigger consensus — single-member groups stay OPEN
