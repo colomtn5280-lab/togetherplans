@@ -28,6 +28,7 @@ export type VoteMinAggregateOutputType = {
   id: string | null
   optionId: string | null
   userId: string | null
+  sentiment: string | null
   createdAt: Date | null
 }
 
@@ -35,6 +36,7 @@ export type VoteMaxAggregateOutputType = {
   id: string | null
   optionId: string | null
   userId: string | null
+  sentiment: string | null
   createdAt: Date | null
 }
 
@@ -42,6 +44,7 @@ export type VoteCountAggregateOutputType = {
   id: number
   optionId: number
   userId: number
+  sentiment: number
   createdAt: number
   _all: number
 }
@@ -51,6 +54,7 @@ export type VoteMinAggregateInputType = {
   id?: true
   optionId?: true
   userId?: true
+  sentiment?: true
   createdAt?: true
 }
 
@@ -58,6 +62,7 @@ export type VoteMaxAggregateInputType = {
   id?: true
   optionId?: true
   userId?: true
+  sentiment?: true
   createdAt?: true
 }
 
@@ -65,6 +70,7 @@ export type VoteCountAggregateInputType = {
   id?: true
   optionId?: true
   userId?: true
+  sentiment?: true
   createdAt?: true
   _all?: true
 }
@@ -145,6 +151,7 @@ export type VoteGroupByOutputType = {
   id: string
   optionId: string
   userId: string
+  sentiment: string
   createdAt: Date
   _count: VoteCountAggregateOutputType | null
   _min: VoteMinAggregateOutputType | null
@@ -173,6 +180,7 @@ export type VoteWhereInput = {
   id?: Prisma.StringFilter<"Vote"> | string
   optionId?: Prisma.StringFilter<"Vote"> | string
   userId?: Prisma.StringFilter<"Vote"> | string
+  sentiment?: Prisma.StringFilter<"Vote"> | string
   createdAt?: Prisma.DateTimeFilter<"Vote"> | Date | string
   option?: Prisma.XOR<Prisma.OptionScalarRelationFilter, Prisma.OptionWhereInput>
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -182,6 +190,7 @@ export type VoteOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   optionId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  sentiment?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   option?: Prisma.OptionOrderByWithRelationInput
   user?: Prisma.UserOrderByWithRelationInput
@@ -195,6 +204,7 @@ export type VoteWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.VoteWhereInput | Prisma.VoteWhereInput[]
   optionId?: Prisma.StringFilter<"Vote"> | string
   userId?: Prisma.StringFilter<"Vote"> | string
+  sentiment?: Prisma.StringFilter<"Vote"> | string
   createdAt?: Prisma.DateTimeFilter<"Vote"> | Date | string
   option?: Prisma.XOR<Prisma.OptionScalarRelationFilter, Prisma.OptionWhereInput>
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -204,6 +214,7 @@ export type VoteOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   optionId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  sentiment?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.VoteCountOrderByAggregateInput
   _max?: Prisma.VoteMaxOrderByAggregateInput
@@ -217,11 +228,13 @@ export type VoteScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"Vote"> | string
   optionId?: Prisma.StringWithAggregatesFilter<"Vote"> | string
   userId?: Prisma.StringWithAggregatesFilter<"Vote"> | string
+  sentiment?: Prisma.StringWithAggregatesFilter<"Vote"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Vote"> | Date | string
 }
 
 export type VoteCreateInput = {
   id?: string
+  sentiment?: string
   createdAt?: Date | string
   option: Prisma.OptionCreateNestedOneWithoutVotesInput
   user: Prisma.UserCreateNestedOneWithoutVotesInput
@@ -231,11 +244,13 @@ export type VoteUncheckedCreateInput = {
   id?: string
   optionId: string
   userId: string
+  sentiment?: string
   createdAt?: Date | string
 }
 
 export type VoteUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  sentiment?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   option?: Prisma.OptionUpdateOneRequiredWithoutVotesNestedInput
   user?: Prisma.UserUpdateOneRequiredWithoutVotesNestedInput
@@ -245,6 +260,7 @@ export type VoteUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   optionId?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
+  sentiment?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -252,11 +268,13 @@ export type VoteCreateManyInput = {
   id?: string
   optionId: string
   userId: string
+  sentiment?: string
   createdAt?: Date | string
 }
 
 export type VoteUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  sentiment?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -264,6 +282,7 @@ export type VoteUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   optionId?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
+  sentiment?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -286,6 +305,7 @@ export type VoteCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   optionId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  sentiment?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -293,6 +313,7 @@ export type VoteMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   optionId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  sentiment?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -300,6 +321,7 @@ export type VoteMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   optionId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  sentiment?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -389,6 +411,7 @@ export type VoteUncheckedUpdateManyWithoutOptionNestedInput = {
 
 export type VoteCreateWithoutUserInput = {
   id?: string
+  sentiment?: string
   createdAt?: Date | string
   option: Prisma.OptionCreateNestedOneWithoutVotesInput
 }
@@ -396,6 +419,7 @@ export type VoteCreateWithoutUserInput = {
 export type VoteUncheckedCreateWithoutUserInput = {
   id?: string
   optionId: string
+  sentiment?: string
   createdAt?: Date | string
 }
 
@@ -432,11 +456,13 @@ export type VoteScalarWhereInput = {
   id?: Prisma.StringFilter<"Vote"> | string
   optionId?: Prisma.StringFilter<"Vote"> | string
   userId?: Prisma.StringFilter<"Vote"> | string
+  sentiment?: Prisma.StringFilter<"Vote"> | string
   createdAt?: Prisma.DateTimeFilter<"Vote"> | Date | string
 }
 
 export type VoteCreateWithoutOptionInput = {
   id?: string
+  sentiment?: string
   createdAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutVotesInput
 }
@@ -444,6 +470,7 @@ export type VoteCreateWithoutOptionInput = {
 export type VoteUncheckedCreateWithoutOptionInput = {
   id?: string
   userId: string
+  sentiment?: string
   createdAt?: Date | string
 }
 
@@ -476,11 +503,13 @@ export type VoteUpdateManyWithWhereWithoutOptionInput = {
 export type VoteCreateManyUserInput = {
   id?: string
   optionId: string
+  sentiment?: string
   createdAt?: Date | string
 }
 
 export type VoteUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  sentiment?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   option?: Prisma.OptionUpdateOneRequiredWithoutVotesNestedInput
 }
@@ -488,23 +517,27 @@ export type VoteUpdateWithoutUserInput = {
 export type VoteUncheckedUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   optionId?: Prisma.StringFieldUpdateOperationsInput | string
+  sentiment?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type VoteUncheckedUpdateManyWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   optionId?: Prisma.StringFieldUpdateOperationsInput | string
+  sentiment?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type VoteCreateManyOptionInput = {
   id?: string
   userId: string
+  sentiment?: string
   createdAt?: Date | string
 }
 
 export type VoteUpdateWithoutOptionInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  sentiment?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutVotesNestedInput
 }
@@ -512,12 +545,14 @@ export type VoteUpdateWithoutOptionInput = {
 export type VoteUncheckedUpdateWithoutOptionInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
+  sentiment?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type VoteUncheckedUpdateManyWithoutOptionInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
+  sentiment?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -527,6 +562,7 @@ export type VoteSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   id?: boolean
   optionId?: boolean
   userId?: boolean
+  sentiment?: boolean
   createdAt?: boolean
   option?: boolean | Prisma.OptionDefaultArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -536,6 +572,7 @@ export type VoteSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   id?: boolean
   optionId?: boolean
   userId?: boolean
+  sentiment?: boolean
   createdAt?: boolean
   option?: boolean | Prisma.OptionDefaultArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -545,6 +582,7 @@ export type VoteSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   id?: boolean
   optionId?: boolean
   userId?: boolean
+  sentiment?: boolean
   createdAt?: boolean
   option?: boolean | Prisma.OptionDefaultArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -554,10 +592,11 @@ export type VoteSelectScalar = {
   id?: boolean
   optionId?: boolean
   userId?: boolean
+  sentiment?: boolean
   createdAt?: boolean
 }
 
-export type VoteOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "optionId" | "userId" | "createdAt", ExtArgs["result"]["vote"]>
+export type VoteOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "optionId" | "userId" | "sentiment" | "createdAt", ExtArgs["result"]["vote"]>
 export type VoteInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   option?: boolean | Prisma.OptionDefaultArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -581,6 +620,7 @@ export type $VotePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     id: string
     optionId: string
     userId: string
+    sentiment: string
     createdAt: Date
   }, ExtArgs["result"]["vote"]>
   composites: {}
@@ -1010,6 +1050,7 @@ export interface VoteFieldRefs {
   readonly id: Prisma.FieldRef<"Vote", 'String'>
   readonly optionId: Prisma.FieldRef<"Vote", 'String'>
   readonly userId: Prisma.FieldRef<"Vote", 'String'>
+  readonly sentiment: Prisma.FieldRef<"Vote", 'String'>
   readonly createdAt: Prisma.FieldRef<"Vote", 'DateTime'>
 }
     

@@ -211,7 +211,7 @@ model Vote {
   id        String   @id @default(uuid())
   optionId  String
   userId    String
-  // simple approval voting: a vote row = approval
+  sentiment String   @default("APPROVE") // APPROVE | MAYBE | REJECT
   createdAt DateTime @default(now())
 
   option Option @relation(fields: [optionId], references: [id], onDelete: Cascade)

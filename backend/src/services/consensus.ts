@@ -43,8 +43,14 @@ export async function checkProposalConsensus(proposalId: string): Promise<Consen
     where: { option: { proposalId } },
   });
   const allVoted = distinctVoters.length >= memberCount;
-  // Approval voting: consensus = all members voted AND at least one option approved by everyone
-  const winner = allOptions.find((o) => o.votes.length >= memberCount);
+  // Approval voting (Option B): consensus fires when ALL members have voted
+  // on at least one option AND at least one option has no REJECT votes from
+  // any member AND every member either APPROVE or MAYBE'd it.
+  const winner = allOptions.find((o) => {
+    const approveOrMaybe = o.votes.filter((v) => v.sentiment !== 'REJECT').length;
+    const rejected = o.votes.filter((v) => v.sentiment === 'REJECT').length;
+    return approveOrMaybe >= memberCount && rejected === 0;
+  });
   let decided = false;
 
   // Require at least 2 members to trigger consensus — single-member groups stay OPEN

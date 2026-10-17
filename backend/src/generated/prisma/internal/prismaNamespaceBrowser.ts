@@ -223,6 +223,7 @@ export const VoteScalarFieldEnum = {
   id: 'id',
   optionId: 'optionId',
   userId: 'userId',
+  sentiment: 'sentiment',
   createdAt: 'createdAt'
 } as const
 

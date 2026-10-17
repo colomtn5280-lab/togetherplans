@@ -240,11 +240,16 @@ proposalsRouter.patch('/:id/cancel', async (req: AuthRequest, res: Response, nex
   }
 });
 
-// POST /api/proposals/:id/vote — approval-vote for an option
+// POST /api/proposals/:id/vote — cast or update sentiment for an option
+// Body: { optionId, sentiment: 'APPROVE' | 'MAYBE' | 'REJECT' }
+// Calling with same sentiment again toggles the vote off (removes it).
 proposalsRouter.post('/:id/vote', async (req: AuthRequest, res: Response, next) => {
   try {
-    const { optionId } = req.body || {};
+    const { optionId, sentiment = 'APPROVE' } = req.body || {};
     if (!optionId) return res.status(400).json({ error: 'optionId is required' });
+    if (!['APPROVE', 'MAYBE', 'REJECT'].includes(sentiment)) {
+      return res.status(400).json({ error: 'sentiment must be APPROVE, MAYBE, or REJECT' });
+    }
 
     const option = await prisma.option.findUnique({
       where: { id: optionId },
@@ -266,18 +271,26 @@ proposalsRouter.post('/:id/vote', async (req: AuthRequest, res: Response, next) 
     });
 
     if (existing) {
-      // Toggle off — remove this approval
-      await prisma.vote.delete({ where: { id: existing.id } });
+      if (existing.sentiment === sentiment) {
+        // Same sentiment tapped again — toggle off
+        await prisma.vote.delete({ where: { id: existing.id } });
+        const { decided, winnerId, voteCount, memberCount } = await checkProposalConsensus(option.proposalId);
+        return res.status(200).json({ toggled: 'off', decided, voteCount, memberCount, winnerId });
+      }
+      // Different sentiment — update in place
+      const vote = await prisma.vote.update({
+        where: { id: existing.id },
+        data: { sentiment },
+      });
       const { decided, winnerId, voteCount, memberCount } = await checkProposalConsensus(option.proposalId);
-      return res.status(200).json({ toggled: 'off', decided, voteCount, memberCount, winnerId });
+      return res.status(200).json({ vote, decided, voteCount, memberCount, winnerId });
     }
 
+    // New vote
     const vote = await prisma.vote.create({
-      data: { optionId, userId: req.userId as string },
+      data: { optionId, userId: req.userId as string, sentiment },
     });
 
-    // Consensus: ALL members voted AND one option has strict majority.
-    // Shared path — also used by guest→member vote conversion.
     const { decided, winnerId, voteCount, memberCount } = await checkProposalConsensus(option.proposalId);
     return res.status(201).json({ vote, decided, voteCount, memberCount, winnerId });
   } catch (err) {
