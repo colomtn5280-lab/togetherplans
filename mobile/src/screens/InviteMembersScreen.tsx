@@ -41,7 +41,7 @@ const METHODS: InviteMethod[] = ['LINK', 'EMAIL', 'SHARE', 'USERNAME'];
 const METHOD_LABELS: Record<InviteMethod, string> = {
   LINK: 'Link',
   EMAIL: 'Email',
-  SHARE: 'Send Invite',
+  SHARE: 'Share',
   USERNAME: 'Username',
 };
 

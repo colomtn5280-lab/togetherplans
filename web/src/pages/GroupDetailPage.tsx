@@ -45,7 +45,7 @@ export function GroupDetailPage() {
   const navigate = useNavigate();
   const [inviteMethod, setInviteMethod] = useState<InviteMethod>("link");
   const [inviteEmail, setInviteEmail] = useState("");
-  const [invitePhone, setInvitePhone] = useState("");
+  const [invitePhone] = useState("");
   const [generatedInvite, setGeneratedInvite] = useState<Invitation | null>(null);
   const [copied, setCopied] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -386,31 +386,39 @@ export function GroupDetailPage() {
               </div>
             )}
 
-            {inviteMethod === "sms" && (
-              <div>
-                <label
-                  style={{
-                    display: "block",
-                    fontFamily: "var(--font-display)",
-                    fontWeight: 700,
-                    fontSize: 12,
-                    marginBottom: 6,
-                    color: "var(--ink2)",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.06em",
+            {inviteMethod === "sms" && generatedInvite && (
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                <p style={{ fontSize: 14, color: "var(--ink2)", margin: 0 }}>
+                  Share the invite link via Messages, WhatsApp, email, or any app.
+                </p>
+                <button
+                  className="dmu-btn dmu-btn-primary"
+                  style={{ width: "100%" }}
+                  onClick={() => {
+                    const url = generatedInvite.inviteUrl?.startsWith('http')
+                      ? generatedInvite.inviteUrl
+                      : `${window.location.origin}/join/${generatedInvite.token ?? ""}`;
+                    if (navigator.share) {
+                      navigator.share({
+                        title: "Join me on DateMeUp",
+                        text: "Help us pick our next date night — vote on the plan:",
+                        url,
+                      }).catch(() => {});
+                    } else {
+                      // Fallback: copy to clipboard
+                      navigator.clipboard?.writeText(url).catch(() => {});
+                    }
                   }}
                 >
-                  Phone number
-                </label>
-                <input
-                  id="invitePhone"
-                  type="tel"
-                  className="dn-input"
-                  value={invitePhone}
-                  onChange={(e) => setInvitePhone(e.target.value)}
-                  placeholder="+1 555 123 4567"
-                />
+                  Share invite link
+                </button>
               </div>
+            )}
+
+            {inviteMethod === "sms" && !generatedInvite && (
+              <p style={{ fontSize: 14, color: "var(--ink2)", margin: 0 }}>
+                Click "Generate invite" below to create a shareable link.
+              </p>
             )}
 
             {/* Link field */}
