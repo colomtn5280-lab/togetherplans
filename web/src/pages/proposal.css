@@ -54,3 +54,8 @@
   .dmu-option-img{min-height:160px}
   .dmu-pr-invite{width:100%}
 }
+
+.dmu-vote-btn{width:100%;height:44px;border:none;border-radius:22px 16px 22px 16px;background:#D9F1F0;color:#086B6B;font:700 14px 'Sora',sans-serif;cursor:pointer;transition:background .15s,color .15s;display:flex;align-items:center;justify-content:center;gap:6px}
+.dmu-vote-btn:hover{background:#0E8C8C;color:#fff}
+.dmu-vote-btn[aria-pressed="true"]{background:#0E8C8C;color:#fff}
+.dmu-vote-btn:disabled{opacity:.5;cursor:default}

@@ -312,15 +312,6 @@ function InviteVoteModal({ proposalId, soloIntro, onClose }: { proposalId: strin
   );
 }
 
-// ── Heart SVG ─────────────────────────────────────────────────────────────────
-function HeartSvg() {
-  return (
-    <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" />
-    </svg>
-  );
-}
-
 // ── Option card (horizontal, dmu-* CSS classes) ───────────────────────────────
 interface OptionCardProps {
   option: any;
@@ -331,11 +322,10 @@ interface OptionCardProps {
   consensus: boolean;
   canVote: boolean;
   onVote: () => void;
-  onRetract: () => void;
   votePending: boolean;
 }
 
-function OptionCard({ option, index, hasMyVote, voteCount, memberCount, consensus, canVote, onVote, onRetract, votePending }: OptionCardProps) {
+function OptionCard({ option, index, hasMyVote, voteCount, memberCount, consensus, canVote, onVote, votePending }: OptionCardProps) {
   const catEmoji = getCategoryEmoji(option.category);
 
   // nth-child index is 1-based; here we replicate the CSS pattern manually for the winner card override
@@ -417,27 +407,27 @@ function OptionCard({ option, index, hasMyVote, voteCount, memberCount, consensu
           )}
         </div>
 
-        <div className="dmu-option-foot">
+        <div className="dmu-option-foot" style={{ flexDirection: "column", alignItems: "stretch", gap: 10 }}>
           <span className="dmu-voters">
             {consensus
               ? "✓ Everyone picked this"
               : hasMyVote
-                ? "Your vote is in"
+                ? "You're in for this one"
                 : memberCount > 1
-                  ? "Your vote is hidden until everyone votes"
-                  : "Tap heart to vote"}
+                  ? "Tap to vote — you can approve multiple options"
+                  : "Tap to vote — you can approve multiple options"}
             {memberCount > 0 && !consensus && ` · ${voteCount}/${memberCount}`}
           </span>
           {canVote && (
             <button
-              className="dmu-heart"
+              className="dmu-vote-btn"
               type="button"
               aria-pressed={hasMyVote}
-              aria-label={hasMyVote ? "Remove vote" : `Vote for ${option.name}`}
-              onClick={hasMyVote ? onRetract : onVote}
+              aria-label={hasMyVote ? `Remove vote for ${option.name}` : `Vote for ${option.name}`}
+              onClick={onVote}
               disabled={votePending}
             >
-              <HeartSvg />
+              {hasMyVote ? "✓ I'm in 👍" : "I'm in 👍"}
             </button>
           )}
         </div>
@@ -501,16 +491,6 @@ export function ProposalPage() {
     },
   });
 
-  const retractMutation = useMutation<unknown, AxiosError<ApiError>>({
-    mutationFn: async () => {
-      const res = await proposalsApi.retractVote(proposalId!);
-      return res.data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["proposal", proposalId] });
-    },
-  });
-
   const cancelMutation = useMutation<unknown, AxiosError<ApiError>>({
     mutationFn: async () => {
       const res = await proposalsApi.cancel(proposalId!);
@@ -545,9 +525,11 @@ export function ProposalPage() {
   const memberCount = proposal.memberCount ?? 0;
   const members: any[] = (proposal as any).members ?? [];
   const myUserId = user?.userId ?? user?.id ?? "";
-  const myVotedOptionId = options.find((opt: any) =>
-    opt.votes?.some((v: any) => v.userId === myUserId)
-  )?.id;
+  const myVotedOptionIds = new Set<string>(
+    options
+      .filter((opt: any) => opt.votes?.some((v: any) => v.userId === myUserId))
+      .map((opt: any) => opt.id)
+  );
 
   const isDecided = proposal.status === "DECIDED" || proposal.status === "locked";
   const isOpen = proposal.status === "OPEN" || proposal.status === "pending";
@@ -735,7 +717,7 @@ export function ProposalPage() {
 
             {/* Options list header */}
             <div className="dmu-section-head">
-              <span>Options · tap a heart to vote</span>
+              <span>Options · tap to approve</span>
             </div>
 
             {/* Options */}
@@ -744,7 +726,7 @@ export function ProposalPage() {
                 const tallyEntry = tally.find((t: any) => t.optionId === option.id);
                 const voteCount = tallyEntry?.votes ?? option.votes?.length ?? 0;
                 const consensus = tallyEntry?.consensus ?? false;
-                const hasMyVote = myVotedOptionId === option.id;
+                const hasMyVote = myVotedOptionIds.has(option.id);
 
                 return (
                   <OptionCard
@@ -757,8 +739,7 @@ export function ProposalPage() {
                     consensus={consensus}
                     canVote={isOpen}
                     onVote={() => voteMutation.mutate({ optionId: option.id })}
-                    onRetract={() => retractMutation.mutate(undefined as never)}
-                    votePending={voteMutation.isPending || retractMutation.isPending}
+                    votePending={voteMutation.isPending}
                   />
                 );
               })}
@@ -769,6 +750,36 @@ export function ProposalPage() {
                 </div>
               )}
             </div>
+
+            {/* Done voting banner */}
+            {myVotedOptionIds.size > 0 && isOpen && (() => {
+              const proposerRaw: string | undefined =
+                (proposal as any).createdByName ??
+                (proposal as any).creatorName ??
+                (proposal as any).creator?.displayName;
+              const proposerFirst = proposerRaw
+                ? proposerRaw.split(" ")[0]
+                : null;
+              // Don't show "Let You know" when the current user is the proposer
+              const isMyProposal = (proposal as any).createdByUserId === myUserId;
+              const btnLabel = isMyProposal || !proposerFirst
+                ? "Let them know 👍"
+                : `Let ${proposerFirst} know 👍`;
+              return (
+                <div style={{ marginTop: 16 }}>
+                  <p style={{ fontSize: 13, color: "var(--ink2)", margin: "0 0 8px", textAlign: "center" }}>
+                    You're in for {myVotedOptionIds.size} option{myVotedOptionIds.size !== 1 ? "s" : ""}
+                  </p>
+                  <button
+                    className="dmu-btn dmu-btn-primary dmu-btn-block"
+                    type="button"
+                    onClick={() => setShowInviteModal(true)}
+                  >
+                    {btnLabel}
+                  </button>
+                </div>
+              );
+            })()}
 
             {/* Add another option — proposer only, while nobody has voted */}
             {isOpen && votedCount === 0 && (
@@ -785,12 +796,10 @@ export function ProposalPage() {
               </Link>
             )}
 
-            {/* Vote/retract errors */}
-            {(voteMutation.isError || retractMutation.isError) && (
+            {/* Vote errors */}
+            {voteMutation.isError && (
               <p role="alert" style={{ color: "var(--error)", fontSize: 13, marginTop: 16 }}>
-                {(voteMutation.error as AxiosError<ApiError>)?.response?.data?.message ??
-                 (retractMutation.error as AxiosError<ApiError>)?.response?.data?.message ??
-                 "Vote action failed"}
+                {(voteMutation.error as AxiosError<ApiError>)?.response?.data?.message ?? "Vote action failed"}
               </p>
             )}
           </section>
