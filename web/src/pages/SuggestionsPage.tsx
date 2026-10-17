@@ -10,6 +10,7 @@ import "./discover-filters.css";
 import "./add-to-date-button.css";
 import { usePlanBuilder } from "../contexts/PlanBuilderContext";
 import { useAuthStore } from "../store/auth.store";
+import { PageLoader } from "../components/LoadingSpinner";
 import type { Suggestion } from "../types";
 
 // ── VenueDetail (Firecrawl enrichment) ───────────────────────────────────────
@@ -1060,9 +1061,7 @@ export function SuggestionsPage() {
         {/* Loading / error states */}
         <div id="discover-results" />
         {(isLoading || (tonightIsEmpty && weekendLoading)) && (
-          <div style={{ textAlign: "center", padding: "60px 0", color: "var(--ink2)" }}>
-            Loading…
-          </div>
+          <PageLoader label="Finding activities near you…" />
         )}
         {isError && (
           <div style={{ textAlign: "center", padding: "60px 0", color: "var(--error)" }}>

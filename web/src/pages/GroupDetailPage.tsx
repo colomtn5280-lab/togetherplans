@@ -112,10 +112,35 @@ export function GroupDetailPage() {
     if (!generatedInvite) return;
     const token = generatedInvite.token ?? generatedInvite.inviteCode ?? "";
     const link = `${window.location.origin}/join/${token}`;
-    navigator.clipboard.writeText(link).then(() => {
+    // Use clipboard API with execCommand fallback for older browsers
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(link).then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      }).catch(() => {
+        fallbackCopy(link);
+      });
+    } else {
+      fallbackCopy(link);
+    }
+  };
+
+  const fallbackCopy = (text: string) => {
+    const el = document.createElement("textarea");
+    el.value = text;
+    el.style.position = "fixed";
+    el.style.opacity = "0";
+    document.body.appendChild(el);
+    el.focus();
+    el.select();
+    try {
+      document.execCommand("copy");
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-    });
+    } catch {
+      // silent — browser doesn't support it
+    }
+    document.body.removeChild(el);
   };
 
   if (isLoading)
@@ -313,6 +338,10 @@ export function GroupDetailPage() {
                   onClick={() => {
                     setInviteMethod(m);
                     setGeneratedInvite(null);
+                    // Auto-generate link invite when link tab is selected
+                    if (m === "link") {
+                      setTimeout(() => inviteMutation.mutate(), 50);
+                    }
                   }}
                 >
                   {m.toUpperCase()}

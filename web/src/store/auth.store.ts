@@ -57,7 +57,7 @@ export const useAuthStore = create<AuthState>()(
           refreshToken: null,
           isAuthenticated: false,
         });
-        window.location.href = "/";
+        // Let ProtectedRoute handle the redirect — don't force window.location
       },
 
       updateTokens: (accessToken, refreshToken) => {

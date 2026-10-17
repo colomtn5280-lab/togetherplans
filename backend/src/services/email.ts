@@ -3,7 +3,7 @@ import path from 'path';
 import { Resend } from 'resend';
 import { logger } from '@/services/logger';
 
-const FROM_ADDRESS = 'DateMeUp <hello@datemeup.app>';
+const FROM_ADDRESS = 'TogetherPlans <hello@togetherplans.app>';
 
 let resend: Resend | null = null;
 

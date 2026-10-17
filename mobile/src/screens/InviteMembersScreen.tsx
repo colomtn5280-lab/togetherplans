@@ -35,13 +35,13 @@ import type { Invitation, RootStackParamList } from '@/types';
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 type Route = NativeStackScreenProps<RootStackParamList, 'InviteMembers'>['route'];
 
-type InviteMethod = 'LINK' | 'EMAIL' | 'SMS' | 'USERNAME';
-const METHODS: InviteMethod[] = ['LINK', 'EMAIL', 'SMS', 'USERNAME'];
+type InviteMethod = 'LINK' | 'EMAIL' | 'SHARE' | 'USERNAME';
+const METHODS: InviteMethod[] = ['LINK', 'EMAIL', 'SHARE', 'USERNAME'];
 
 const METHOD_LABELS: Record<InviteMethod, string> = {
   LINK: 'Link',
   EMAIL: 'Email',
-  SMS: 'SMS',
+  SHARE: 'Send Invite',
   USERNAME: 'Username',
 };
 
@@ -195,23 +195,25 @@ function MethodCard({
         </>
       )}
 
-      {method === 'SMS' && (
+      {method === 'SHARE' && (
         <>
           <Text style={[TYPE.body, { color: colors.ink2, marginBottom: SPACING.md }]}>
-            Opens your Messages app with the invite link ready to send.
+            Share the invite link any way you like — Messages, WhatsApp, email, and more.
           </Text>
-          <DNInput
-            label="Phone number"
-            placeholder="+1 555 000 0000"
-            value={phone}
-            onChangeText={setPhone}
-            keyboardType="phone-pad"
-          />
           <DNButton
-            label="Open Messages"
-            onPress={sendSms}
+            label="Share invite link"
+            onPress={async () => {
+              try {
+                await Share.share({
+                  message: `Join me on TogetherPlans: ${inviteUrl}`,
+                  url: inviteUrl,
+                });
+              } catch {
+                Alert.alert('Could not open share sheet', 'Please use the Link tab to copy the invite.');
+              }
+            }}
             variant="primary"
-            disabled={!phone.trim() || !inviteUrl}
+            disabled={!inviteUrl}
             style={{ width: '100%' }}
           />
         </>

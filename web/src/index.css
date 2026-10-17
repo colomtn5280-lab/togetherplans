@@ -78,7 +78,11 @@
   --shadow-dock: 0 16px 40px rgba(0,0,0,.65);
 }
 
-/* ── Reset & Base ── */
+/* ── Loading spinner keyframes ── */
+@keyframes dn-spin {
+  to { transform: rotate(360deg); }
+}
+
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {

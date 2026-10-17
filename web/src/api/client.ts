@@ -1,6 +1,7 @@
 import axios from "axios";
 import type { AxiosInstance, AxiosResponse, AxiosError } from "axios";
 import { ALL_CATEGORIES } from "../constants/categories";
+import { useAuthStore } from "../store/auth.store";
 import type {
   LoginResponse,
   SignupResponse,
@@ -62,6 +63,10 @@ api.interceptors.response.use(
     };
 
     if (error.response?.status === 401 && !original._retry) {
+      // Only auto-refresh on auth endpoints — never force-logout on arbitrary 401s
+      const url = original.url ?? "";
+      const isAuthEndpoint = url.includes("/auth/refresh") || url.includes("/auth/me");
+
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
@@ -82,15 +87,32 @@ api.interceptors.response.use(
       if (!refreshToken) {
         processQueue(error, null);
         isRefreshing = false;
-        window.location.href = "/login";
+        // Only redirect to login if hitting a protected auth endpoint
+        if (isAuthEndpoint) {
+          useAuthStore.getState().clearAuth();
+        }
         return Promise.reject(error);
       }
 
+      // Retry refresh up to 2 times with a short delay before giving up
+      const attemptRefresh = async (attempt: number): Promise<AuthTokens> => {
+        try {
+          const { data } = await axios.post<AuthTokens>(
+            `${BASE_URL}/auth/refresh`,
+            { refreshToken },
+          );
+          return data;
+        } catch (err) {
+          if (attempt < 2) {
+            await new Promise((r) => setTimeout(r, 1500));
+            return attemptRefresh(attempt + 1);
+          }
+          throw err;
+        }
+      };
+
       try {
-        const { data } = await axios.post<AuthTokens>(
-          `${BASE_URL}/auth/refresh`,
-          { refreshToken },
-        );
+        const data = await attemptRefresh(1);
         const newAccessToken = data.accessToken || data.token || "";
         localStorage.setItem("accessToken", newAccessToken);
         if (data.refreshToken) {
@@ -103,9 +125,10 @@ api.interceptors.response.use(
         return api(original);
       } catch (refreshError) {
         processQueue(refreshError, null);
+        // Only clear auth after 2 retries both failed — not on first blip
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");
-        window.location.href = "/login";
+        useAuthStore.getState().clearAuth();
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
