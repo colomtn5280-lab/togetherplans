@@ -231,7 +231,7 @@ export default function ProposalDetailScreen() {
   const { proposalId } = route.params;
   const openInvite = route.params.openInvite ?? false;
   const [proposal, setProposal] = useState<Proposal | null>(null);
-  const [myVotedOptionIds, setMyVotedOptionIds] = useState<Set<string>>(new Set());
+  const [myVoteMap, setMyVoteMap] = useState<Map<string, string>>(new Map());
   const [showDecision, setShowDecision] = useState(false);
   const [loading, setLoading] = useState(true);
   const [partnerName, setPartnerName] = useState('Partner');
@@ -304,18 +304,21 @@ export default function ProposalDetailScreen() {
 
       // Derive my voted options from nested votes in each option
       if (user && p.options) {
-        const votedIds = new Set<string>(
-          p.options
-            .filter((o) => o.votes && o.votes.some((v) => v.userId === user.id))
-            .map((o) => o.id)
+        const voteMap = new Map<string, string>(
+          p.options.flatMap((o: any) => {
+            const v = (o.votes ?? []).find((v: any) => v.userId === user.id);
+            return v ? [[o.id, v.sentiment ?? 'APPROVE']] : [];
+          })
         );
-        setMyVotedOptionIds(votedIds);
+        setMyVoteMap(voteMap);
       } else if (user && p.votes) {
         // Fallback: flat votes array
-        const votedIds = new Set<string>(
-          p.votes.filter((v) => v.userId === user.id).map((v) => v.optionId).filter(Boolean)
+        const voteMap = new Map<string, string>(
+          p.votes
+            .filter((v: any) => v.userId === user.id && v.optionId)
+            .map((v: any) => [v.optionId, v.sentiment ?? 'APPROVE'])
         );
-        setMyVotedOptionIds(votedIds);
+        setMyVoteMap(voteMap);
       }
 
       // M5: fetch group members to get real partner name + proposer name
@@ -403,30 +406,18 @@ export default function ProposalDetailScreen() {
     await dismissDecision();
   };
 
-  const handleVote = async (optionId: string) => {
+  const handleVote = async (optionId: string, sentiment: 'APPROVE' | 'MAYBE' | 'REJECT') => {
     if (!proposal) return;
-    const prevIds = new Set(myVotedOptionIds);
+    const prevMap = new Map(myVoteMap);
 
-    if (myVotedOptionIds.has(optionId)) {
-      // Tapping the same option → retract vote (toggle off)
-      const next = new Set(myVotedOptionIds);
-      next.delete(optionId);
-      setMyVotedOptionIds(next);
-      try {
-        await proposalsAPI.retractVote(proposal.id);
-      } catch {
-        setMyVotedOptionIds(prevIds); // revert
-      }
-    } else {
-      // Vote for this option (additive — keeps previous votes)
-      const next = new Set(myVotedOptionIds);
-      next.add(optionId);
-      setMyVotedOptionIds(next);
-      try {
-        await proposalsAPI.vote(proposal.id, optionId);
-      } catch {
-        setMyVotedOptionIds(prevIds); // revert
-      }
+    // Optimistic update
+    const next = new Map(myVoteMap);
+    next.set(optionId, sentiment);
+    setMyVoteMap(next);
+    try {
+      await proposalsAPI.vote(proposal.id, optionId, sentiment);
+    } catch {
+      setMyVoteMap(prevMap); // revert
     }
   };
 
@@ -478,8 +469,8 @@ export default function ProposalDetailScreen() {
   }
 
   const partnerVoted = !!partnerVotedOptionId;
-  const iVoted = myVotedOptionIds.size > 0;
-  const mismatch = partnerVoted && iVoted && !myVotedOptionIds.has(partnerVotedOptionId!);
+  const iVoted = myVoteMap.size > 0;
+  const mismatch = partnerVoted && iVoted && !myVoteMap.has(partnerVotedOptionId!);
   const waitingForMe = partnerVoted && !iVoted;
 
   const isDecided = proposal.status === 'DECIDED' || (proposal.status === 'ACCEPTED' && proposal.consensus?.reached);
@@ -656,7 +647,7 @@ export default function ProposalDetailScreen() {
           {/* Option cards */}
           {proposal.options.map((option, idx) => {
             const radii = OPTION_RADII[idx % 4];
-            const votedByMe = myVotedOptionIds.has(option.id);
+            const mySentiment = myVoteMap.get(option.id) ?? null;
             const votedByPartner = partnerVotedOptionId === option.id;
             const displayName = option.name ?? option.title ?? '';
             const displayLocation = option.address ?? option.location ?? '';
@@ -756,31 +747,38 @@ export default function ProposalDetailScreen() {
                   )}
                 </View>
 
-                {/* Vote button */}
+                {/* Vote buttons */}
                 {isOpen && (
                   <View style={{ paddingHorizontal: SPACING.md, paddingBottom: SPACING.md }}>
-                    <Pressable
-                      onPress={() => handleVote(option.id)}
-                      style={{
-                        height: 44,
-                        borderRadius: 0,
-                        borderTopLeftRadius: 22,
-                        borderTopRightRadius: 16,
-                        borderBottomRightRadius: 22,
-                        borderBottomLeftRadius: 16,
-                        backgroundColor: votedByMe ? colors.primary : '#D9F1F0',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                      }}
-                    >
-                      <Text style={{
-                        fontFamily: 'Sora_700Bold',
-                        fontSize: 14,
-                        color: votedByMe ? '#fff' : '#086B6B',
-                      }}>
-                        {votedByMe ? '✓ I\'m in 👍' : '👍 I\'m in'}
-                      </Text>
-                    </Pressable>
+                    <View style={{ flexDirection: 'row', gap: 6, marginTop: 8 }}>
+                      {/* APPROVE */}
+                      <Pressable
+                        style={[styles.voteBtn, mySentiment === 'APPROVE' && styles.voteBtnApprove]}
+                        onPress={() => handleVote(option.id, 'APPROVE')}
+                      >
+                        <Text style={[styles.voteBtnText, mySentiment === 'APPROVE' && { color: '#fff' }]}>
+                          {mySentiment === 'APPROVE' ? "✓ I'm in 👍" : "I'm in 👍"}
+                        </Text>
+                      </Pressable>
+                      {/* MAYBE */}
+                      <Pressable
+                        style={[styles.voteBtn, styles.voteBtnMaybeBase, mySentiment === 'MAYBE' && styles.voteBtnMaybe]}
+                        onPress={() => handleVote(option.id, 'MAYBE')}
+                      >
+                        <Text style={[styles.voteBtnText, { color: mySentiment === 'MAYBE' ? '#fff' : '#92400E' }]}>
+                          {mySentiment === 'MAYBE' ? '✓ Maybe 🤔' : 'Maybe 🤔'}
+                        </Text>
+                      </Pressable>
+                      {/* REJECT */}
+                      <Pressable
+                        style={[styles.voteBtn, styles.voteBtnRejectBase, mySentiment === 'REJECT' && styles.voteBtnReject]}
+                        onPress={() => handleVote(option.id, 'REJECT')}
+                      >
+                        <Text style={[styles.voteBtnText, { color: mySentiment === 'REJECT' ? '#fff' : '#6B7280' }]}>
+                          {mySentiment === 'REJECT' ? "✗ No 🙅" : "Don't think so 🙅"}
+                        </Text>
+                      </Pressable>
+                    </View>
                   </View>
                 )}
 
@@ -800,7 +798,7 @@ export default function ProposalDetailScreen() {
           })}
 
           {/* Done voting banner */}
-          {myVotedOptionIds.size > 0 && proposal?.status === 'OPEN' && (
+          {myVoteMap.size > 0 && proposal?.status === 'OPEN' && (
             <View style={{ marginTop: 12 }}>
               <Pressable
                 onPress={() => {
@@ -830,7 +828,7 @@ export default function ProposalDetailScreen() {
                 fontSize: 13,
                 color: colors.primaryDeep ?? colors.primary,
               }}>
-                You're in for {myVotedOptionIds.size} option{myVotedOptionIds.size !== 1 ? 's' : ''}
+                You've voted on {myVoteMap.size} option{myVoteMap.size !== 1 ? 's' : ''}
               </Text>
             </View>
           )}
@@ -904,3 +902,26 @@ export default function ProposalDetailScreen() {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  voteBtn: {
+    flex: 1,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: '#D9F1F0',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 4,
+  },
+  voteBtnApprove: { backgroundColor: '#0E8C8C' },
+  voteBtnMaybeBase: { backgroundColor: '#FEF3C7' },
+  voteBtnMaybe: { backgroundColor: '#F59E0B' },
+  voteBtnRejectBase: { backgroundColor: '#F3F4F6' },
+  voteBtnReject: { backgroundColor: '#9CA3AF' },
+  voteBtnText: {
+    fontFamily: 'Sora_700Bold',
+    fontSize: 11,
+    color: '#086B6B',
+    textAlign: 'center',
+  },
+});
