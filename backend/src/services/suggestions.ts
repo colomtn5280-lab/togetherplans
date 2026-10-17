@@ -203,16 +203,30 @@ function deduplicate(suggestions: Suggestion[]): Suggestion[] {
 // Sorting: events first (by date), then places by distance, then seed
 // ---------------------------------------------------------------------------
 function sortSuggestions(suggestions: Suggestion[], _userLat?: number, _userLng?: number): Suggestion[] {
+  const today = new Date();
+  const cutoff = new Date(today);
+  cutoff.setDate(cutoff.getDate() + 60);
+  const cutoffStr = cutoff.toISOString().slice(0, 10); // 'YYYY-MM-DD'
+
+  // Only treat a date as "upcoming soon" if it's within the 60-day window
+  const isSoon = (date: string | undefined): boolean =>
+    !!date && date <= cutoffStr;
+
   return [...suggestions].sort((a, b) => {
     // Seed "ideas" always sort last, after every real result
     const aSeed = a.source === 'seed';
     const bSeed = b.source === 'seed';
     if (aSeed !== bSeed) return aSeed ? 1 : -1;
-    // Events with a date sort first, chronologically
-    if (a.date && b.date) return a.date.localeCompare(b.date);
-    if (a.date) return -1;
-    if (b.date) return 1;
-    // Then by distance if available
+
+    const aSoon = isSoon(a.date);
+    const bSoon = isSoon(b.date);
+
+    // Events within 60 days sort first, chronologically
+    if (aSoon && bSoon) return a.date!.localeCompare(b.date!);
+    if (aSoon) return -1;
+    if (bSoon) return 1;
+
+    // Events 60+ days away and undated venues both sort by distance
     if (a.distanceMiles !== undefined && b.distanceMiles !== undefined) {
       return a.distanceMiles - b.distanceMiles;
     }

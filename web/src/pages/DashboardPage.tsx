@@ -80,15 +80,35 @@ export function DashboardPage() {
     staleTime: 30_000,
   });
 
+  // Read stored geolocation from localStorage (same key as SuggestionsPage)
+  const storedLocation = (() => {
+    try {
+      const raw = localStorage.getItem("dn_last_location");
+      if (!raw) return null;
+      const parsed = JSON.parse(raw) as { lat: number; lng: number };
+      if (typeof parsed.lat === "number" && typeof parsed.lng === "number") {
+        return { lat: parsed.lat, lng: parsed.lng };
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  })();
+
   // Nearby ideas for the "Ideas near you" row
   const { data: ideasData } = useQuery({
-    queryKey: ["dashboard-ideas"],
+    queryKey: ["dashboard-ideas", storedLocation?.lat, storedLocation?.lng],
     queryFn: async () => {
       try {
-        const res = await suggestionsApi.list({
+        const params: Record<string, unknown> = {
           category: "restaurants-dining",
           radius: 25,
-        });
+        };
+        if (storedLocation) {
+          params.lat = storedLocation.lat;
+          params.lng = storedLocation.lng;
+        }
+        const res = await suggestionsApi.list(params);
         return (res.data ?? []).slice(0, 3) as Suggestion[];
       } catch {
         return [] as Suggestion[];
