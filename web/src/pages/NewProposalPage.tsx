@@ -272,11 +272,7 @@ export function NewProposalPage() {
     },
     onSuccess: ({ id }: { id: string; groupId: string }) => {
       clearPlan();
-      // Always navigate to the proposal detail page.
-      // If solo-start or partner hasn't joined yet, open the invite sheet immediately
-      // so the user can share the link right then — no prior blocking of the form.
-      const needsInvite = isSoloStart || !!partnerNotJoined;
-      navigate(`/proposals/${id}`, { state: { openInvite: needsInvite } });
+      navigate(`/proposals/${id}/invite-card`);
     },
   });
 

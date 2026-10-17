@@ -117,3 +117,17 @@ export const safetyAPI = {
   reportUser: (data: { reportedUserId: string; reason: string; details?: string }) =>
     api.post('/api/safety/report', data),
 };
+
+// Invite Cards
+export const inviteCardsAPI = {
+  getTemplates: () => api.get<{id: string; name: string}[]>('/api/invite-cards/templates'),
+  save: (proposalId: string, data: { templateId?: string; note?: string; skipped?: boolean }) =>
+    api.post(`/api/invite-cards/${proposalId}`, data),
+  uploadPhoto: async (proposalId: string, uri: string, mimeType: string) => {
+    const form = new FormData();
+    form.append('photo', { uri, name: 'photo.jpg', type: mimeType } as any);
+    return api.post(`/api/invite-cards/${proposalId}/photo`, form, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
+};

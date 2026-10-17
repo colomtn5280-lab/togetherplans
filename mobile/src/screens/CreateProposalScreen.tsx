@@ -465,8 +465,8 @@ export default function CreateProposalScreen() {
       if (solo) {
         // Land on the proposal with the guest-vote share sheet auto-opened
         navigation.replace
-          ? navigation.replace('ProposalDetail', { proposalId: res.data.id, openInvite: true })
-          : navigation.navigate('ProposalDetail', { proposalId: res.data.id, openInvite: true });
+          ? navigation.replace('InviteCard', { proposalId: res.data.id })
+          : navigation.navigate('InviteCard', { proposalId: res.data.id });
         return;
       }
       setCreatedProposalId(res.data.id);

@@ -49,6 +49,7 @@ import SuggestionsScreen from '@/screens/SuggestionsScreen';
 import ProfileScreen from '@/screens/ProfileScreen';
 import ShareCardScreen from '@/screens/ShareCardScreen';
 import AfterDarkScreen from '@/screens/AfterDarkScreen';
+import InviteCardScreen from '@/screens/InviteCardScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator();
@@ -309,6 +310,11 @@ export default function AppNavigator() {
               name="AfterDark"
               component={AfterDarkScreen}
               options={{ title: 'After Dark 🌙', headerShown: false }}
+            />
+            <Stack.Screen
+              name="InviteCard"
+              component={InviteCardScreen}
+              options={{ title: 'Invite Card', headerShown: false }}
             />
           </>
         )}

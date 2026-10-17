@@ -41,6 +41,7 @@ import { BusinessProfilePage } from './pages/business/BusinessProfilePage';
 import { BusinessListingsPage } from './pages/business/BusinessListingsPage';
 import { BusinessAnalyticsPage } from './pages/business/BusinessAnalyticsPage';
 import { BusinessOnboardingPage } from './pages/business/BusinessOnboardingPage';
+import { InviteCardPage } from './pages/InviteCardPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -170,6 +171,7 @@ export default function App() {
             <Route path="/notifications" element={<NotificationsPage />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/proposals/:proposalId/share" element={<ShareCardPage />} />
+            <Route path="/proposals/:proposalId/invite-card" element={<InviteCardPage />} />
             <Route path="/groups/:groupId/after-dark" element={<AfterDarkPage />} />
             <Route path="/after-dark" element={<AfterDarkPage />} />
           </Route>

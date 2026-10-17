@@ -391,6 +391,22 @@ export const categoriesApi = {
   },
 };
 
+// ── Invite Cards ─────────────────────────────────────────────────────────────
+
+export const inviteCardsApi = {
+  getTemplates: (): Promise<AxiosResponse<{ id: string; name: string }[]>> =>
+    api.get('/invite-cards/templates'),
+  get: (proposalId: string): Promise<AxiosResponse<any>> =>
+    api.get(`/invite-cards/${proposalId}`),
+  save: (proposalId: string, data: { templateId?: string; note?: string; skipped?: boolean }): Promise<AxiosResponse<any>> =>
+    api.post(`/invite-cards/${proposalId}`, data),
+  uploadPhoto: (proposalId: string, file: File): Promise<AxiosResponse<any>> => {
+    const form = new FormData();
+    form.append('photo', file);
+    return api.post(`/invite-cards/${proposalId}/photo`, form, { headers: { 'Content-Type': 'multipart/form-data' } });
+  },
+};
+
 // ── Safety ────────────────────────────────────────────────────────────────────
 
 export const safetyApi = {

@@ -155,6 +155,7 @@ export type RootStackParamList = {
   InviteMembers: { groupId: string };
   Suggestions: { groupId?: string; returnTo?: 'CreateProposal' };
   ShareCard: { proposalId: string };
+  InviteCard: { proposalId: string };
   AfterDark: { groupId?: string };
 };
 
