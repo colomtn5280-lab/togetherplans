@@ -1,6 +1,5 @@
 import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_BASE_URL } from '@/constants';
 
 const TOKEN_KEY = 'datenight_token';
@@ -18,16 +17,11 @@ api.interceptors.request.use(async (config) => {
   return config;
 });
 
-// 401 response interceptor — clear token and set flag for AuthProvider to re-auth
+// Pass through all errors — no auto-logout. Sessions persist until the user
+// explicitly signs out. Individual screens handle 401s if they occur.
 api.interceptors.response.use(
   (response) => response,
-  async (error) => {
-    if (error.response?.status === 401) {
-      await clearToken();
-      await AsyncStorage.setItem('auth_expired', '1');
-    }
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error),
 );
 
 // Token helpers

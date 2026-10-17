@@ -13,7 +13,6 @@ import {
 } from '@react-navigation/bottom-tabs';
 import {
   ActivityIndicator,
-  AppState,
   View,
   Text,
   TouchableOpacity,
@@ -205,27 +204,13 @@ function AuthenticatedHooks() {
 
 // ─── Root Navigator ────────────────────────────────────────────────────────────
 export default function AppNavigator() {
-  const { user, isLoading, logout } = useAuth();
+  const { user, isLoading } = useAuth();
   const { colors } = useTheme();
   const [hasOnboarded, setHasOnboarded] = useState<boolean | null>(null);
 
   useEffect(() => {
     AsyncStorage.getItem(ONBOARDED_KEY).then((v) => setHasOnboarded(v === '1'));
   }, [user]);
-
-  // Check auth_expired flag on app focus — log out if token was cleared by 401 interceptor
-  useEffect(() => {
-    const subscription = AppState.addEventListener('change', async (nextState) => {
-      if (nextState === 'active') {
-        const expired = await AsyncStorage.getItem('auth_expired');
-        if (expired === '1') {
-          await AsyncStorage.removeItem('auth_expired');
-          await logout();
-        }
-      }
-    });
-    return () => subscription.remove();
-  }, [logout]);
 
   if (isLoading || (user && hasOnboarded === null)) {
     return (

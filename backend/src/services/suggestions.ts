@@ -324,7 +324,7 @@ function cacheKey(query: SuggestionQuery): string {
   const cat = query.category ?? 'All';
   const rad = query.radiusMiles ?? 25;
   const date = query.dateFilter ?? 'anytime';
-  return `suggestions:v18:${loc}:${cat}:${rad}:${date}`;
+  return `suggestions:v19:${loc}:${cat}:${rad}:${date}`;
 }
 
 // Events expire sooner; places cached longer

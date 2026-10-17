@@ -1,13 +1,12 @@
 /**
- * InviteMembersScreen — §3g invite methods + §3h QR modal
+ * InviteMembersScreen — invite via Link, Email, SMS (native), or Username search
+ * QR removed (low utility). SMS uses native Linking so no Twilio needed.
  */
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Alert,
   Clipboard,
-  FlatList,
-  Keyboard,
-  Modal,
+  Linking,
   Platform,
   ScrollView,
   Share,
@@ -17,8 +16,6 @@ import {
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp, NativeStackScreenProps } from '@react-navigation/native-stack';
-import QRCode from 'react-native-qrcode-svg';
-import * as Brightness from 'expo-brightness';
 
 import { useTheme } from '@/contexts/ThemeContext';
 import { SPACING, TYPE, SHADOWS, RADII } from '@/constants';
@@ -38,193 +35,25 @@ import type { Invitation, RootStackParamList } from '@/types';
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 type Route = NativeStackScreenProps<RootStackParamList, 'InviteMembers'>['route'];
 
-type InviteMethod = 'LINK' | 'EMAIL' | 'SMS' | 'USERNAME' | 'QR';
-const METHODS: InviteMethod[] = ['LINK', 'EMAIL', 'SMS', 'USERNAME', 'QR'];
+type InviteMethod = 'LINK' | 'EMAIL' | 'SMS' | 'USERNAME';
+const METHODS: InviteMethod[] = ['LINK', 'EMAIL', 'SMS', 'USERNAME'];
 
 const METHOD_LABELS: Record<InviteMethod, string> = {
   LINK: 'Link',
   EMAIL: 'Email',
   SMS: 'SMS',
   USERNAME: 'Username',
-  QR: 'QR',
 };
-
-// ─── QR Modal ─────────────────────────────────────────────────────────────────
-function QRModal({
-  visible,
-  onClose,
-  groupName,
-  inviteUrl,
-}: {
-  visible: boolean;
-  onClose: () => void;
-  groupName: string;
-  inviteUrl: string;
-}) {
-  const { colors } = useTheme();
-  const prevBrightness = useRef<number>(0.5);
-
-  useEffect(() => {
-    if (!visible) return;
-
-    let restored = false;
-    (async () => {
-      try {
-        const { granted } = await Brightness.requestPermissionsAsync();
-        if (granted) {
-          prevBrightness.current = await Brightness.getBrightnessAsync();
-          await Brightness.setBrightnessAsync(1.0);
-        }
-      } catch {}
-    })();
-
-    return () => {
-      if (!restored) {
-        restored = true;
-        Brightness.setBrightnessAsync(prevBrightness.current).catch(() => {});
-      }
-    };
-  }, [visible]);
-
-  const handleShare = useCallback(async () => {
-    try {
-      await Share.share({ message: inviteUrl, url: inviteUrl });
-    } catch {}
-  }, [inviteUrl]);
-
-  return (
-    <Modal visible={visible} animationType="slide" statusBarTranslucent>
-      <View style={{ flex: 1, backgroundColor: colors.primary }}>
-        {/* Blob 1 */}
-        <View
-          style={{
-            position: 'absolute',
-            width: 280,
-            height: 280,
-            borderRadius: 140,
-            backgroundColor: 'rgba(255,255,255,0.15)',
-            top: -80,
-            right: -60,
-          }}
-        />
-        {/* Blob 2 */}
-        <View
-          style={{
-            position: 'absolute',
-            width: 200,
-            height: 200,
-            borderRadius: 100,
-            backgroundColor: 'rgba(255,255,255,0.1)',
-            bottom: 80,
-            left: -50,
-          }}
-        />
-
-        {/* Close button */}
-        <TouchableOpacity
-          onPress={onClose}
-          style={{
-            position: 'absolute',
-            top: 60,
-            right: SPACING.gutter,
-            width: 42,
-            height: 42,
-            borderRadius: 21,
-            backgroundColor: 'rgba(255,255,255,0.2)',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 10,
-          }}
-        >
-          <Text style={{ color: colors.onPrimary, fontSize: 20 }}>✕</Text>
-        </TouchableOpacity>
-
-        {/* Content */}
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: SPACING.gutter }}>
-          <Text
-            style={[TYPE.title, { color: colors.onPrimary, textAlign: 'center', marginBottom: SPACING.xl }]}
-          >
-            Scan to join{'\n'}{groupName}
-          </Text>
-
-          {/* QR card — rotated -2deg */}
-          <View
-            style={{
-              transform: [{ rotate: '-2deg' }],
-              position: 'relative',
-              marginBottom: SPACING.lg,
-            }}
-          >
-            <View
-              style={{
-                width: 280,
-                height: 280,
-                backgroundColor: colors.onPrimary,
-                borderRadius: RADII.qrCard,
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: SPACING.md,
-                ...SHADOWS.card,
-              }}
-            >
-              <QRCode value={inviteUrl || 'https://datemeup.app'} size={220} />
-            </View>
-
-            {/* 72H sticker */}
-            <DNSticker
-              label="72 H"
-              color={colors.lime}
-              textColor={colors.ink}
-              rotationIndex={1}
-              style={{
-                position: 'absolute',
-                bottom: -10,
-                right: -10,
-                zIndex: 10,
-              }}
-            />
-          </View>
-
-          {/* URL */}
-          <Text
-            style={[
-              TYPE.secondary,
-              { color: colors.onPrimary, fontFamily: 'DMSans_400Regular', opacity: 0.8, marginBottom: SPACING.lg, textAlign: 'center' },
-            ]}
-            numberOfLines={2}
-          >
-            {inviteUrl}
-          </Text>
-
-          {/* Share link button */}
-          <DNButton
-            label="Share link instead"
-            onPress={handleShare}
-            variant="secondary"
-            style={{
-              backgroundColor: 'rgba(255,255,255,0.15)',
-              borderColor: colors.onPrimary,
-              borderWidth: 1.5,
-              width: '100%',
-            }}
-          />
-        </View>
-      </View>
-    </Modal>
-  );
-}
 
 // ─── Method card content ──────────────────────────────────────────────────────
 function MethodCard({
   method,
   inviteUrl,
   groupId,
-  onShowQR,
 }: {
   method: InviteMethod;
   inviteUrl: string;
   groupId: string;
-  onShowQR: () => void;
 }) {
   const { colors } = useTheme();
   const [email, setEmail] = useState('');
@@ -253,6 +82,37 @@ function MethodCard({
     Alert.alert('Copied!', 'Invite link copied to clipboard.');
   }, [inviteUrl]);
 
+  const shareLink = useCallback(async () => {
+    try {
+      await Share.share({
+        message: `Join my group on DateMeUp: ${inviteUrl}`,
+        url: inviteUrl,
+      });
+    } catch {}
+  }, [inviteUrl]);
+
+  // SMS: open native Messages app with link pre-filled
+  const sendSms = useCallback(async () => {
+    const num = phone.trim().replace(/\s+/g, '');
+    if (!num) return;
+    const body = encodeURIComponent(`Join my group on DateMeUp: ${inviteUrl}`);
+    const separator = Platform.OS === 'ios' ? '&' : '?';
+    const url = `sms:${num}${separator}body=${body}`;
+    const canOpen = await Linking.canOpenURL(url).catch(() => false);
+    if (canOpen) {
+      await Linking.openURL(url).catch(() =>
+        Alert.alert('Could not open Messages', 'Please send the link manually.')
+      );
+    } else {
+      // Fallback: just copy and alert
+      Clipboard.setString(inviteUrl);
+      Alert.alert(
+        'Link copied',
+        `We couldn't open Messages directly. The invite link has been copied — paste it into a text to ${num}.`
+      );
+    }
+  }, [phone, inviteUrl]);
+
   return (
     <DNCard index={1} style={{ marginBottom: SPACING.md, overflow: 'visible' }}>
       {method === 'LINK' && (
@@ -267,7 +127,7 @@ function MethodCard({
           <Text style={[TYPE.body, { color: colors.ink2, marginBottom: SPACING.md }]}>
             Share this link — it expires in 72 hours and can only be used once.
           </Text>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: SPACING.sm }}>
             <View
               style={{
                 flex: 1,
@@ -289,13 +149,20 @@ function MethodCard({
               disabled={!inviteUrl}
             />
           </View>
+          <DNButton
+            label="Share link"
+            onPress={shareLink}
+            variant="primary"
+            disabled={!inviteUrl}
+            style={{ width: '100%' }}
+          />
         </>
       )}
 
       {method === 'EMAIL' && (
         <>
           <Text style={[TYPE.body, { color: colors.ink2, marginBottom: SPACING.md }]}>
-            Send an invite to their email address.
+            Send an invite email to their address.
           </Text>
           <DNInput
             label="Email address"
@@ -331,7 +198,7 @@ function MethodCard({
       {method === 'SMS' && (
         <>
           <Text style={[TYPE.body, { color: colors.ink2, marginBottom: SPACING.md }]}>
-            Text them an invite link.
+            Opens your Messages app with the invite link ready to send.
           </Text>
           <DNInput
             label="Phone number"
@@ -341,23 +208,10 @@ function MethodCard({
             keyboardType="phone-pad"
           />
           <DNButton
-            label="Send text"
-            onPress={async () => {
-              if (!phone.trim()) return;
-              setSendLoading(true);
-              try {
-                await invitationsAPI.create(groupId, 'SMS', phone.trim());
-                setPhone('');
-                Alert.alert('Invite sent!', `A text invite was sent to ${phone.trim()}.`);
-              } catch {
-                Alert.alert('Failed to send', 'Could not send the invite. Please try again.');
-              } finally {
-                setSendLoading(false);
-              }
-            }}
+            label="Open Messages"
+            onPress={sendSms}
             variant="primary"
-            loading={sendLoading}
-            disabled={!phone.trim()}
+            disabled={!phone.trim() || !inviteUrl}
             style={{ width: '100%' }}
           />
         </>
@@ -399,20 +253,6 @@ function MethodCard({
           ))}
         </>
       )}
-
-      {method === 'QR' && (
-        <>
-          <Text style={[TYPE.body, { color: colors.ink2, marginBottom: SPACING.md }]}>
-            Show this QR code for someone to scan with their camera.
-          </Text>
-          <DNButton
-            label="Show QR code"
-            onPress={onShowQR}
-            variant="primary"
-            style={{ width: '100%' }}
-          />
-        </>
-      )}
     </DNCard>
   );
 }
@@ -428,11 +268,9 @@ export default function InviteMembersScreen() {
   const [method, setMethod] = useState<InviteMethod>('LINK');
   const [inviteUrl, setInviteUrl] = useState('');
   const [groupName, setGroupName] = useState('your group');
-  const [pendingInvites] = useState<Invitation[]>([]);
-  const [qrVisible, setQrVisible] = useState(false);
   const linkGeneratedRef = useRef(false);
 
-  // M7: fetch real group name
+  // Fetch real group name
   useEffect(() => {
     (async () => {
       try {
@@ -443,9 +281,9 @@ export default function InviteMembersScreen() {
     })();
   }, [groupId]);
 
-  // M6: only create link invitation when user switches to LINK tab, once per session
+  // Generate a link invitation once when the screen loads (needed for SMS + Link tabs)
   useEffect(() => {
-    if (method !== 'LINK' || linkGeneratedRef.current) return;
+    if (linkGeneratedRef.current) return;
     linkGeneratedRef.current = true;
     (async () => {
       try {
@@ -454,88 +292,42 @@ export default function InviteMembersScreen() {
         if (inv?.inviteUrl) setInviteUrl(inv.inviteUrl);
       } catch {}
     })();
-  }, [method, groupId]);
+  }, [groupId]);
 
   return (
-    <>
-      <ScrollView
-        style={{ flex: 1, backgroundColor: colors.bg }}
-        contentContainerStyle={{ paddingBottom: 120 }}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
-      >
-        <DNScreenHeader
-          title={`Invite to ${groupName}`}
-          subtitle="Expires in 72 h"
-          onBack={() => navigation.goBack()}
-        />
-
-        <View style={{ paddingHorizontal: SPACING.gutter }}>
-          {/* Method chips */}
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: SPACING.lg }}>
-            {METHODS.map((m, i) => (
-              <DNChip
-                key={m}
-                label={METHOD_LABELS[m]}
-                selected={method === m}
-                onPress={() => setMethod(m)}
-                index={i}
-              />
-            ))}
-          </View>
-
-          {/* Method card */}
-          <MethodCard
-            method={method}
-            inviteUrl={inviteUrl}
-            groupId={groupId}
-            onShowQR={() => setQrVisible(true)}
-          />
-
-          {/* Pending invitations */}
-          {pendingInvites.length > 0 && (
-            <>
-              <Text style={[TYPE.section, { color: colors.ink2, marginBottom: 8, marginTop: SPACING.md }]}>
-                Pending invitations
-              </Text>
-              {pendingInvites.map((inv) => (
-                <View
-                  key={inv.id}
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    backgroundColor: colors.surface,
-                    borderRadius: 16,
-                    padding: 12,
-                    marginBottom: 8,
-                    ...SHADOWS.card,
-                  }}
-                >
-                  <Text style={[TYPE.rowLabel, { color: colors.ink }]}>
-                    {inv.target ?? 'Link invite'}
-                  </Text>
-                  <DNSticker
-                    label="Pending"
-                    color={colors.warningSoft}
-                    textColor={colors.onWarningSoft}
-                    size="sm"
-                    rotationIndex={2}
-                  />
-                </View>
-              ))}
-            </>
-          )}
-        </View>
-      </ScrollView>
-
-      {/* QR Modal */}
-      <QRModal
-        visible={qrVisible}
-        onClose={() => setQrVisible(false)}
-        groupName={groupName}
-        inviteUrl={inviteUrl || `https://datemeup.app/join/${groupId}`}
+    <ScrollView
+      style={{ flex: 1, backgroundColor: colors.bg }}
+      contentContainerStyle={{ paddingBottom: 120 }}
+      keyboardShouldPersistTaps="handled"
+      showsVerticalScrollIndicator={false}
+    >
+      <DNScreenHeader
+        title={`Invite to ${groupName}`}
+        subtitle="Link expires in 72 h"
+        onBack={() => navigation.goBack()}
       />
-    </>
+
+      <View style={{ paddingHorizontal: SPACING.gutter }}>
+        {/* Method chips */}
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: SPACING.lg }}>
+          {METHODS.map((m, i) => (
+            <DNChip
+              key={m}
+              label={METHOD_LABELS[m]}
+              selected={method === m}
+              onPress={() => setMethod(m)}
+              index={i}
+            />
+          ))}
+        </View>
+
+        {/* Method card */}
+        <MethodCard
+          method={method}
+          inviteUrl={inviteUrl}
+          groupId={groupId}
+        />
+      </View>
+    </ScrollView>
   );
 }

@@ -51,7 +51,7 @@ invitationsRouter.post('/', async (req: AuthRequest, res: Response, next) => {
     }
     return res.status(201).json({
       ...invitation,
-      inviteUrl: `/api/invitations/accept/${invitation.token}`,
+      inviteUrl: `${process.env.APP_URL || 'https://datemeup.app'}/join/${invitation.token}`,
     });
   } catch (err) {
     return next(err);
