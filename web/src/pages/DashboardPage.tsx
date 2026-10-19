@@ -170,6 +170,23 @@ export function DashboardPage() {
     return da < db ? -1 : da > db ? 1 : 0;
   });
 
+  // Past plans — DECIDED and CANCELLED proposals across all groups
+  const pastProposals: Array<{ group: Group; proposal: Proposal }> = [];
+  proposalQueries.forEach((q, idx) => {
+    const group = (groups ?? [])[idx];
+    if (!group || !q.data) return;
+    q.data.forEach((p) => {
+      if (p.status === "DECIDED" || p.status === "CANCELLED") {
+        pastProposals.push({ group, proposal: p });
+      }
+    });
+  });
+  pastProposals.sort((a, b) => {
+    const da = a.proposal.dateTime ?? a.proposal.proposedDate ?? a.proposal.id;
+    const db = b.proposal.dateTime ?? b.proposal.proposedDate ?? b.proposal.id;
+    return da > db ? -1 : da < db ? 1 : 0;
+  });
+
   const handleLogout = () => {
     clearAuth();
     navigate("/login", { replace: true });
@@ -342,6 +359,43 @@ export function DashboardPage() {
                     })}
                   </div>
                 </>
+              )}
+
+              {/* Past Plans */}
+              {pastProposals.length > 0 && (
+                <section style={{ marginTop: "2rem" }}>
+                  <div className="dmu-section-head">
+                    <span>Past Plans ({pastProposals.length})</span>
+                  </div>
+                  {pastProposals.map(({ group, proposal }) => (
+                    <Link key={proposal.id} to={`/proposals/${proposal.id}`} style={{ textDecoration: "none" }}>
+                      <div className="dn-card" style={{ padding: "0.75rem 1rem", marginBottom: "0.5rem", opacity: 0.8 }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                          <div style={{ minWidth: 0, flex: 1, overflow: "hidden" }}>
+                            <span style={{ fontWeight: 600, display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                              {proposal.title ?? "Untitled proposal"}
+                            </span>
+                            <span style={{ fontSize: "0.75rem", color: "var(--ink2)" }}>{group.name}</span>
+                          </div>
+                          <span className="dn-sticker" style={{
+                            background: proposal.status === "DECIDED" ? "var(--primary-soft)" : "var(--bg2)",
+                            color: proposal.status === "DECIDED" ? "var(--primary)" : "var(--ink2)",
+                            fontSize: "0.7rem",
+                            flexShrink: 0,
+                            marginLeft: "0.5rem",
+                          }}>
+                            {proposal.status === "DECIDED" ? "✓ Decided" : "Cancelled"}
+                          </span>
+                        </div>
+                        {(proposal.dateTime ?? proposal.proposedDate) && (
+                          <div style={{ fontSize: "0.8rem", color: "var(--ink2)", marginTop: "0.25rem" }}>
+                            {new Date(proposal.dateTime ?? proposal.proposedDate!).toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" })}
+                          </div>
+                        )}
+                      </div>
+                    </Link>
+                  ))}
+                </section>
               )}
             </div>
 

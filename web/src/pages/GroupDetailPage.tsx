@@ -75,8 +75,9 @@ export function GroupDetailPage() {
     enabled: !!groupId,
   });
 
-  // Show last 5 proposals, most recent first
+  // Show last 5 proposals, most recent first — only OPEN/pending
   const recentProposals = (proposals ?? [])
+    .filter((p) => p.status === "OPEN" || p.status === "pending")
     .slice()
     .sort((a, b) => {
       const da = a.dateTime ?? a.proposedDate ?? a.id;
@@ -84,6 +85,16 @@ export function GroupDetailPage() {
       return da > db ? -1 : da < db ? 1 : 0;
     })
     .slice(0, 5);
+
+  // Past plans — DECIDED and CANCELLED
+  const pastGroupProposals = (proposals ?? [])
+    .filter((p) => p.status === "DECIDED" || p.status === "CANCELLED")
+    .slice()
+    .sort((a, b) => {
+      const da = a.dateTime ?? a.proposedDate ?? a.id;
+      const db = b.dateTime ?? b.proposedDate ?? b.id;
+      return da > db ? -1 : da < db ? 1 : 0;
+    });
 
   const inviteMutation = useMutation<Invitation, Error>({
     mutationFn: async () => {
@@ -326,6 +337,68 @@ export function GroupDetailPage() {
               </div>
             )}
           </div>
+
+          {/* Past Plans for this group */}
+          {pastGroupProposals.length > 0 && (
+            <div style={{ display: "flex", flexDirection: "column", gap: 12, marginTop: 8 }}>
+              <div className="dmu-section-head">
+                <span>Past Plans ({pastGroupProposals.length})</span>
+              </div>
+              {pastGroupProposals.map((p) => (
+                <Link
+                  key={p.id}
+                  to={`/proposals/${p.id}`}
+                  style={{ textDecoration: "none" }}
+                >
+                  <div
+                    className="dn-card"
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 16,
+                      padding: "14px 18px",
+                      opacity: 0.8,
+                    }}
+                  >
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div
+                        style={{
+                          fontFamily: "var(--font-display)",
+                          fontWeight: 700,
+                          fontSize: 15,
+                          color: "var(--ink)",
+                          marginBottom: 4,
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {p.title ?? "Untitled proposal"}
+                      </div>
+                      <div style={{ color: "var(--ink2)", fontSize: 13 }}>
+                        {formatDate(p.dateTime ?? p.proposedDate)}
+                      </div>
+                    </div>
+                    <span
+                      style={{
+                        background: p.status === "DECIDED" ? "var(--primary-soft)" : "var(--bg2)",
+                        color: p.status === "DECIDED" ? "var(--primary)" : "var(--ink2)",
+                        borderRadius: 99,
+                        padding: "4px 12px",
+                        fontSize: 11,
+                        fontFamily: "var(--font-display)",
+                        fontWeight: 800,
+                        letterSpacing: "0.04em",
+                        flexShrink: 0,
+                      }}
+                    >
+                      {p.status === "DECIDED" ? "✓ Decided" : "Cancelled"}
+                    </span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
 
           {/* Right: Invite panel */}
           <div className="dmu-card" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
