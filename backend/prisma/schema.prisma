@@ -191,6 +191,8 @@ model Option {
   proposal   Proposal    @relation(fields: [proposalId], references: [id], onDelete: Cascade)
   votes      Vote[]
   guestVotes GuestVote[]
+
+  @@index([proposalId])
 }
 
 // Guest votes: anonymous voters via public share link — advisory only,

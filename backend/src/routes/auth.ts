@@ -85,6 +85,13 @@ authRouter.post('/register', authLimiter, async (req, res: Response, next) => {
     const verifyToken = jwt.sign({ sub: user.id, purpose: 'email-verify', jti: randomUUID() }, secret, { expiresIn: '24h' });
     sendWelcomeEmail(user.email, user.email).catch((err) => logger.error('Failed to send welcome email on register', { err }));
     sendVerifyEmail(user.email, user.displayName, user.email, verifyToken).catch((err) => logger.error('Failed to send verify email on register', { err }));
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict' as const,
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+      path: '/api/auth',
+    });
     return res.status(201).json({
       token,
       accessToken: token,
@@ -137,6 +144,13 @@ authRouter.post('/signup', authLimiter, async (req, res: Response, next) => {
     const signupVerifyToken = jwt.sign({ sub: user.id, purpose: 'email-verify', jti: randomUUID() }, signupSecret, { expiresIn: '24h' });
     sendWelcomeEmail(user.email, user.email).catch((err) => logger.error('Failed to send welcome email on signup', { err }));
     sendVerifyEmail(user.email, user.displayName, user.email, signupVerifyToken).catch((err) => logger.error('Failed to send verify email on signup', { err }));
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict' as const,
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+      path: '/api/auth',
+    });
     // Return both old shape (token/user) and new shape (accessToken) for compatibility
     return res.status(201).json({
       token,
@@ -200,6 +214,13 @@ authRouter.post('/login', authLimiter, async (req, res: Response, next) => {
     await cache.set(attemptsKey, '0', LOGIN_LOCKOUT_TTL);
     const token = signToken(user.id, user.email);
     const refreshToken = await issueRefreshToken(user.id);
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict' as const,
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+      path: '/api/auth',
+    });
     return res.json({
       token,
       accessToken: token,
@@ -239,6 +260,13 @@ authRouter.post('/google', authLimiter, async (req, res: Response, next) => {
 
     const token = signToken(user.id, user.email);
     const refreshToken = await issueRefreshToken(user.id);
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict' as const,
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+      path: '/api/auth',
+    });
     return res.json({ token, accessToken: token, refreshToken, user: { id: user.id, email: user.email, displayName: user.displayName } });
   } catch (err) {
     return next(err);
@@ -279,6 +307,13 @@ authRouter.post('/facebook', authLimiter, async (req, res: Response, next: NextF
 
     const token = signToken(user.id, user.email);
     const refreshToken = await issueRefreshToken(user.id);
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict' as const,
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+      path: '/api/auth',
+    });
     return res.json({ token, accessToken: token, refreshToken, user: { id: user.id, email: user.email, displayName: user.displayName } });
   } catch (err) { return next(err); }
 });
@@ -322,6 +357,13 @@ authRouter.post('/apple', authLimiter, async (req, res: Response, next) => {
 
     const token = signToken(user.id, user.email);
     const refreshToken = await issueRefreshToken(user.id);
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict' as const,
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+      path: '/api/auth',
+    });
     return res.json({ token, accessToken: token, refreshToken, user: { id: user.id, email: user.email, displayName: user.displayName } });
   } catch (err) {
     return next(err);
@@ -331,7 +373,9 @@ authRouter.post('/apple', authLimiter, async (req, res: Response, next) => {
 // POST /api/auth/refresh — exchange refresh token for new access token (true rotation)
 authRouter.post('/refresh', async (req, res: Response, next) => {
   try {
-    const { refreshToken } = req.body || {};
+    const tokenFromCookie = req.cookies?.refreshToken;
+    const tokenFromBody = req.body?.refreshToken;
+    const refreshToken = tokenFromCookie || tokenFromBody;
     if (!refreshToken) return res.status(400).json({ error: 'refreshToken is required' });
 
     // 1. Verify JWT signature + expiry
@@ -369,6 +413,13 @@ authRouter.post('/refresh', async (req, res: Response, next) => {
     const accessToken = signToken(user.id, user.email);
     const newRefresh = await issueRefreshToken(user.id);
 
+    res.cookie('refreshToken', newRefresh, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict' as const,
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+      path: '/api/auth',
+    });
     return res.json({ token: accessToken, accessToken, refreshToken: newRefresh });
   } catch (err) {
     return next(err);

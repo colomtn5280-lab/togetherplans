@@ -3,6 +3,7 @@ import * as SecureStore from 'expo-secure-store';
 import { API_BASE_URL } from '@/constants';
 
 const TOKEN_KEY = 'datenight_token';
+const REFRESH_TOKEN_KEY = 'refreshToken';
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
@@ -17,16 +18,43 @@ api.interceptors.request.use(async (config) => {
   return config;
 });
 
-// Pass through all errors — no auto-logout. Sessions persist until the user
-// explicitly signs out. Individual screens handle 401s if they occur.
+// Response interceptor: handle 401 by refreshing the token automatically
 api.interceptors.response.use(
   (response) => response,
-  (error) => Promise.reject(error),
+  async (error) => {
+    const original = error.config;
+    if (error.response?.status === 401 && !original._retry && !original.url?.includes('/auth/')) {
+      original._retry = true;
+      try {
+        const storedRefresh = await SecureStore.getItemAsync(REFRESH_TOKEN_KEY);
+        if (!storedRefresh) throw new Error('no refresh token');
+        const BASE = 'https://api.togetherplans.app';
+        const res = await axios.post(BASE + '/api/auth/refresh', { refreshToken: storedRefresh });
+        const newAccess = res.data.accessToken;
+        const newRefresh = res.data.refreshToken;
+        await SecureStore.setItemAsync(TOKEN_KEY, newAccess);
+        if (newRefresh) await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, newRefresh);
+        original.headers['Authorization'] = 'Bearer ' + newAccess;
+        return api(original);
+      } catch {
+        await SecureStore.deleteItemAsync(TOKEN_KEY);
+        await SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY);
+        return Promise.reject(error);
+      }
+    }
+    return Promise.reject(error);
+  }
 );
 
 // Token helpers
-export const saveToken = (token: string) => SecureStore.setItemAsync(TOKEN_KEY, token);
-export const clearToken = () => SecureStore.deleteItemAsync(TOKEN_KEY);
+export const saveToken = async (token: string, refreshToken?: string) => {
+  await SecureStore.setItemAsync(TOKEN_KEY, token);
+  if (refreshToken) await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, refreshToken);
+};
+export const clearToken = async () => {
+  await SecureStore.deleteItemAsync(TOKEN_KEY);
+  await SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY);
+};
 export const getToken = () => SecureStore.getItemAsync(TOKEN_KEY);
 
 // Auth

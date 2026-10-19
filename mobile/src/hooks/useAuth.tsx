@@ -9,7 +9,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, displayName: string) => Promise<void>;
   logout: () => Promise<void>;
-  loginWithToken: (data: { token: string; user: User }) => Promise<void>;
+  loginWithToken: (data: { token: string; refreshToken?: string; user: User }) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -38,17 +38,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (email: string, password: string) => {
     const res = await authAPI.login(email, password);
-    const { token: t, user: u } = res.data;
-    await saveToken(t);
-    setToken(t);
+    const { token: t, accessToken, refreshToken, user: u } = res.data;
+    const tok = accessToken || t;
+    await saveToken(tok, refreshToken);
+    setToken(tok);
     setUser(u);
   };
 
   const register = async (email: string, password: string, displayName: string) => {
     const res = await authAPI.register(email, password, displayName);
-    const { token: t, user: u } = res.data;
-    await saveToken(t);
-    setToken(t);
+    const { token: t, accessToken, refreshToken, user: u } = res.data;
+    const tok = accessToken || t;
+    await saveToken(tok, refreshToken);
+    setToken(tok);
     setUser(u);
   };
 
@@ -58,9 +60,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   };
 
-  const loginWithToken = async (data: { token: string; user: User }) => {
-    const { token: t, user: u } = data;
-    await saveToken(t);
+  const loginWithToken = async (data: { token: string; refreshToken?: string; user: User }) => {
+    const { token: t, refreshToken, user: u } = data;
+    await saveToken(t, refreshToken);
     setToken(t);
     setUser(u);
   };

@@ -1,5 +1,6 @@
 import express, { Request, Response, NextFunction } from 'express';
 import helmet from 'helmet';
+import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import rateLimit from 'express-rate-limit';
 import { logger } from '@/services/logger';
@@ -30,6 +31,7 @@ export function createApp(): express.Express {
   app.set('trust proxy', 1);
 
   app.use(helmet());
+  app.use(cookieParser());
   app.use(cors({ origin: config.cors_origin, credentials: true }));
 
   // Raw body for Stripe webhooks — must come BEFORE express.json()
