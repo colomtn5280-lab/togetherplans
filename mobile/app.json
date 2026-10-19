@@ -78,7 +78,13 @@
       "expo-apple-authentication",
       "expo-font",
       "@react-native-community/datetimepicker",
-      "expo-localization"
+      "expo-localization",
+      [
+        "expo-tracking-transparency",
+        {
+          "userTrackingPermission": "DateMeUp shows ads to keep the app free. Allowing tracking lets us show you ads relevant to your interests. You can change this anytime in Settings > Privacy."
+        }
+      ]
     ],
     "extra": {
       "apiBaseUrl": "https://api.datemeup.app",
