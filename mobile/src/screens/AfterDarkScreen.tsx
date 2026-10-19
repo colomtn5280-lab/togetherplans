@@ -26,6 +26,7 @@ import { CARD_RADII, SHADOWS, SPACING, TYPE } from '@/constants';
 import { DNButton, DNScreenHeader, DNSticker, DNText } from '@/components/ui';
 import { AddToDateButton } from '@/components/AddToDateButton';
 import { afterDarkAPI } from '@/services/api';
+import { api } from '@/services/api';
 import type { AfterDarkStatus, AfterDarkMood, AfterDarkSuggestion, AfterDarkItem, RootStackParamList } from '@/types';
 
 type RouteT = RouteProp<RootStackParamList, 'AfterDark'>;
@@ -372,6 +373,22 @@ export default function AfterDarkScreen() {
   const route = useRoute<RouteT>();
   const groupId = route.params?.groupId;
   const { addOption } = usePlanBuilder();
+
+  const [activeGroupId, setActiveGroupId] = useState<string | undefined>(groupId);
+
+  // If no groupId from route, fetch user's first group
+  useEffect(() => {
+    if (!groupId) {
+      api.get('/groups').then(res => {
+        const groups = res.data?.groups || res.data || [];
+        if (groups.length > 0) {
+          setActiveGroupId(groups[0].id);
+        }
+      }).catch(() => {});
+    } else {
+      setActiveGroupId(groupId);
+    }
+  }, [groupId]);
 
   const [status, setStatus] = useState<AfterDarkStatus | null>(null);
   const [selectedMood, setSelectedMood] = useState<AfterDarkMood | null>(null);
@@ -770,7 +787,7 @@ export default function AfterDarkScreen() {
       <ImpulseSheet
         visible={showImpulse}
         item={impulseItem}
-        groupId={groupId}
+        groupId={activeGroupId}
         onClose={() => setShowImpulse(false)}
         onSuccess={handleImpulseSuccess}
       />

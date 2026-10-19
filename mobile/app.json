@@ -19,6 +19,7 @@
         "NSLocationWhenInUseUsageDescription": "DateMeUp uses your location to suggest nearby activities.",
         "NSCameraUsageDescription": "DateMeUp uses your camera for QR code scanning.",
         "NSPhotoLibraryUsageDescription": "DateMeUp may access your photos for profile pictures.",
+        "NSCalendarsUsageDescription": "TogetherPlans needs calendar access to add your date night to your calendar.",
         "ITSAppUsesNonExemptEncryption": false
       },
       "buildNumber": "7"
@@ -26,6 +27,7 @@
     "android": {
       "package": "datemeup.app",
       "versionCode": 7,
+      "targetSdkVersion": 35,
       "adaptiveIcon": {
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",

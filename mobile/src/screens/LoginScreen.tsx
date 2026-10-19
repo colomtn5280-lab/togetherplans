@@ -199,18 +199,13 @@ export default function LoginScreen({ navigation }: Props) {
 
         {/* Apple button — iOS only */}
         {Platform.OS === 'ios' && appleAvailable && (
-          <TouchableOpacity
-            style={[styles.socialBtn, styles.appleBtn]}
+          <AppleAuthentication.AppleAuthenticationButton
+            buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
+            buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
+            cornerRadius={12}
+            style={{ width: '100%', height: 50, marginBottom: SPACING.sm }}
             onPress={handleAppleSignIn}
-            activeOpacity={0.82}
-          >
-            <Text style={styles.appleLogo}></Text>
-            <Text
-              style={{ fontFamily: 'Sora_700Bold', fontSize: 15, color: '#FFFFFF', marginLeft: SPACING.sm }}
-            >
-              Continue with Apple
-            </Text>
-          </TouchableOpacity>
+          />
         )}
 
         {/* Facebook button — all platforms */}
@@ -320,10 +315,6 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.sm,
     paddingHorizontal: SPACING.lg,
   },
-  appleBtn: {
-    backgroundColor: '#000000',
-    borderColor: '#000000',
-  },
   facebookBtn: {
     backgroundColor: '#1877F2',
     borderColor: '#1877F2',
@@ -332,10 +323,6 @@ const styles = StyleSheet.create({
     fontFamily: 'Sora_700Bold',
     fontSize: 18,
     fontWeight: '700',
-  },
-  appleLogo: {
-    fontSize: 18,
-    color: '#FFFFFF',
   },
   facebookF: {
     fontFamily: 'Sora_700Bold',

@@ -19,6 +19,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useGoogleAuth } from '@/hooks/useGoogleAuth';
 import { useAppleAuth } from '@/hooks/useAppleAuth';
+import * as AppleAuthentication from 'expo-apple-authentication';
 import { useTheme } from '@/contexts/ThemeContext';
 import { SPACING } from '@/constants';
 import { RootStackParamList } from '@/types';
@@ -125,14 +126,13 @@ export default function WelcomeScreen() {
           <View style={styles.buttonGroup}>
             {/* Apple Sign-In — iOS only */}
             {Platform.OS === 'ios' && appleAvailable && (
-              <TouchableOpacity
-                style={styles.appleBtn}
+              <AppleAuthentication.AppleAuthenticationButton
+                buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
+                buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
+                cornerRadius={12}
+                style={{ width: '100%', height: 50 }}
                 onPress={handleAppleSignIn}
-                activeOpacity={0.85}
-              >
-                <Text style={styles.appleLogo}></Text>
-                <Text style={styles.appleBtnText}>Continue with Apple</Text>
-              </TouchableOpacity>
+              />
             )}
 
             {/* Google Sign-In */}
@@ -282,26 +282,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
 
-  // Apple button
-  appleBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: 54,
-    borderRadius: 0, // we use individual radii via borderTopLeftRadius etc
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 20,
-    borderBottomRightRadius: 28,
-    borderBottomLeftRadius: 20,
-    backgroundColor: '#000000',
-    gap: SPACING.sm,
-  },
-  appleLogo: { fontSize: 18, color: '#FFFFFF' },
-  appleBtnText: {
-    fontFamily: 'Sora_700Bold',
-    fontSize: 15,
-    color: '#FFFFFF',
-  },
+  // Apple button — REMOVED (using AppleAuthenticationButton)
 
   // Google button
   googleBtn: {
