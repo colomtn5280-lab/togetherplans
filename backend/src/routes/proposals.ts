@@ -152,42 +152,6 @@ proposalsRouter.post('/:id/counter', async (req: AuthRequest, res: Response, nex
   }
 });
 
-// GET /api/proposals/:id — proposal with options, votes and consensus tally
-proposalsRouter.get('/:id', async (req: AuthRequest, res: Response, next) => {
-  try {
-    const proposal = await prisma.proposal.findUnique({
-      where: { id: req.params.id },
-      include: {
-        options: { include: { votes: { include: { user: { select: { id: true, displayName: true } } } }, guestVotes: { select: { guestId: true, guestName: true } } } },
-        counters: true,
-      },
-    });
-    if (!proposal) return res.status(404).json({ error: 'Proposal not found' });
-
-    const membership = await prisma.groupMember.findFirst({
-      where: { groupId: proposal.groupId, userId: req.userId },
-    });
-    if (!membership) return res.status(403).json({ error: 'Not a member of this group' });
-
-    const memberCount = await prisma.groupMember.count({ where: { groupId: proposal.groupId } });
-    const tally = proposal.options.map((o) => ({
-      optionId: o.id,
-      name: o.name,
-      votes: o.votes.length,
-      guestVotes: o.guestVotes.length,
-      consensus: memberCount > 0 && o.votes.length > memberCount / 2,
-    }));
-    // Strip raw guestId tokens from the response; expose counts only
-    const options = proposal.options.map((o) => ({
-      ...o,
-      guestVotes: undefined,
-      guestVoteCount: o.guestVotes.length,
-    }));
-    return res.json({ ...proposal, options, memberCount, tally });
-  } catch (err) {
-    return next(err);
-  }
-});
 
 // GET /api/proposals/:id/stream — SSE stream for real-time updates
 proposalsRouter.get('/:id/stream', async (req: AuthRequest, res: Response) => {
@@ -243,6 +207,44 @@ proposalsRouter.get('/:id/stream', async (req: AuthRequest, res: Response) => {
   } catch (err) {
     // If headers not sent yet, return error; otherwise just close
     if (!res.headersSent) res.status(500).json({ error: 'Stream failed' });
+  }
+});
+
+
+// GET /api/proposals/:id — proposal with options, votes and consensus tally
+proposalsRouter.get('/:id', async (req: AuthRequest, res: Response, next) => {
+  try {
+    const proposal = await prisma.proposal.findUnique({
+      where: { id: req.params.id },
+      include: {
+        options: { include: { votes: { include: { user: { select: { id: true, displayName: true } } } }, guestVotes: { select: { guestId: true, guestName: true } } } },
+        counters: true,
+      },
+    });
+    if (!proposal) return res.status(404).json({ error: 'Proposal not found' });
+
+    const membership = await prisma.groupMember.findFirst({
+      where: { groupId: proposal.groupId, userId: req.userId },
+    });
+    if (!membership) return res.status(403).json({ error: 'Not a member of this group' });
+
+    const memberCount = await prisma.groupMember.count({ where: { groupId: proposal.groupId } });
+    const tally = proposal.options.map((o) => ({
+      optionId: o.id,
+      name: o.name,
+      votes: o.votes.length,
+      guestVotes: o.guestVotes.length,
+      consensus: memberCount > 0 && o.votes.length > memberCount / 2,
+    }));
+    // Strip raw guestId tokens from the response; expose counts only
+    const options = proposal.options.map((o) => ({
+      ...o,
+      guestVotes: undefined,
+      guestVoteCount: o.guestVotes.length,
+    }));
+    return res.json({ ...proposal, options, memberCount, tally });
+  } catch (err) {
+    return next(err);
   }
 });
 
