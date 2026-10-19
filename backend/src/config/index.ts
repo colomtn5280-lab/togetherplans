@@ -4,12 +4,17 @@ dotenv.config();
 
 const JWT_PLACEHOLDER = 'your-super-secret-jwt-key-change-in-production';
 
+const jwtSecret = process.env.JWT_SECRET;
+if (!jwtSecret) {
+  throw new Error('FATAL: JWT_SECRET environment variable is not set. Refusing to start.');
+}
+
 export const config = {
   node_env: process.env.NODE_ENV || 'development',
   port: parseInt(process.env.PORT || '3000', 10),
   host: process.env.HOST || '0.0.0.0',
   log_level: process.env.LOG_LEVEL || 'info',
-  jwt_secret: process.env.JWT_SECRET || 'dev-secret',
+  jwt_secret: jwtSecret,
   jwt_expires_in: process.env.JWT_EXPIRES_IN || '30d',
   cors_origin: process.env.CORS_ORIGIN
     ? process.env.CORS_ORIGIN.split(',').map((o) => o.trim())

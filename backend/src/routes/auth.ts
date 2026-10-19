@@ -11,6 +11,7 @@ import { verifyAppleToken } from '@/services/apple';
 import { logger } from '@/services/logger';
 import { cache } from '@/services/cache';
 import { claimGuestVotes } from '@/services/guest-claim';
+import { config } from '@/config';
 
 export const authRouter = Router();
 
@@ -26,7 +27,7 @@ const authLimiter = rateLimit({
 });
 
 function makeRefreshToken(userId: string): string {
-  const secret = process.env.JWT_SECRET || 'dev-secret';
+  const secret = config.jwt_secret;
   // Include a random jti (JWT ID) so two tokens issued in the same second are
   // never identical — prevents a unique-constraint violation when register and
   // login are called back-to-back within the same clock second.
@@ -80,7 +81,7 @@ authRouter.post('/register', authLimiter, async (req, res: Response, next) => {
     const refreshToken = await issueRefreshToken(user.id);
     // Fire-and-forget — don't block registration on email delivery
     // Send welcome email; also send verify email so user has a meaningful email to act on
-    const secret = process.env.JWT_SECRET ?? 'dev-secret';
+    const secret = config.jwt_secret;
     const verifyToken = jwt.sign({ sub: user.id, purpose: 'email-verify', jti: randomUUID() }, secret, { expiresIn: '24h' });
     sendWelcomeEmail(user.email, user.email).catch((err) => logger.error('Failed to send welcome email on register', { err }));
     sendVerifyEmail(user.email, user.displayName, user.email, verifyToken).catch((err) => logger.error('Failed to send verify email on register', { err }));
@@ -132,7 +133,7 @@ authRouter.post('/signup', authLimiter, async (req, res: Response, next) => {
     });
     const token = signToken(user.id, user.email);
     const refreshToken = await issueRefreshToken(user.id);
-    const signupSecret = process.env.JWT_SECRET ?? 'dev-secret';
+    const signupSecret = config.jwt_secret;
     const signupVerifyToken = jwt.sign({ sub: user.id, purpose: 'email-verify', jti: randomUUID() }, signupSecret, { expiresIn: '24h' });
     sendWelcomeEmail(user.email, user.email).catch((err) => logger.error('Failed to send welcome email on signup', { err }));
     sendVerifyEmail(user.email, user.displayName, user.email, signupVerifyToken).catch((err) => logger.error('Failed to send verify email on signup', { err }));
@@ -334,7 +335,7 @@ authRouter.post('/refresh', async (req, res: Response, next) => {
     if (!refreshToken) return res.status(400).json({ error: 'refreshToken is required' });
 
     // 1. Verify JWT signature + expiry
-    const secret = process.env.JWT_SECRET || 'dev-secret';
+    const secret = config.jwt_secret;
     let payload: { userId?: string; type?: string };
     try {
       payload = jwt.verify(refreshToken, secret) as typeof payload;
@@ -513,7 +514,7 @@ authRouter.post('/forgot-password', forgotPasswordLimiter, async (req, res: Resp
     const user = await prisma.user.findUnique({ where: { email } });
     if (user && !user.deletedAt) {
       // Stateless JWT reset token — valid 1 hour, signed with JWT_SECRET
-      const secret = process.env.JWT_SECRET ?? 'changeme';
+      const secret = config.jwt_secret;
       const resetToken = jwt.sign(
         { sub: user.id, purpose: 'password-reset' },
         secret,
@@ -535,7 +536,7 @@ authRouter.post('/reset-password', async (req, res: Response, next) => {
     if (!password || password.length < 8) {
       return res.status(400).json({ error: 'Password must be at least 8 characters' });
     }
-    const secret = process.env.JWT_SECRET ?? 'changeme';
+    const secret = config.jwt_secret;
     let payload: { sub?: string; purpose?: string };
     try {
       payload = jwt.verify(token, secret) as typeof payload;

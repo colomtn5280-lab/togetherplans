@@ -14,6 +14,7 @@ import { AfterDarkService } from '../services/after-dark.service';
 import { logger } from '@/services/logger';
 import rateLimit from 'express-rate-limit';
 import { requireAuth } from '../middleware/auth';
+import { prisma } from '@/services/db';
 
 const router = Router();
 
@@ -108,13 +109,13 @@ router.post('/ideas', requireAuth, createIdeaLimiter, async (req: AuthRequest, r
       return res.status(400).json({ error: 'groupId required' });
     }
 
-    // TODO: Verify user is member of group
-    // const member = await db.groupMember.findUnique({
-    //   where: { groupId_userId: { groupId, userId } }
-    // });
-    // if (!member) {
-    //   return res.status(403).json({ error: 'Not a member of this group' });
-    // }
+    // Verify user is member of group
+    const membership = await prisma.groupMember.findFirst({
+      where: { groupId, userId: userId! },
+    });
+    if (!membership) {
+      return res.status(403).json({ error: 'Not a member of this group' });
+    }
 
     const idea = await AfterDarkService.createIdea(groupId, userId!, {
       title,
