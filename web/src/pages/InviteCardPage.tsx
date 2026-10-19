@@ -2,16 +2,69 @@ import React, { useState, useRef } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { inviteCardsApi } from "../api/client";
-
-// DateMeUp palette for template tiles
-const DMU_PALETTE = ["#0E8C8C", "#7CB518", "#E39B12", "#5D6B76", "#D9F1F0"];
-
-// Tile text color — light palette (#D9F1F0) needs dark text
-const tileTextColor = (bg: string) => (bg === "#D9F1F0" ? "#1a1a2e" : "#ffffff");
+import { CARD_HTML, CARD_SHARED_CSS, CARD_NAMES } from "../constants/inviteCardTemplates";
 
 type Template = { id: string; name: string };
 type Step = "pick" | "customise";
 
+// ── Card Preview ────────────────────────────────────────────────────────────
+// Renders the actual sc-card design at 35% scale inside a fixed-size thumbnail.
+function CardPreview({ templateId, size = "thumb" }: { templateId: string; size?: "thumb" | "large" }) {
+  const cardHtml = CARD_HTML[templateId];
+  const isLarge = size === "large";
+
+  // The sc-card designs are 360×640px. Scale down to fit thumbnail.
+  const CARD_W = 360;
+  const CARD_H = 640;
+  const scale = isLarge ? 0.55 : 0.33;
+  const thumbW = Math.round(CARD_W * scale);
+  const thumbH = Math.round(CARD_H * scale);
+
+  if (!cardHtml) {
+    // Fallback for unknown template
+    return (
+      <div style={{
+        width: thumbW, height: thumbH,
+        background: "var(--primary-soft)",
+        borderRadius: isLarge ? 18 : 10,
+        display: "flex", alignItems: "center", justifyContent: "center",
+        color: "var(--ink2)", fontSize: 12, textAlign: "center", padding: 8,
+      }}>
+        {CARD_NAMES[templateId] || templateId}
+      </div>
+    );
+  }
+
+  return (
+    <div style={{
+      width: thumbW,
+      height: thumbH,
+      overflow: "hidden",
+      borderRadius: isLarge ? 18 : 10,
+      flexShrink: 0,
+      position: "relative",
+      boxShadow: "0 4px 16px rgba(0,0,0,0.12)",
+    }}>
+      {/* Inject shared CSS once per card — contained by the outer clip */}
+      <style dangerouslySetInnerHTML={{ __html: CARD_SHARED_CSS }} />
+      {/* Scale the 360×640 card down to thumbnail size */}
+      <div
+        className="dn"
+        style={{
+          width: CARD_W,
+          height: CARD_H,
+          transform: `scale(${scale})`,
+          transformOrigin: "top left",
+          pointerEvents: "none",
+          userSelect: "none",
+        }}
+        dangerouslySetInnerHTML={{ __html: cardHtml }}
+      />
+    </div>
+  );
+}
+
+// ── Main Page ───────────────────────────────────────────────────────────────
 export function InviteCardPage() {
   const { proposalId } = useParams<{ proposalId: string }>();
   const navigate = useNavigate();
@@ -23,7 +76,7 @@ export function InviteCardPage() {
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Fetch templates
+  // Fetch templates from API (for IDs + names)
   const { data: templates = [], isLoading } = useQuery<Template[]>({
     queryKey: ["invite-card-templates"],
     queryFn: async () => {
@@ -33,28 +86,12 @@ export function InviteCardPage() {
     staleTime: 5 * 60_000,
   });
 
-  // Save mutation
   const saveMutation = useMutation({
     mutationFn: async ({
-      templateId,
-      noteText,
-      skipped,
-      file,
-    }: {
-      templateId?: string;
-      noteText?: string;
-      skipped?: boolean;
-      file?: File | null;
-    }) => {
-      const res = await inviteCardsApi.save(proposalId!, {
-        templateId,
-        note: noteText,
-        skipped,
-      });
-      // Upload photo if provided
-      if (file) {
-        await inviteCardsApi.uploadPhoto(proposalId!, file);
-      }
+      templateId, noteText, skipped, file,
+    }: { templateId?: string; noteText?: string; skipped?: boolean; file?: File | null }) => {
+      const res = await inviteCardsApi.save(proposalId!, { templateId, note: noteText, skipped });
+      if (file) await inviteCardsApi.uploadPhoto(proposalId!, file);
       return res.data;
     },
     onSuccess: () => {
@@ -62,185 +99,133 @@ export function InviteCardPage() {
     },
   });
 
-  // Handle template selection
   const handleSelectTemplate = (tpl: Template) => {
     setSelected(tpl);
     setStep("customise");
   };
 
-  // Handle skip
-  const handleSkip = () => {
-    saveMutation.mutate({ skipped: true });
-  };
+  const handleSkip = () => saveMutation.mutate({ skipped: true });
 
-  // Handle photo selection
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 20 * 1024 * 1024) {
-      alert("Photo must be under 20 MB.");
-      return;
-    }
+    if (file.size > 20 * 1024 * 1024) { alert("Photo must be under 20 MB."); return; }
     setPhoto(file);
     setPhotoPreview(URL.createObjectURL(file));
   };
 
-  // Handle use this card
   const handleUseCard = () => {
-    saveMutation.mutate({
-      templateId: selected?.id,
-      noteText: note.trim() || undefined,
-      file: photo,
-    });
+    saveMutation.mutate({ templateId: selected?.id, noteText: note.trim() || undefined, file: photo });
   };
 
-  const tileBg = (idx: number) => DMU_PALETTE[idx % DMU_PALETTE.length];
-
   return (
-    <div className="dmu-wrap" style={{ maxWidth: 1080, margin: "0 auto", padding: "24px 16px 64px" }}>
-      {/* ── STEP 1: Template Picker ── */}
+    <div style={{ maxWidth: 1080, margin: "0 auto", padding: "24px 16px 80px" }}>
+
+      {/* ── STEP 1: Picker ── */}
       {step === "pick" && (
         <>
-          {/* Header */}
           <div style={{ marginBottom: 8 }}>
-            <Link to={`/proposals/${proposalId}`} className="dmu-back">
+            <Link
+              to={`/proposals/${proposalId}`}
+              style={{ color: "var(--ink2)", fontSize: 14, textDecoration: "none", fontWeight: 600 }}
+            >
               ← Back to proposal
             </Link>
           </div>
 
-          <div className="dmu-section-head" style={{ marginBottom: 8 }}>
-            <h1 style={{ margin: 0, fontSize: 28, fontFamily: "var(--font-display)", fontWeight: 700 }}>
-              Pick an invite card
-            </h1>
-            <p style={{ margin: "8px 0 0", color: "var(--ink2)", fontSize: 15 }}>
-              Your invitees will receive this card with the invite link.
-            </p>
-          </div>
+          <h1 style={{ margin: "16px 0 6px", fontSize: 28, fontFamily: "var(--font-display)" }}>
+            Pick an invite card
+          </h1>
+          <p style={{ margin: "0 0 28px", color: "var(--ink2)", fontSize: 15 }}>
+            {templates.length} designs — each personalised with your plan details.
+          </p>
 
           {isLoading ? (
-            <p style={{ color: "var(--ink2)", padding: "40px 0", textAlign: "center" }}>
-              Loading templates…
-            </p>
+            <div style={{ textAlign: "center", padding: "60px 0", color: "var(--ink2)" }}>
+              Loading card designs…
+            </div>
           ) : (
             <div
-              className="invite-card-grid"
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(4, 1fr)",
-                gap: 16,
-                marginTop: 24,
+                gridTemplateColumns: "repeat(auto-fill, minmax(130px, 1fr))",
+                gap: 20,
               }}
             >
-              {templates.map((tpl, idx) => {
-                const bg = tileBg(idx);
+              {templates.map((tpl) => {
                 const isSelected = selected?.id === tpl.id;
+                const displayName = CARD_NAMES[tpl.id] || tpl.name;
                 return (
                   <button
                     key={tpl.id}
                     onClick={() => handleSelectTemplate(tpl)}
+                    title={displayName}
                     style={{
                       background: "none",
                       border: "none",
                       padding: 0,
                       cursor: "pointer",
-                      textAlign: "left",
+                      textAlign: "center",
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      gap: 8,
                     }}
-                    aria-label={`Select template: ${tpl.name}`}
                   >
-                    {/* Tile */}
-                    <div
-                      style={{
-                        position: "relative",
-                        height: 180,
-                        background: bg,
-                        borderRadius: "16px 4px 16px 4px",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        padding: 12,
-                        border: isSelected ? "3px solid #0E8C8C" : "3px solid transparent",
-                        transition: "border-color 0.15s",
-                        boxSizing: "border-box",
-                      }}
-                    >
-                      <span
-                        style={{
-                          fontFamily: "var(--font-display, 'Sora', sans-serif)",
-                          fontWeight: 700,
-                          fontSize: 13,
-                          color: tileTextColor(bg),
-                          textAlign: "center",
-                          lineHeight: 1.3,
-                          wordBreak: "break-word",
-                        }}
-                      >
-                        {tpl.name}
-                      </span>
-
-                      {/* Selected checkmark */}
+                    {/* Card design thumbnail */}
+                    <div style={{
+                      position: "relative",
+                      borderRadius: 12,
+                      outline: isSelected ? "3px solid var(--primary)" : "3px solid transparent",
+                      outlineOffset: 2,
+                      transition: "outline-color 0.15s",
+                    }}>
+                      <CardPreview templateId={tpl.id} size="thumb" />
                       {isSelected && (
-                        <div
-                          style={{
-                            position: "absolute",
-                            top: 8,
-                            right: 8,
-                            width: 24,
-                            height: 24,
-                            borderRadius: "50%",
-                            background: "#ffffff",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            boxShadow: "0 1px 4px rgba(0,0,0,0.2)",
-                          }}
-                        >
-                          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                            <path
-                              d="M2 7l3.5 3.5L12 3.5"
-                              stroke="#0E8C8C"
-                              strokeWidth="2"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            />
+                        <div style={{
+                          position: "absolute", top: 6, right: 6,
+                          width: 22, height: 22, borderRadius: "50%",
+                          background: "var(--primary)",
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                          boxShadow: "0 1px 4px rgba(0,0,0,0.3)",
+                        }}>
+                          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                            <path d="M2 6l2.5 2.5L10 3" stroke="#fff" strokeWidth="2"
+                              strokeLinecap="round" strokeLinejoin="round" />
                           </svg>
                         </div>
                       )}
                     </div>
-
                     {/* Name label */}
-                    <p
-                      style={{
-                        margin: "8px 0 0",
-                        fontSize: 12,
-                        fontWeight: 600,
-                        color: "var(--ink, #1a1a2e)",
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                      }}
-                    >
-                      {tpl.name}
-                    </p>
+                    <span style={{
+                      fontSize: 11, fontWeight: 600, color: "var(--ink)",
+                      maxWidth: 120, textAlign: "center", lineHeight: 1.3,
+                      display: "-webkit-box", WebkitLineClamp: 2,
+                      WebkitBoxOrient: "vertical", overflow: "hidden",
+                    }}>
+                      {displayName}
+                    </span>
                   </button>
                 );
               })}
             </div>
           )}
 
-          {/* Skip */}
-          <div style={{ marginTop: 32, textAlign: "center" }}>
+          <div style={{ marginTop: 36, textAlign: "center" }}>
             <button
-              className="dmu-btn dmu-btn-ghost"
               onClick={handleSkip}
               disabled={saveMutation.isPending}
-              style={{ fontSize: 14 }}
+              style={{
+                background: "none", border: "none", cursor: "pointer",
+                color: "var(--ink2)", fontSize: 14, fontWeight: 600,
+              }}
             >
               {saveMutation.isPending ? "Saving…" : "Skip this step →"}
             </button>
           </div>
 
           {saveMutation.isError && (
-            <p style={{ color: "red", textAlign: "center", marginTop: 12 }}>
+            <p style={{ color: "var(--error)", textAlign: "center", marginTop: 12 }}>
               Something went wrong. Please try again.
             </p>
           )}
@@ -250,70 +235,46 @@ export function InviteCardPage() {
       {/* ── STEP 2: Customise ── */}
       {step === "customise" && selected && (
         <>
-          <div style={{ marginBottom: 8 }}>
+          <div style={{ marginBottom: 12 }}>
             <button
-              className="dmu-back"
               onClick={() => setStep("pick")}
-              style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}
+              style={{
+                background: "none", border: "none", cursor: "pointer",
+                color: "var(--ink2)", fontSize: 14, fontWeight: 600, padding: 0,
+              }}
             >
               ← Change template
             </button>
           </div>
 
-          <div className="dmu-section-head" style={{ marginBottom: 24 }}>
-            <h1 style={{ margin: 0, fontSize: 28, fontFamily: "var(--font-display)", fontWeight: 700 }}>
-              Customise your card
-            </h1>
-          </div>
+          <h1 style={{ margin: "0 0 24px", fontSize: 28, fontFamily: "var(--font-display)" }}>
+            Customise your card
+          </h1>
 
           <div style={{ display: "flex", gap: 40, alignItems: "flex-start", flexWrap: "wrap" }}>
-            {/* Preview */}
-            <div style={{ flexShrink: 0 }}>
-              <p style={{ margin: "0 0 10px", fontSize: 12, fontWeight: 600, color: "var(--ink2)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
-                Preview
+            {/* Large preview */}
+            <div style={{ flexShrink: 0, display: "flex", flexDirection: "column", gap: 10 }}>
+              <p style={{
+                margin: 0, fontSize: 11, fontWeight: 700, color: "var(--ink2)",
+                textTransform: "uppercase", letterSpacing: "0.08em",
+              }}>
+                Preview — {CARD_NAMES[selected.id] || selected.name}
               </p>
-              <div
-                style={{
-                  width: 220,
-                  height: 180,
-                  background: tileBg(
-                    templates.findIndex((t) => t.id === selected.id)
-                  ),
-                  borderRadius: "16px 4px 16px 4px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  padding: 16,
-                  boxSizing: "border-box",
-                  border: "3px solid #0E8C8C",
-                }}
-              >
-                <span
-                  style={{
-                    fontFamily: "var(--font-display, 'Sora', sans-serif)",
-                    fontWeight: 700,
-                    fontSize: 14,
-                    color: tileTextColor(
-                      tileBg(templates.findIndex((t) => t.id === selected.id))
-                    ),
-                    textAlign: "center",
-                    lineHeight: 1.3,
-                  }}
-                >
-                  {selected.name}
-                </span>
+              <div style={{
+                outline: "3px solid var(--primary)", outlineOffset: 3, borderRadius: 20,
+                overflow: "hidden",
+              }}>
+                <CardPreview templateId={selected.id} size="large" />
               </div>
             </div>
 
             {/* Form */}
             <div style={{ flex: 1, minWidth: 260 }}>
               {/* Note */}
-              <div className="dmu-card" style={{ marginBottom: 16, padding: 16 }}>
-                <label
-                  htmlFor="card-note"
-                  style={{ display: "block", fontWeight: 600, marginBottom: 8, fontSize: 14 }}
-                >
-                  Add a personal note <span style={{ color: "var(--ink2)", fontWeight: 400 }}>(optional)</span>
+              <div className="dn-card" style={{ marginBottom: 16, padding: 20 }}>
+                <label htmlFor="card-note" style={{ display: "block", fontWeight: 700, marginBottom: 8, fontSize: 14 }}>
+                  Add a personal note{" "}
+                  <span style={{ color: "var(--ink2)", fontWeight: 400 }}>(optional)</span>
                 </label>
                 <textarea
                   id="card-note"
@@ -322,19 +283,8 @@ export function InviteCardPage() {
                   maxLength={140}
                   rows={4}
                   placeholder="e.g. Can't wait to see you there! 🎉"
-                  style={{
-                    width: "100%",
-                    padding: "10px 12px",
-                    border: "1.5px solid var(--border, #e0e0e0)",
-                    borderRadius: 8,
-                    fontFamily: "var(--font-body, sans-serif)",
-                    fontSize: 14,
-                    resize: "vertical",
-                    boxSizing: "border-box",
-                    outline: "none",
-                    color: "var(--ink, #1a1a2e)",
-                    background: "var(--surface, #ffffff)",
-                  }}
+                  className="dn-input"
+                  style={{ height: "auto", resize: "vertical", paddingTop: 10, paddingBottom: 10 }}
                 />
                 <p style={{ margin: "4px 0 0", fontSize: 12, color: "var(--ink2)", textAlign: "right" }}>
                   {note.length}/140
@@ -342,69 +292,47 @@ export function InviteCardPage() {
               </div>
 
               {/* Photo */}
-              <div className="dmu-card" style={{ marginBottom: 24, padding: 16 }}>
-                <label style={{ display: "block", fontWeight: 600, marginBottom: 12, fontSize: 14 }}>
-                  Add a photo <span style={{ color: "var(--ink2)", fontWeight: 400 }}>(optional)</span>
+              <div className="dn-card" style={{ marginBottom: 24, padding: 20 }}>
+                <label style={{ display: "block", fontWeight: 700, marginBottom: 12, fontSize: 14 }}>
+                  Add a photo{" "}
+                  <span style={{ color: "var(--ink2)", fontWeight: 400 }}>(optional)</span>
                 </label>
-
                 {photoPreview ? (
                   <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                     <img
                       src={photoPreview}
-                      alt="Selected photo preview"
-                      style={{
-                        width: 72,
-                        height: 72,
-                        objectFit: "cover",
-                        borderRadius: 8,
-                        border: "2px solid #0E8C8C",
-                      }}
+                      alt="Selected"
+                      style={{ width: 72, height: 72, objectFit: "cover", borderRadius: 10, border: "2px solid var(--primary)" }}
                     />
                     <button
-                      className="dmu-btn dmu-btn-ghost"
-                      onClick={() => {
-                        setPhoto(null);
-                        setPhotoPreview(null);
-                        if (fileInputRef.current) fileInputRef.current.value = "";
-                      }}
-                      style={{ fontSize: 13 }}
+                      className="dn-btn dn-btn--secondary"
+                      onClick={() => { setPhoto(null); setPhotoPreview(null); if (fileInputRef.current) fileInputRef.current.value = ""; }}
+                      style={{ height: 36, fontSize: 13 }}
                     >
                       Remove
                     </button>
                   </div>
                 ) : (
-                  <button
-                    className="dmu-btn dmu-btn-ghost"
-                    onClick={() => fileInputRef.current?.click()}
-                    style={{ fontSize: 14 }}
-                  >
+                  <button className="dn-btn dn-btn--secondary" onClick={() => fileInputRef.current?.click()} style={{ height: 40 }}>
                     📷 Choose photo
                   </button>
                 )}
-
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  style={{ display: "none" }}
-                  onChange={handlePhotoChange}
-                />
+                <input ref={fileInputRef} type="file" accept="image/*" style={{ display: "none" }} onChange={handlePhotoChange} />
                 <p style={{ margin: "8px 0 0", fontSize: 12, color: "var(--ink2)" }}>Max 20 MB</p>
               </div>
 
-              {/* Actions */}
-              <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-                <button
-                  className="dmu-btn dmu-btn-primary"
-                  onClick={handleUseCard}
-                  disabled={saveMutation.isPending}
-                >
-                  {saveMutation.isPending ? "Saving…" : "Use this card"}
-                </button>
-              </div>
+              {/* CTA */}
+              <button
+                className="dn-btn"
+                onClick={handleUseCard}
+                disabled={saveMutation.isPending}
+                style={{ width: "100%" }}
+              >
+                {saveMutation.isPending ? "Saving…" : "Use this card ✓"}
+              </button>
 
               {saveMutation.isError && (
-                <p style={{ color: "red", marginTop: 12, fontSize: 14 }}>
+                <p style={{ color: "var(--error)", marginTop: 12, fontSize: 14 }}>
                   Something went wrong. Please try again.
                 </p>
               )}
@@ -413,12 +341,9 @@ export function InviteCardPage() {
         </>
       )}
 
-      {/* Responsive grid style */}
       <style>{`
-        @media (max-width: 680px) {
-          .invite-card-grid {
-            grid-template-columns: repeat(2, 1fr) !important;
-          }
+        @media (max-width: 600px) {
+          .invite-card-grid { grid-template-columns: repeat(2, 1fr) !important; }
         }
       `}</style>
     </div>
