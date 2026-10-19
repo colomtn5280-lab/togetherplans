@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/auth.store";
 import { notificationsApi, groupsApi } from "../api/client";
 import type { Group } from "../types";
+import { useDarkMode } from "../hooks/useDarkMode";
 import "./AppNav.css";
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -107,6 +108,9 @@ export function AppNav() {
     },
     [navigate],
   );
+
+  // ── Dark mode toggle ──────────────────────────────────────
+  const { dark, toggle: toggleDark } = useDarkMode();
 
   // ── Mobile drawer state ───────────────────────────────────
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -297,6 +301,17 @@ export function AppNav() {
                   </div>
                 )}
               </div>
+
+              {/* Dark mode toggle */}
+              <button
+                onClick={toggleDark}
+                className="app-nav__icon-btn"
+                aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}
+                title={dark ? 'Light mode' : 'Dark mode'}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.1rem', padding: '4px 8px' }}
+              >
+                {dark ? '☀️' : '🌙'}
+              </button>
 
               {/* Bell with notification badge */}
               <div
