@@ -24,42 +24,37 @@ export default function LandingPage() {
           </nav>
 
           <section className="hero">
-            <div>
-              <span className="sticker">FOR COUPLES &amp; GROUPS</span>
-              <h1>Plan together.<br />Go together<span className="dot">.</span></h1>
-              <p>47 messages later, still no plan? Propose a few options, everyone votes, and TogetherPlans locks in the winner.</p>
-              <div className="hero-ctas">
-                <Link className="btn lg" to="/signup">Start a plan, free</Link>
-                <a className="btn lg ghost" href="#how">See how it works</a>
-              </div>
-              <div className="stores">
-                <a className="store" href="https://apps.apple.com/app/id6806890578">
-                  <svg width="16" height="16" viewBox="0 0 814 1000" fill="currentColor" aria-hidden="true"><path d="M788.1 340.9c-5.8 4.5-108.2 62.2-108.2 190.5 0 148.4 130.3 200.9 134.2 202.2-.6 3.2-20.7 71.9-68.7 141.9-42.8 61.6-87.5 123.1-155.5 123.1s-85.5-39.5-164-39.5c-76 0-103.7 40.8-165.9 40.8s-105.6-57.8-155.5-127.4C46 382.8-.3 291.4-.3 195.9-.3 85.8 61.9 23 120.6 23c50.5 0 92.9 33.7 123.8 33.7 29.5 0 75.9-35.5 133.7-35.5 54.2 0 135.1 20.1 183.3 88.2zm-87.4-139.9c23.8-28.4 40.8-68.1 40.8-107.7 0-5.5-.5-11.1-1.5-16.5-38.3 1.4-84.2 25.6-111.6 57.7-22.1 25.7-41.8 65.9-41.8 106 0 6 1 12 1.5 13.9 2.5.4 5 .5 7.5.5 34.4 0 77.5-23.3 105.1-53.9z"/></svg>
-                  App Store
-                </a>
-                <a className="store" href="https://play.google.com/store/apps/details?id=app.datemeup.datenight">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3.18 23.76c.36.2.8.22 1.2 0l11.72-6.76-2.76-2.76-10.16 9.52zM.54 1.5C.2 1.86 0 2.4 0 3.08v17.84c0 .68.2 1.22.54 1.58l.08.08 9.98-9.98v-.24L.62 1.42.54 1.5zM20.54 10.4l-2.68-1.54-3.08 3.08 3.08 3.08 2.7-1.56c.76-.44.76-1.62-.02-2.06zM4.38.24L16.1 7 13.34 9.76 3.18.24C3.58.02 4.02.04 4.38.24z"/></svg>
-                  Google Play
-                </a>
-              </div>
-              <div className="fine">No ads. Friends can vote from a text without installing anything.</div>
-            </div>
-            <div className="stage" aria-hidden={true}>
-              <div className="phone">
-                <h3>Friday<br />night <span className="dot" style={{display:'inline-block',transform:'rotate(8deg)',color:'var(--primary)'}}>!</span></h3>
-                <div className="sub">Priya voted · waiting on you</div>
-                <div className="opts">
-                  <div className="opt"><span className="tag">Priya ♥</span><div className="t"><b>Jazz at the Blue Room</b><span>Nightlife</span></div><span className="heart">♡</span></div>
-                  <div className="opt"><div className="t"><b>Noodle Bar Kōji</b><span>Dining</span></div><span className="heart on">♥</span></div>
-                  <div className="opt"><div className="t"><b>Sunset hike</b><span>Outdoors</span></div><span className="heart">♡</span></div>
+            <div className="hero-inner">
+              <div className="hero-text">
+                <span className="sticker">FOR COUPLES &amp; GROUPS</span>
+                <h1>Plan together.<br />Go together<span className="dot">.</span></h1>
+                <p>47 messages later, still no plan? Propose a few options, everyone votes, and TogetherPlans locks in the winner.</p>
+                <div className="hero-ctas">
+                  <Link className="btn lg" to="/signup">Start a plan, free</Link>
+                  <a className="btn lg ghost" href="#how">See how it works</a>
                 </div>
+                <div className="stores">
+                  <a className="store" href="https://apps.apple.com/app/id6806890578">
+                    <svg width="16" height="16" viewBox="0 0 814 1000" fill="currentColor" aria-hidden="true"><path d="M788.1 340.9c-5.8 4.5-108.2 62.2-108.2 190.5 0 148.4 130.3 200.9 134.2 202.2-.6 3.2-20.7 71.9-68.7 141.9-42.8 61.6-87.5 123.1-155.5 123.1s-85.5-39.5-164-39.5c-76 0-103.7 40.8-165.9 40.8s-105.6-57.8-155.5-127.4C46 382.8-.3 291.4-.3 195.9-.3 85.8 61.9 23 120.6 23c50.5 0 92.9 33.7 123.8 33.7 29.5 0 75.9-35.5 133.7-35.5 54.2 0 135.1 20.1 183.3 88.2zm-87.4-139.9c23.8-28.4 40.8-68.1 40.8-107.7 0-5.5-.5-11.1-1.5-16.5-38.3 1.4-84.2 25.6-111.6 57.7-22.1 25.7-41.8 65.9-41.8 106 0 6 1 12 1.5 13.9 2.5.4 5 .5 7.5.5 34.4 0 77.5-23.3 105.1-53.9z"/></svg>
+                    App Store
+                  </a>
+                  <a className="store" href="https://play.google.com/store/apps/details?id=app.datemeup.datenight">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3.18 23.76c.36.2.8.22 1.2 0l11.72-6.76-2.76-2.76-10.16 9.52zM.54 1.5C.2 1.86 0 2.4 0 3.08v17.84c0 .68.2 1.22.54 1.58l.08.08 9.98-9.98v-.24L.62 1.42.54 1.5zM20.54 10.4l-2.68-1.54-3.08 3.08 3.08 3.08 2.7-1.56c.76-.44.76-1.62-.02-2.06zM4.38.24L16.1 7 13.34 9.76 3.18.24C3.58.02 4.02.04 4.38.24z"/></svg>
+                    Google Play
+                  </a>
+                </div>
+                <div className="fine">No ads. Friends can vote from a text without installing anything.</div>
               </div>
-              <div className="locked">
-                <span className="badge">LOCKED IN</span>
-                <div className="big">🎉</div>
-                <h3>You both said yes to</h3>
-                <div className="win">Jazz at the Blue Room</div>
-                <div className="cal">Add to calendar</div>
+              <div className="hero-visual" aria-hidden={true}>
+                <img
+                  src="/screenshots/app-preview.png"
+                  alt="TogetherPlans app — vote on date night activities with your partner"
+                  style={{
+                    width: '100%',
+                    borderRadius: '24px',
+                    boxShadow: '0 24px 64px rgba(0,0,0,0.18)',
+                  }}
+                />
               </div>
             </div>
           </section>

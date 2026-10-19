@@ -495,15 +495,47 @@ export function ProposalPage() {
   const prevStatusRef = useRef<string | null>(null);
   const confettiInjectedRef = useRef(false);
 
-  const { data: proposal, isLoading, isError } = useQuery({
+  const { data: proposal, isLoading, isError, refetch } = useQuery({
     queryKey: ["proposal", proposalId],
     queryFn: async () => {
       const res = await proposalsApi.get(proposalId!);
       return res.data;
     },
     enabled: !!proposalId,
-    refetchInterval: (query) => (query.state.data?.status === 'OPEN' ? 8000 : false),
+    // SSE handles real-time updates when OPEN; keep stale data until SSE pushes
+    refetchInterval: false,
   });
+
+  // SSE: real-time updates when proposal is OPEN
+  const accessToken = useAuthStore((s) => s.accessToken) || localStorage.getItem('accessToken');
+  useEffect(() => {
+    if (!proposalId || !accessToken || proposal?.status !== 'OPEN') return;
+
+    const apiBase = (import.meta as any).env?.VITE_API_URL || 'https://datenight-api-mh74edz3ja-uc.a.run.app';
+    const url = `${apiBase}/api/proposals/${proposalId}/stream?token=${encodeURIComponent(accessToken)}`;
+    const es = new EventSource(url);
+
+    es.onmessage = (e) => {
+      try {
+        const msg = JSON.parse(e.data);
+        if (msg.type === 'update' && msg.proposal) {
+          queryClient.setQueryData(['proposal', proposalId], (old: any) => ({
+            ...old,
+            ...msg.proposal,
+          }));
+        }
+      } catch { /* ignore parse errors */ }
+    };
+
+    es.onerror = () => {
+      es.close();
+      // Fallback: single manual refetch after 5s on SSE failure
+      const t = setTimeout(() => { refetch(); }, 5000);
+      return () => clearTimeout(t);
+    };
+
+    return () => es.close();
+  }, [proposalId, accessToken, proposal?.status, queryClient, refetch]);
 
   useEffect(() => {
     if (!proposal) return;

@@ -209,7 +209,7 @@ export function DashboardPage() {
 
   return (
     <>
-      <AppNav />
+      <AppNav yourTurnCount={pendingVotes.length} />
 
       {showOnboarding && (
         <OnboardingModal onClose={() => setShowOnboarding(false)} />
@@ -247,7 +247,18 @@ export function DashboardPage() {
                           <span className="dmu-hero-sticker">YOUR TURN</span>
                           <span style={{ fontSize: 13, opacity: 0.85 }}>{group.name}</span>
                         </div>
-                        <h2 style={{ marginTop: 0 }}>{proposal.title ?? "Open proposal"}</h2>
+                        <h2 style={{ marginTop: 0 }}>
+                          {proposal.title ?? "Open proposal"}
+                          <span className="dn-sticker" style={{
+                            background: 'var(--primary)',
+                            color: '#fff',
+                            fontSize: '0.7rem',
+                            marginLeft: '0.5rem',
+                            animation: 'dn-pulse 2s infinite',
+                          }}>
+                            Your turn ✨
+                          </span>
+                        </h2>
                         <p>{optionCount} option{optionCount !== 1 ? "s" : ""} to vote on</p>
                         <Link
                           to={`/proposals/${proposal.id}`}

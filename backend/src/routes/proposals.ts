@@ -11,6 +11,14 @@ import { generateShareToken } from '@/routes/share';
 
 export const proposalsRouter = Router();
 
+// Allow ?token= query param for SSE (EventSource can't set custom headers)
+proposalsRouter.use((req: AuthRequest, res: Response, next) => {
+  if (req.query.token && !req.headers.authorization) {
+    req.headers.authorization = `Bearer ${req.query.token}`;
+  }
+  next();
+});
+
 proposalsRouter.use(requireAuth);
 
 const MIN_OPTIONS = 1;
@@ -178,6 +186,63 @@ proposalsRouter.get('/:id', async (req: AuthRequest, res: Response, next) => {
     return res.json({ ...proposal, options, memberCount, tally });
   } catch (err) {
     return next(err);
+  }
+});
+
+// GET /api/proposals/:id/stream — SSE stream for real-time updates
+proposalsRouter.get('/:id/stream', async (req: AuthRequest, res: Response) => {
+  try {
+    const proposal = await prisma.proposal.findUnique({
+      where: { id: req.params.id },
+      select: { groupId: true },
+    });
+    if (!proposal) return res.status(404).json({ error: 'Not found' });
+
+    const membership = await prisma.groupMember.findFirst({
+      where: { groupId: proposal.groupId, userId: req.userId },
+    });
+    if (!membership) return res.status(403).json({ error: 'Not a member' });
+
+    // SSE headers
+    res.writeHead(200, {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive',
+      'X-Accel-Buffering': 'no', // disable nginx buffering
+    });
+
+    const sendUpdate = async () => {
+      try {
+        const data = await prisma.proposal.findUnique({
+          where: { id: req.params.id },
+          include: {
+            options: { include: { votes: { include: { user: { select: { id: true, displayName: true } } } } } },
+          },
+        });
+        if (data) {
+          res.write(`data: ${JSON.stringify({ type: 'update', proposal: data })}\n\n`);
+        }
+      } catch { /* connection may be closing */ }
+    };
+
+    // Send initial data immediately
+    await sendUpdate();
+
+    // Poll every 3s server-side (much cheaper than N clients each polling at 8s)
+    const interval = setInterval(sendUpdate, 3000);
+
+    // Keepalive comment every 25s to prevent proxy timeouts
+    const keepalive = setInterval(() => {
+      try { res.write(': keepalive\n\n'); } catch { /* ignore */ }
+    }, 25000);
+
+    req.on('close', () => {
+      clearInterval(interval);
+      clearInterval(keepalive);
+    });
+  } catch (err) {
+    // If headers not sent yet, return error; otherwise just close
+    if (!res.headersSent) res.status(500).json({ error: 'Stream failed' });
   }
 });
 

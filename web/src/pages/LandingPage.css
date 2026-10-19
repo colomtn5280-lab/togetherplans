@@ -33,7 +33,11 @@ html{scroll-behavior:smooth}
 .landing-root .btn.ghost:hover{color:var(--ink)}
 .btn.sm{height:42px;font-size:14px;padding:0 20px;border-radius:21px 15px 21px 15px}
 .link{font-weight:600;font-size:14px;padding:0 14px;color:var(--ink);text-decoration:none}
-.hero{display:grid;grid-template-columns:1.1fr 1fr;gap:48px;align-items:center;padding:72px 0 96px}
+.hero{padding:72px 0 96px}
+.hero-inner{display:flex;align-items:center;gap:3rem;flex-wrap:wrap}
+.hero-text{flex:1;min-width:280px}
+.hero-visual{flex:0 0 340px;max-width:340px}
+@media (max-width:768px){.hero-visual{display:none}}
 .sticker{display:inline-block;padding:6px 12px;border-radius:12px 6px 14px 6px;background:var(--lime);color:#101820;font:800 12px 'Sora',sans-serif;letter-spacing:.06em;transform:rotate(-3deg);box-shadow:var(--shadow)}
 .hero h1{font-size:76px;line-height:.98;letter-spacing:-.05em;margin-top:22px}
 .hero h1 .dot{display:inline-block;transform:rotate(8deg);color:var(--primary)}
@@ -91,7 +95,7 @@ html{scroll-behavior:smooth}
 .landing-footer .links{display:flex;gap:22px}
 .landing-footer a{color:var(--ink2)}
 .landing-footer a:hover{color:var(--ink)}
-@media (max-width:1024px){.hero{grid-template-columns:1fr;gap:56px}.hero h1{font-size:60px}.stage{height:520px;max-width:520px;margin:0 auto;width:100%}.cards,.steps{grid-template-columns:1fr}.cta{flex-direction:column;align-items:flex-start;padding:48px 36px}}
+@media (max-width:1024px){.hero h1{font-size:60px}.cards,.steps{grid-template-columns:1fr}.cta{flex-direction:column;align-items:flex-start;padding:48px 36px}}
 @media (max-width:640px){.wrap{padding:0 20px}.nav-links{display:none}.link{display:none}.hero{padding:40px 0 64px}.hero h1{font-size:44px}.hero p{font-size:17px}.stage{height:auto;display:flex;flex-direction:column;gap:20px;align-items:center}.phone,.locked{position:static;transform:none;width:100%;max-width:340px;height:auto}.how h2,.cta h2{font-size:32px}.cta{padding:36px 24px;border-radius:32px 26px 36px 28px}}
 /* ── Dark mode enhancements ── */
 @media (prefers-color-scheme:dark){

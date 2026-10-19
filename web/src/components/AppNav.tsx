@@ -28,7 +28,7 @@ function CalendarSvg({ size = 22, color = "white" }: { size?: number; color?: st
 
 // ── Main component ────────────────────────────────────────────────────────────
 
-export function AppNav() {
+export function AppNav({ yourTurnCount = 0 }: { yourTurnCount?: number }) {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const user = useAuthStore((s) => s.user);
   const location = useLocation();
@@ -237,6 +237,17 @@ export function AppNav() {
                 >
                   <span aria-hidden="true">{link.icon}</span>
                   {link.label}
+                  {link.to === "/groups" && yourTurnCount > 0 && (
+                    <span style={{
+                      background: 'var(--primary)',
+                      color: '#fff',
+                      borderRadius: '10px',
+                      fontSize: '0.65rem',
+                      padding: '1px 6px',
+                      marginLeft: '4px',
+                      fontWeight: 700,
+                    }}>{yourTurnCount}</span>
+                  )}
                 </Link>
               );
             })}
@@ -509,6 +520,18 @@ export function AppNav() {
           >
             <span className="app-nav__tab-icon">📅</span>
             Plans
+            {yourTurnCount > 0 && (
+              <span style={{
+                background: 'var(--primary)',
+                color: '#fff',
+                borderRadius: '10px',
+                fontSize: '0.6rem',
+                padding: '1px 5px',
+                marginLeft: '3px',
+                fontWeight: 700,
+                verticalAlign: 'middle',
+              }}>{yourTurnCount}</span>
+            )}
           </Link>
 
           {/* + New Plan (center teal circle) */}

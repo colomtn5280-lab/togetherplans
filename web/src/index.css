@@ -302,8 +302,8 @@ a.btn-primary, a[class*="btn"]:not(.dn-btn):not(.store):not(.brand):not(.nav-lin
   border-radius: 99px !important;
 }
 @keyframes dn-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(14,140,140,.45); }
-  50% { box-shadow: 0 0 0 10px rgba(14,140,140,0); }
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
 }
 
 /* Confetti animation */

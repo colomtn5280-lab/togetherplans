@@ -419,7 +419,7 @@ export default function ProposalDetailScreen() {
       } catch {
         // ignore polling errors
       }
-    }, 8000);
+    }, 5000);
     return () => clearInterval(interval);
   // Only re-run when status changes or proposalId changes
   // eslint-disable-next-line react-hooks/exhaustive-deps
