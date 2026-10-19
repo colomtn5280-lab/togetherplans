@@ -169,20 +169,13 @@ proposalsRouter.get('/:id', async (req: AuthRequest, res: Response, next) => {
       guestVotes: o.guestVotes.length,
       consensus: memberCount > 0 && o.votes.length > memberCount / 2,
     }));
-    // Derive winnerId from tally: option with unanimous APPROVE/MAYBE and no REJECTs
-    const winnerOption = proposal.options.find((o) => {
-      const approveOrMaybe = o.votes.filter((v) => v.sentiment !== 'REJECT').length;
-      const rejected = o.votes.filter((v) => v.sentiment === 'REJECT').length;
-      return approveOrMaybe >= memberCount && rejected === 0 && memberCount >= 2;
-    });
-    const derivedWinnerId = proposal.status === 'DECIDED' ? (winnerOption?.id ?? null) : null;
     // Strip raw guestId tokens from the response; expose counts only
     const options = proposal.options.map((o) => ({
       ...o,
       guestVotes: undefined,
       guestVoteCount: o.guestVotes.length,
     }));
-    return res.json({ ...proposal, winnerId: derivedWinnerId, options, memberCount, tally });
+    return res.json({ ...proposal, options, memberCount, tally });
   } catch (err) {
     return next(err);
   }

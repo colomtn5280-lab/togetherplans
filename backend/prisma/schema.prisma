@@ -150,6 +150,8 @@ model Proposal {
   shareToken String?        @unique
   // if this proposal is a counter-proposal, link to the original
   parentId   String?
+  // winning option id — set when status changes to DECIDED
+  winnerId   String?
   createdAt  DateTime       @default(now())
   updatedAt  DateTime       @updatedAt
   remindedAt DateTime?

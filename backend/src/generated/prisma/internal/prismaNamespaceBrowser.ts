@@ -178,6 +178,7 @@ export const ProposalScalarFieldEnum = {
   status: 'status',
   shareToken: 'shareToken',
   parentId: 'parentId',
+  winnerId: 'winnerId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   remindedAt: 'remindedAt'

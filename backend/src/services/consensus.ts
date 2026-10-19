@@ -55,7 +55,7 @@ export async function checkProposalConsensus(proposalId: string): Promise<Consen
 
   // Require at least 2 members to trigger consensus — single-member groups stay OPEN
   if (memberCount >= 2 && allVoted && winner) {
-    await prisma.proposal.update({ where: { id: proposalId }, data: { status: 'DECIDED' } });
+    await prisma.proposal.update({ where: { id: proposalId }, data: { status: 'DECIDED', winnerId: winner.id } });
     decided = true;
     // Notify all group members of the match
     const matchMembers = await prisma.groupMember.findMany({

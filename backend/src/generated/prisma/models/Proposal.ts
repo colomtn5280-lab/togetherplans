@@ -33,6 +33,7 @@ export type ProposalMinAggregateOutputType = {
   status: $Enums.ProposalStatus | null
   shareToken: string | null
   parentId: string | null
+  winnerId: string | null
   createdAt: Date | null
   updatedAt: Date | null
   remindedAt: Date | null
@@ -47,6 +48,7 @@ export type ProposalMaxAggregateOutputType = {
   status: $Enums.ProposalStatus | null
   shareToken: string | null
   parentId: string | null
+  winnerId: string | null
   createdAt: Date | null
   updatedAt: Date | null
   remindedAt: Date | null
@@ -61,6 +63,7 @@ export type ProposalCountAggregateOutputType = {
   status: number
   shareToken: number
   parentId: number
+  winnerId: number
   createdAt: number
   updatedAt: number
   remindedAt: number
@@ -77,6 +80,7 @@ export type ProposalMinAggregateInputType = {
   status?: true
   shareToken?: true
   parentId?: true
+  winnerId?: true
   createdAt?: true
   updatedAt?: true
   remindedAt?: true
@@ -91,6 +95,7 @@ export type ProposalMaxAggregateInputType = {
   status?: true
   shareToken?: true
   parentId?: true
+  winnerId?: true
   createdAt?: true
   updatedAt?: true
   remindedAt?: true
@@ -105,6 +110,7 @@ export type ProposalCountAggregateInputType = {
   status?: true
   shareToken?: true
   parentId?: true
+  winnerId?: true
   createdAt?: true
   updatedAt?: true
   remindedAt?: true
@@ -192,6 +198,7 @@ export type ProposalGroupByOutputType = {
   status: $Enums.ProposalStatus
   shareToken: string | null
   parentId: string | null
+  winnerId: string | null
   createdAt: Date
   updatedAt: Date
   remindedAt: Date | null
@@ -227,6 +234,7 @@ export type ProposalWhereInput = {
   status?: Prisma.EnumProposalStatusFilter<"Proposal"> | $Enums.ProposalStatus
   shareToken?: Prisma.StringNullableFilter<"Proposal"> | string | null
   parentId?: Prisma.StringNullableFilter<"Proposal"> | string | null
+  winnerId?: Prisma.StringNullableFilter<"Proposal"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Proposal"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Proposal"> | Date | string
   remindedAt?: Prisma.DateTimeNullableFilter<"Proposal"> | Date | string | null
@@ -249,6 +257,7 @@ export type ProposalOrderByWithRelationInput = {
   status?: Prisma.SortOrder
   shareToken?: Prisma.SortOrderInput | Prisma.SortOrder
   parentId?: Prisma.SortOrderInput | Prisma.SortOrder
+  winnerId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   remindedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -274,6 +283,7 @@ export type ProposalWhereUniqueInput = Prisma.AtLeast<{
   dateTime?: Prisma.DateTimeFilter<"Proposal"> | Date | string
   status?: Prisma.EnumProposalStatusFilter<"Proposal"> | $Enums.ProposalStatus
   parentId?: Prisma.StringNullableFilter<"Proposal"> | string | null
+  winnerId?: Prisma.StringNullableFilter<"Proposal"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Proposal"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Proposal"> | Date | string
   remindedAt?: Prisma.DateTimeNullableFilter<"Proposal"> | Date | string | null
@@ -296,6 +306,7 @@ export type ProposalOrderByWithAggregationInput = {
   status?: Prisma.SortOrder
   shareToken?: Prisma.SortOrderInput | Prisma.SortOrder
   parentId?: Prisma.SortOrderInput | Prisma.SortOrder
+  winnerId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   remindedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -316,6 +327,7 @@ export type ProposalScalarWhereWithAggregatesInput = {
   status?: Prisma.EnumProposalStatusWithAggregatesFilter<"Proposal"> | $Enums.ProposalStatus
   shareToken?: Prisma.StringNullableWithAggregatesFilter<"Proposal"> | string | null
   parentId?: Prisma.StringNullableWithAggregatesFilter<"Proposal"> | string | null
+  winnerId?: Prisma.StringNullableWithAggregatesFilter<"Proposal"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Proposal"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Proposal"> | Date | string
   remindedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Proposal"> | Date | string | null
@@ -327,6 +339,7 @@ export type ProposalCreateInput = {
   dateTime: Date | string
   status?: $Enums.ProposalStatus
   shareToken?: string | null
+  winnerId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   remindedAt?: Date | string | null
@@ -349,6 +362,7 @@ export type ProposalUncheckedCreateInput = {
   status?: $Enums.ProposalStatus
   shareToken?: string | null
   parentId?: string | null
+  winnerId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   remindedAt?: Date | string | null
@@ -365,6 +379,7 @@ export type ProposalUpdateInput = {
   dateTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumProposalStatusFieldUpdateOperationsInput | $Enums.ProposalStatus
   shareToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  winnerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   remindedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -387,6 +402,7 @@ export type ProposalUncheckedUpdateInput = {
   status?: Prisma.EnumProposalStatusFieldUpdateOperationsInput | $Enums.ProposalStatus
   shareToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  winnerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   remindedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -406,6 +422,7 @@ export type ProposalCreateManyInput = {
   status?: $Enums.ProposalStatus
   shareToken?: string | null
   parentId?: string | null
+  winnerId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   remindedAt?: Date | string | null
@@ -417,6 +434,7 @@ export type ProposalUpdateManyMutationInput = {
   dateTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumProposalStatusFieldUpdateOperationsInput | $Enums.ProposalStatus
   shareToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  winnerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   remindedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -431,6 +449,7 @@ export type ProposalUncheckedUpdateManyInput = {
   status?: Prisma.EnumProposalStatusFieldUpdateOperationsInput | $Enums.ProposalStatus
   shareToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  winnerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   remindedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -460,6 +479,7 @@ export type ProposalCountOrderByAggregateInput = {
   status?: Prisma.SortOrder
   shareToken?: Prisma.SortOrder
   parentId?: Prisma.SortOrder
+  winnerId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   remindedAt?: Prisma.SortOrder
@@ -474,6 +494,7 @@ export type ProposalMaxOrderByAggregateInput = {
   status?: Prisma.SortOrder
   shareToken?: Prisma.SortOrder
   parentId?: Prisma.SortOrder
+  winnerId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   remindedAt?: Prisma.SortOrder
@@ -488,6 +509,7 @@ export type ProposalMinOrderByAggregateInput = {
   status?: Prisma.SortOrder
   shareToken?: Prisma.SortOrder
   parentId?: Prisma.SortOrder
+  winnerId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   remindedAt?: Prisma.SortOrder
@@ -706,6 +728,7 @@ export type ProposalCreateWithoutCreatorInput = {
   dateTime: Date | string
   status?: $Enums.ProposalStatus
   shareToken?: string | null
+  winnerId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   remindedAt?: Date | string | null
@@ -726,6 +749,7 @@ export type ProposalUncheckedCreateWithoutCreatorInput = {
   status?: $Enums.ProposalStatus
   shareToken?: string | null
   parentId?: string | null
+  winnerId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   remindedAt?: Date | string | null
@@ -774,6 +798,7 @@ export type ProposalScalarWhereInput = {
   status?: Prisma.EnumProposalStatusFilter<"Proposal"> | $Enums.ProposalStatus
   shareToken?: Prisma.StringNullableFilter<"Proposal"> | string | null
   parentId?: Prisma.StringNullableFilter<"Proposal"> | string | null
+  winnerId?: Prisma.StringNullableFilter<"Proposal"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Proposal"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Proposal"> | Date | string
   remindedAt?: Prisma.DateTimeNullableFilter<"Proposal"> | Date | string | null
@@ -785,6 +810,7 @@ export type ProposalCreateWithoutGroupInput = {
   dateTime: Date | string
   status?: $Enums.ProposalStatus
   shareToken?: string | null
+  winnerId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   remindedAt?: Date | string | null
@@ -805,6 +831,7 @@ export type ProposalUncheckedCreateWithoutGroupInput = {
   status?: $Enums.ProposalStatus
   shareToken?: string | null
   parentId?: string | null
+  winnerId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   remindedAt?: Date | string | null
@@ -847,6 +874,7 @@ export type ProposalCreateWithoutCountersInput = {
   dateTime: Date | string
   status?: $Enums.ProposalStatus
   shareToken?: string | null
+  winnerId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   remindedAt?: Date | string | null
@@ -868,6 +896,7 @@ export type ProposalUncheckedCreateWithoutCountersInput = {
   status?: $Enums.ProposalStatus
   shareToken?: string | null
   parentId?: string | null
+  winnerId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   remindedAt?: Date | string | null
@@ -888,6 +917,7 @@ export type ProposalCreateWithoutParentInput = {
   dateTime: Date | string
   status?: $Enums.ProposalStatus
   shareToken?: string | null
+  winnerId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   remindedAt?: Date | string | null
@@ -908,6 +938,7 @@ export type ProposalUncheckedCreateWithoutParentInput = {
   dateTime: Date | string
   status?: $Enums.ProposalStatus
   shareToken?: string | null
+  winnerId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   remindedAt?: Date | string | null
@@ -945,6 +976,7 @@ export type ProposalUpdateWithoutCountersInput = {
   dateTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumProposalStatusFieldUpdateOperationsInput | $Enums.ProposalStatus
   shareToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  winnerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   remindedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -966,6 +998,7 @@ export type ProposalUncheckedUpdateWithoutCountersInput = {
   status?: Prisma.EnumProposalStatusFieldUpdateOperationsInput | $Enums.ProposalStatus
   shareToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  winnerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   remindedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -997,6 +1030,7 @@ export type ProposalCreateWithoutOptionsInput = {
   dateTime: Date | string
   status?: $Enums.ProposalStatus
   shareToken?: string | null
+  winnerId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   remindedAt?: Date | string | null
@@ -1018,6 +1052,7 @@ export type ProposalUncheckedCreateWithoutOptionsInput = {
   status?: $Enums.ProposalStatus
   shareToken?: string | null
   parentId?: string | null
+  winnerId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   remindedAt?: Date | string | null
@@ -1049,6 +1084,7 @@ export type ProposalUpdateWithoutOptionsInput = {
   dateTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumProposalStatusFieldUpdateOperationsInput | $Enums.ProposalStatus
   shareToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  winnerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   remindedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1070,6 +1106,7 @@ export type ProposalUncheckedUpdateWithoutOptionsInput = {
   status?: Prisma.EnumProposalStatusFieldUpdateOperationsInput | $Enums.ProposalStatus
   shareToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  winnerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   remindedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1085,6 +1122,7 @@ export type ProposalCreateWithoutGuestVotesInput = {
   dateTime: Date | string
   status?: $Enums.ProposalStatus
   shareToken?: string | null
+  winnerId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   remindedAt?: Date | string | null
@@ -1106,6 +1144,7 @@ export type ProposalUncheckedCreateWithoutGuestVotesInput = {
   status?: $Enums.ProposalStatus
   shareToken?: string | null
   parentId?: string | null
+  winnerId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   remindedAt?: Date | string | null
@@ -1137,6 +1176,7 @@ export type ProposalUpdateWithoutGuestVotesInput = {
   dateTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumProposalStatusFieldUpdateOperationsInput | $Enums.ProposalStatus
   shareToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  winnerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   remindedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1158,6 +1198,7 @@ export type ProposalUncheckedUpdateWithoutGuestVotesInput = {
   status?: Prisma.EnumProposalStatusFieldUpdateOperationsInput | $Enums.ProposalStatus
   shareToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  winnerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   remindedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1173,6 +1214,7 @@ export type ProposalCreateWithoutCommentsInput = {
   dateTime: Date | string
   status?: $Enums.ProposalStatus
   shareToken?: string | null
+  winnerId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   remindedAt?: Date | string | null
@@ -1194,6 +1236,7 @@ export type ProposalUncheckedCreateWithoutCommentsInput = {
   status?: $Enums.ProposalStatus
   shareToken?: string | null
   parentId?: string | null
+  winnerId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   remindedAt?: Date | string | null
@@ -1225,6 +1268,7 @@ export type ProposalUpdateWithoutCommentsInput = {
   dateTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumProposalStatusFieldUpdateOperationsInput | $Enums.ProposalStatus
   shareToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  winnerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   remindedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1246,6 +1290,7 @@ export type ProposalUncheckedUpdateWithoutCommentsInput = {
   status?: Prisma.EnumProposalStatusFieldUpdateOperationsInput | $Enums.ProposalStatus
   shareToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  winnerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   remindedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1261,6 +1306,7 @@ export type ProposalCreateWithoutInviteCardInput = {
   dateTime: Date | string
   status?: $Enums.ProposalStatus
   shareToken?: string | null
+  winnerId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   remindedAt?: Date | string | null
@@ -1282,6 +1328,7 @@ export type ProposalUncheckedCreateWithoutInviteCardInput = {
   status?: $Enums.ProposalStatus
   shareToken?: string | null
   parentId?: string | null
+  winnerId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   remindedAt?: Date | string | null
@@ -1313,6 +1360,7 @@ export type ProposalUpdateWithoutInviteCardInput = {
   dateTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumProposalStatusFieldUpdateOperationsInput | $Enums.ProposalStatus
   shareToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  winnerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   remindedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1334,6 +1382,7 @@ export type ProposalUncheckedUpdateWithoutInviteCardInput = {
   status?: Prisma.EnumProposalStatusFieldUpdateOperationsInput | $Enums.ProposalStatus
   shareToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  winnerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   remindedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1351,6 +1400,7 @@ export type ProposalCreateManyCreatorInput = {
   status?: $Enums.ProposalStatus
   shareToken?: string | null
   parentId?: string | null
+  winnerId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   remindedAt?: Date | string | null
@@ -1362,6 +1412,7 @@ export type ProposalUpdateWithoutCreatorInput = {
   dateTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumProposalStatusFieldUpdateOperationsInput | $Enums.ProposalStatus
   shareToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  winnerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   remindedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1382,6 +1433,7 @@ export type ProposalUncheckedUpdateWithoutCreatorInput = {
   status?: Prisma.EnumProposalStatusFieldUpdateOperationsInput | $Enums.ProposalStatus
   shareToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  winnerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   remindedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1400,6 +1452,7 @@ export type ProposalUncheckedUpdateManyWithoutCreatorInput = {
   status?: Prisma.EnumProposalStatusFieldUpdateOperationsInput | $Enums.ProposalStatus
   shareToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  winnerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   remindedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1413,6 +1466,7 @@ export type ProposalCreateManyGroupInput = {
   status?: $Enums.ProposalStatus
   shareToken?: string | null
   parentId?: string | null
+  winnerId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   remindedAt?: Date | string | null
@@ -1424,6 +1478,7 @@ export type ProposalUpdateWithoutGroupInput = {
   dateTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumProposalStatusFieldUpdateOperationsInput | $Enums.ProposalStatus
   shareToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  winnerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   remindedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1444,6 +1499,7 @@ export type ProposalUncheckedUpdateWithoutGroupInput = {
   status?: Prisma.EnumProposalStatusFieldUpdateOperationsInput | $Enums.ProposalStatus
   shareToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  winnerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   remindedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1462,6 +1518,7 @@ export type ProposalUncheckedUpdateManyWithoutGroupInput = {
   status?: Prisma.EnumProposalStatusFieldUpdateOperationsInput | $Enums.ProposalStatus
   shareToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  winnerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   remindedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1475,6 +1532,7 @@ export type ProposalCreateManyParentInput = {
   dateTime: Date | string
   status?: $Enums.ProposalStatus
   shareToken?: string | null
+  winnerId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   remindedAt?: Date | string | null
@@ -1486,6 +1544,7 @@ export type ProposalUpdateWithoutParentInput = {
   dateTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumProposalStatusFieldUpdateOperationsInput | $Enums.ProposalStatus
   shareToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  winnerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   remindedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1506,6 +1565,7 @@ export type ProposalUncheckedUpdateWithoutParentInput = {
   dateTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumProposalStatusFieldUpdateOperationsInput | $Enums.ProposalStatus
   shareToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  winnerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   remindedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1524,6 +1584,7 @@ export type ProposalUncheckedUpdateManyWithoutParentInput = {
   dateTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumProposalStatusFieldUpdateOperationsInput | $Enums.ProposalStatus
   shareToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  winnerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   remindedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1596,6 +1657,7 @@ export type ProposalSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   status?: boolean
   shareToken?: boolean
   parentId?: boolean
+  winnerId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   remindedAt?: boolean
@@ -1619,6 +1681,7 @@ export type ProposalSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   status?: boolean
   shareToken?: boolean
   parentId?: boolean
+  winnerId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   remindedAt?: boolean
@@ -1636,6 +1699,7 @@ export type ProposalSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   status?: boolean
   shareToken?: boolean
   parentId?: boolean
+  winnerId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   remindedAt?: boolean
@@ -1653,12 +1717,13 @@ export type ProposalSelectScalar = {
   status?: boolean
   shareToken?: boolean
   parentId?: boolean
+  winnerId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   remindedAt?: boolean
 }
 
-export type ProposalOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "groupId" | "creatorId" | "title" | "dateTime" | "status" | "shareToken" | "parentId" | "createdAt" | "updatedAt" | "remindedAt", ExtArgs["result"]["proposal"]>
+export type ProposalOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "groupId" | "creatorId" | "title" | "dateTime" | "status" | "shareToken" | "parentId" | "winnerId" | "createdAt" | "updatedAt" | "remindedAt", ExtArgs["result"]["proposal"]>
 export type ProposalInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   group?: boolean | Prisma.GroupDefaultArgs<ExtArgs>
   creator?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1702,6 +1767,7 @@ export type $ProposalPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     status: $Enums.ProposalStatus
     shareToken: string | null
     parentId: string | null
+    winnerId: string | null
     createdAt: Date
     updatedAt: Date
     remindedAt: Date | null
@@ -2144,6 +2210,7 @@ export interface ProposalFieldRefs {
   readonly status: Prisma.FieldRef<"Proposal", 'ProposalStatus'>
   readonly shareToken: Prisma.FieldRef<"Proposal", 'String'>
   readonly parentId: Prisma.FieldRef<"Proposal", 'String'>
+  readonly winnerId: Prisma.FieldRef<"Proposal", 'String'>
   readonly createdAt: Prisma.FieldRef<"Proposal", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Proposal", 'DateTime'>
   readonly remindedAt: Prisma.FieldRef<"Proposal", 'DateTime'>
