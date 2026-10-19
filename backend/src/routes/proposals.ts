@@ -169,13 +169,20 @@ proposalsRouter.get('/:id', async (req: AuthRequest, res: Response, next) => {
       guestVotes: o.guestVotes.length,
       consensus: memberCount > 0 && o.votes.length > memberCount / 2,
     }));
+    // Derive winnerId from tally: option with unanimous APPROVE/MAYBE and no REJECTs
+    const winnerOption = proposal.options.find((o) => {
+      const approveOrMaybe = o.votes.filter((v) => v.sentiment !== 'REJECT').length;
+      const rejected = o.votes.filter((v) => v.sentiment === 'REJECT').length;
+      return approveOrMaybe >= memberCount && rejected === 0 && memberCount >= 2;
+    });
+    const derivedWinnerId = proposal.status === 'DECIDED' ? (winnerOption?.id ?? null) : null;
     // Strip raw guestId tokens from the response; expose counts only
     const options = proposal.options.map((o) => ({
       ...o,
       guestVotes: undefined,
       guestVoteCount: o.guestVotes.length,
     }));
-    return res.json({ ...proposal, options, memberCount, tally });
+    return res.json({ ...proposal, winnerId: derivedWinnerId, options, memberCount, tally });
   } catch (err) {
     return next(err);
   }
@@ -258,8 +265,10 @@ proposalsRouter.post('/:id/vote', async (req: AuthRequest, res: Response, next) 
     if (!option || option.proposalId !== req.params.id) {
       return res.status(404).json({ error: 'Option not found on this proposal' });
     }
-    if (option.proposal.status !== 'OPEN') {
-      return res.status(409).json({ error: `Proposal is ${option.proposal.status.toLowerCase()}` });
+    // Allow voting on DECIDED proposals so all members can record their full preference.
+    // CANCELLED proposals are hard-blocked. Consensus re-check only fires when OPEN.
+    if (option.proposal.status === 'CANCELLED') {
+      return res.status(409).json({ error: 'Proposal is cancelled' });
     }
     const membership = await prisma.groupMember.findFirst({
       where: { groupId: option.proposal.groupId, userId: req.userId },
@@ -270,9 +279,13 @@ proposalsRouter.post('/:id/vote', async (req: AuthRequest, res: Response, next) 
       where: { optionId_userId: { optionId, userId: req.userId as string } },
     });
 
+    // Only run consensus check when proposal is still OPEN
+    const isOpen = option.proposal.status === 'OPEN';
+
     if (existing) {
       if (existing.sentiment === sentiment) {
-        // Same sentiment tapped again — toggle off
+        // Same sentiment tapped again — toggle off (only when OPEN)
+        if (!isOpen) return res.status(200).json({ vote: existing, toggled: 'noop', decided: true });
         await prisma.vote.delete({ where: { id: existing.id } });
         const { decided, winnerId, voteCount, memberCount } = await checkProposalConsensus(option.proposalId);
         return res.status(200).json({ toggled: 'off', decided, voteCount, memberCount, winnerId });
@@ -282,6 +295,7 @@ proposalsRouter.post('/:id/vote', async (req: AuthRequest, res: Response, next) 
         where: { id: existing.id },
         data: { sentiment, comment: comment !== undefined ? comment : existing.comment },
       });
+      if (!isOpen) return res.status(200).json({ vote, decided: true });
       const { decided, winnerId, voteCount, memberCount } = await checkProposalConsensus(option.proposalId);
       return res.status(200).json({ vote, decided, voteCount, memberCount, winnerId });
     }
@@ -291,6 +305,7 @@ proposalsRouter.post('/:id/vote', async (req: AuthRequest, res: Response, next) 
       data: { optionId, userId: req.userId as string, sentiment, comment: comment ?? null },
     });
 
+    if (!isOpen) return res.status(201).json({ vote, decided: true });
     const { decided, winnerId, voteCount, memberCount } = await checkProposalConsensus(option.proposalId);
     return res.status(201).json({ vote, decided, voteCount, memberCount, winnerId });
   } catch (err) {
