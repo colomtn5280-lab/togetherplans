@@ -3,6 +3,7 @@ module.exports = {
   testEnvironment: 'node',
   rootDir: './',
   testMatch: ['**/__tests__/**/*.test.ts'],
+  setupFiles: ['./jest.setup.ts'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
     // jose is ESM-only; mock it in the Jest (CommonJS) environment
