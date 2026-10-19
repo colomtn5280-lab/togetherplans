@@ -204,7 +204,7 @@ proposalsRouter.get('/:id/stream', async (req: AuthRequest, res: Response) => {
       clearInterval(interval);
       clearInterval(keepalive);
     });
-  } catch (err) {
+  } catch {
     // If headers not sent yet, return error; otherwise just close
     if (!res.headersSent) res.status(500).json({ error: 'Stream failed' });
   }

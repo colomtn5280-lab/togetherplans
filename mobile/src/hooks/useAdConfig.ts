@@ -29,7 +29,7 @@ async function fetchAdConfig(): Promise<AdConfig> {
     const res = await fetch(`${API_BASE}/api/v1/config`);
     if (!res.ok) return DEFAULT_CONFIG;
     return res.json();
-  } catch {
+  } catch (_err) {
     return DEFAULT_CONFIG;
   }
 }
