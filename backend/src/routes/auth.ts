@@ -103,64 +103,9 @@ authRouter.post('/register', authLimiter, async (req, res: Response, next) => {
   }
 });
 
-// POST /api/auth/signup — alias for /register (used by web client)
-authRouter.post('/signup', authLimiter, async (req, res: Response, next) => {
-  try {
-    const { email: rawEmail, password, displayName, firstName, lastName } = req.body || {};
-    const email = typeof rawEmail === 'string' ? rawEmail.trim().toLowerCase() : rawEmail;
-    // Web client sends firstName/lastName; merge into displayName if needed
-    const name = displayName?.trim() ||
-      [firstName, lastName].filter(Boolean).map((s: string) => s.trim()).join(' ') ||
-      '';
-    if (!email || !EMAIL_RE.test(email)) {
-      return res.status(400).json({ error: 'Valid email is required' });
-    }
-    if (!password || password.length < 8) {
-      return res.status(400).json({ error: 'Password must be at least 8 characters' });
-    }
-    if (!name) {
-      return res.status(400).json({ error: 'displayName (or firstName) is required' });
-    }
-    const existing = await prisma.user.findUnique({ where: { email } });
-    if (existing) {
-      if (!existing.passwordHash && existing.provider) {
-        const providerLabels: Record<string, string> = {
-          google: 'Google',
-          apple: 'Apple',
-          facebook: 'Facebook',
-        };
-        const label = providerLabels[existing.provider] ?? existing.provider;
-        return res.status(409).json({ error: `An account already exists with this email. Please sign in with ${label}.` });
-      }
-      return res.status(409).json({ error: 'Email already registered' });
-    }
-    const passwordHash = await bcrypt.hash(password, 12);
-    const user = await prisma.user.create({
-      data: { email, passwordHash, displayName: name },
-    });
-    const token = signToken(user.id, user.email);
-    const refreshToken = await issueRefreshToken(user.id);
-    const signupSecret = config.jwt_secret;
-    const signupVerifyToken = jwt.sign({ sub: user.id, purpose: 'email-verify', jti: randomUUID() }, signupSecret, { expiresIn: '24h' });
-    sendWelcomeEmail(user.email, user.email).catch((err) => logger.error('Failed to send welcome email on signup', { err }));
-    sendVerifyEmail(user.email, user.displayName, user.email, signupVerifyToken).catch((err) => logger.error('Failed to send verify email on signup', { err }));
-    res.cookie('refreshToken', refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict' as const,
-      maxAge: 30 * 24 * 60 * 60 * 1000,
-      path: '/api/auth',
-    });
-    // Return both old shape (token/user) and new shape (accessToken) for compatibility
-    return res.status(201).json({
-      token,
-      accessToken: token,
-      refreshToken,
-      user: { id: user.id, email: user.email, displayName: user.displayName },
-    });
-  } catch (err) {
-    return next(err);
-  }
+// POST /api/auth/signup — deprecated alias for /register; 307 preserves POST method + body
+authRouter.post('/signup', (req, res) => {
+  res.redirect(307, '/api/auth/register');
 });
 
 const LOGIN_LOCKOUT_MAX = 10;
