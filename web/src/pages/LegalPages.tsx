@@ -167,7 +167,6 @@ export function PrivacyPolicyPage() {
 
 /* ─────────────────────────────────────────────────────────────
    Terms of Service Page
-   TODO (Jake): Fill in governing jurisdiction before launch.
 ───────────────────────────────────────────────────────────── */
 export function TermsPage() {
   const { t } = useTranslation();
@@ -264,12 +263,10 @@ export function TermsPage() {
 
         <h2>9. Governing Law</h2>
         <p>
-          {/* TODO (Jake): Fill in the governing jurisdiction before launch, e.g.
-              "These Terms shall be governed by the laws of the State of Delaware, USA." */}
           These Terms shall be governed by and construed in accordance with the laws of
-          [TODO_JURISDICTION], without regard to its conflict of law provisions. Any disputes
-          arising from these Terms shall be resolved exclusively in the courts of
-          [TODO_JURISDICTION].
+          the Commonwealth of Virginia, USA, without regard to its conflict of law provisions.
+          Any disputes arising from these Terms shall be resolved exclusively in the courts of
+          the Commonwealth of Virginia.
         </p>
 
         <h2>10. Changes to Terms</h2>

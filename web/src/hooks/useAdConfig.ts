@@ -39,11 +39,15 @@ export function useAdConfig(): AdConfig {
   return data ?? DEFAULT_CONFIG;
 }
 
+export type AdScreen = 'web' | 'after-dark' | 'business';
+
 /** Returns true only when ads should actually render on the current screen. */
-export function useAdsActive(screen: 'web' | 'after-dark'): boolean {
+export function useAdsActive(screen: AdScreen): boolean {
   const cfg = useAdConfig();
   if (!cfg.ads_enabled) return false;
-  if (screen === 'after-dark') return false;  // hard-coded — never
+  // Hard-coded exclusions — never served regardless of remote config
+  if (screen === 'after-dark') return false;
+  if (screen === 'business') return false;
   if (screen === 'web') return cfg.ads_enabled_web;
   return false;
 }
