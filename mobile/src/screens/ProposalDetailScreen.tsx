@@ -34,6 +34,7 @@ import {
 import { proposalsAPI, groupsAPI } from '@/services/api';
 import { useAuth } from '@/hooks/useAuth';
 import * as Calendar from 'expo-calendar';
+import * as WebBrowser from 'expo-web-browser';
 import type { ActivityOption, Proposal, RootStackParamList } from '@/types';
 
 type RouteT = RouteProp<RootStackParamList, 'ProposalDetail'>;
@@ -240,6 +241,11 @@ export default function ProposalDetailScreen() {
   const [proposerName, setProposerName] = useState<string>('');
   const [voteComments, setVoteComments] = useState<Record<string, string>>({});
   const [newComment, setNewComment] = useState('');
+  // Enhancement 1: pending vote note state
+  const [pendingVote, setPendingVote] = useState<{ optionId: string; sentiment: 'APPROVE' | 'MAYBE' | 'REJECT' } | null>(null);
+  const [pendingComment, setPendingComment] = useState('');
+  // Enhancement 2: celebration dismissed this session
+  const [celebrationDismissed, setCelebrationDismissed] = useState(false);
   const queryClient = useQueryClient();
 
   // Comments query
@@ -390,6 +396,33 @@ export default function ProposalDetailScreen() {
 
   useEffect(() => { loadProposal(); }, [loadProposal]);
 
+  // Enhancement 3: Real-time polling when proposal is OPEN
+  useEffect(() => {
+    if (!proposal) return;
+    const isOpen = proposal.status === 'OPEN' || proposal.status === 'ACTIVE';
+    if (!isOpen) return;
+    const interval = setInterval(async () => {
+      try {
+        const res = await proposalsAPI.get(proposalId);
+        const p: Proposal = res.data;
+        setProposal(p);
+        if (p.status === 'DECIDED' || (p.status === 'ACCEPTED' && p.consensus?.reached)) {
+          clearInterval(interval);
+          // Show celebration if not dismissed
+          const seenKey = `seenDecision_${p.id}`;
+          const { default: AS } = await import('@react-native-async-storage/async-storage');
+          const seen = await AS.getItem(seenKey);
+          if (!seen) setShowDecision(true);
+        }
+      } catch {
+        // ignore polling errors
+      }
+    }, 8000);
+    return () => clearInterval(interval);
+  // Only re-run when status changes or proposalId changes
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [proposal?.status, proposalId]);
+
   // Solo-start auto-flow: open the share sheet once when navigated with openInvite
   useEffect(() => {
     if (openInvite && proposal && !autoInviteFiredRef.current && proposal.status === 'OPEN') {
@@ -402,6 +435,7 @@ export default function ProposalDetailScreen() {
     if (proposal) {
       await AsyncStorage.setItem(`seenDecision_${proposal.id}`, '1');
     }
+    setCelebrationDismissed(true);
     setShowDecision(false);
   };
 
@@ -411,6 +445,13 @@ export default function ProposalDetailScreen() {
     try {
       const { status } = await Calendar.requestCalendarPermissionsAsync();
       if (status !== 'granted') {
+        // Fallback: open Google Calendar URL via Linking
+        const eventTitle = encodeURIComponent(proposal.title);
+        const eventDate = new Date(proposal.scheduledFor ?? proposal.dateTime ?? Date.now());
+        const endDate = new Date(eventDate.getTime() + 2 * 60 * 60 * 1000);
+        const fmt = (d: Date) => d.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+        const gcalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${eventTitle}&dates=${fmt(eventDate)}/${fmt(endDate)}`;
+        await Linking.openURL(gcalUrl).catch(() => {});
         await dismissDecision();
         return;
       }
@@ -433,6 +474,13 @@ export default function ProposalDetailScreen() {
       }
     } catch {}
     await dismissDecision();
+  };
+
+  // Enhancement 2: open invite card in browser
+  const handlePickInviteCard = async () => {
+    if (!proposal) return;
+    const url = `https://togetherplans.app/proposals/${proposal.id}/invite-card`;
+    await WebBrowser.openBrowserAsync(url).catch(() => Linking.openURL(url).catch(() => {}));
   };
 
   const handleVote = async (optionId: string, sentiment: 'APPROVE' | 'MAYBE' | 'REJECT', comment?: string) => {
@@ -522,6 +570,14 @@ export default function ProposalDetailScreen() {
     proposal.consensus?.winningOption?.name ??
     proposal.consensus?.winningOption?.title ??
     'your pick';
+
+  // Enhancement 4: multiple consensus options
+  const consensusOptions = proposal.options.filter(
+    (o) => proposal.tally?.find((t) => t.optionId === o.id && t.consensus)
+  );
+  const hasMultiConsensus = consensusOptions.length > 1;
+  const runnerUp = hasMultiConsensus ? consensusOptions[1] : null;
+  const runnerUpName = runnerUp?.name ?? runnerUp?.title ?? '';
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
@@ -796,7 +852,10 @@ export default function ProposalDetailScreen() {
                       {/* APPROVE */}
                       <Pressable
                         style={[styles.voteBtn, mySentiment === 'APPROVE' && styles.voteBtnApprove]}
-                        onPress={() => handleVote(option.id, 'APPROVE')}
+                        onPress={() => {
+                          setPendingVote({ optionId: option.id, sentiment: 'APPROVE' });
+                          setPendingComment(voteComments[option.id] ?? '');
+                        }}
                       >
                         <Text style={[styles.voteBtnText, mySentiment === 'APPROVE' && { color: '#fff' }]}>
                           {mySentiment === 'APPROVE' ? "✓ I'm in 👍" : "I'm in 👍"}
@@ -805,7 +864,10 @@ export default function ProposalDetailScreen() {
                       {/* MAYBE */}
                       <Pressable
                         style={[styles.voteBtn, styles.voteBtnMaybeBase, mySentiment === 'MAYBE' && styles.voteBtnMaybe]}
-                        onPress={() => handleVote(option.id, 'MAYBE')}
+                        onPress={() => {
+                          setPendingVote({ optionId: option.id, sentiment: 'MAYBE' });
+                          setPendingComment(voteComments[option.id] ?? '');
+                        }}
                       >
                         <Text style={[styles.voteBtnText, { color: mySentiment === 'MAYBE' ? '#fff' : '#92400E' }]}>
                           {mySentiment === 'MAYBE' ? '✓ Maybe 🤔' : 'Maybe 🤔'}
@@ -814,29 +876,52 @@ export default function ProposalDetailScreen() {
                       {/* REJECT */}
                       <Pressable
                         style={[styles.voteBtn, styles.voteBtnRejectBase, mySentiment === 'REJECT' && styles.voteBtnReject]}
-                        onPress={() => handleVote(option.id, 'REJECT')}
+                        onPress={() => {
+                          setPendingVote({ optionId: option.id, sentiment: 'REJECT' });
+                          setPendingComment(voteComments[option.id] ?? '');
+                        }}
                       >
                         <Text style={[styles.voteBtnText, { color: mySentiment === 'REJECT' ? '#fff' : '#6B7280' }]}>
                           {mySentiment === 'REJECT' ? "✗ No 🙅" : "Don't think so 🙅"}
                         </Text>
                       </Pressable>
                     </View>
-                    {myVoteMap.get(option.id) && (
-                      <TextInput
-                        style={styles.voteCommentInput}
-                        placeholder="Add a note (optional)"
-                        value={voteComments[option.id] ?? ''}
-                        onChangeText={(text) => setVoteComments(prev => ({ ...prev, [option.id]: text }))}
-                        onEndEditing={() => {
-                          const comment = voteComments[option.id] ?? '';
-                          const sentiment = myVoteMap.get(option.id)!;
-                          voteMutation.mutate({ optionId: option.id, sentiment, comment });
-                        }}
-                        maxLength={200}
-                        multiline
-                        numberOfLines={2}
-                      />
+                    {/* Enhancement 1: inline note input after tapping a sentiment for this option */}
+                    {pendingVote?.optionId === option.id && (
+                      <View style={{ marginTop: 8 }}>
+                        <TextInput
+                          style={styles.voteCommentInput}
+                          placeholder="Add a note... (optional)"
+                          value={pendingComment}
+                          onChangeText={(text) => setPendingComment(text.slice(0, 280))}
+                          maxLength={280}
+                          multiline
+                          numberOfLines={2}
+                          autoFocus
+                        />
+                        <Pressable
+                          style={styles.voteDoneBtn}
+                          onPress={() => {
+                            const { optionId: oid, sentiment: sent } = pendingVote;
+                            const comment = pendingComment.trim();
+                            handleVote(oid, sent, comment || undefined);
+                            setVoteComments((prev) => ({ ...prev, [oid]: comment }));
+                            setPendingVote(null);
+                            setPendingComment('');
+                          }}
+                        >
+                          <Text style={styles.voteDoneBtnText}>Done ✓</Text>
+                        </Pressable>
+                      </View>
                     )}
+                    {/* Show saved comment if no pending vote for this option */}
+                    {!pendingVote?.optionId || pendingVote.optionId !== option.id ? (
+                      myVoteMap.get(option.id) && voteComments[option.id] ? (
+                        <Text style={[styles.voteNoteText, { marginTop: 4 }]}>
+                          "{voteComments[option.id]}"
+                        </Text>
+                      ) : null
+                    ) : null}
                   </View>
                 )}
 
@@ -943,8 +1028,8 @@ export default function ProposalDetailScreen() {
       </ScrollView>
 
       {/* DECIDED overlay */}
-      {isDecided && showDecision && (
-        <Modal transparent animationType="fade" visible={showDecision}>
+      {isDecided && showDecision && !celebrationDismissed && (
+        <Modal transparent animationType="fade" visible={showDecision && !celebrationDismissed}>
           {/* Dim backdrop */}
           <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(0,0,0,0.4)' }]} />
           <Confetti />
@@ -967,20 +1052,62 @@ export default function ProposalDetailScreen() {
                 style={{ marginBottom: SPACING.md }}
               />
               <Text style={{ fontSize: 48, marginBottom: SPACING.sm }}>🎉</Text>
-              <DNText variant="body" color={colors.ink2} style={{ marginBottom: SPACING.xs, textAlign: 'center' }}>
-                You both said yes to
+              <DNText variant="title" color={colors.ink} style={{ marginBottom: SPACING.xs, textAlign: 'center', fontSize: 24 }}>
+                It's a Match! 🎉
               </DNText>
-              <DNText variant="title" color={colors.ink} style={{ marginBottom: SPACING.lg, textAlign: 'center' }}>
-                {winningName}
-              </DNText>
+
+              {/* Enhancement 4: multi-consensus message */}
+              {hasMultiConsensus ? (
+                <DNText variant="body" color={colors.ink2} style={{ marginBottom: SPACING.xs, textAlign: 'center' }}>
+                  You both loved <Text style={{ fontWeight: '700', color: colors.ink }}>{winningName}</Text> and <Text style={{ fontWeight: '700', color: colors.ink }}>{runnerUpName}</Text>! We picked the headliner 🎭
+                </DNText>
+              ) : (
+                <DNText variant="body" color={colors.ink2} style={{ marginBottom: SPACING.xs, textAlign: 'center' }}>
+                  You both said yes to
+                </DNText>
+              )}
+
+              {/* Winner card */}
+              <View
+                style={{
+                  width: '100%',
+                  backgroundColor: colors.bg,
+                  borderRadius: 18,
+                  padding: SPACING.md,
+                  marginBottom: SPACING.md,
+                  borderWidth: 1,
+                  borderColor: colors.line,
+                }}
+              >
+                <DNText variant="heading" color={colors.ink} style={{ textAlign: 'center' }}>
+                  {winningName}
+                </DNText>
+                {(winningOption?.category) && (
+                  <DNText variant="secondary" color={colors.ink2} style={{ textAlign: 'center', marginTop: 4 }}>
+                    {winningOption.category}
+                  </DNText>
+                )}
+                {(winningOption?.address ?? winningOption?.location) ? (
+                  <DNText variant="secondary" color={colors.ink2} style={{ textAlign: 'center', marginTop: 2 }}>
+                    📍 {winningOption?.address ?? winningOption?.location}
+                  </DNText>
+                ) : null}
+              </View>
+
               <DNButton
-                label="Add to calendar"
+                label="Add to calendar 📅"
                 variant="primary"
                 onPress={handleAddToCalendar}
                 style={{ width: '100%', marginBottom: SPACING.sm }}
               />
               <DNButton
-                label="Done"
+                label="Pick an invite card 💌"
+                variant="tonal"
+                onPress={handlePickInviteCard}
+                style={{ width: '100%', marginBottom: SPACING.sm }}
+              />
+              <DNButton
+                label="View all votes"
                 variant="secondary"
                 onPress={dismissDecision}
                 style={{ width: '100%' }}
@@ -1029,6 +1156,19 @@ const styles = StyleSheet.create({
   voteNote: { flexDirection: 'row', gap: 4, marginTop: 4 },
   voteNoteName: { fontFamily: 'Sora_700Bold', fontSize: 11, color: '#2D3748' },
   voteNoteText: { fontFamily: 'Sora_400Regular', fontSize: 11, color: '#4A5568', fontStyle: 'italic', flex: 1 },
+  voteDoneBtn: {
+    marginTop: 6,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: '#0E8C8C',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  voteDoneBtnText: {
+    fontFamily: 'Sora_700Bold',
+    fontSize: 13,
+    color: '#fff',
+  },
   discussionSection: { marginTop: 24, paddingTop: 16, borderTopWidth: 1, borderTopColor: '#E2E8F0' },
   discussionTitle: { fontFamily: 'Sora_700Bold', fontSize: 15, color: '#2D3748', marginBottom: 12 },
   commentRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 6, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: '#F7FAFC' },
