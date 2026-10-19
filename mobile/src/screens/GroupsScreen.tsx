@@ -19,6 +19,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTheme } from '@/contexts/ThemeContext';
 import { SPACING, TYPE, SHADOWS } from '@/constants';
+import { useTranslation } from 'react-i18next';
 import {
   DNText,
   DNButton,
@@ -214,6 +215,7 @@ function GroupRow({
 // ─── GroupsScreen ─────────────────────────────────────────────────────────────
 export default function GroupsScreen() {
   const { colors } = useTheme();
+  const { t } = useTranslation();
   const navigation = useNavigation<Nav>();
   const { user } = useAuth();
 
@@ -302,7 +304,7 @@ export default function GroupsScreen() {
         }
       >
         <DNScreenHeader
-          title="Your plans"
+          title={t('groups.title')}
           subtitle={`${greeting}, ${name}`}
           rightElement={
             <DNButton
@@ -334,7 +336,7 @@ export default function GroupsScreen() {
         <StepChecklist />
 
         <DNButton
-          label="Create your first group"
+          label={t('groups.createFirst')}
           onPress={() => navigation.navigate('CreateGroup')}
           variant="primary"
           style={{ width: '100%' }}
@@ -362,9 +364,8 @@ export default function GroupsScreen() {
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
       }
     >
-      {/* Header row */}
       <DNScreenHeader
-        title="Your plans"
+        title={t('groups.title')}
         subtitle={`${greeting}, ${name}`}
         rightElement={
           <DNButton
@@ -420,7 +421,7 @@ export default function GroupsScreen() {
         {decidedProposals.length > 0 && (
           <View style={{ marginTop: 24, marginBottom: 8 }}>
             <Text style={[TYPE.section, { color: colors.ink2, marginBottom: 8 }]}>
-              PAST PLANS ({decidedProposals.length})
+              {t('groups.pastPlans')} ({decidedProposals.length})
             </Text>
             {decidedProposals.map((p) => (
               <TouchableOpacity

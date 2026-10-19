@@ -1,3 +1,4 @@
+// TODO i18n: instrument with useTranslation() — translations in src/locales/{en,es}/translation.json
 /**
  * ProposalDetailScreen — 1c interactive
  * HANDOFF_README spec: full redesign

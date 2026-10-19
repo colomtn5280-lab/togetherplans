@@ -1,3 +1,4 @@
+// TODO i18n: instrument with useTranslation() — translations in src/locales/{en,es}/translation.json
 /**
  * InviteMembersScreen — invite via Link, Email, SMS (native), or Username search
  * QR removed (low utility). SMS uses native Linking so no Twilio needed.

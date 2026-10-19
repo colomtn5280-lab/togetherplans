@@ -1,3 +1,4 @@
+// TODO i18n: instrument with useTranslation() — translations in src/locales/{en,es}/translation.json
 /**
  * InviteCardScreen — two-step flow inserted between CreateProposal and ProposalDetail.
  *

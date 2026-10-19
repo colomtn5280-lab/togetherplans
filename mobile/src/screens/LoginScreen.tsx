@@ -21,6 +21,7 @@ import { useAppleAuth } from '@/hooks/useAppleAuth';
 import { useFacebookAuth } from '@/hooks/useFacebookAuth';
 import { useTheme } from '@/contexts/ThemeContext';
 import { TYPE, SPACING, SHADOWS } from '@/constants';
+import { useTranslation } from 'react-i18next';
 import { DNInput, DNButton } from '@/components/ui';
 import { RootStackParamList } from '@/types';
 
@@ -28,6 +29,7 @@ type Props = { navigation: NativeStackNavigationProp<RootStackParamList, 'Login'
 
 export default function LoginScreen({ navigation }: Props) {
   const { colors } = useTheme();
+  const { t } = useTranslation();
   const { login } = useAuth();
   const { promptAsync, request, error: googleError } = useGoogleAuth();
   const { signIn: appleSignIn, isAvailable: appleAvailable } = useAppleAuth();
@@ -132,7 +134,7 @@ export default function LoginScreen({ navigation }: Props) {
 
         {/* Form */}
         <DNInput
-          label="Email"
+          label={t('auth.email')}
           placeholder="you@example.com"
           value={email}
           onChangeText={(t) => { setEmail(t); setError(''); }}
@@ -143,7 +145,7 @@ export default function LoginScreen({ navigation }: Props) {
           autoComplete="email"
         />
         <DNInput
-          label="Password"
+          label={t('auth.password')}
           placeholder="••••••••"
           value={password}
           onChangeText={(t) => { setPassword(t); setError(''); }}
@@ -160,7 +162,7 @@ export default function LoginScreen({ navigation }: Props) {
         ) : null}
 
         <DNButton
-          label="Log in"
+          label={t('auth.logIn')}
           onPress={handleLogin}
           loading={loading}
           style={{ marginTop: SPACING.sm, marginBottom: SPACING.lg }}
@@ -193,7 +195,7 @@ export default function LoginScreen({ navigation }: Props) {
               { fontFamily: 'Sora_700Bold', fontSize: 15, color: colors.ink, marginLeft: SPACING.sm },
             ]}
           >
-            Continue with Google
+            {t('auth.continueWithGoogle')}
           </Text>
         </TouchableOpacity>
 
@@ -219,7 +221,7 @@ export default function LoginScreen({ navigation }: Props) {
           <Text
             style={{ fontFamily: 'Sora_700Bold', fontSize: 15, color: '#FFFFFF', marginLeft: SPACING.sm }}
           >
-            Continue with Facebook
+            {t('auth.continueWithFacebook')}
           </Text>
         </TouchableOpacity>
 
@@ -229,9 +231,9 @@ export default function LoginScreen({ navigation }: Props) {
           style={{ marginTop: SPACING.lg, alignItems: 'center' }}
         >
           <Text style={[TYPE.secondary, { color: colors.ink2 }]}>
-            No account?{' '}
+            {t('auth.noAccount')}{' '}
             <Text style={{ color: colors.primaryDeep, fontFamily: 'DMSans_600SemiBold' }}>
-              Create account
+              {t('auth.signUp')}
             </Text>
           </Text>
         </TouchableOpacity>

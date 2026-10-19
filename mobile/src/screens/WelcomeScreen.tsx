@@ -1,3 +1,4 @@
+// TODO i18n: instrument with useTranslation() — translations in src/locales/{en,es}/translation.json
 /**
  * WelcomeScreen — DateMeUp v2 (spec: 3a)
  * First screen in the unauthenticated flow — social login entry point.

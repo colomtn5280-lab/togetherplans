@@ -14,6 +14,8 @@ import {
 } from 'react-native';
 import { useTheme } from '@/contexts/ThemeContext';
 import { CARD_RADII, SHADOWS, SPACING, TYPE } from '@/constants';
+import { useTranslation } from 'react-i18next';
+import * as SecureStore from 'expo-secure-store';
 import {
   DNAvatar,
   DNButton,
@@ -207,6 +209,12 @@ function DeleteAccountSheet({
 export default function ProfileScreen() {
   const { colors, override, setOverride } = useTheme();
   const { user, logout } = useAuth();
+  const { t, i18n } = useTranslation();
+
+  const changeLanguage = async (lng: string) => {
+    await i18n.changeLanguage(lng);
+    await SecureStore.setItemAsync('appLanguage', lng);
+  };
 
   const [notifNew, setNotifNew] = useState(true);
   const [notifVotes, setNotifVotes] = useState(true);
@@ -246,7 +254,7 @@ export default function ProfileScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
-      <DNScreenHeader title="Profile" />
+      <DNScreenHeader title={t('profile.title')} />
 
       <ScrollView contentContainerStyle={{ paddingBottom: 120 }}>
         {/* Avatar section */}
@@ -305,8 +313,30 @@ export default function ProfileScreen() {
             />
           </SettingsCard>
 
+          {/* Language card */}
+          <SettingsCard title={t('profile.language').toUpperCase()} index={1}>
+            <View style={{ flexDirection: 'row', gap: 8, paddingVertical: SPACING.sm }}>
+              {[{ code: 'en', label: t('profile.english') }, { code: 'es', label: t('profile.spanish') }].map(lang => (
+                <TouchableOpacity
+                  key={lang.code}
+                  onPress={() => changeLanguage(lang.code)}
+                  style={[
+                    { paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20, borderWidth: 1.5 },
+                    i18n.language === lang.code
+                      ? { backgroundColor: colors.primary, borderColor: colors.primary }
+                      : { backgroundColor: 'transparent', borderColor: colors.line }
+                  ]}
+                >
+                  <Text style={{ color: i18n.language === lang.code ? '#fff' : colors.ink, fontFamily: 'DMSans_500Medium' }}>
+                    {lang.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </SettingsCard>
+
           {/* Preferences card */}
-          <SettingsCard title="PREFERENCES" index={1}>
+          <SettingsCard title="PREFERENCES" index={2}>
             <SettingRow
               label="Home area"
               icon="📍"
@@ -345,9 +375,9 @@ export default function ProfileScreen() {
           </SettingsCard>
 
           {/* Account card */}
-          <SettingsCard title="ACCOUNT" index={2}>
+          <SettingsCard title="ACCOUNT" index={3}>
             <SettingRow
-              label="Sign out"
+              label={t('profile.signOut')}
               labelColor={colors.ink2}
               onPress={() => { logout(); }}
             />

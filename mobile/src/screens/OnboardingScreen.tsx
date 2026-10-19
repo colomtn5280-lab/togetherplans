@@ -1,3 +1,4 @@
+// TODO i18n: instrument with useTranslation() — translations in src/locales/{en,es}/translation.json
 /**
  * OnboardingScreen — DateNight v2 (slides 4a–4c)
  * Shown once after Register. Stores hasOnboarded in AsyncStorage.

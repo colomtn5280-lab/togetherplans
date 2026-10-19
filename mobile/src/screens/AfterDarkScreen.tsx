@@ -1,3 +1,4 @@
+// TODO i18n: instrument with useTranslation() — translations in src/locales/{en,es}/translation.json
 /**
  * AfterDarkScreen — late-night mode (21:00–03:00)
  *

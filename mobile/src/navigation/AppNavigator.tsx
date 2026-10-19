@@ -3,6 +3,7 @@
  * Custom floating dock tab bar, Onboarding flow, theme-aware header.
  */
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   NavigationContainer,
 } from '@react-navigation/native';
@@ -60,6 +61,7 @@ const ONBOARDED_KEY = 'hasOnboarded';
 // ─── Custom Dock Tab Bar ───────────────────────────────────────────────────────
 function DockTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   const { colors } = useTheme();
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
 
   const DOCK_H = 68;
@@ -72,10 +74,10 @@ function DockTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
     Profile:     (c, s) => <User     color={c} size={s} strokeWidth={2} />,
   };
   const tabLabels: Record<string, string> = {
-    Groups:      'Plans',
-    Suggestions: 'Discover',
-    AfterDark:   'After Dark',
-    Profile:     'Profile',
+    Groups:      t('nav.plans'),
+    Suggestions: t('nav.discover'),
+    AfterDark:   t('nav.afterDark'),
+    Profile:     t('nav.profile'),
   };
 
   return (

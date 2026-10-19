@@ -1,3 +1,4 @@
+// TODO i18n: instrument with useTranslation() — translations in src/locales/{en,es}/translation.json
 /**
  * GroupDetailScreen — §3e (populated) + §4d (empty / no other members)
  */

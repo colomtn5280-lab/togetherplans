@@ -1,6 +1,9 @@
 import 'react-native-gesture-handler';
-import React from 'react';
+import './src/i18n';
+import React, { useEffect } from 'react';
 import { View, ActivityIndicator } from 'react-native';
+import * as SecureStore from 'expo-secure-store';
+import i18n from './src/i18n';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useFonts } from 'expo-font';
@@ -25,6 +28,13 @@ import { COLORS } from '@/constants';
 const queryClient = new QueryClient();
 
 export default function App() {
+  // Restore persisted language preference
+  useEffect(() => {
+    SecureStore.getItemAsync('appLanguage').then(lng => {
+      if (lng) i18n.changeLanguage(lng);
+    });
+  }, []);
+
   const [fontsLoaded] = useFonts({
     Sora_400Regular,
     Sora_600SemiBold,

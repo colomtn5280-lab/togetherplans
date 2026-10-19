@@ -77,7 +77,8 @@
       "expo-web-browser",
       "expo-apple-authentication",
       "expo-font",
-      "@react-native-community/datetimepicker"
+      "@react-native-community/datetimepicker",
+      "expo-localization"
     ],
     "extra": {
       "apiBaseUrl": "https://api.datemeup.app",

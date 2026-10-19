@@ -1,0 +1,82 @@
+{
+  "nav": {
+    "plans": "Planes",
+    "discover": "Descubrir",
+    "afterDark": "Noche",
+    "profile": "Perfil"
+  },
+  "auth": {
+    "welcomeBack": "Bienvenido de nuevo",
+    "signIn": "Iniciar sesión",
+    "signUp": "Crear cuenta",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "firstName": "Nombre",
+    "lastName": "Apellido",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "continueWithGoogle": "Continuar con Google",
+    "continueWithApple": "Iniciar con Apple",
+    "continueWithFacebook": "Iniciar con Facebook",
+    "continueWithEmail": "Registrarse con email",
+    "noAccount": "¿No tienes cuenta?",
+    "hasAccount": "¿Ya tienes una cuenta?",
+    "logIn": "Entrar"
+  },
+  "groups": {
+    "title": "Planes",
+    "newGroup": "Nuevo grupo",
+    "noGroups": "Sin grupos aún",
+    "createFirst": "Crea tu primer grupo para empezar",
+    "active": "Activo",
+    "invite": "Invitar miembros",
+    "pastPlans": "PLANES PASADOS"
+  },
+  "proposal": {
+    "voteNow": "Votar ahora",
+    "approve": "Me encanta ✅",
+    "maybe": "Tal vez 🤔",
+    "reject": "No ❌",
+    "itsAMatch": "¡Es un match! 🎉",
+    "decided": "¡Plan decidido!",
+    "viewAllVotes": "Ver todos los votos",
+    "addToCalendar": "Añadir al calendario 📅",
+    "pickInviteCard": "Elegir tarjeta de invitación 💌",
+    "addNote": "Añadir nota... (opcional)",
+    "done": "Listo ✓",
+    "open": "Abierto",
+    "status": "Estado"
+  },
+  "discover": {
+    "title": "Descubrir",
+    "search": "Buscar actividades...",
+    "noResults": "Sin resultados",
+    "addToDate": "Añadir a la cita",
+    "findingActivities": "Buscando actividades cerca..."
+  },
+  "afterDark": {
+    "title": "Noche",
+    "romantic": "💫 Romántico",
+    "spicy": "🔥 Picante",
+    "all": "✨ Todo",
+    "letsGoNow": "¡Vamos AHORA 🔥",
+    "addIdea": "+ Añade tu idea"
+  },
+  "profile": {
+    "title": "Perfil",
+    "settings": "Ajustes",
+    "signOut": "Cerrar sesión",
+    "language": "Idioma",
+    "english": "🇺🇸 English",
+    "spanish": "🇪🇸 Español"
+  },
+  "common": {
+    "loading": "Cargando...",
+    "error": "Algo salió mal",
+    "retry": "Intentar de nuevo",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "back": "Atrás",
+    "next": "Siguiente",
+    "done": "Listo"
+  }
+}

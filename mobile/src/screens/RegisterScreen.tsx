@@ -1,3 +1,4 @@
+// TODO i18n: instrument with useTranslation() — translations in src/locales/{en,es}/translation.json
 /**
  * RegisterScreen — DateNight v2 redesign (3b)
  * Blob bg, back button, inline validation, Google+Apple social.

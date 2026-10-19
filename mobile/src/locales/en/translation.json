@@ -1,0 +1,82 @@
+{
+  "nav": {
+    "plans": "Plans",
+    "discover": "Discover",
+    "afterDark": "After Dark",
+    "profile": "Profile"
+  },
+  "auth": {
+    "welcomeBack": "Welcome back",
+    "signIn": "Sign in",
+    "signUp": "Create account",
+    "email": "Email address",
+    "password": "Password",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "forgotPassword": "Forgot password?",
+    "continueWithGoogle": "Continue with Google",
+    "continueWithApple": "Sign in with Apple",
+    "continueWithFacebook": "Sign in with Facebook",
+    "continueWithEmail": "Sign up with email",
+    "noAccount": "No account?",
+    "hasAccount": "Already have an account?",
+    "logIn": "Log in"
+  },
+  "groups": {
+    "title": "Plans",
+    "newGroup": "New group",
+    "noGroups": "No groups yet",
+    "createFirst": "Create your first group to get started",
+    "active": "Active",
+    "invite": "Invite members",
+    "pastPlans": "PAST PLANS"
+  },
+  "proposal": {
+    "voteNow": "Vote now",
+    "approve": "Love it ✅",
+    "maybe": "Maybe 🤔",
+    "reject": "Nope ❌",
+    "itsAMatch": "It's a Match! 🎉",
+    "decided": "Plan decided!",
+    "viewAllVotes": "View all votes",
+    "addToCalendar": "Add to calendar 📅",
+    "pickInviteCard": "Pick an invite card 💌",
+    "addNote": "Add a note... (optional)",
+    "done": "Done ✓",
+    "open": "Open",
+    "status": "Status"
+  },
+  "discover": {
+    "title": "Discover",
+    "search": "Search activities...",
+    "noResults": "No results found",
+    "addToDate": "Add to Date",
+    "findingActivities": "Finding activities near you..."
+  },
+  "afterDark": {
+    "title": "After Dark",
+    "romantic": "💫 Romantic",
+    "spicy": "🔥 Spicy",
+    "all": "✨ All",
+    "letsGoNow": "Let's go NOW 🔥",
+    "addIdea": "+ Add your idea"
+  },
+  "profile": {
+    "title": "Profile",
+    "settings": "Settings",
+    "signOut": "Sign out",
+    "language": "Language",
+    "english": "🇺🇸 English",
+    "spanish": "🇪🇸 Español"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "retry": "Try again",
+    "save": "Save",
+    "cancel": "Cancel",
+    "back": "Back",
+    "next": "Next",
+    "done": "Done"
+  }
+}

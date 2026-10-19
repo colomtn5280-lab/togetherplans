@@ -1,3 +1,4 @@
+// TODO i18n: instrument with useTranslation() — translations in src/locales/{en,es}/translation.json
 /**
  * ShareCardScreen — display a generated share card for a DECIDED proposal
  * and let the user share it via the native share sheet.
