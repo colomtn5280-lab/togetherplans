@@ -4,6 +4,7 @@ import { useAuthStore } from "../store/auth.store";
 import { notificationsApi, groupsApi } from "../api/client";
 import type { Group } from "../types";
 import { useDarkMode } from "../hooks/useDarkMode";
+import { useTranslation } from "react-i18next";
 import "./AppNav.css";
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -33,6 +34,7 @@ export function AppNav({ yourTurnCount = 0 }: { yourTurnCount?: number }) {
   const user = useAuthStore((s) => s.user);
   const location = useLocation();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   // ── Notification badge state ──────────────────────────────
   const [unreadCount, setUnreadCount] = useState(0);
@@ -127,14 +129,14 @@ export function AppNav({ yourTurnCount = 0 }: { yourTurnCount?: number }) {
 
   // ── Nav links config ──────────────────────────────────────
   const navLinks = [
-    { to: "/dashboard", label: "Home", icon: "⌂" as React.ReactNode },
+    { to: "/dashboard", label: t('nav.home'), icon: "⌂" as React.ReactNode },
     {
       to: "/groups",
-      label: "Plans",
+      label: t('nav.plans'),
       icon: (<CalendarSvg size={16} color="currentColor" />) as React.ReactNode,
     },
-    { to: "/suggestions", label: "Discover", icon: "🧭" as React.ReactNode },
-    { to: "/after-dark", label: "After Dark 🌙", icon: "🌙" as React.ReactNode },
+    { to: "/suggestions", label: t('nav.discover'), icon: "🧭" as React.ReactNode },
+    { to: "/after-dark", label: t('nav.afterDark') + " 🌙", icon: "🌙" as React.ReactNode },
   ];
 
   // ── Render ────────────────────────────────────────────────
@@ -285,7 +287,7 @@ export function AppNav({ yourTurnCount = 0 }: { yourTurnCount?: number }) {
                     opacity: groupsLoading ? 0.7 : 1,
                   }}
                 >
-                  New Date Plan
+                  {t('nav.newPlan')}
                 </button>
 
                 {/* Inline group picker dropdown */}
@@ -466,7 +468,7 @@ export function AppNav({ yourTurnCount = 0 }: { yourTurnCount?: number }) {
                   <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
                 </svg>
               </span>
-              Notifications
+              {t('nav.notifications')}
               {unreadCount > 0 && (
                 <span
                   style={{
@@ -494,7 +496,7 @@ export function AppNav({ yourTurnCount = 0 }: { yourTurnCount?: number }) {
               className={`app-nav__drawer-link${location.pathname === "/settings" ? " app-nav__drawer-link--active" : ""}`}
             >
               <span className="app-nav__drawer-icon">⚙️</span>
-              Settings
+              {t('nav.settings')}
             </Link>
           </aside>
         </>
@@ -510,7 +512,7 @@ export function AppNav({ yourTurnCount = 0 }: { yourTurnCount?: number }) {
             className={`app-nav__tab${location.pathname === "/dashboard" ? " app-nav__tab--active" : ""}`}
           >
             <span className="app-nav__tab-icon">⌂</span>
-            Home
+            {t('nav.home')}
           </Link>
 
           {/* Plans */}
@@ -519,7 +521,7 @@ export function AppNav({ yourTurnCount = 0 }: { yourTurnCount?: number }) {
             className={`app-nav__tab${location.pathname === "/groups" ? " app-nav__tab--active" : ""}`}
           >
             <span className="app-nav__tab-icon">📅</span>
-            Plans
+            {t('nav.plans')}
             {yourTurnCount > 0 && (
               <span style={{
                 background: 'var(--primary)',
@@ -551,7 +553,7 @@ export function AppNav({ yourTurnCount = 0 }: { yourTurnCount?: number }) {
             className={`app-nav__tab${location.pathname === "/suggestions" ? " app-nav__tab--active" : ""}`}
           >
             <span className="app-nav__tab-icon">🧭</span>
-            Discover
+            {t('nav.discover')}
           </Link>
 
           {/* After Dark */}
@@ -560,7 +562,7 @@ export function AppNav({ yourTurnCount = 0 }: { yourTurnCount?: number }) {
             className={`app-nav__tab${location.pathname === "/after-dark" ? " app-nav__tab--active" : ""}`}
           >
             <span className="app-nav__tab-icon">🌙</span>
-            After Dark
+            {t('nav.afterDark')}
           </Link>
 
           {/* Menu / Hamburger */}

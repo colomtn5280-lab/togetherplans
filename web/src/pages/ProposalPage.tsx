@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, Link, useLocation } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { proposalsApi, shareCardsApi } from "../api/client";
 import { AppNav } from "../components/AppNav";
 import { useAuthStore } from "../store/auth.store";
@@ -486,6 +487,7 @@ export function ProposalPage() {
   const location = useLocation();
   const queryClient = useQueryClient();
   const user = useAuthStore((s) => s.user);
+  const { t } = useTranslation();
   const [showCelebration, setShowCelebration] = useState(false);
   const [celebrationDismissed, setCelebrationDismissed] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
@@ -612,12 +614,12 @@ export function ProposalPage() {
       <AppNav />
       <main className="dmu-wrap dmu-page" style={{ textAlign: "center", padding: "4rem 1rem" }}>
         <div style={{ fontSize: "4rem", marginBottom: "1rem" }}>🗓️</div>
-        <h1 style={{ fontSize: "1.5rem", fontWeight: 700, marginBottom: "0.5rem" }}>Plan not found</h1>
+        <h1 style={{ fontSize: "1.5rem", fontWeight: 700, marginBottom: "0.5rem" }}>{t('proposal.planNotFound')}</h1>
         <p style={{ color: "var(--ink2)", marginBottom: "2rem", maxWidth: 360, margin: "0 auto 2rem" }}>
-          This plan may have been cancelled, or you may not have access to it.
+          {t('proposal.planNotFoundDesc')}
         </p>
         <Link to="/groups" className="dn-btn dn-btn--primary" style={{ display: "inline-block" }}>
-          ← Back to your plans
+          {t('proposal.backToPlans')}
         </Link>
       </main>
     </>
@@ -1147,7 +1149,7 @@ export function ProposalPage() {
             >
               <div style={{ fontSize: 56, marginBottom: 8 }}>🏆</div>
               <h1 style={{ fontFamily: "Sora, var(--font-display), sans-serif", fontSize: 32, marginBottom: 8, color: "#0E8C8C" }}>
-                It's a Match! 🎉
+                {t('proposal.itsAMatch')}
               </h1>
               {runnerUpOption ? (
                 <p style={{ color: "var(--ink2)", marginBottom: 24 }}>
@@ -1200,14 +1202,14 @@ export function ProposalPage() {
                   className="dn-btn"
                   style={{ textDecoration: "none", display: "block" }}
                 >
-                  📅 Add to Calendar
+                  {t('proposal.addToCalendar')}
                 </a>
                 <Link
                   to={`/proposals/${proposalId}/invite-card`}
                   className="dn-btn"
                   style={{ textDecoration: "none", display: "block", background: "var(--primary)", color: "#fff", border: "none" }}
                 >
-                  🎨 Pick an invite card
+                  {t('proposal.pickInviteCard')}
                 </Link>
                 {/* Message partner */}
                 {(() => {
@@ -1221,7 +1223,7 @@ export function ProposalPage() {
                       className="dn-btn dn-btn--outline"
                       style={{ display: "block", textAlign: "center", textDecoration: "none" }}
                     >
-                      💬 Message your partner
+                      {t('proposal.messagePartner')}
                     </a>
                   );
                 })()}

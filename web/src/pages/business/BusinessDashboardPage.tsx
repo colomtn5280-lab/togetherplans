@@ -1,3 +1,5 @@
+// TODO i18n: instrument this file with useTranslation() hooks
+// All strings have translations in /public/locales/{en,es}/translation.json
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useOutletContext } from 'react-router-dom';
 import { businessApi } from '../../api/client';

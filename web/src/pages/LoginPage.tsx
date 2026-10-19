@@ -5,6 +5,7 @@ import { z } from "zod";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { useGoogleLogin } from "@react-oauth/google";
+import { useTranslation } from "react-i18next";
 import { authApi } from "../api/client";
 import { useAuthStore } from "../store/auth.store";
 import type { LoginResponse } from "../types";
@@ -42,6 +43,7 @@ export function LoginPage() {
   const location = useLocation();
   const setAuth = useAuthStore((s) => s.setAuth);
   const from = (location.state as { from?: { pathname: string } })?.from?.pathname ?? "/dashboard";
+  const { t } = useTranslation();
 
   const [socialError, setSocialError] = useState<string | null>(null);
 
@@ -58,10 +60,10 @@ export function LoginPage() {
         setAuth(user, accessToken, refreshToken);
         navigate("/dashboard", { replace: true });
       } catch {
-        setSocialError("Google sign-in failed. Please try again.");
+        setSocialError(t('auth.googleFailed'));
       }
     },
-    onError: () => setSocialError("Google sign-in failed. Please try again."),
+    onError: () => setSocialError(t('auth.googleFailed')),
   });
 
   function handleFacebookLogin() {
@@ -140,7 +142,7 @@ export function LoginPage() {
       setAuth(user, accessToken, refreshToken);
       navigate(from, { replace: true });
     } catch {
-      setSocialError("Apple Sign-In failed. Please try again.");
+      setSocialError(t('auth.appleFailed'));
     }
   }
 
@@ -229,7 +231,7 @@ export function LoginPage() {
           </div>
         </div>
 
-        <h2 style={{ marginBottom: 24, fontSize: 26, textAlign: "center" }}>Welcome back</h2>
+        <h2 style={{ marginBottom: 24, fontSize: 26, textAlign: "center" }}>{t('auth.welcomeBack')}</h2>
 
         <form onSubmit={handleSubmit((d) => mutation.mutate(d))} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           <div>
@@ -237,7 +239,7 @@ export function LoginPage() {
               htmlFor="email"
               style={{ display: "block", fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 13, marginBottom: 6, color: "var(--ink2)" }}
             >
-              Email
+              {t('auth.email')}
             </label>
             <input
               id="email"
@@ -259,7 +261,7 @@ export function LoginPage() {
               htmlFor="password"
               style={{ display: "block", fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 13, marginBottom: 6, color: "var(--ink2)" }}
             >
-              Password
+              {t('auth.password')}
             </label>
             <input
               id="password"
@@ -300,7 +302,7 @@ export function LoginPage() {
             disabled={isSubmitting || mutation.isPending}
             style={{ width: "100%", marginTop: 8 }}
           >
-            {mutation.isPending ? "Signing in…" : "Log in"}
+            {mutation.isPending ? t('common.loading') : t('auth.logIn')}
           </button>
         </form>
 
@@ -428,10 +430,10 @@ export function LoginPage() {
 
         <div style={{ marginTop: 24, textAlign: "center", display: "flex", flexDirection: "column", gap: 8 }}>
           <Link to="/forgot-password" style={{ color: "var(--ink2)", fontSize: 13 }}>
-            Forgot password?
+            {t('auth.forgotPassword')}
           </Link>
           <span style={{ fontSize: 14, color: "var(--ink2)" }}>
-            No account?{" "}
+            {t('auth.noAccount')}{" "}
             <Link to="/signup" style={{ color: "var(--primary)", fontWeight: 700 }}>
               Create one free →
             </Link>

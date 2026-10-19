@@ -1,3 +1,5 @@
+// TODO i18n: instrument this file with useTranslation() hooks
+// All strings have translations in /public/locales/{en,es}/translation.json
 import React, { useState, useRef } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useQuery, useMutation } from "@tanstack/react-query";

@@ -1,3 +1,5 @@
+// TODO i18n: instrument this file with useTranslation() hooks
+// All strings have translations in /public/locales/{en,es}/translation.json
 import { Link } from 'react-router-dom';
 import './LandingPage.css';
 

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useQuery, useQueries } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { groupsApi, suggestionsApi } from "../api/client";
 import { useAuthStore } from "../store/auth.store";
 import { AppNav } from "../components/AppNav";
@@ -56,6 +57,7 @@ export function DashboardPage() {
   const clearAuth = useAuthStore((s) => s.clearAuth);
   const navigate = useNavigate();
   const { addOption, options } = usePlanBuilder();
+  const { t } = useTranslation();
 
   // Derive addedKeys from options (match SuggestionsPage pattern)
   const addedKeys = new Set(
@@ -194,7 +196,7 @@ export function DashboardPage() {
 
   const hour = new Date().getHours();
   const greeting =
-    hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+    hour < 12 ? t('dashboard.goodMorning') : hour < 17 ? t('dashboard.goodAfternoon') : t('dashboard.goodEvening');
   const firstName =
     (user as { firstName?: string; displayName?: string; email?: string } | null)
       ?.firstName ??
@@ -229,7 +231,7 @@ export function DashboardPage() {
                 <p className="dmu-sub">
                   {pendingVotes.length > 0
                     ? `${pendingVotes.length} plan${pendingVotes.length !== 1 ? "s" : ""} waiting for your vote.`
-                    : "All caught up. No open proposals."}
+                    : t('dashboard.allCaughtUp')}
                 </p>
               )}
 
@@ -395,7 +397,7 @@ export function DashboardPage() {
                             flexShrink: 0,
                             marginLeft: "0.5rem",
                           }}>
-                            {proposal.status === "DECIDED" ? "✓ Decided" : "Cancelled"}
+                          {proposal.status === "DECIDED" ? t('dashboard.decided') : t('dashboard.cancelled')}
                           </span>
                         </div>
                         {(proposal.dateTime ?? proposal.proposedDate) && (
@@ -416,7 +418,7 @@ export function DashboardPage() {
               {/* Groups card */}
               <div className="dmu-card">
                 <div className="dmu-card-head">
-                  <h2>Your groups</h2>
+                  <h2>{t('groups.yourGroups')}</h2>
                   <Link to="/groups">Manage</Link>
                 </div>
 
@@ -452,7 +454,7 @@ export function DashboardPage() {
                 )}
 
                 <button className="dmu-btn dmu-btn-dashed" onClick={() => navigate("/groups")}>
-                  + New group
+                  {t('groups.newGroup')}
                 </button>
               </div>
 
@@ -469,11 +471,11 @@ export function DashboardPage() {
                 </div>
                 <div className="dmu-acct-actions">
                   <Link to="/settings" className="dmu-btn dmu-btn-ghost">
-                    Settings
+                    {t('nav.settings')}
                   </Link>
                   <form onSubmit={(e) => { e.preventDefault(); handleLogout(); }}>
                     <button type="submit" className="dn-btn dn-btn--secondary" style={{ width: "100%" }}>
-                      Sign out
+                      {t('nav.signOut')}
                     </button>
                   </form>
                 </div>

@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { notificationsApi, usersApi, authApi, groupsApi } from "../api/client";
 import { useAuthStore } from "../store/auth.store";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { FavCategoryChips, loadFavCategories, saveFavCategories } from "../components/FavCategories";
 import { findCategory } from "../constants/categories";
 import { AppNav } from "../components/AppNav";
@@ -113,6 +114,7 @@ export function SettingsPage() {
   const [exportStatus, setExportStatus] = useState<"idle" | "loading" | "done">("idle");
   const [favIds, setFavIds] = useState<string[]>(() => loadFavCategories());
   const [favPickerOpen, setFavPickerOpen] = useState(false);
+  const { t, i18n } = useTranslation();
 
   const handleFavChange = (ids: string[]) => {
     setFavIds(ids);
@@ -175,11 +177,11 @@ export function SettingsPage() {
     <>
       <AppNav />
       <div style={{ maxWidth: 560, margin: "0 auto", padding: 24 }}>
-      <h1 style={{ fontSize: 32 }}>Settings</h1>
+      <h1 style={{ fontSize: 32 }}>{t('settings.title')}</h1>
 
       {/* Account info */}
       <section style={{ marginBottom: 32, padding: 20, background: "#f9f9f9", borderRadius: 16 }}>
-        <h2 style={{ marginTop: 0, fontSize: "1.1rem" }}>Account</h2>
+        <h2 style={{ marginTop: 0, fontSize: "1.1rem" }}>{t('settings.account')}</h2>
         <p style={{ margin: "4px 0", color: "#444" }}>
           <strong>Email:</strong> {user?.email ?? "—"}
         </p>
@@ -193,7 +195,7 @@ export function SettingsPage() {
           className="dn-btn dn-btn--secondary"
           style={{ marginTop: 12 }}
         >
-          Sign out
+          {t('settings.signOut')}
         </button>
       </section>
 
@@ -285,6 +287,22 @@ export function SettingsPage() {
         </nav>
       </section>
 
+      {/* Language selector */}
+      <section style={{ marginBottom: 32, padding: 20, background: "#f9f9f9", borderRadius: 16 }}>
+        <h2 style={{ marginTop: 0, fontSize: "1.1rem" }}>Language</h2>
+        <div style={{ display: "flex", gap: "0.5rem" }}>
+          {[{ code: "en", label: "🇺🇸 English" }, { code: "es", label: "🇪🇸 Español" }].map(lang => (
+            <button
+              key={lang.code}
+              onClick={() => i18n.changeLanguage(lang.code)}
+              className={`dn-btn ${i18n.language.startsWith(lang.code) ? "dn-btn--primary" : "dn-btn--secondary"}`}
+            >
+              {lang.label}
+            </button>
+          ))}
+        </div>
+      </section>
+
       {/* GDPR / Data rights */}
       <section
         style={{
@@ -305,10 +323,10 @@ export function SettingsPage() {
             className="dn-btn dn-btn--secondary"
           >
             {exportStatus === "loading"
-              ? "Exporting…"
+              ? t('common.loading')
               : exportStatus === "done"
                 ? "✓ Export downloaded!"
-                : "Export my data"}
+                : t('settings.exportData')}
           </button>
           <button
             onClick={() => {
@@ -327,7 +345,7 @@ export function SettingsPage() {
               borderColor: "#dc3545",
             }}
           >
-            {requestDeletion.isPending ? "Scheduling…" : "Delete my account"}
+            {requestDeletion.isPending ? "Scheduling…" : t('settings.deleteAccount')}
           </button>
         </div>
       </section>

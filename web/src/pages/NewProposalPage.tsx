@@ -1,3 +1,5 @@
+// TODO i18n: instrument this file with useTranslation() hooks
+// All strings have translations in /public/locales/{en,es}/translation.json
 /**
  * NewProposalPage — Finalize step
  * Redesigned to match Jarvis 9.24.26 design system.
