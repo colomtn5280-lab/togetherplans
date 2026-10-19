@@ -3,6 +3,7 @@
  * HANDOFF_README §3c (populated) + §3d (empty)
  */
 import React, { useCallback, useEffect, useState } from 'react';
+import * as Haptics from 'expo-haptics';
 import {
   FlatList,
   RefreshControl,
@@ -298,7 +299,10 @@ export default function GroupsScreen() {
           rightElement={
             <DNButton
               label="+ New"
-              onPress={() => navigation.navigate('CreateGroup')}
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                navigation.navigate('CreateGroup');
+              }}
               variant="primary"
               size="compact"
             />
@@ -356,7 +360,10 @@ export default function GroupsScreen() {
         rightElement={
           <DNButton
             label="+ New"
-            onPress={() => navigation.navigate('CreateGroup')}
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              navigation.navigate('CreateGroup');
+            }}
             variant="primary"
             size="compact"
           />

@@ -30,6 +30,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { PlanBuilderProvider } from '@/contexts/PlanBuilderContext';
 import PlanBuilderStrip from '@/components/PlanBuilderStrip';
 import { COLORS, RADII, SHADOWS, SPACING, TYPE } from '@/constants';
+import * as Haptics from 'expo-haptics';
 import { RootStackParamList } from '@/types';
 
 // Auth screens
@@ -102,6 +103,7 @@ function DockTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
         const iconSize = 22;
 
         const onPress = () => {
+          Haptics.selectionAsync();
           const event = navigation.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
           if (!isFocused && !event.defaultPrevented) {
             navigation.navigate(route.name);
@@ -111,9 +113,9 @@ function DockTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
         return (
           <TouchableOpacity
             key={route.key}
-            accessibilityRole="button"
-            accessibilityState={isFocused ? { selected: true } : {}}
-            accessibilityLabel={options.tabBarAccessibilityLabel}
+            accessibilityRole="tab"
+            accessibilityLabel={route.name + ' tab'}
+            accessibilityState={{ selected: isFocused }}
             onPress={onPress}
             activeOpacity={0.85}
             style={[
@@ -301,7 +303,7 @@ export default function AppNavigator() {
             <Stack.Screen
               name="CreateProposal"
               component={CreateProposalScreen}
-              options={{ title: 'New Proposal' }}
+              options={{ title: 'New Proposal', presentation: 'modal' }}
             />
             <Stack.Screen
               name="Suggestions"
@@ -311,7 +313,7 @@ export default function AppNavigator() {
             <Stack.Screen
               name="ShareCard"
               component={ShareCardScreen}
-              options={{ title: 'Share', headerShown: false }}
+              options={{ title: 'Share', headerShown: false, presentation: 'modal' }}
             />
             <Stack.Screen
               name="AfterDark"
@@ -321,7 +323,7 @@ export default function AppNavigator() {
             <Stack.Screen
               name="InviteCard"
               component={InviteCardScreen}
-              options={{ title: 'Invite Card', headerShown: false }}
+              options={{ title: 'Invite Card', headerShown: false, presentation: 'modal' }}
             />
           </>
         )}

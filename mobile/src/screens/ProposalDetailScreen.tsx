@@ -35,6 +35,7 @@ import { proposalsAPI, groupsAPI } from '@/services/api';
 import { useAuth } from '@/hooks/useAuth';
 import * as Calendar from 'expo-calendar';
 import * as WebBrowser from 'expo-web-browser';
+import * as Haptics from 'expo-haptics';
 import type { ActivityOption, Proposal, RootStackParamList } from '@/types';
 
 type RouteT = RouteProp<RootStackParamList, 'ProposalDetail'>;
@@ -413,6 +414,7 @@ export default function ProposalDetailScreen() {
           const { default: AS } = await import('@react-native-async-storage/async-storage');
           const seen = await AS.getItem(seenKey);
           if (!seen) setShowDecision(true);
+          await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         }
       } catch {
         // ignore polling errors
@@ -852,7 +854,11 @@ export default function ProposalDetailScreen() {
                       {/* APPROVE */}
                       <Pressable
                         style={[styles.voteBtn, mySentiment === 'APPROVE' && styles.voteBtnApprove]}
+                        accessibilityRole="button"
+                        accessibilityLabel={'Vote APPROVE for ' + displayName}
+                        accessibilityState={{ selected: mySentiment === 'APPROVE' }}
                         onPress={() => {
+                          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
                           setPendingVote({ optionId: option.id, sentiment: 'APPROVE' });
                           setPendingComment(voteComments[option.id] ?? '');
                         }}
@@ -864,7 +870,11 @@ export default function ProposalDetailScreen() {
                       {/* MAYBE */}
                       <Pressable
                         style={[styles.voteBtn, styles.voteBtnMaybeBase, mySentiment === 'MAYBE' && styles.voteBtnMaybe]}
+                        accessibilityRole="button"
+                        accessibilityLabel={'Vote MAYBE for ' + displayName}
+                        accessibilityState={{ selected: mySentiment === 'MAYBE' }}
                         onPress={() => {
+                          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
                           setPendingVote({ optionId: option.id, sentiment: 'MAYBE' });
                           setPendingComment(voteComments[option.id] ?? '');
                         }}
@@ -876,7 +886,11 @@ export default function ProposalDetailScreen() {
                       {/* REJECT */}
                       <Pressable
                         style={[styles.voteBtn, styles.voteBtnRejectBase, mySentiment === 'REJECT' && styles.voteBtnReject]}
+                        accessibilityRole="button"
+                        accessibilityLabel={'Vote REJECT for ' + displayName}
+                        accessibilityState={{ selected: mySentiment === 'REJECT' }}
                         onPress={() => {
+                          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
                           setPendingVote({ optionId: option.id, sentiment: 'REJECT' });
                           setPendingComment(voteComments[option.id] ?? '');
                         }}

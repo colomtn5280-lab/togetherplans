@@ -19,6 +19,7 @@ import {
 } from 'react-native';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/contexts/ThemeContext';
 import { usePlanBuilder } from '@/contexts/PlanBuilderContext';
 import { SPACING, SHADOWS } from '@/constants';
@@ -274,6 +275,7 @@ function suggestTitle(opts: PlanBuilderOption[]): string {
 // ── Main Screen ───────────────────────────────────────────────────────────────
 export default function CreateProposalScreen() {
   const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
   const navigation = useNavigation<any>();
   const route = useRoute<RouteT>();
   const { user } = useAuth();
@@ -710,7 +712,7 @@ export default function CreateProposalScreen() {
             right: 0,
             backgroundColor: colors.bg,
             paddingHorizontal: SPACING.gutter,
-            paddingBottom: Platform.OS === 'ios' ? 36 : 24,
+            paddingBottom: insets.bottom + 16,
             paddingTop: SPACING.md,
             borderTopWidth: 1,
             borderTopColor: colors.line,
