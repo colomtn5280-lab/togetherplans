@@ -1,7 +1,6 @@
-// TODO i18n: instrument this file with useTranslation() hooks
-// All strings have translations in /public/locales/{en,es}/translation.json
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { invitationsApi } from "../api/client";
 import { useAuthStore } from "../store/auth.store";
 import type { Invitation } from "../types";
@@ -14,6 +13,7 @@ interface InviteDetails {
 }
 
 export function JoinPage() {
+  const { t } = useTranslation();
   const { token } = useParams<{ token: string }>();
   const navigate = useNavigate();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
@@ -27,7 +27,7 @@ export function JoinPage() {
 
   useEffect(() => {
     if (!token) {
-      setError("Invalid invite link.");
+      setError(t("join.invalidLink"));
       setLoading(false);
       return;
     }
@@ -60,7 +60,7 @@ export function JoinPage() {
         setLoading(false);
       })
       .catch(() => {
-        setError("This invite link is invalid or has expired.");
+        setError(t("join.expiredLink"));
         setLoading(false);
       });
   }, [token]);
@@ -69,8 +69,6 @@ export function JoinPage() {
     if (!token) return;
     setJoining(true);
     try {
-      // Pass the guest id (if this user voted as a guest via a share link)
-      // so their guest votes on this group's proposals convert to real votes.
       const guestId = localStorage.getItem("tp.guestId") ?? undefined;
       const res = await invitationsApi.accept(token, guestId);
       setJoined(true);
@@ -86,9 +84,9 @@ export function JoinPage() {
       const msg = (err instanceof Error ? err.message : "") ||
         ((err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? "");
       if (msg.toLowerCase().includes("already a member")) {
-        setError("You're already a member of this group.");
+        setError(t("join.alreadyMember"));
       } else {
-        setError("Failed to join group. The invite may have expired or already been used.");
+        setError(t("join.joinFailed"));
       }
     } finally {
       setJoining(false);
@@ -182,15 +180,15 @@ export function JoinPage() {
         </div>
 
         {loading && (
-          <p style={{ color: "var(--ink2)" }}>Loading invite…</p>
+          <p style={{ color: "var(--ink2)" }}>{t("join.loading")}</p>
         )}
 
         {error && !loading && (
           <div>
             <div style={{ fontSize: 48, marginBottom: 16 }}>😕</div>
-            <h2 style={{ marginBottom: 8 }}>Invalid invite</h2>
+            <h2 style={{ marginBottom: 8 }}>{t("join.invalidInvite")}</h2>
             <p style={{ color: "var(--error)", marginBottom: 24 }}>{error}</p>
-            <Link to="/" className="dn-btn">Go home</Link>
+            <Link to="/" className="dn-btn">{t("join.goHome")}</Link>
           </div>
         )}
 
@@ -199,25 +197,25 @@ export function JoinPage() {
             {joined ? (
               <div>
                 <div style={{ fontSize: 56, marginBottom: 16 }}>🎉</div>
-                <h2 style={{ marginBottom: 8 }}>You're in!</h2>
-                <p style={{ color: "var(--ink2)" }}>Redirecting to your group…</p>
+                <h2 style={{ marginBottom: 8 }}>{t("join.youreIn")}</h2>
+                <p style={{ color: "var(--ink2)" }}>{t("join.redirecting")}</p>
               </div>
             ) : (
               <div>
                 <div style={{ fontSize: 40, marginBottom: 16 }}>✉️</div>
-                <h2 style={{ marginBottom: 8 }}>You're invited!</h2>
+                <h2 style={{ marginBottom: 8 }}>{t("join.youreInvited")}</h2>
                 {invite.groupName && (
                   <p style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 20, color: "var(--primary)", marginBottom: 8 }}>
-                    You've been invited to join {invite.groupName}
+                    {t("join.invitedToJoin", { name: invite.groupName })}
                   </p>
                 )}
                 {invite.inviterName && (
                   <p style={{ color: "var(--ink2)", marginBottom: 8 }}>
-                    Invited by <strong>{invite.inviterName}</strong>
+                    {t("join.invitedBy")} <strong>{invite.inviterName}</strong>
                   </p>
                 )}
                 <p style={{ color: "var(--ink2)", fontSize: 13, marginBottom: 28 }}>
-                  Expires: {new Date(invite.expiresAt).toLocaleDateString()}
+                  {t("join.expires")} {new Date(invite.expiresAt).toLocaleDateString()}
                 </p>
 
                 {isAuthenticated ? (
@@ -227,26 +225,26 @@ export function JoinPage() {
                     onClick={handleAccept}
                     disabled={joining}
                   >
-                    {joining ? "Joining…" : "Join group →"}
+                    {joining ? t("join.joining") : t("join.joinGroup")}
                   </button>
                 ) : (
                   <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                     <p style={{ color: "var(--ink2)", fontSize: 14, marginBottom: 4 }}>
-                      Sign in or create an account to join.
+                      {t("join.signInToJoin")}
                     </p>
                     <Link
                       to={`/login?redirect=/join/${token}`}
                       className="dn-btn"
                       style={{ width: "100%" }}
                     >
-                      Log in
+                      {t("auth.logIn")}
                     </Link>
                     <Link
                       to={`/signup?redirect=/join/${token}`}
                       className="dn-btn dn-btn--secondary"
                       style={{ width: "100%" }}
                     >
-                      Create account
+                      {t("auth.createAccount")}
                     </Link>
                   </div>
                 )}

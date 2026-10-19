@@ -1,4 +1,3 @@
-// TODO i18n: instrument with useTranslation() — translations in src/locales/{en,es}/translation.json
 /**
  * CreateProposalScreen — FINALIZE step (rewritten)
  *
@@ -34,6 +33,7 @@ import {
 } from '@/components/ui';
 import { proposalsAPI, groupsAPI } from '@/services/api';
 import { useAuth } from '@/hooks/useAuth';
+import { useTranslation } from 'react-i18next';
 import type { ActivityOption, Group, PlanBuilderOption, RootStackParamList } from '@/types';
 
 type RouteT = RouteProp<RootStackParamList, 'CreateProposal'>;
@@ -75,7 +75,7 @@ function OptionThumbnail({ opt }: { opt: PlanBuilderOption }) {
   );
 }
 
-// ── Option card for "Your Plan" list ──────────────────────────────────────────
+// ── Option card for t('createProposal.title') list ──────────────────────────────────────────
 function PlanOptionCard({
   opt,
   onRemove,
@@ -175,7 +175,7 @@ function PreviewModal({
             Preview
           </DNText>
           <DNText variant="secondary" color={colors.ink2} style={{ marginBottom: SPACING.md }}>
-            What {partnerName} will see
+            {t('createProposal.previewSubtitle', { name: partnerName })}
           </DNText>
 
           <ScrollView showsVerticalScrollIndicator={false}>
@@ -223,7 +223,7 @@ function PreviewModal({
           </ScrollView>
 
           <DNButton
-            label="Close Preview"
+            label=t('createProposal.closePreview')
             variant="secondary"
             onPress={onClose}
             style={{ marginTop: SPACING.md }}
@@ -280,6 +280,7 @@ export default function CreateProposalScreen() {
   const navigation = useNavigation<any>();
   const route = useRoute<RouteT>();
   const { user } = useAuth();
+  const { t } = useTranslation();
   const { options: pbOptions, addOption, removeOption, clearPlan, groupId: pbGroupId } = usePlanBuilder();
 
   const routeGroupId = route.params?.groupId ?? pbGroupId ?? '';
@@ -412,18 +413,18 @@ export default function CreateProposalScreen() {
   const validate = () => {
     let valid = true;
     if (!title.trim()) {
-      setTitleError('Title is required');
+      setTitleError(t('createProposal.titleRequired'));
       valid = false;
     } else setTitleError('');
     if (localOptions.length < 1) {
-      setOptionsError('Add at least 1 activity');
+      setOptionsError(t('createProposal.addAtLeastOne'));
       valid = false;
     } else if (localOptions.length > 5) {
-      setOptionsError('Maximum 5 options');
+      setOptionsError(t('createProposal.maxFive'));
       valid = false;
     } else setOptionsError('');
     if (!selectedGroupId && !isSoloStart) {
-      setOptionsError('Select a group to send to');
+      setOptionsError(t('createProposal.selectGroup'));
       valid = false;
     }
     return valid;
@@ -500,7 +501,7 @@ export default function CreateProposalScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <DNScreenHeader
-          title="Your Plan"
+          title=t('createProposal.title')
           onBack={() => navigation.goBack()}
         />
 
@@ -510,7 +511,7 @@ export default function CreateProposalScreen() {
         >
           {/* ── Options list ─────────────────────────────────────────────── */}
           <DNText variant="section" color={colors.ink2} style={{ marginBottom: SPACING.sm }}>
-            Activities ({localOptions.length} / 5)
+            {t('createProposal.activitiesLabel', { count: localOptions.length })}
           </DNText>
 
           {optionsError ? (
@@ -580,7 +581,7 @@ export default function CreateProposalScreen() {
 
           {/* ── Title ───────────────────────────────────────────────────── */}
           <DNInput
-            label="Title"
+            label=t('createProposal.titleLabel')
             value={title}
             onChangeText={setTitle}
             placeholder="Date night · Friday"
@@ -604,7 +605,7 @@ export default function CreateProposalScreen() {
           >
             <Text style={{ fontSize: 18, marginRight: 12 }}>📅</Text>
             <View style={{ flex: 1 }}>
-              <DNText variant="rowLabel" color={colors.ink}>Date &amp; Time</DNText>
+              <DNText variant="rowLabel" color={colors.ink}>Date & Time</DNText>
               <DNText variant="secondary" color={colors.ink2}>
                 {formatDateLabel(selectedDate)} ▾
               </DNText>
@@ -721,13 +722,13 @@ export default function CreateProposalScreen() {
           }}
         >
           <DNButton
-            label="Preview →"
+            label=t('createProposal.previewBtn')
             variant="tonal"
             onPress={() => localOptions.length > 0 && setPreviewVisible(true)}
             style={{ marginBottom: 4 }}
           />
           <DNButton
-            label={isSoloStart ? 'Create plan & get share link →' : `Send to ${partnerName} ♥`}
+            label={isSoloStart ? t('createProposal.createAndShare') : t('createProposal.sendToPartner', { name: partnerName })}
             variant="primary"
             onPress={handleSubmit}
             loading={submitting}
@@ -758,13 +759,13 @@ export default function CreateProposalScreen() {
         >
           <Text style={{ fontSize: 72, marginBottom: SPACING.lg }}>🎉</Text>
           <DNText variant="title" color={colors.ink} style={{ textAlign: 'center', marginBottom: SPACING.sm }}>
-            Plan sent to {partnerName}!
+            {t('createProposal.planSent', { name: partnerName })}
           </DNText>
           <DNText variant="secondary" color={colors.ink2} style={{ textAlign: 'center', marginBottom: SPACING.xl }}>
-            They'll vote on your options and you'll get notified when a decision is made.
+            {t('createProposal.planSentBody')}
           </DNText>
           <DNButton
-            label="View Plan"
+            label=t('createProposal.viewPlan')
             variant="primary"
             onPress={() => {
               setSuccessVisible(false);
@@ -773,7 +774,7 @@ export default function CreateProposalScreen() {
             style={{ width: '100%', marginBottom: SPACING.sm }}
           />
           <DNButton
-            label="Back to Groups"
+            label=t('createProposal.backToGroups')
             variant="secondary"
             onPress={() => {
               setSuccessVisible(false);

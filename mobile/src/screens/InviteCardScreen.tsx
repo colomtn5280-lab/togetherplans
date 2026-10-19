@@ -1,4 +1,3 @@
-// TODO i18n: instrument with useTranslation() — translations in src/locales/{en,es}/translation.json
 /**
  * InviteCardScreen — two-step flow inserted between CreateProposal and ProposalDetail.
  *
@@ -18,6 +17,7 @@ import {
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useTranslation } from 'react-i18next';
 
 import { RootStackParamList } from '@/types';
 import { inviteCardsAPI } from '@/services/api';
@@ -91,6 +91,7 @@ function TemplateTile({ template, index, selected, onPress, fullWidth = false, h
 export default function InviteCardScreen({ navigation, route }: Props) {
   const { proposalId } = route.params;
   const { colors } = useTheme();
+  const { t } = useTranslation();
 
   // ── State ──────────────────────────────────────────────────────────────────
   const [step, setStep] = useState<1 | 2>(1);
@@ -164,8 +165,8 @@ export default function InviteCardScreen({ navigation, route }: Props) {
     return (
       <View style={[styles.flex, { backgroundColor: colors.bg }]}>
         <DNScreenHeader
-          title="Pick an invite card"
-          subtitle="Sent with your invite link"
+          title={t('inviteCard.pickTitle')}
+          subtitle={t('inviteCard.pickSubtitle')}
           onBack={goBack}
         />
 
@@ -190,17 +191,17 @@ export default function InviteCardScreen({ navigation, route }: Props) {
             )}
             ListEmptyComponent={
               <Text style={[styles.emptyText, { color: colors.ink2 }]}>
-                No templates available right now.
+                {t('inviteCard.noTemplates')}
               </Text>
             }
           />
         )}
 
         <View style={styles.bottomBar}>
-          <DNButton label="Skip this step" variant="secondary" onPress={handleSkip} />
+          <DNButton label={t('inviteCard.skip')} variant="secondary" onPress={handleSkip} />
           <View style={styles.gap} />
           <DNButton
-            label="Next →"
+            label={t('common.next') + ' →'}
             variant="primary"
             disabled={selectedIndex === null}
             onPress={() => setStep(2)}
@@ -216,7 +217,7 @@ export default function InviteCardScreen({ navigation, route }: Props) {
   return (
     <View style={[styles.flex, { backgroundColor: colors.bg }]}>
       <DNScreenHeader
-        title="Customise your card"
+        title={t('inviteCard.customiseTitle')}
         onBack={() => setStep(1)}
       />
 
@@ -236,16 +237,16 @@ export default function InviteCardScreen({ navigation, route }: Props) {
         <View style={styles.formSection}>
           {/* Note input */}
           <DNInput
-            label="Personal note (optional)"
+            label={t('inviteCard.noteLabel')}
             multiline
             maxLength={140}
-            placeholder="Add a personal message..."
+            placeholder={t('inviteCard.notePlaceholder')}
             value={note}
             onChangeText={setNote}
             style={styles.noteInput}
           />
           <Text style={[styles.charCounter, { color: colors.ink2 }]}>
-            {140 - note.length} characters remaining
+            {t('inviteCard.charsRemaining', { count: 140 - note.length })}
           </Text>
 
           {/* Photo picker */}
@@ -255,7 +256,7 @@ export default function InviteCardScreen({ navigation, route }: Props) {
             style={[styles.photoButton, { borderColor: colors.ink2 }]}
           >
             <Text style={[styles.photoButtonText, { color: colors.primary }]}>
-              {photo ? 'Change photo' : 'Add a photo'}
+              {photo ? t('inviteCard.changePhoto') : t('inviteCard.addPhoto')}
             </Text>
           </TouchableOpacity>
 
@@ -268,7 +269,7 @@ export default function InviteCardScreen({ navigation, route }: Props) {
 
           <View style={styles.saveButtonWrap}>
             <DNButton
-              label="Use this card →"
+              label={t('inviteCard.useCard')}
               variant="primary"
               loading={saving}
               onPress={handleSave}

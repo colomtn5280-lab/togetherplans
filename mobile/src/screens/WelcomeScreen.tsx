@@ -1,4 +1,3 @@
-// TODO i18n: instrument with useTranslation() — translations in src/locales/{en,es}/translation.json
 /**
  * WelcomeScreen — DateMeUp v2 (spec: 3a)
  * First screen in the unauthenticated flow — social login entry point.
@@ -24,12 +23,14 @@ import * as AppleAuthentication from 'expo-apple-authentication';
 import { useTheme } from '@/contexts/ThemeContext';
 import { SPACING } from '@/constants';
 import { RootStackParamList } from '@/types';
+import { useTranslation } from 'react-i18next';
 
 type NavProp = NativeStackNavigationProp<RootStackParamList, 'Welcome'>;
 
 export default function WelcomeScreen() {
   const navigation = useNavigation<NavProp>();
   const { colors } = useTheme();
+  const { t } = useTranslation();
   const { promptAsync, request } = useGoogleAuth();
   const { signIn: appleSignIn, isAvailable: appleAvailable } = useAppleAuth();
 
@@ -41,7 +42,7 @@ export default function WelcomeScreen() {
     } catch (err: unknown) {
       const e = err as { code?: string; message?: string };
       if (e?.code !== 'ERR_REQUEST_CANCELED') {
-        setError(e?.message || 'Apple Sign In failed.');
+        setError(e?.message || t('register.appleSignInFailed'));
       }
     }
   };
@@ -117,7 +118,7 @@ export default function WelcomeScreen() {
               { color: colors.ink2 },
             ]}
           >
-            Date night, decided.
+            {t('welcome.subtitle')}
           </Text>
 
           {/* Spacer */}
@@ -153,7 +154,7 @@ export default function WelcomeScreen() {
               <Text
                 style={[styles.googleBtnText, { color: colors.ink }]}
               >
-                Continue with Google
+                {t('auth.continueWithGoogle')}
               </Text>
             </TouchableOpacity>
 
@@ -169,7 +170,7 @@ export default function WelcomeScreen() {
               <Text
                 style={[styles.emailBtnText, { color: colors.primary }]}
               >
-                Sign up with email
+                {t('auth.continueWithEmail')}
               </Text>
             </TouchableOpacity>
           </View>
@@ -186,7 +187,7 @@ export default function WelcomeScreen() {
           {/* Footer */}
           <View style={styles.footer}>
             <Text style={[styles.footerText, { color: colors.ink2 }]}>
-              Already have an account?{' '}
+              {t('auth.hasAccount')}{' '}
             </Text>
             <TouchableOpacity
               onPress={() => navigation.navigate('Login')}
@@ -195,7 +196,7 @@ export default function WelcomeScreen() {
               <Text
                 style={[styles.loginLink, { color: colors.primary }]}
               >
-                Log in
+                {t('auth.logIn')}
               </Text>
             </TouchableOpacity>
           </View>

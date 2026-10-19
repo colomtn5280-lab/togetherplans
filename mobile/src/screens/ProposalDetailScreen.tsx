@@ -1,4 +1,3 @@
-// TODO i18n: instrument with useTranslation() — translations in src/locales/{en,es}/translation.json
 /**
  * ProposalDetailScreen — 1c interactive
  * HANDOFF_README spec: full redesign
@@ -38,6 +37,7 @@ import * as Calendar from 'expo-calendar';
 import * as WebBrowser from 'expo-web-browser';
 import * as Haptics from 'expo-haptics';
 import type { ActivityOption, Proposal, RootStackParamList } from '@/types';
+import { useTranslation } from 'react-i18next';
 
 type RouteT = RouteProp<RootStackParamList, 'ProposalDetail'>;
 
@@ -230,6 +230,7 @@ function Confetti() {
 // ── Main Screen ───────────────────────────────────────────────────────────────
 export default function ProposalDetailScreen() {
   const { colors } = useTheme();
+  const { t } = useTranslation();
   const navigation = useNavigation<any>();
   const route = useRoute<RouteT>();
   const { user } = useAuth();
@@ -511,7 +512,7 @@ export default function ProposalDetailScreen() {
   if (loading || !proposal) {
     return (
       <View style={{ flex: 1, backgroundColor: colors.bg, justifyContent: 'center', alignItems: 'center' }}>
-        <Text style={[TYPE.body, { color: colors.ink2 }]}>Loading…</Text>
+        <Text style={[TYPE.body, { color: colors.ink2 }]}>{t('proposalDetail.loading')}</Text>
       </View>
     );
   }
@@ -643,7 +644,7 @@ export default function ProposalDetailScreen() {
           {isOpen && (
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: SPACING.sm, marginBottom: SPACING.md }}>
               <DNButton
-                label={sharing ? 'Opening…' : '🗳 Invite someone to vote'}
+                label={sharing ? t('proposalDetail.opening') : t('proposalDetail.inviteToVote')}
                 variant="primary"
                 onPress={() => handleInviteToVote(false)}
                 style={{ flex: 1 }}
@@ -670,7 +671,7 @@ export default function ProposalDetailScreen() {
           )}
           {isOpen && copied && (
             <DNText variant="secondary" color={colors.primary} style={{ marginTop: -SPACING.sm, marginBottom: SPACING.md }}>
-              Link copied!
+              {t('proposalDetail.linkCopied')}
             </DNText>
           )}
           {isOpen && showGuestHint && (
@@ -684,7 +685,7 @@ export default function ProposalDetailScreen() {
               }}
             >
               <DNText variant="secondary" color={colors.primary}>
-                Anyone with the link can vote — you'll see their votes come in here.
+                {t('proposalDetail.anyoneCanVote')}
               </DNText>
             </View>
           )}
@@ -701,7 +702,7 @@ export default function ProposalDetailScreen() {
               }}
             >
               <DNText variant="secondary" color={colors.onWarningSoft}>
-                {partnerName} voted · waiting on you
+                {t('proposalDetail.waitingOnYou', { name: partnerName })}
               </DNText>
             </View>
           )}
@@ -718,18 +719,18 @@ export default function ProposalDetailScreen() {
               }}
             >
               <DNText variant="secondary" color={colors.onWarningSoft}>
-                Hmm, two hearts 💛
+                {t('proposalDetail.twoHearts')}
               </DNText>
               <View style={{ flexDirection: 'row', gap: 10 }}>
                 <DNButton
-                  label="Counter-propose"
+                  label=t('proposalDetail.counterPropose')
                   variant="ink"
                   size="compact"
                   onPress={() => navigation.navigate('CreateProposal', { groupId: proposal.groupId })}
                   style={{ flex: 1 }}
                 />
                 <DNButton
-                  label="Give it time"
+                  label=t('proposalDetail.giveItTime')
                   variant="secondary"
                   size="compact"
                   onPress={() => {}}
@@ -831,7 +832,7 @@ export default function ProposalDetailScreen() {
                       onPress={() => Linking.openURL(option.sourceUrl!)}
                       style={{ marginTop: 6 }}
                     >
-                      <DNText variant="secondary" color={colors.primary}>View Details →</DNText>
+                      <DNText variant="secondary" color={colors.primary}>{t('proposalDetail.viewDetails')}</DNText>
                     </TouchableOpacity>
                   )}
                   {(memberVotes > 0 || guestVotes > 0) && (
@@ -906,7 +907,7 @@ export default function ProposalDetailScreen() {
                       <View style={{ marginTop: 8 }}>
                         <TextInput
                           style={styles.voteCommentInput}
-                          placeholder="Add a note... (optional)"
+                          placeholder=t('proposalDetail.loading')
                           value={pendingComment}
                           onChangeText={(text) => setPendingComment(text.slice(0, 280))}
                           maxLength={280}
@@ -991,9 +992,9 @@ export default function ProposalDetailScreen() {
             </View>
           )}
 
-          {/* Discussion */}
+          {/* {t('proposalDetail.discussion')} */}
           <View style={styles.discussionSection}>
-            <Text style={styles.discussionTitle}>Discussion</Text>
+            <Text style={styles.discussionTitle}>{t('proposalDetail.discussion')}</Text>
             {(comments ?? []).map((c: any) => (
               <View key={c.id} style={styles.commentRow}>
                 <Text style={styles.commentName}>{(c.user?.displayName ?? '').split(' ')[0]}</Text>
@@ -1008,7 +1009,7 @@ export default function ProposalDetailScreen() {
             <View style={styles.commentInputRow}>
               <TextInput
                 style={styles.commentInput}
-                placeholder="Say something..."
+                placeholder=t('proposalDetail.saySomething')
                 value={newComment}
                 onChangeText={setNewComment}
                 maxLength={500}
@@ -1074,11 +1075,11 @@ export default function ProposalDetailScreen() {
               {/* Enhancement 4: multi-consensus message */}
               {hasMultiConsensus ? (
                 <DNText variant="body" color={colors.ink2} style={{ marginBottom: SPACING.xs, textAlign: 'center' }}>
-                  You both loved <Text style={{ fontWeight: '700', color: colors.ink }}>{winningName}</Text> and <Text style={{ fontWeight: '700', color: colors.ink }}>{runnerUpName}</Text>! We picked the headliner 🎭
+                  {t('proposalDetail.youBothLoved', { name1: winningName, name2: runnerUpName })}
                 </DNText>
               ) : (
                 <DNText variant="body" color={colors.ink2} style={{ marginBottom: SPACING.xs, textAlign: 'center' }}>
-                  You both said yes to
+                  {t('proposalDetail.youBothSaid')}
                 </DNText>
               )}
 

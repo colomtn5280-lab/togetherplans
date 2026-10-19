@@ -1,4 +1,3 @@
-// TODO i18n: instrument with useTranslation() — translations in src/locales/{en,es}/translation.json
 /**
  * RegisterScreen — DateNight v2 redesign (3b)
  * Blob bg, back button, inline validation, Google+Apple social.
@@ -23,6 +22,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { TYPE, SPACING, SHADOWS } from '@/constants';
 import { DNInput, DNButton, DNSticker } from '@/components/ui';
 import { RootStackParamList } from '@/types';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Register'>;
@@ -30,6 +30,7 @@ type Props = {
 
 export default function RegisterScreen({ navigation }: Props) {
   const { colors } = useTheme();
+  const { t } = useTranslation();
   const { register } = useAuth();
   const { promptAsync, request, error: googleError } = useGoogleAuth();
   const { signIn: appleSignIn, isAvailable: appleAvailable } = useAppleAuth();
@@ -44,14 +45,14 @@ export default function RegisterScreen({ navigation }: Props) {
 
   const validate = (): boolean => {
     const errs: typeof errors = {};
-    if (!displayName.trim()) errs.displayName = 'Name is required.';
-    if (!email.trim()) errs.email = 'Email is required.';
+    if (!displayName.trim()) errs.displayName = t('register.nameRequired');
+    if (!email.trim()) errs.email = t('register.emailRequired');
     else {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) errs.email = 'Enter a valid email.';
+      if (!emailRegex.test(email)) errs.email = t('register.validEmail');
     }
-    if (!password) errs.password = 'Password is required.';
-    else if (password.length < 8) errs.password = 'Password must be at least 8 characters.';
+    if (!password) errs.password = t('register.passwordRequired');
+    else if (password.length < 8) errs.password = t('register.passwordLength');
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -64,7 +65,7 @@ export default function RegisterScreen({ navigation }: Props) {
       // After register, AppNavigator will redirect to Onboarding (if !hasOnboarded)
     } catch (err: unknown) {
       const e = err as { response?: { data?: { error?: string } } };
-      setErrors({ general: e?.response?.data?.error || 'Registration failed. Please try again.' });
+      setErrors({ general: e?.response?.data?.error || t('register.failed') });
     } finally {
       setLoading(false);
     }
@@ -76,7 +77,7 @@ export default function RegisterScreen({ navigation }: Props) {
     } catch (err: unknown) {
       const e = err as { code?: string; message?: string };
       if (e?.code !== 'ERR_REQUEST_CANCELED') {
-        setErrors({ general: e?.message || 'Apple Sign In failed.' });
+        setErrors({ general: e?.message || t('register.appleSignInFailed') });
       }
     }
   };
@@ -118,7 +119,7 @@ export default function RegisterScreen({ navigation }: Props) {
         {/* Title with inline sticker */}
         <View style={styles.titleRow}>
           <Text style={[TYPE.title, { color: colors.ink, flexShrink: 1 }]}>
-            Create your account
+            {t('register.title')}
           </Text>
           <DNSticker
             label="free"
@@ -133,28 +134,28 @@ export default function RegisterScreen({ navigation }: Props) {
 
         {/* Inputs */}
         <DNInput
-          label="Display name"
-          placeholder="How should we call you?"
+          label={t('register.displayNameLabel')}
+          placeholder={t('register.displayNamePlaceholder')}
           value={displayName}
-          onChangeText={(t) => { setDisplayName(t); clearError('displayName'); }}
+          onChangeText={(tx) => { setDisplayName(tx); clearError('displayName'); }}
           error={errors.displayName}
           autoCapitalize="words"
         />
         <DNInput
-          label="Email"
-          placeholder="you@example.com"
+          label={t('auth.email')}
+          placeholder={t('register.emailPlaceholder')}
           value={email}
-          onChangeText={(t) => { setEmail(t); clearError('email'); }}
+          onChangeText={(tx) => { setEmail(tx); clearError('email'); }}
           error={errors.email}
           keyboardType="email-address"
           autoCapitalize="none"
           autoCorrect={false}
         />
         <DNInput
-          label="Password"
-          placeholder="8+ characters"
+          label={t('register.passwordLabel')}
+          placeholder={t('register.passwordPlaceholder')}
           value={password}
-          onChangeText={(t) => { setPassword(t); clearError('password'); }}
+          onChangeText={(tx) => { setPassword(tx); clearError('password'); }}
           error={errors.password}
           secureTextEntry
         />
@@ -168,7 +169,7 @@ export default function RegisterScreen({ navigation }: Props) {
 
         {/* Primary CTA */}
         <DNButton
-          label="Create account"
+          label={t('register.createAccount')}
           onPress={handleRegister}
           loading={loading}
           style={{ marginBottom: SPACING.lg }}
@@ -224,9 +225,9 @@ export default function RegisterScreen({ navigation }: Props) {
           style={{ marginTop: SPACING.lg, alignItems: 'center' }}
         >
           <Text style={[TYPE.secondary, { color: colors.ink2 }]}>
-            Already have an account?{' '}
+            {t('auth.hasAccount')}{' '}
             <Text style={{ color: colors.primaryDeep, fontFamily: 'DMSans_600SemiBold' }}>
-              Log in
+              {t('auth.logIn')}
             </Text>
           </Text>
         </TouchableOpacity>

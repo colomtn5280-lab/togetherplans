@@ -1,4 +1,3 @@
-// TODO i18n: instrument with useTranslation() — translations in src/locales/{en,es}/translation.json
 /**
  * GroupDetailScreen — §3e (populated) + §4d (empty / no other members)
  */
@@ -12,6 +11,7 @@ import {
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp, NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useTranslation } from 'react-i18next';
 
 import { useTheme } from '@/contexts/ThemeContext';
 import { SPACING, TYPE, SHADOWS, COLORS } from '@/constants';
@@ -43,6 +43,7 @@ function ActiveProposalCard({
   onPress: () => void;
 }) {
   const { colors } = useTheme();
+  const { t } = useTranslation();
   const voted = proposal.votes?.length ?? 0;
   const progress = totalMembers > 0 ? voted / totalMembers : 0;
   const isCountered = proposal.status === 'COUNTERED';
@@ -50,7 +51,7 @@ function ActiveProposalCard({
   return (
     <DNCard index={index} onPress={onPress} style={{ marginBottom: SPACING.md, overflow: 'visible' }}>
       <DNSticker
-        label={isCountered ? 'Countered' : 'Open'}
+        label={isCountered ? 'Countered' : t('proposal.open')}
         color={isCountered ? colors.warningSoft : colors.primarySoft}
         textColor={isCountered ? colors.onWarningSoft : colors.primary}
         rotationIndex={index}
@@ -84,7 +85,7 @@ function ActiveProposalCard({
         />
       </View>
       <Text style={[TYPE.secondary, { color: colors.ink2 }]}>
-        {voted} / {totalMembers} voted
+        {voted} / {totalMembers} {t('groupDetail.voted')}
       </Text>
     </DNCard>
   );
@@ -145,6 +146,7 @@ function EmptyGroupState({
   onShare: () => void;
 }) {
   const { colors } = useTheme();
+  const { t } = useTranslation();
 
   return (
     <View style={{ paddingHorizontal: SPACING.gutter, paddingTop: SPACING.lg }}>
@@ -166,10 +168,10 @@ function EmptyGroupState({
         }}
       >
         <Text style={[TYPE.heading, { color: colors.ink, marginBottom: SPACING.sm }]}>
-          Invite someone
+          {t('groupDetail.inviteSomeone')}
         </Text>
         <Text style={[TYPE.body, { color: colors.ink2, marginBottom: SPACING.md }]}>
-          Share your group link to get started.
+          {t('groupDetail.shareGroupLink')}
         </Text>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: SPACING.md }}>
           {['Share', 'Text', 'Email', 'QR'].map((method, i) => (
@@ -203,10 +205,10 @@ function EmptyGroupState({
         }}
       >
         <Text style={[TYPE.heading, { color: colors.ink, marginBottom: SPACING.sm }]}>
-          First proposal
+          {t('groupDetail.firstProposal')}
         </Text>
         <DNButton
-          label="+ First proposal"
+          label={t('groupDetail.addFirstProposal')}
           onPress={() => {}}
           variant="tonal"
           style={{ width: '100%' }}
@@ -219,6 +221,7 @@ function EmptyGroupState({
 // ─── GroupDetailScreen ────────────────────────────────────────────────────────
 export default function GroupDetailScreen() {
   const { colors } = useTheme();
+  const { t } = useTranslation();
   const navigation = useNavigation<Nav>();
   const route = useRoute<Route>();
   const { user } = useAuth();
@@ -272,26 +275,26 @@ export default function GroupDetailScreen() {
   const handleMemberOptions = useCallback((memberId: string, memberName: string) => {
     Alert.alert(
       memberName,
-      'Choose an action',
+      t('groupDetail.chooseAction'),
       [
         {
-          text: 'Block User',
+          text: t('groupDetail.blockUser'),
           style: 'destructive',
           onPress: () => {
             Alert.alert(
-              'Block User',
-              `Are you sure you want to block ${memberName}?`,
+              t('groupDetail.blockUser'),
+              t('groupDetail.blockConfirm', { name: memberName }),
               [
-                { text: 'Cancel', style: 'cancel' },
+                { text: t('common.cancel'), style: 'cancel' },
                 {
-                  text: 'Block',
+                  text: t('groupDetail.blockUser'),
                   style: 'destructive',
                   onPress: async () => {
                     try {
                       await safetyAPI.blockUser(memberId);
-                      Alert.alert('User blocked', `${memberName} has been blocked.`);
+                      Alert.alert(t('groupDetail.userBlocked'), t('groupDetail.hasBeenBlocked', { name: memberName }));
                     } catch {
-                      Alert.alert('Error', 'Could not block user. Please try again.');
+                      Alert.alert(t('common.error'), t('groupDetail.couldNotBlock'));
                     }
                   },
                 },
@@ -300,65 +303,65 @@ export default function GroupDetailScreen() {
           },
         },
         {
-          text: 'Report User',
+          text: t('groupDetail.reportUser'),
           onPress: () => {
             Alert.alert(
-              'Report User',
-              'Select a reason',
+              t('groupDetail.reportUser'),
+              t('groupDetail.selectReason'),
               [
                 {
-                  text: 'Spam',
+                  text: t('groupDetail.spam'),
                   onPress: async () => {
                     try {
                       await safetyAPI.reportUser({ reportedUserId: memberId, reason: 'spam' });
-                      Alert.alert('Report submitted', 'Thank you for your report.');
+                      Alert.alert(t('groupDetail.reportSubmitted'), t('groupDetail.thankYou'));
                     } catch {
-                      Alert.alert('Error', 'Could not submit report. Please try again.');
+                      Alert.alert(t('common.error'), t('groupDetail.couldNotReport'));
                     }
                   },
                 },
                 {
-                  text: 'Harassment',
+                  text: t('groupDetail.harassment'),
                   onPress: async () => {
                     try {
                       await safetyAPI.reportUser({ reportedUserId: memberId, reason: 'harassment' });
-                      Alert.alert('Report submitted', 'Thank you for your report.');
+                      Alert.alert(t('groupDetail.reportSubmitted'), t('groupDetail.thankYou'));
                     } catch {
-                      Alert.alert('Error', 'Could not submit report. Please try again.');
+                      Alert.alert(t('common.error'), t('groupDetail.couldNotReport'));
                     }
                   },
                 },
                 {
-                  text: 'Inappropriate Content',
+                  text: t('groupDetail.inappropriate'),
                   onPress: async () => {
                     try {
                       await safetyAPI.reportUser({ reportedUserId: memberId, reason: 'inappropriate' });
-                      Alert.alert('Report submitted', 'Thank you for your report.');
+                      Alert.alert(t('groupDetail.reportSubmitted'), t('groupDetail.thankYou'));
                     } catch {
-                      Alert.alert('Error', 'Could not submit report. Please try again.');
+                      Alert.alert(t('common.error'), t('groupDetail.couldNotReport'));
                     }
                   },
                 },
                 {
-                  text: 'Other',
+                  text: t('groupDetail.other'),
                   onPress: async () => {
                     try {
                       await safetyAPI.reportUser({ reportedUserId: memberId, reason: 'other' });
-                      Alert.alert('Report submitted', 'Thank you for your report.');
+                      Alert.alert(t('groupDetail.reportSubmitted'), t('groupDetail.thankYou'));
                     } catch {
-                      Alert.alert('Error', 'Could not submit report. Please try again.');
+                      Alert.alert(t('common.error'), t('groupDetail.couldNotReport'));
                     }
                   },
                 },
-                { text: 'Cancel', style: 'cancel' },
+                { text: t('common.cancel'), style: 'cancel' },
               ]
             );
           },
         },
-        { text: 'Cancel', style: 'cancel' },
+        { text: t('common.cancel'), style: 'cancel' },
       ]
     );
-  }, []);
+  }, [t]);
 
   return (
     <ScrollView
@@ -378,7 +381,7 @@ export default function GroupDetailScreen() {
               size="compact"
             />
             <DNButton
-              label="Invite"
+              label={t('groups.invite')}
               onPress={handleShare}
               variant="tonal"
               size="compact"
@@ -412,11 +415,11 @@ export default function GroupDetailScreen() {
 
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
           <Text style={[TYPE.secondary, { color: colors.ink2 }]}>
-            {members.length} {members.length === 1 ? 'member' : 'members'}
+            {members.length} {members.length === 1 ? t('groupDetail.member') : t('groupDetail.membersCount')}
           </Text>
           {isOwner && (
             <DNSticker
-              label="Owner"
+              label={t('groupDetail.owner')}
               color={colors.primarySoft}
               textColor={colors.primary}
               size="sm"
@@ -429,7 +432,7 @@ export default function GroupDetailScreen() {
       {/* New Proposal button */}
       <View style={{ paddingHorizontal: SPACING.gutter, marginBottom: SPACING.lg }}>
         <DNButton
-          label="New proposal"
+          label={t('groupDetail.newProposal')}
           onPress={() => navigation.navigate('CreateProposal', { groupId })}
           variant="primary"
           style={{ width: '100%' }}
@@ -441,10 +444,10 @@ export default function GroupDetailScreen() {
       ) : (
         <View style={{ paddingHorizontal: SPACING.gutter }}>
           {/* Active proposals */}
-          <Text style={[TYPE.section, { color: colors.ink2, marginBottom: 8 }]}>Active</Text>
+          <Text style={[TYPE.section, { color: colors.ink2, marginBottom: 8 }]}>{t('groups.active')}</Text>
           {activeProposals.length === 0 && (
             <Text style={[TYPE.secondary, { color: colors.ink2, marginBottom: SPACING.md }]}>
-              No active proposals yet.
+              {t('groupDetail.noActiveProposals')}
             </Text>
           )}
           {activeProposals.map((p, i) => (
@@ -463,7 +466,7 @@ export default function GroupDetailScreen() {
               <Text
                 style={[TYPE.section, { color: colors.ink2, marginBottom: 12, marginTop: SPACING.md }]}
               >
-                Past
+                {t('groupDetail.past')}
               </Text>
               {pastProposals.map((p) => (
                 <PastProposalRow key={p.id} item={p} />
@@ -475,7 +478,7 @@ export default function GroupDetailScreen() {
           {otherMembers.length > 0 && (
             <>
               <Text style={[TYPE.section, { color: colors.ink2, marginBottom: 8, marginTop: SPACING.md }]}>
-                Members
+                {t('groupDetail.membersLabel')}
               </Text>
               {otherMembers.map((m) => {
                 const memberName = (m as any).user?.displayName ?? m.userId ?? 'Member';

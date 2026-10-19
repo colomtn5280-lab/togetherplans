@@ -1,4 +1,3 @@
-// TODO i18n: instrument with useTranslation() — translations in src/locales/{en,es}/translation.json
 /**
  * AfterDarkScreen — late-night mode (21:00–03:00)
  *
@@ -29,6 +28,7 @@ import { AddToDateButton } from '@/components/AddToDateButton';
 import { afterDarkAPI } from '@/services/api';
 import { api } from '@/services/api';
 import type { AfterDarkStatus, AfterDarkMood, AfterDarkSuggestion, AfterDarkItem, RootStackParamList } from '@/types';
+import { useTranslation } from 'react-i18next';
 
 type RouteT = RouteProp<RootStackParamList, 'AfterDark'>;
 
@@ -54,6 +54,7 @@ const CATEGORY_EMOJI: Record<string, string> = {
 // ── Countdown to 21:00 ────────────────────────────────────────────────────────
 function Countdown({ minutes }: { minutes: number }) {
   const { colors } = useTheme();
+  const { t } = useTranslation();
   const navigation = useNavigation<any>();
   const h = Math.floor(minutes / 60);
   const m = minutes % 60;
@@ -63,13 +64,13 @@ function Countdown({ minutes }: { minutes: number }) {
     <View style={{ alignItems: 'center', paddingVertical: SPACING.lg }}>
       <Text style={{ fontSize: 48, marginBottom: SPACING.sm }}>🌆</Text>
       <DNText variant="title" color={colors.ink} style={{ textAlign: 'center', marginBottom: SPACING.xs }}>
-        After Dark wakes up at 9pm 🌙
+        {t('afterDark.wakesUpAt')}
       </DNText>
       <DNText variant="secondary" color={colors.ink2} style={{ textAlign: 'center', marginBottom: SPACING.md }}>
-        {toGo} — late-night mode is worth the wait
+        {toGo} — {t('afterDark.worthWait')}
       </DNText>
       <DNButton
-        label="Meanwhile, plan something for tonight →"
+        label={t('afterDark.planTonight')}
         variant="secondary"
         onPress={() => navigation.navigate('Suggestions', {})}
       />
@@ -250,7 +251,7 @@ function SuggestionCard({
         }}
       >
         <Text style={[TYPE.buttonSm, { color: colors.primary }]}>
-          ⚡ Let's go here
+          {t('afterDark.letsGoHere')}
         </Text>
       </TouchableOpacity>
     </View>
@@ -272,6 +273,7 @@ function ImpulseSheet({
   onSuccess: (proposalId: string) => void;
 }) {
   const { colors } = useTheme();
+  const { t } = useTranslation();
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigation = useNavigation<any>();
@@ -280,7 +282,7 @@ function ImpulseSheet({
 
   const handleConfirm = async () => {
     if (!groupId) {
-      setError('No group selected. Go back and open After Dark from a group.');
+      setError(t('afterDark.noGroupSelected'));
       return;
     }
     setSending(true);
@@ -294,7 +296,7 @@ function ImpulseSheet({
       );
       onSuccess(res.data.proposal.id);
     } catch (e: any) {
-      setError(e?.response?.data?.error ?? 'Failed to create impulse proposal');
+      setError(e?.response?.data?.error ?? t('afterDark.failedImpulse'));
     } finally {
       setSending(false);
     }
@@ -328,16 +330,16 @@ function ImpulseSheet({
             color={colors.ink}
             style={{ textAlign: 'center', marginBottom: SPACING.xs }}
           >
-            Let's go!
+            {t('afterDark.letsGoTitle')}
           </DNText>
           <DNText
             variant="body"
             color={colors.ink2}
             style={{ textAlign: 'center', marginBottom: SPACING.lg }}
           >
-            This creates a spontaneous proposal for{'\n'}
+            {t('afterDark.impulseBody')}{'\n'}
             <Text style={{ color: colors.primary }}>{item.name}</Text>
-            {'\n'}with your group — tonight, 2 hours from now.
+            {'\n'}{t('afterDark.impulseWith')}
           </DNText>
 
           {error ? (
@@ -354,13 +356,13 @@ function ImpulseSheet({
           ) : null}
 
           <DNButton
-            label={sending ? 'Sending…' : '⚡ Create impulse proposal'}
+            label={sending ? t('afterDark.sending') : t('afterDark.createImpulse')}
             onPress={handleConfirm}
             loading={sending}
             variant="primary"
             style={{ marginBottom: SPACING.sm }}
           />
-          <DNButton label="Cancel" onPress={onClose} variant="secondary" />
+          <DNButton label={t('common.cancel')} onPress={onClose} variant='secondary' />
         </View>
       </View>
     </Modal>
@@ -375,6 +377,7 @@ export default function AfterDarkScreen() {
   const groupId = route.params?.groupId;
   const { addOption } = usePlanBuilder();
 
+  const { t } = useTranslation();
   const [activeGroupId, setActiveGroupId] = useState<string | undefined>(groupId);
 
   // If no groupId from route, fetch user's first group
@@ -488,7 +491,7 @@ export default function AfterDarkScreen() {
   return (
     <View style={{ flex: 1, backgroundColor: isActive ? '#0A1018' : colors.bg }}>
       <DNScreenHeader
-        title="After Dark 🌙"
+        title={t('afterDark.title') + ' 🌙'}
         onBack={() => navigation.goBack()}
       />
 
@@ -513,10 +516,10 @@ export default function AfterDarkScreen() {
           >
             <Text style={{ fontSize: 48, marginBottom: SPACING.sm }}>🌙</Text>
             <Text style={[TYPE.title, { color: '#ffffff', textAlign: 'center', marginBottom: SPACING.xs }]}>
-              After Dark is on
+              {t('afterDark.isOn')}
             </Text>
             <Text style={[TYPE.secondary, { color: 'rgba(255,255,255,0.6)', textAlign: 'center' }]}>
-              Active until 3 AM · Late-night mode
+              {t('afterDark.activeUntil')}
             </Text>
           </Animated.View>
         ) : (
@@ -542,7 +545,7 @@ export default function AfterDarkScreen() {
             { color: isActive ? 'rgba(255,255,255,0.5)' : colors.ink2, marginBottom: SPACING.sm },
           ]}
         >
-          What's the vibe?
+          {t('afterDark.whatsVibe')}
         </Text>
         <ScrollView
           horizontal
@@ -560,7 +563,7 @@ export default function AfterDarkScreen() {
           ))}
         </ScrollView>
 
-        {/* Romantic & Spicy Ideas Catalog */}
+        {/* {t('afterDark.romanticSpicyIdeas')} Catalog */}
         {catalogItems.length > 0 && (
           <View style={{ marginBottom: SPACING.lg }}>
             <Text
@@ -569,7 +572,7 @@ export default function AfterDarkScreen() {
                 { color: isActive ? 'rgba(255,255,255,0.5)' : colors.ink2, marginBottom: SPACING.sm },
               ]}
             >
-              Romantic & Spicy Ideas
+              {t('afterDark.romanticSpicyIdeas')}
             </Text>
             <ScrollView
               horizontal
@@ -615,7 +618,7 @@ export default function AfterDarkScreen() {
                       }}
                     >
                       <Text style={{ fontSize: 10, color: isDark ? '#F7E3E7' : '#2D1020' }}>
-                        {item.tier === 'ROMANTIC' ? '💫 Romantic' : '🔥 Spicy'}
+                        {item.tier === 'ROMANTIC' ? t('afterDark.romantic') : t('afterDark.spicy')}
                       </Text>
                     </View>
                   </TouchableOpacity>
@@ -675,7 +678,7 @@ export default function AfterDarkScreen() {
                         }}
                       >
                         <Text style={{ color: textColor, fontSize: 13, fontWeight: '600' }}>
-                          {selectedCatalogItem.tier === 'ROMANTIC' ? '💫 Romantic' : '🔥 Spicy'}
+                          {selectedCatalogItem.tier === 'ROMANTIC' ? t('afterDark.romantic') : t('afterDark.spicy')}
                         </Text>
                       </View>
                       <AddToDateButton
@@ -691,7 +694,7 @@ export default function AfterDarkScreen() {
                         style={{ width: '100%', marginBottom: SPACING.sm }}
                       />
                       <DNButton
-                        label="Close"
+                        label={t('afterDark.close')}
                         variant="secondary"
                         onPress={() => setSelectedCatalogItem(null)}
                         style={{ width: '100%' }}
@@ -710,20 +713,20 @@ export default function AfterDarkScreen() {
             <Text
               style={[TYPE.section, { color: 'rgba(255,255,255,0.5)', marginBottom: SPACING.md }]}
             >
-              {settingMood ? 'Updating…' : selectedMood ? `${selectedMood.charAt(0).toUpperCase() + selectedMood.slice(1)} picks` : "Tonight\u2019s picks"}
+              {settingMood ? t('afterDark.updating') : selectedMood ? t('afterDark.moodPicks', { mood: selectedMood.charAt(0).toUpperCase() + selectedMood.slice(1) }) : t('afterDark.tonightPicks')}
             </Text>
 
             {loadingSugg ? (
               <View style={{ paddingVertical: SPACING.xl, alignItems: 'center' }}>
                 <Text style={[TYPE.body, { color: 'rgba(255,255,255,0.4)' }]}>
-                  Finding late-night spots…
+                  {t('afterDark.findingSpots')}
                 </Text>
               </View>
             ) : suggestions.length === 0 ? (
               <View style={{ paddingVertical: SPACING.xl, alignItems: 'center' }}>
                 <Text style={{ fontSize: 40, marginBottom: SPACING.sm }}>🌃</Text>
                 <Text style={[TYPE.body, { color: 'rgba(255,255,255,0.4)', textAlign: 'center' }]}>
-                  No suggestions found nearby.{'\n'}Try a different mood or set your location.
+                  {t('afterDark.noSuggestions')}
                 </Text>
               </View>
             ) : (
@@ -746,7 +749,7 @@ export default function AfterDarkScreen() {
               color={colors.ink2}
               style={{ textAlign: 'center' }}
             >
-              Set your vibe above — suggestions unlock when After Dark starts.
+              {t('afterDark.setVibeAbove')}
             </DNText>
           </View>
         )}
@@ -779,7 +782,7 @@ export default function AfterDarkScreen() {
             ]}
           >
             <Text style={{ fontSize: 20 }}>⚡</Text>
-            <Text style={[TYPE.button, { color: colors.bg }]}>Let's go NOW</Text>
+            <Text style={[TYPE.button, { color: colors.bg }]}>{t('afterDark.letsGoNow')}</Text>
           </TouchableOpacity>
         </View>
       )}

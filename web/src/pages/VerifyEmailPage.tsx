@@ -1,10 +1,9 @@
-// TODO i18n: instrument this file with useTranslation() hooks
-// All strings have translations in /public/locales/{en,es}/translation.json
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useSearchParams, useNavigate, Link } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { authApi } from "../api/client";
 import type { AxiosError } from "axios";
 import type { ApiError } from "../types";
@@ -16,6 +15,7 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 
 export function VerifyEmailPage() {
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const email = searchParams.get("email") ?? "";
@@ -39,47 +39,46 @@ export function VerifyEmailPage() {
   return (
     <main style={{ maxWidth: 400, margin: "80px auto", padding: "0 16px" }}>
       <h1>TogetherPlans</h1>
-      <h2>Verify your email</h2>
+      <h2>{t("auth.verifyEmail")}</h2>
 
       {email && (
         <p>
-          We sent a verification code to <strong>{email}</strong>. Enter it
-          below.
+          {t("auth.sentCodeTo", { email })}
         </p>
       )}
 
       {mutation.isSuccess ? (
         <div>
-          <p>Email verified! <Link to="/login">Sign in</Link></p>
+          <p>{t("auth.emailVerified")} <Link to="/login">{t("auth.signIn")}</Link></p>
         </div>
       ) : (
         <form onSubmit={handleSubmit((d) => mutation.mutate(d))}>
           <div>
-            <label htmlFor="token">Verification code</label>
+            <label htmlFor="token">{t("auth.verificationCode")}</label>
             <input
               id="token"
               type="text"
               {...register("token")}
               autoComplete="one-time-code"
-              placeholder="Enter code from email"
+              placeholder={t("auth.enterCode")}
             />
             {errors.token && <p role="alert">{errors.token.message}</p>}
           </div>
 
           {mutation.error && (
             <p role="alert" data-testid="verify-error">
-              {mutation.error.response?.data?.message ?? "Verification failed"}
+              {mutation.error.response?.data?.message ?? t("common.error")}
             </p>
           )}
 
           <button type="submit" disabled={mutation.isPending}>
-            {mutation.isPending ? "Verifying…" : "Verify email"}
+            {mutation.isPending ? t("auth.verifying") : t("auth.verifyEmailBtn")}
           </button>
         </form>
       )}
 
       <p>
-        Wrong email? <Link to="/signup">Back to sign up</Link>
+        {t("auth.wrongEmail")} <Link to="/signup">{t("auth.backToSignUp")}</Link>
       </p>
     </main>
   );

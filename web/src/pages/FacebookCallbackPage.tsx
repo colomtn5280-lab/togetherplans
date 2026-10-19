@@ -1,10 +1,10 @@
-// TODO i18n: instrument this file with useTranslation() hooks
-// All strings have translations in /public/locales/{en,es}/translation.json
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { authApi } from "../api/client";
 
 export function FacebookCallbackPage() {
+  const { t } = useTranslation();
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
   const [errorMsg, setErrorMsg] = useState<string>("");
 
@@ -16,7 +16,7 @@ export function FacebookCallbackPage() {
       if (error) {
         const msg =
           params.get("error_description") ??
-          "Facebook login was cancelled or failed.";
+          t("auth.facebookFailed");
         setErrorMsg(msg);
         setStatus("error");
         if (window.opener) {
@@ -35,7 +35,7 @@ export function FacebookCallbackPage() {
       const accessToken = hashParams.get("access_token");
 
       if (!accessToken) {
-        const msg = "No access token received from Facebook.";
+        const msg = t("auth.facebookFailed");
         setErrorMsg(msg);
         setStatus("error");
         if (window.opener) {
@@ -76,7 +76,7 @@ export function FacebookCallbackPage() {
           setStatus("success");
         }
       } catch {
-        const msg = "Facebook authentication failed. Please try again.";
+        const msg = t("auth.facebookFailed");
         setErrorMsg(msg);
         setStatus("error");
         if (window.opener) {
@@ -107,10 +107,10 @@ export function FacebookCallbackPage() {
         }}
       >
         <div style={{ fontSize: 48 }}>😕</div>
-        <h2>Facebook Sign-In Failed</h2>
+        <h2>{t("auth.facebookFailed")}</h2>
         <p style={{ color: "var(--ink2)", maxWidth: 360 }}>{errorMsg}</p>
         <Link to="/login" className="dn-btn">
-          Back to login
+          {t("auth.backToSignIn")}
         </Link>
       </div>
     );
@@ -128,7 +128,7 @@ export function FacebookCallbackPage() {
       }}
     >
       <div style={{ fontSize: 32 }}>⏳</div>
-      <p style={{ color: "var(--ink2)" }}>Completing Facebook Sign-In…</p>
+      <p style={{ color: "var(--ink2)" }}>{t("common.loading")}</p>
     </div>
   );
 }

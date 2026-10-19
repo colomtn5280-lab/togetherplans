@@ -1,4 +1,3 @@
-// TODO i18n: instrument with useTranslation() — translations in src/locales/{en,es}/translation.json
 /**
  * ShareCardScreen — display a generated share card for a DECIDED proposal
  * and let the user share it via the native share sheet.
@@ -17,6 +16,7 @@ import {
   View,
 } from 'react-native';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/contexts/ThemeContext';
 import { CARD_RADII, SHADOWS, SPACING, STICKER_ROTATIONS, TYPE } from '@/constants';
 import { DNButton, DNScreenHeader, DNSticker, DNText } from '@/components/ui';
@@ -136,6 +136,7 @@ function OptionRow({
 // ── Main Screen ───────────────────────────────────────────────────────────────
 export default function ShareCardScreen() {
   const { colors } = useTheme();
+  const { t } = useTranslation();
   const navigation = useNavigation();
   const route = useRoute<RouteT>();
   const { proposalId } = route.params;
@@ -188,7 +189,7 @@ export default function ShareCardScreen() {
   if (loading) {
     return (
       <View style={{ flex: 1, backgroundColor: colors.bg, justifyContent: 'center', alignItems: 'center' }}>
-        <Text style={[TYPE.body, { color: colors.ink2 }]}>Building your share card…</Text>
+        <Text style={[TYPE.body, { color: colors.ink2 }]}>{t('shareCard.building')}</Text>
       </View>
     );
   }
@@ -197,9 +198,9 @@ export default function ShareCardScreen() {
     return (
       <View style={{ flex: 1, backgroundColor: colors.bg, justifyContent: 'center', alignItems: 'center', padding: SPACING.gutter }}>
         <Text style={[TYPE.heading, { color: colors.ink, textAlign: 'center', marginBottom: SPACING.md }]}>
-          Couldn't load share card
+          {t('shareCard.couldntLoad')}
         </Text>
-        <DNButton label="Try again" onPress={load} variant="secondary" />
+        <DNButton label={t('common.retry')} onPress={load} variant="secondary" />
       </View>
     );
   }
@@ -210,7 +211,7 @@ export default function ShareCardScreen() {
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
       <DNScreenHeader
-        title="Share the plan"
+        title={t('shareCard.title')}
         onBack={() => navigation.goBack()}
       />
 
@@ -309,7 +310,7 @@ export default function ShareCardScreen() {
             ]}
           >
             <Text style={[TYPE.section, { color: colors.ink2, marginBottom: SPACING.md }]}>
-              How the group voted
+              {t('shareCard.howVoted')}
             </Text>
 
             {card.allOptions.map((opt, i) => (
@@ -374,7 +375,7 @@ export default function ShareCardScreen() {
         ]}
       >
         <DNButton
-          label={sharing ? 'Sharing…' : '📤  Share with friends'}
+          label={sharing ? t('shareCard.sharing') : t('shareCard.shareWithFriends')}
           onPress={handleShare}
           variant="primary"
           loading={sharing}
@@ -382,7 +383,7 @@ export default function ShareCardScreen() {
         />
         {winner?.ticketUrl ? (
           <DNButton
-            label="🎟  Get tickets"
+            label={t('shareCard.getTickets')}
             onPress={() => {
               // Open ticket URL — requires Linking
               const { Linking } = require('react-native');

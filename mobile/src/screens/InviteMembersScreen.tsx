@@ -1,4 +1,3 @@
-// TODO i18n: instrument with useTranslation() — translations in src/locales/{en,es}/translation.json
 /**
  * InviteMembersScreen — invite via Link, Email, SMS (native), or Username search
  * QR removed (low utility). SMS uses native Linking so no Twilio needed.
@@ -17,6 +16,7 @@ import {
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp, NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useTranslation } from 'react-i18next';
 
 import { useTheme } from '@/contexts/ThemeContext';
 import { SPACING, TYPE, SHADOWS, RADII } from '@/constants';
@@ -57,6 +57,7 @@ function MethodCard({
   groupId: string;
 }) {
   const { colors } = useTheme();
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [username, setUsername] = useState('');
@@ -80,8 +81,8 @@ function MethodCard({
 
   const copyLink = useCallback(() => {
     Clipboard.setString(inviteUrl);
-    Alert.alert('Copied!', 'Invite link copied to clipboard.');
-  }, [inviteUrl]);
+    Alert.alert(t('inviteMembers.copied'), t('inviteMembers.linkCopiedToClipboard'));
+  }, [inviteUrl, t]);
 
   const shareLink = useCallback(async () => {
     try {
@@ -102,17 +103,17 @@ function MethodCard({
     const canOpen = await Linking.canOpenURL(url).catch(() => false);
     if (canOpen) {
       await Linking.openURL(url).catch(() =>
-        Alert.alert('Could not open Messages', 'Please send the link manually.')
+        Alert.alert(t('inviteMembers.couldNotMessages'), t('inviteMembers.sendManually'))
       );
     } else {
       // Fallback: just copy and alert
       Clipboard.setString(inviteUrl);
       Alert.alert(
-        'Link copied',
+        t('inviteMembers.copied'),
         `We couldn't open Messages directly. The invite link has been copied — paste it into a text to ${num}.`
       );
     }
-  }, [phone, inviteUrl]);
+  }, [phone, inviteUrl, t]);
 
   return (
     <DNCard index={1} style={{ marginBottom: SPACING.md, overflow: 'visible' }}>
@@ -126,7 +127,7 @@ function MethodCard({
             style={{ marginBottom: SPACING.sm }}
           />
           <Text style={[TYPE.body, { color: colors.ink2, marginBottom: SPACING.md }]}>
-            Share this link — it expires in 72 hours and can only be used once.
+            {t('inviteMembers.linkExpiry')}
           </Text>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: SPACING.sm }}>
             <View
@@ -139,11 +140,11 @@ function MethodCard({
               }}
             >
               <Text style={[TYPE.secondary, { color: colors.ink }]} numberOfLines={1}>
-                {inviteUrl || 'Generating link…'}
+                {inviteUrl || t('inviteMembers.generatingLink')}
               </Text>
             </View>
             <DNButton
-              label="Copy"
+              label={t('inviteMembers.copy')}
               onPress={copyLink}
               variant="tonal"
               size="compact"
@@ -151,7 +152,7 @@ function MethodCard({
             />
           </View>
           <DNButton
-            label="Share link"
+            label={t('inviteMembers.shareLink')}
             onPress={shareLink}
             variant="primary"
             disabled={!inviteUrl}
@@ -163,10 +164,10 @@ function MethodCard({
       {method === 'EMAIL' && (
         <>
           <Text style={[TYPE.body, { color: colors.ink2, marginBottom: SPACING.md }]}>
-            Send an invite email to their address.
+            {t('inviteMembers.emailInviteBody')}
           </Text>
           <DNInput
-            label="Email address"
+            label={t('auth.email')}
             placeholder="friend@example.com"
             value={email}
             onChangeText={setEmail}
@@ -174,16 +175,16 @@ function MethodCard({
             autoCapitalize="none"
           />
           <DNButton
-            label="Send invite"
+            label={t('inviteMembers.sendInvite')}
             onPress={async () => {
               if (!email.trim()) return;
               setSendLoading(true);
               try {
                 await invitationsAPI.create(groupId, 'EMAIL', email.trim());
                 setEmail('');
-                Alert.alert('Invite sent!', `An invite was sent to ${email.trim()}.`);
+                Alert.alert(t('inviteMembers.inviteSent'), t('inviteMembers.inviteSentTo', { email: email.trim() }));
               } catch {
-                Alert.alert('Failed to send', 'Could not send the invite. Please try again.');
+                Alert.alert(t('inviteMembers.failedSend'), t('inviteMembers.couldNotSend'));
               } finally {
                 setSendLoading(false);
               }
@@ -199,10 +200,10 @@ function MethodCard({
       {method === 'SHARE' && (
         <>
           <Text style={[TYPE.body, { color: colors.ink2, marginBottom: SPACING.md }]}>
-            Share the invite link any way you like — Messages, WhatsApp, email, and more.
+            {t('inviteMembers.shareAnyWay')}
           </Text>
           <DNButton
-            label="Share invite link"
+            label={t('inviteMembers.shareInviteLink')}
             onPress={async () => {
               try {
                 await Share.share({
@@ -210,7 +211,7 @@ function MethodCard({
                   url: inviteUrl,
                 });
               } catch {
-                Alert.alert('Could not open share sheet', 'Please use the Link tab to copy the invite.');
+                Alert.alert(t('inviteMembers.couldNotShare'), t('inviteMembers.copyToUse'));
               }
             }}
             variant="primary"
@@ -223,7 +224,7 @@ function MethodCard({
       {method === 'USERNAME' && (
         <>
           <Text style={[TYPE.body, { color: colors.ink2, marginBottom: SPACING.md }]}>
-            Search by username to invite.
+            {t('inviteMembers.searchByUsername')}
           </Text>
           <DNInput
             label="Username"
@@ -232,7 +233,7 @@ function MethodCard({
             onChangeText={setUsername}
             autoCapitalize="none"
           />
-          {searching && <Text style={[TYPE.secondary, { color: colors.ink2, marginBottom: 8 }]}>Searching…</Text>}
+          {searching && <Text style={[TYPE.secondary, { color: colors.ink2, marginBottom: 8 }]}>{t('inviteMembers.searching')}</Text>}
           {searchResults.map((u) => (
             <TouchableOpacity
               key={u.id}
@@ -240,18 +241,18 @@ function MethodCard({
                 setSendLoading(true);
                 try {
                   await invitationsAPI.create(groupId, 'USERNAME', u.id);
-                  Alert.alert('Invite sent!', `${u.displayName} has been invited.`);
+                  Alert.alert(t('inviteMembers.inviteSent'), t('inviteMembers.hasBeenInvited', { name: u.displayName }));
                   setUsername('');
                   setSearchResults([]);
                 } catch {
-                  Alert.alert('Failed', 'Could not send the invite. Please try again.');
+                  Alert.alert(t('inviteMembers.failed'), t('inviteMembers.couldNotSend'));
                 } finally { setSendLoading(false); }
               }}
               style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: colors.line }}
             >
               <DNAvatar name={u.displayName} size={42} colorIndex={0} style={{ marginRight: 12 }} />
               <Text style={[TYPE.rowLabel, { color: colors.ink, flex: 1 }]}>{u.displayName}</Text>
-              <Text style={[TYPE.secondary, { color: colors.primary }]}>Invite</Text>
+              <Text style={[TYPE.secondary, { color: colors.primary }]}>{t('inviteMembers.invite')}</Text>
             </TouchableOpacity>
           ))}
         </>
@@ -263,6 +264,7 @@ function MethodCard({
 // ─── InviteMembersScreen ──────────────────────────────────────────────────────
 export default function InviteMembersScreen() {
   const { colors } = useTheme();
+  const { t } = useTranslation();
   const navigation = useNavigation<Nav>();
   const route = useRoute<Route>();
 
@@ -305,8 +307,8 @@ export default function InviteMembersScreen() {
       showsVerticalScrollIndicator={false}
     >
       <DNScreenHeader
-        title={`Invite to ${groupName}`}
-        subtitle="Link expires in 72 h"
+        title={`${t('groups.invite')} ${groupName}`}
+        subtitle={t('inviteMembers.subtitle')}
         onBack={() => navigation.goBack()}
       />
 

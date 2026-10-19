@@ -1,5 +1,3 @@
-// TODO i18n: instrument this file with useTranslation() hooks
-// All strings have translations in /public/locales/{en,es}/translation.json
 /**
  * AfterDarkPage.tsx
  *
@@ -10,6 +8,7 @@
 
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import "./add-to-date-button.css";
 import { afterDarkApi, groupsApi } from "../api/client";
 import { AppNav } from "../components/AppNav";
@@ -40,6 +39,7 @@ function GroupPickerModal({
   onClose: () => void;
   title: string;
 }) {
+  const { t } = useTranslation();
   return (
     <div
       style={{
@@ -77,7 +77,7 @@ function GroupPickerModal({
           {title}
         </h3>
         <p style={{ color: "rgba(247,227,231,0.6)", fontSize: 14, margin: "0 0 20px" }}>
-          Choose which group to add this to:
+          {t("afterDark.chooseGroupLabel")}
         </p>
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           {groups.map((g) => (
@@ -123,7 +123,7 @@ function GroupPickerModal({
             fontSize: 14,
           }}
         >
-          Cancel
+          {t("common.cancel")}
         </button>
       </div>
     </div>
@@ -141,6 +141,7 @@ function AddIdeaModal({
   onClose: () => void;
   onSuccess: () => void;
 }) {
+  const { t } = useTranslation();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [tier, setTier] = useState<"ROMANTIC" | "SPICY">("ROMANTIC");
@@ -151,7 +152,7 @@ function AddIdeaModal({
 
   const handleSubmit = async () => {
     if (!title.trim() || !description.trim() || !groupId) {
-      setError("Please fill in all fields and select a group.");
+      setError(t("afterDark.fillAllFields"));
       return;
     }
     setLoading(true);
@@ -161,7 +162,7 @@ function AddIdeaModal({
       onSuccess();
     } catch (e: unknown) {
       const err = e as { response?: { data?: { error?: string } } };
-      setError(err?.response?.data?.error ?? "Failed to create idea");
+      setError(err?.response?.data?.error ?? t("afterDark.failedToCreateIdea"));
     } finally {
       setLoading(false);
     }
@@ -214,50 +215,50 @@ function AddIdeaModal({
             fontSize: 20,
           }}
         >
-          ✨ Add your own idea
+          {t("afterDark.addYourOwnTitle")}
         </h3>
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <input
             style={inputStyle}
-            placeholder="Title (e.g. Midnight rooftop drinks)"
+            placeholder={t("afterDark.titlePlaceholder")}
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             maxLength={140}
           />
           <textarea
             style={{ ...inputStyle, minHeight: 80, resize: "vertical" }}
-            placeholder="Description — what makes it special?"
+            placeholder={t("afterDark.descPlaceholder")}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
           <input
             style={inputStyle}
-            placeholder="Icon emoji (e.g. 🍷)"
+            placeholder={t("afterDark.iconPlaceholder")}
             value={icon}
             onChange={(e) => setIcon(e.target.value)}
             maxLength={4}
           />
           {/* Tier toggle */}
           <div style={{ display: "flex", gap: 8 }}>
-            {(["ROMANTIC", "SPICY"] as const).map((t) => (
+            {(["ROMANTIC", "SPICY"] as const).map((t2) => (
               <button
-                key={t}
-                onClick={() => setTier(t)}
+                key={t2}
+                onClick={() => setTier(t2)}
                 style={{
                   flex: 1,
                   padding: "10px",
                   borderRadius: 12,
                   border: "1px solid",
-                  borderColor: tier === t ? "#B2485E" : "rgba(247,227,231,0.2)",
-                  background: tier === t ? "rgba(178,72,94,0.25)" : "transparent",
-                  color: tier === t ? "#F7E3E7" : "rgba(247,227,231,0.5)",
+                  borderColor: tier === t2 ? "#B2485E" : "rgba(247,227,231,0.2)",
+                  background: tier === t2 ? "rgba(178,72,94,0.25)" : "transparent",
+                  color: tier === t2 ? "#F7E3E7" : "rgba(247,227,231,0.5)",
                   cursor: "pointer",
                   fontFamily: "'DM Sans', sans-serif",
                   fontWeight: 600,
                   fontSize: 13,
                 }}
               >
-                {t === "ROMANTIC" ? "💫 Romantic" : "🔥 Spicy"}
+                {t2 === "ROMANTIC" ? "💫 Romantic" : "🔥 Spicy"}
               </button>
             ))}
           </div>
@@ -294,7 +295,7 @@ function AddIdeaModal({
               opacity: loading ? 0.6 : 1,
             }}
           >
-            {loading ? "Adding…" : "Add idea"}
+            {loading ? t("afterDark.addingText") : t("afterDark.addIdea")}
           </button>
           <button
             onClick={onClose}
@@ -309,7 +310,7 @@ function AddIdeaModal({
               fontSize: 14,
             }}
           >
-            Cancel
+            {t("common.cancel")}
           </button>
         </div>
       </div>
@@ -326,6 +327,7 @@ function AfterDarkCard({
   item: AfterDarkItem;
   onAddToPlan: (item: AfterDarkItem) => void;
 }) {
+  const { t } = useTranslation();
   const isSpicy = item.tier === "SPICY";
 
   // Determine text color based on bg darkness
@@ -414,7 +416,7 @@ function AfterDarkCard({
         onClick={() => onAddToPlan(item)}
         style={{ marginTop: "auto" }}
       >
-        Add to Date
+        {t("discover.addToDate")}
       </button>
     </div>
   );
@@ -423,6 +425,7 @@ function AfterDarkCard({
 // ── Main Page ─────────────────────────────────────────────────────────────────
 
 export function AfterDarkPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
@@ -450,7 +453,7 @@ export function AfterDarkPage() {
       })
       .catch((e: unknown) => {
         const err = e as { response?: { data?: { error?: string } } };
-        setError(err?.response?.data?.error ?? "Failed to load ideas");
+        setError(err?.response?.data?.error ?? t("common.error"));
       })
       .finally(() => setLoading(false));
 
@@ -535,7 +538,7 @@ export function AfterDarkPage() {
               letterSpacing: "-0.02em",
             }}
           >
-            🌙 After Dark
+            🌙 {t("afterDark.title")}
           </h1>
           <p
             style={{
@@ -545,7 +548,7 @@ export function AfterDarkPage() {
               margin: "8px 0 0",
             }}
           >
-            For when the night gets interesting.
+            {t("afterDark.forWhenNightGetsInteresting")}
           </p>
         </div>
 
@@ -569,7 +572,7 @@ export function AfterDarkPage() {
                 color: "rgba(247,227,231,0.7)",
               }}
             >
-              After Dark wakes up at 9pm · {hoursAway}h away · Meanwhile, browse ideas below
+              {t("afterDark.wakesAt9pm", { hours: hoursAway })}
             </span>
           </div>
         )}
@@ -587,7 +590,7 @@ export function AfterDarkPage() {
             }}
           >
             <p style={{ margin: "0 0 12px", color: "rgba(247,227,231,0.8)", fontSize: 15 }}>
-              Sign in to add ideas to your plans
+              {t("afterDark.signInToAdd")}
             </p>
             <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
               <button
@@ -604,7 +607,7 @@ export function AfterDarkPage() {
                   cursor: "pointer",
                 }}
               >
-                Sign in
+                {t("auth.signIn")}
               </button>
               <button
                 onClick={() => navigate("/signup")}
@@ -619,7 +622,7 @@ export function AfterDarkPage() {
                   cursor: "pointer",
                 }}
               >
-                Sign up free
+                {t("afterDark.signUpFree")}
               </button>
             </div>
           </div>
@@ -635,17 +638,17 @@ export function AfterDarkPage() {
             marginTop: hoursAway > 0 ? 0 : 24,
           }}
         >
-          {(["ALL", "ROMANTIC", "SPICY"] as const).map((t) => (
+          {(["ALL", "ROMANTIC", "SPICY"] as const).map((tier) => (
             <button
-              key={t}
-              onClick={() => { setTierFilter(t); setCurrentPage(0); }}
+              key={tier}
+              onClick={() => { setTierFilter(tier); setCurrentPage(0); }}
               style={{
                 padding: "9px 20px",
                 borderRadius: 100,
                 border: "1px solid",
-                borderColor: tierFilter === t ? "#B2485E" : "rgba(247,227,231,0.2)",
-                background: tierFilter === t ? "#B2485E" : "transparent",
-                color: tierFilter === t ? "#fff" : "rgba(247,227,231,0.6)",
+                borderColor: tierFilter === tier ? "#B2485E" : "rgba(247,227,231,0.2)",
+                background: tierFilter === tier ? "#B2485E" : "transparent",
+                color: tierFilter === tier ? "#fff" : "rgba(247,227,231,0.6)",
                 fontFamily: "'DM Sans', sans-serif",
                 fontWeight: 600,
                 fontSize: 14,
@@ -653,7 +656,7 @@ export function AfterDarkPage() {
                 transition: "all 0.2s",
               }}
             >
-              {t === "ALL" ? "All" : t === "ROMANTIC" ? "💫 Romantic" : "🔥 Spicy"}
+              {tier === "ALL" ? t("afterDark.all") : tier === "ROMANTIC" ? `💫 ${t("afterDark.romantic")}` : `🔥 ${t("afterDark.spicy")}`}
             </button>
           ))}
         </div>
@@ -662,7 +665,7 @@ export function AfterDarkPage() {
         {loading && (
           <div style={{ textAlign: "center", padding: "60px 0" }}>
             <p style={{ color: "rgba(247,227,231,0.4)", fontFamily: "'DM Sans', sans-serif" }}>
-              Loading ideas…
+              {t("afterDark.loadingIdeas")}
             </p>
           </div>
         )}
@@ -731,7 +734,7 @@ export function AfterDarkPage() {
                       margin: 0,
                     }}
                   >
-                    + Add your own idea
+                    {t("afterDark.addYourOwn")}
                   </p>
                   <p
                     style={{
@@ -741,7 +744,7 @@ export function AfterDarkPage() {
                       margin: 0,
                     }}
                   >
-                    Something only your two know about
+                    {t("afterDark.onlyYouTwo")}
                   </p>
                 </div>
               )}
@@ -756,7 +759,7 @@ export function AfterDarkPage() {
                   disabled={currentPage === 0}
                   style={{ background: "rgba(178,72,94,0.15)", border: "1px solid #B2485E", color: "#F7E3E7" }}
                 >
-                  ← Prev
+                  {t("afterDark.prev")}
                 </button>
                 <span style={{ lineHeight: "2.5rem", color: "rgba(247,227,231,0.7)", fontFamily: "'DM Sans', sans-serif" }}>
                   {currentPage + 1} / {totalPages}
@@ -767,7 +770,7 @@ export function AfterDarkPage() {
                   disabled={currentPage === totalPages - 1}
                   style={{ background: "rgba(178,72,94,0.15)", border: "1px solid #B2485E", color: "#F7E3E7" }}
                 >
-                  Next →
+                  {t("afterDark.next")}
                 </button>
               </div>
             )}
@@ -785,7 +788,7 @@ export function AfterDarkPage() {
                   fontFamily: "'DM Sans', sans-serif",
                 }}
               >
-                ✅ Idea added! Refresh to see it in your list.
+                ✅ {t("afterDark.ideaAdded")}
               </div>
             )}
           </>
@@ -803,7 +806,7 @@ export function AfterDarkPage() {
       {pickerItem && (
         <GroupPickerModal
           groups={groups}
-          title={`Add "${pickerItem.title}" to…`}
+          title={t("afterDark.addToPlanLabel", { title: pickerItem.title })}
           onSelect={handleGroupSelected}
           onClose={() => setPickerItem(null)}
         />

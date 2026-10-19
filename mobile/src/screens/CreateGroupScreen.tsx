@@ -1,4 +1,3 @@
-// TODO i18n: instrument with useTranslation() — translations in src/locales/{en,es}/translation.json
 /**
  * CreateGroupScreen — §3f
  * Create a new group with name, description, type
@@ -14,6 +13,7 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useTranslation } from 'react-i18next';
 
 import { useTheme } from '@/contexts/ThemeContext';
 import { SPACING, TYPE } from '@/constants';
@@ -34,6 +34,7 @@ const GROUP_TYPES: GroupType[] = ['Couple', 'Friends', 'Family'];
 export default function CreateGroupScreen() {
   const { colors } = useTheme();
   const navigation = useNavigation<Nav>();
+  const { t } = useTranslation();
 
   const [groupType, setGroupType] = useState<GroupType>('Couple');
   const [name, setName] = useState('');
@@ -43,7 +44,7 @@ export default function CreateGroupScreen() {
 
   const validate = () => {
     if (!name.trim()) {
-      setNameError('Group name is required');
+      setNameError(t('createGroup.nameRequired'));
       return false;
     }
     setNameError('');
@@ -70,7 +71,7 @@ export default function CreateGroupScreen() {
         groupName: newGroup?.name ?? name.trim(),
       });
     } catch (err: any) {
-      setNameError(err?.response?.data?.error ?? 'Failed to create group');
+      setNameError(err?.response?.data?.error ?? t('createGroup.failedCreate'));
     } finally {
       setLoading(false);
     }
@@ -82,10 +83,10 @@ export default function CreateGroupScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <DNScreenHeader
-        title="New group"
+        title={t('createGroup.title')}
         rightElement={
           <DNButton
-            label="Create"
+            label={t('createGroup.create')}
             onPress={handleCreate}
             variant="primary"
             size="compact"
@@ -106,11 +107,11 @@ export default function CreateGroupScreen() {
           onPress={() => navigation.goBack()}
           style={{ marginBottom: SPACING.lg, alignSelf: 'flex-start' }}
         >
-          <Text style={[TYPE.button, { color: colors.ink2 }]}>Cancel</Text>
+          <Text style={[TYPE.button, { color: colors.ink2 }]}>{t('common.cancel')}</Text>
         </TouchableOpacity>
 
         {/* Group type chips */}
-        <Text style={[TYPE.secondary, { color: colors.ink2, marginBottom: 10 }]}>Group type</Text>
+        <Text style={[TYPE.secondary, { color: colors.ink2, marginBottom: 10 }]}>{t('createGroup.groupType')}</Text>
         <View style={{ flexDirection: 'row', gap: 10, marginBottom: SPACING.lg, flexWrap: 'wrap' }}>
           {GROUP_TYPES.map((type, i) => (
             <DNChip
@@ -125,11 +126,11 @@ export default function CreateGroupScreen() {
 
         {/* Name input */}
         <DNInput
-          label="Group name *"
-          placeholder="e.g. Date nights ♥"
+          label={t('createGroup.groupNameLabel')}
+          placeholder={t('createGroup.namePlaceholder')}
           value={name}
-          onChangeText={(t) => {
-            setName(t);
+          onChangeText={(tx) => {
+            setName(tx);
             if (nameError) setNameError('');
           }}
           autoFocus
@@ -139,8 +140,8 @@ export default function CreateGroupScreen() {
 
         {/* Description input */}
         <DNInput
-          label="Description (optional)"
-          placeholder="What's this group about?"
+          label={t('createGroup.descriptionLabel')}
+          placeholder={t('createGroup.descriptionPlaceholder')}
           value={description}
           onChangeText={setDescription}
           multiline

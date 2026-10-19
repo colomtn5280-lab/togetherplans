@@ -1,4 +1,3 @@
-// TODO i18n: instrument with useTranslation() — translations in src/locales/{en,es}/translation.json
 /**
  * SuggestionsScreen / DiscoverScreen — rewritten for real event data
  *
@@ -40,6 +39,7 @@ import {
 import { AddToDateButton } from '@/components/AddToDateButton';
 import { proposalsAPI, api, getToken } from '@/services/api';
 import type { RootStackParamList, Suggestion } from '@/types';
+import { useTranslation } from 'react-i18next';
 
 type RouteT = RouteProp<RootStackParamList, 'Suggestions'>;
 
@@ -182,6 +182,7 @@ function CategoryGrid({
   categories: Category[];
   favIds: string[];
 }) {
+  const { t } = useTranslation();
   const rows: Category[][] = [];
   for (let i = 0; i < categories.length; i += 2) {
     rows.push(categories.slice(i, i + 2));
@@ -190,10 +191,10 @@ function CategoryGrid({
     <View style={{ marginBottom: SPACING.md }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: SPACING.sm }}>
         <DNText variant="section" color={colors.ink2} style={{ flex: 1 }}>
-          Browse by category
+          {t('suggestions.browseCategory')}
         </DNText>
         <DNChip
-          label="All"
+          label={t('afterDark.all').replace('✨ ', '')}
           selected={activeId === null}
           onPress={() => onSelect(null)}
           index={0}
@@ -668,14 +669,15 @@ function IdeasSection({
   onAdd: (s: Suggestion) => void;
   colors: any;
 }) {
+  const { t } = useTranslation();
   if (ideas.length === 0) return null;
   return (
     <View style={{ marginTop: hasRealResults ? SPACING.md : 0 }}>
       <DNText variant="section" color={colors.ink} style={{ marginBottom: 2 }}>
-        Ideas to spark the plan ✨
+        {t('suggestions.ideasTitle')}
       </DNText>
       <DNText variant="secondary" color={colors.ink2} style={{ marginBottom: SPACING.sm }}>
-        No live listings for this filter yet — some starters:
+        {t('suggestions.ideasSubtitle')}
       </DNText>
       {ideas.map((idea, i) => {
         const key = idea.name + (idea.address ?? '');
@@ -701,6 +703,7 @@ function EmptyState({
   onUseLocation: () => void;
   colors: any;
 }) {
+  const { t } = useTranslation();
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: SPACING.gutter }}>
       <DNCard index={0} style={{ alignItems: 'center', padding: SPACING.xl, marginBottom: SPACING.lg, width: '100%' }}>
@@ -713,10 +716,10 @@ function EmptyState({
           style={{ marginBottom: SPACING.md }}
         />
         <DNText variant="title" color={colors.ink} style={{ textAlign: 'center', marginBottom: SPACING.lg }}>
-          Nothing nearby, yet
+          {t('suggestions.nothingNearby')}
         </DNText>
         <DNButton
-          label="Use my location"
+          label={t('suggestions.useMyLocation')}
           variant="primary"
           onPress={onUseLocation}
           style={{ width: '100%' }}
@@ -742,6 +745,7 @@ function TonightBanner({
   onClear: () => void;
   colors: any;
 }) {
+  const { t } = useTranslation();
   if (active) {
     return (
       <View style={{ marginBottom: SPACING.md }}>
@@ -773,7 +777,7 @@ function TonightBanner({
               marginLeft: SPACING.sm,
             }}
           >
-            <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700' }}>clear ×</Text>
+            <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700' }}>{t('suggestions.clearTonight')}</Text>
           </TouchableOpacity>
         </View>
         {weekendFallback && (
@@ -814,9 +818,9 @@ function TonightBanner({
       <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
         <Text style={{ fontSize: 26, marginRight: SPACING.sm + 2 }}>🌙</Text>
         <View style={{ flex: 1 }}>
-          <Text style={{ color: '#fff', fontSize: 17, fontWeight: '800' }}>Tonight near me</Text>
+          <Text style={{ color: '#fff', fontSize: 17, fontWeight: '800' }}>{t('suggestions.tonightNearMe')}</Text>
           <Text style={{ color: 'rgba(255,255,255,0.85)', fontSize: 12, marginTop: 1 }}>
-            Events happening today, close by
+            {t('suggestions.tonightSubtitle')}
           </Text>
         </View>
       </View>
@@ -848,6 +852,7 @@ function AreaControls({
   onClearZip: () => void;
   colors: any;
 }) {
+  const { t } = useTranslation();
   const [zipInputOpen, setZipInputOpen] = useState(false);
   const [zipDraft, setZipDraft] = useState('');
 
@@ -857,7 +862,7 @@ function AreaControls({
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         <View style={{ flexDirection: 'row', gap: SPACING.xs, alignItems: 'center' }}>
           <DNText variant="secondary" color={colors.ink2} style={{ marginRight: 4 }}>
-            Search area
+            {t('suggestions.searchArea')}
           </DNText>
           {RADIUS_OPTIONS.map((opt) => {
             const selected = radius === opt.value;
@@ -900,7 +905,7 @@ function AreaControls({
           </DNText>
           <TouchableOpacity onPress={onClearZip} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
             <DNText variant="secondary" color={colors.primary} style={{ fontWeight: '700' }}>
-              back to my location ×
+              {t('suggestions.backToLocation')}
             </DNText>
           </TouchableOpacity>
         </View>
@@ -915,13 +920,13 @@ function AreaControls({
             color={colors.primary}
             style={{ textDecorationLine: 'underline' }}
           >
-            Search another area
+            {t('suggestions.searchAnotherArea')}
           </DNText>
         </TouchableOpacity>
       ) : (
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: SPACING.xs, marginTop: SPACING.xs, flexWrap: 'wrap' }}>
           <DNText variant="secondary" color={colors.ink2}>
-            Planning a getaway?
+            {t('suggestions.planningGetaway')}
           </DNText>
           <TextInput
             value={zipDraft}
@@ -958,7 +963,7 @@ function AreaControls({
             }}
           >
             <DNText variant="buttonSm" color={colors.onPrimary}>
-              Go
+              {t('suggestions.go')}
             </DNText>
           </TouchableOpacity>
           <TouchableOpacity
@@ -969,7 +974,7 @@ function AreaControls({
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
             <DNText variant="secondary" color={colors.ink2}>
-              Cancel
+              {t('common.cancel')}
             </DNText>
           </TouchableOpacity>
         </View>
@@ -1042,6 +1047,7 @@ function DateChipsRow({
   onClearDate: () => void;
   colors: any;
 }) {
+  const { t } = useTranslation();
   const formatShortDate = (d: Date) =>
     d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
 
@@ -1070,14 +1076,14 @@ function DateChipsRow({
             fontWeight: '700',
           }}
         >
-          {specificDate ? formatShortDate(specificDate) : 'Pick date'}
+          {specificDate ? formatShortDate(specificDate) : t('suggestions.pickDate')}
         </Text>
         {specificDate && (
           <Text style={{ color: colors.onPrimary, fontSize: 13, marginLeft: 2 }}>×</Text>
         )}
       </TouchableOpacity>
       {!specificDate && (
-        <Text style={{ fontSize: 12, color: colors.ink2 }}>Choose a specific date</Text>
+        <Text style={{ fontSize: 12, color: colors.ink2 }}>{t('suggestions.chooseDate')}</Text>
       )}
     </View>
   );
@@ -1088,6 +1094,7 @@ export default function SuggestionsScreen() {
   const { colors } = useTheme();
   const navigation = useNavigation<any>();
   const route = useRoute<RouteT>();
+  const { t } = useTranslation();
   const { options: planOptions, addOption, groupId: pbGroupId, setGroupId } = usePlanBuilder();
   const hasProposalContext = !!route.params?.groupId;
 
@@ -1429,7 +1436,7 @@ export default function SuggestionsScreen() {
   if (locationGranted === false && isEmpty && !zipOverride) {
     return (
       <View style={{ flex: 1, backgroundColor: colors.bg }}>
-        <DNScreenHeader title="Discover" subtitle="📍 Allow location to find activities" />
+        <DNScreenHeader title={t('discover.title')} subtitle="📍 Allow location to find activities" />
         <EmptyState onUseLocation={requestLocation} colors={colors} />
       </View>
     );
@@ -1438,7 +1445,7 @@ export default function SuggestionsScreen() {
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
       <DNScreenHeader
-        title={tonightActive ? 'Tonight near you' : 'Discover'}
+        title={tonightActive ? t('suggestions.tonightNearMe') : t('discover.title')}
         subtitle={
           tonightActive
             ? '🌙 Events happening today'

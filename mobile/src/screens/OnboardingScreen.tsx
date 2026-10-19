@@ -1,4 +1,3 @@
-// TODO i18n: instrument with useTranslation() — translations in src/locales/{en,es}/translation.json
 /**
  * OnboardingScreen — DateNight v2 (slides 4a–4c)
  * Shown once after Register. Stores hasOnboarded in AsyncStorage.
@@ -16,6 +15,7 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/contexts/ThemeContext';
 import { TYPE, SPACING, SHADOWS, CARD_RADII } from '@/constants';
 import { DNButton, DNText, DNCard, DNSticker, DNInput } from '@/components/ui';
@@ -193,6 +193,7 @@ function Dots({ current, total }: { current: number; total: number }) {
 // ─── Main Screen ───────────────────────────────────────────────────────────────
 export default function OnboardingScreen({ navigation }: Props) {
   const { colors } = useTheme();
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const [slide, setSlide] = useState(0);
   const slideAnim = useRef(new Animated.Value(0)).current;
@@ -227,7 +228,7 @@ export default function OnboardingScreen({ navigation }: Props) {
 
   const handleFinish = async () => {
     if (!groupName.trim()) {
-      setGroupError('Give your group a name.');
+      setGroupError(t('onboarding.giveGroupName'));
       return;
     }
     setGroupLoading(true);
@@ -244,7 +245,7 @@ export default function OnboardingScreen({ navigation }: Props) {
       await markOnboarded();
       navigation.replace('Main', { groupId });
     } catch {
-      setGroupError('Could not create group. You can do this later!');
+      setGroupError(t('onboarding.couldNotCreate'));
       // Still mark onboarded so they don't loop forever
       await markOnboarded();
       navigation.replace('Main', undefined);
@@ -265,7 +266,7 @@ export default function OnboardingScreen({ navigation }: Props) {
       <View style={styles.topBar}>
         <View />
         <TouchableOpacity onPress={skip} style={styles.skipBtn}>
-          <Text style={[TYPE.secondary, { color: colors.ink2 }]}>Skip</Text>
+          <Text style={[TYPE.secondary, { color: colors.ink2 }]}>{t('onboarding.skip')}</Text>
         </TouchableOpacity>
       </View>
 
@@ -274,12 +275,12 @@ export default function OnboardingScreen({ navigation }: Props) {
         <View style={styles.slideContent}>
           <ChatBubblesIllustration />
           <DNText variant="title" style={{ textAlign: 'center', marginBottom: SPACING.sm }}>
-            Sound familiar?
+            {t('onboarding.slide0Title')}
           </DNText>
           <DNText variant="body" color={colors.ink2} style={{ textAlign: 'center', marginBottom: SPACING.xl }}>
-            The endless group chat trying to make a plan.
+            {t('onboarding.slide0Body')}
           </DNText>
-          <DNButton label="Next" onPress={goNext} />
+          <DNButton label={t('common.next')} onPress={goNext} />
         </View>
       )}
 
@@ -287,26 +288,26 @@ export default function OnboardingScreen({ navigation }: Props) {
         <View style={styles.slideContent}>
           <OptionCardsIllustration />
           <DNText variant="title" style={{ textAlign: 'center', marginBottom: SPACING.sm }}>
-            Tap a heart. Match, and it's a plan.
+            {t('onboarding.slide1Title')}
           </DNText>
           <DNText variant="body" color={colors.ink2} style={{ textAlign: 'center', marginBottom: SPACING.xl }}>
-            Vote on options. When everyone agrees, the plan is set automatically.
+            {t('onboarding.slide1Body')}
           </DNText>
-          <DNButton label="Next" onPress={goNext} />
+          <DNButton label={t('common.next')} onPress={goNext} />
         </View>
       )}
 
       {slide === 2 && (
         <View style={styles.slideContent}>
           <DNText variant="title" style={{ textAlign: 'center', marginBottom: SPACING.sm }}>
-            What are you two into?
+            {t('onboarding.slide2Title')}
           </DNText>
           <DNText variant="body" color={colors.ink2} style={{ textAlign: 'center', marginBottom: SPACING.lg }}>
-            Pick up to 5 favourites and we'll put them front and centre on Discover. Totally optional.
+            {t('onboarding.slide2Body')}
           </DNText>
           <FavCategoryChips selected={favIds} onChange={setFavIds} />
           <DNButton
-            label={favIds.length > 0 ? 'Save favourites' : 'Skip for now'}
+            label={favIds.length > 0 ? t('onboarding.saveFavourites') : t('onboarding.skipForNow')}
             onPress={goNext}
             style={{ marginTop: SPACING.lg }}
           />
@@ -316,7 +317,7 @@ export default function OnboardingScreen({ navigation }: Props) {
       {slide === 3 && (
         <View style={[styles.slideContent, { gap: 0 }]}>
           <DNText variant="title" style={{ textAlign: 'center', marginBottom: SPACING.lg }}>
-            Who do you plan with most?
+            {t('onboarding.slide3Title')}
           </DNText>
 
           {/* Group type cards */}
@@ -355,16 +356,16 @@ export default function OnboardingScreen({ navigation }: Props) {
 
           {/* Name input */}
           <DNInput
-            label="Name it"
-            placeholder='e.g. "Us", "The Squad", "Family"'
+            label={t('onboarding.nameIt')}
+            placeholder={t('onboarding.namePlaceholder')}
             value={groupName}
-            onChangeText={(t) => { setGroupName(t); setGroupError(''); }}
+            onChangeText={(tx) => { setGroupName(tx); setGroupError(''); }}
             error={groupError}
             style={{ marginTop: SPACING.lg }}
           />
 
           <DNButton
-            label="Create group & invite them"
+            label={t('onboarding.createGroup')}
             onPress={handleFinish}
             loading={groupLoading}
             style={{ marginTop: SPACING.sm }}

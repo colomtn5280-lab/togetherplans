@@ -1,10 +1,10 @@
-// TODO i18n: instrument this file with useTranslation() hooks
-// All strings have translations in /public/locales/{en,es}/translation.json
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { authApi } from "../api/client";
 
 export function ForgotPasswordPage() {
+  const { t } = useTranslation();
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -27,27 +27,27 @@ export function ForgotPasswordPage() {
 
   return (
     <main style={{ maxWidth: 400, margin: "80px auto", padding: "0 16px" }}>
-      <h1>TogetherPlans</h1>
-      <h2>Forgot your password?</h2>
+      <h1>{t("forgotPassword.appName")}</h1>
+      <h2>{t("forgotPassword.title")}</h2>
 
       {submitted ? (
         <div>
           <p>
-            If that email is registered, a reset link has been sent.
+            {t("forgotPassword.resetLinkSent")}
           </p>
           <p>
-            <Link to="/login" className="dn-btn dn-btn--secondary dn-btn--sm">Back to sign in</Link>
+            <Link to="/login" className="dn-btn dn-btn--secondary dn-btn--sm">{t("forgotPassword.backToSignIn")}</Link>
           </p>
         </div>
       ) : (
         <>
           <p style={{ color: "var(--ink2, #666)", marginBottom: "16px" }}>
-            Enter your email and we'll send you a link to reset your password.
+            {t("forgotPassword.enterEmail")}
           </p>
           <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             <div>
               <label htmlFor="email" style={{ display: "block", marginBottom: 6, fontWeight: 600, fontSize: 14 }}>
-                Email
+                {t("auth.email")}
               </label>
               <input
                 id="email"
@@ -64,12 +64,12 @@ export function ForgotPasswordPage() {
             {error && <p role="alert" style={{ color: "var(--error, #dc3545)", margin: 0 }}>{error}</p>}
 
             <button type="submit" disabled={loading} className="dn-btn">
-              {loading ? "Sending…" : "Send reset link"}
+              {loading ? t("forgotPassword.sending") : t("forgotPassword.sendResetLink")}
             </button>
           </form>
 
           <p style={{ marginTop: 16 }}>
-            <Link to="/login" className="dn-btn dn-btn--secondary dn-btn--sm">Back to sign in</Link>
+            <Link to="/login" className="dn-btn dn-btn--secondary dn-btn--sm">{t("forgotPassword.backToSignIn")}</Link>
           </p>
         </>
       )}

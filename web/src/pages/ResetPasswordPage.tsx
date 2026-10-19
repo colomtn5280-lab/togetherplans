@@ -1,10 +1,10 @@
-// TODO i18n: instrument this file with useTranslation() hooks
-// All strings have translations in /public/locales/{en,es}/translation.json
 import { useState } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { authApi } from "../api/client";
 
 export function ResetPasswordPage() {
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const token = searchParams.get("token") ?? "";
@@ -19,17 +19,17 @@ export function ResetPasswordPage() {
     setError(null);
 
     if (!token) {
-      setError("Invalid or expired reset link.");
+      setError(t("resetPassword.invalidLink"));
       return;
     }
 
     if (password !== confirmPassword) {
-      setError("Passwords do not match.");
+      setError(t("resetPassword.passwordsNoMatch"));
       return;
     }
 
     if (password.length < 8) {
-      setError("Password must be at least 8 characters.");
+      setError(t("resetPassword.passwordTooShort"));
       return;
     }
 
@@ -41,7 +41,7 @@ export function ResetPasswordPage() {
         replace: true,
       });
     } catch {
-      setError("Invalid or expired reset link.");
+      setError(t("resetPassword.invalidLink"));
     } finally {
       setLoading(false);
     }
@@ -50,12 +50,12 @@ export function ResetPasswordPage() {
   if (!token) {
     return (
       <main style={{ maxWidth: 400, margin: "80px auto", padding: "0 16px" }}>
-        <h1>TogetherPlans</h1>
-        <h2>Reset password</h2>
-        <p role="alert">Invalid or expired reset link.</p>
+        <h1>{t("resetPassword.appName")}</h1>
+        <h2>{t("resetPassword.title")}</h2>
+        <p role="alert">{t("resetPassword.invalidLink")}</p>
         <p>
           <Link to="/forgot-password" className="dn-btn dn-btn--secondary dn-btn--sm">
-            Request a new reset link
+            {t("resetPassword.requestNewLink")}
           </Link>
         </p>
       </main>
@@ -64,13 +64,13 @@ export function ResetPasswordPage() {
 
   return (
     <main style={{ maxWidth: 400, margin: "80px auto", padding: "0 16px" }}>
-      <h1>TogetherPlans</h1>
-      <h2>Reset your password</h2>
+      <h1>{t("resetPassword.appName")}</h1>
+      <h2>{t("resetPassword.title")}</h2>
 
       <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
         <div>
           <label htmlFor="password" style={{ display: "block", marginBottom: 6, fontWeight: 600, fontSize: 14 }}>
-            New password
+            {t("resetPassword.newPassword")}
           </label>
           <input
             id="password"
@@ -86,7 +86,7 @@ export function ResetPasswordPage() {
 
         <div>
           <label htmlFor="confirmPassword" style={{ display: "block", marginBottom: 6, fontWeight: 600, fontSize: 14 }}>
-            Confirm new password
+            {t("resetPassword.confirmNewPassword")}
           </label>
           <input
             id="confirmPassword"
@@ -103,7 +103,7 @@ export function ResetPasswordPage() {
         {error && <p role="alert" style={{ color: "var(--error, #dc3545)", margin: 0 }}>{error}</p>}
 
         <button type="submit" disabled={loading} className="dn-btn">
-          {loading ? "Resetting…" : "Reset password"}
+          {loading ? t("resetPassword.resetting") : t("resetPassword.resetBtn")}
         </button>
       </form>
     </main>

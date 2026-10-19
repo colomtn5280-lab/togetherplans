@@ -1,7 +1,6 @@
-// TODO i18n: instrument this file with useTranslation() hooks
-// All strings have translations in /public/locales/{en,es}/translation.json
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -16,6 +15,7 @@ const createSchema = z.object({
   description: z.string().optional(),
 });
 
+
 type CreateFormData = z.infer<typeof createSchema>;
 
 const AVATAR_COLORS = ["dmu-av-teal", "dmu-av-lime", "dmu-av-amber", "dmu-av-teal"];
@@ -23,6 +23,7 @@ const AVATAR_COLORS = ["dmu-av-teal", "dmu-av-lime", "dmu-av-amber", "dmu-av-tea
 type FilterTab = "all" | "couples" | "family";
 
 export function GroupsPage() {
+  const { t } = useTranslation();
   const [showCreate, setShowCreate] = useState(false);
   const [filter, setFilter] = useState<FilterTab>("all");
   const queryClient = useQueryClient();

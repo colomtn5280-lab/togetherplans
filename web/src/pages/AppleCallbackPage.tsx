@@ -1,7 +1,6 @@
-// TODO i18n: instrument this file with useTranslation() hooks
-// All strings have translations in /public/locales/{en,es}/translation.json
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 /**
  * Safety-net callback page for Apple Sign-In redirect flow.
@@ -11,6 +10,7 @@ import { Link } from "react-router-dom";
  * whatever params/hash it received back to the opener via postMessage.
  */
 export function AppleCallbackPage() {
+  const { t } = useTranslation();
   const [status, setStatus] = useState<"loading" | "done" | "error">("loading");
 
   useEffect(() => {
@@ -22,7 +22,7 @@ export function AppleCallbackPage() {
     if (error) {
       const msg =
         params.get("error_description") ??
-        "Apple Sign-In was cancelled or failed.";
+        t("auth.appleFailed");
       if (window.opener) {
         window.opener.postMessage(
           { type: "APPLE_AUTH_ERROR", error: msg },
@@ -66,12 +66,12 @@ export function AppleCallbackPage() {
         }}
       >
         <div style={{ fontSize: 48 }}>😕</div>
-        <h2>Apple Sign-In Failed</h2>
+        <h2>{t("auth.appleFailed")}</h2>
         <p style={{ color: "var(--ink2)", maxWidth: 360 }}>
-          Apple Sign-In was cancelled or encountered an error.
+          {t("auth.appleFailed")}
         </p>
         <Link to="/login" className="dn-btn">
-          Back to login
+          {t("auth.backToSignIn")}
         </Link>
       </div>
     );
@@ -89,7 +89,7 @@ export function AppleCallbackPage() {
       }}
     >
       <div style={{ fontSize: 32 }}>🍎</div>
-      <p style={{ color: "var(--ink2)" }}>Completing Apple Sign-In…</p>
+      <p style={{ color: "var(--ink2)" }}>{t("common.loading")}</p>
     </div>
   );
 }
