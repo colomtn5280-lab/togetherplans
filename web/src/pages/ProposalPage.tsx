@@ -449,19 +449,24 @@ function OptionCard({ option, index, mySentiment, voteCount, memberCount, consen
             </div>
           )}
           {mySentiment && (
-            <textarea
-              className="dmu-vote-comment"
-              placeholder="Add a note (optional)"
-              maxLength={200}
-              value={voteComment}
-              onChange={e => setVoteComment(e.target.value)}
-              onBlur={() => {
-                if (voteComment !== (existingComment ?? '')) {
-                  onVote(mySentiment as 'APPROVE'|'MAYBE'|'REJECT', voteComment);
-                }
-              }}
-              rows={2}
-            />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <textarea
+                className="dmu-vote-comment"
+                placeholder="Add a note... (optional)"
+                maxLength={280}
+                value={voteComment}
+                onChange={e => setVoteComment(e.target.value)}
+                rows={2}
+              />
+              <button
+                className="dmu-btn dmu-btn-auto"
+                style={{ alignSelf: 'flex-end', height: 32, fontSize: 12, padding: '0 16px' }}
+                onClick={() => onVote(mySentiment as 'APPROVE'|'MAYBE'|'REJECT', voteComment)}
+                disabled={votePending}
+              >
+                Save note
+              </button>
+            </div>
           )}
           {option.votes?.filter((v: any) => v.comment).map((v: any) => (
             <div key={v.id} className="dmu-vote-note">
@@ -482,6 +487,7 @@ export function ProposalPage() {
   const queryClient = useQueryClient();
   const user = useAuthStore((s) => s.user);
   const [showCelebration, setShowCelebration] = useState(false);
+  const [celebrationDismissed, setCelebrationDismissed] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const soloShare = !!(location.state as { openInvite?: boolean } | null)?.openInvite;
@@ -496,6 +502,7 @@ export function ProposalPage() {
       return res.data;
     },
     enabled: !!proposalId,
+    refetchInterval: (query) => (query.state.data?.status === 'OPEN' ? 8000 : false),
   });
 
   useEffect(() => {
@@ -504,14 +511,14 @@ export function ProposalPage() {
     const current = proposal.status;
     if (
       (current === "DECIDED" || current === "locked") &&
-      prev !== null &&
-      prev !== "DECIDED" &&
-      prev !== "locked"
+      !celebrationDismissed
     ) {
-      setShowCelebration(true);
+      if (prev === null || (prev !== "DECIDED" && prev !== "locked")) {
+        setShowCelebration(true);
+      }
     }
     prevStatusRef.current = current;
-  }, [proposal?.status]);
+  }, [proposal?.status, celebrationDismissed]);
 
   useEffect(() => {
     if (!proposal) return;
@@ -603,6 +610,14 @@ export function ProposalPage() {
       const bestVotes = best ? (tally.find((t: any) => t.optionId === best.id)?.votes ?? 0) : -1;
       return votes > bestVotes ? opt : best;
     }, null);
+
+  // All options with consensus=true in tally (for multi-consensus display)
+  const consensusOptions = options.filter((opt: any) =>
+    tally.find((t: any) => t.optionId === opt.id && t.consensus === true)
+  );
+  const runnerUpOption = consensusOptions.length > 1
+    ? consensusOptions.find((opt: any) => opt.id !== winningOption?.id)
+    : null;
 
   // How many members have voted (at least one option)
   const votedCount = (() => {
@@ -1045,7 +1060,7 @@ export function ProposalPage() {
         </div>
 
         {/* ── Match celebration overlay ── */}
-        {showCelebration && (
+        {showCelebration && !celebrationDismissed && (
           <div
             style={{
               position: "fixed",
@@ -1091,10 +1106,17 @@ export function ProposalPage() {
                 boxShadow: "0 24px 64px rgba(0,0,0,0.2)",
               }}
             >
+              <div style={{ fontSize: 56, marginBottom: 8 }}>🏆</div>
               <h1 style={{ fontFamily: "Sora, var(--font-display), sans-serif", fontSize: 32, marginBottom: 8, color: "#0E8C8C" }}>
-                🎉 It's a Match!
+                It's a Match! 🎉
               </h1>
-              <p style={{ color: "var(--ink2)", marginBottom: 24 }}>Everyone agreed. It's happening!</p>
+              {runnerUpOption ? (
+                <p style={{ color: "var(--ink2)", marginBottom: 24 }}>
+                  You both loved <b>{winningOption?.name}</b> (and <b>{runnerUpOption.name}</b> too!) We picked the headliner. 🎭
+                </p>
+              ) : (
+                <p style={{ color: "var(--ink2)", marginBottom: 24 }}>Everyone agreed. It's happening!</p>
+              )}
 
               {winningOption && (
                 <div style={{ marginBottom: 24 }}>
@@ -1115,6 +1137,9 @@ export function ProposalPage() {
                     </div>
                   )}
                   <h2 style={{ margin: "0 0 6px", fontSize: 20 }}>{winningOption.name}</h2>
+                  {winningOption.category && (
+                    <p style={{ color: "var(--ink2)", fontSize: 13, margin: "0 0 4px" }}>{winningOption.category}</p>
+                  )}
                   {winningOption.address && (
                     <p style={{ color: "var(--ink2)", fontSize: 14, margin: "0 0 4px" }}>📍 {winningOption.address}</p>
                   )}
@@ -1138,21 +1163,35 @@ export function ProposalPage() {
                 >
                   📅 Add to Calendar
                 </a>
+                <Link
+                  to={`/proposals/${proposalId}/invite-card`}
+                  className="dn-btn"
+                  style={{ textDecoration: "none", display: "block", background: "var(--primary)", color: "#fff", border: "none" }}
+                >
+                  🎨 Pick an invite card
+                </Link>
                 <button
                   className="dn-btn"
                   style={{ background: "var(--lime)", color: "#fff", border: "none" }}
                   onClick={() => {
                     setShowCelebration(false);
+                    setCelebrationDismissed(true);
                     setShowShareModal(true);
                   }}
                 >
                   📤 Share Plan
                 </button>
                 <button
-                  className="dn-btn dn-btn--secondary"
-                  onClick={() => setShowCelebration(false)}
+                  style={{
+                    background: "none", border: "none", cursor: "pointer",
+                    color: "var(--ink2)", fontSize: 13, marginTop: 4, textDecoration: "underline",
+                  }}
+                  onClick={() => {
+                    setShowCelebration(false);
+                    setCelebrationDismissed(true);
+                  }}
                 >
-                  View Plan
+                  View all votes
                 </button>
               </div>
             </div>
