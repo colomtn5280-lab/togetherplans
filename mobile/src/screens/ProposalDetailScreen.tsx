@@ -723,14 +723,14 @@ export default function ProposalDetailScreen() {
               </DNText>
               <View style={{ flexDirection: 'row', gap: 10 }}>
                 <DNButton
-                  label=t('proposalDetail.counterPropose')
+                  label={t('proposalDetail.counterPropose')}
                   variant="ink"
                   size="compact"
                   onPress={() => navigation.navigate('CreateProposal', { groupId: proposal.groupId })}
                   style={{ flex: 1 }}
                 />
                 <DNButton
-                  label=t('proposalDetail.giveItTime')
+                  label={t('proposalDetail.giveItTime')}
                   variant="secondary"
                   size="compact"
                   onPress={() => {}}
@@ -907,7 +907,7 @@ export default function ProposalDetailScreen() {
                       <View style={{ marginTop: 8 }}>
                         <TextInput
                           style={styles.voteCommentInput}
-                          placeholder=t('proposalDetail.loading')
+                          placeholder={t('proposalDetail.loading')}
                           value={pendingComment}
                           onChangeText={(text) => setPendingComment(text.slice(0, 280))}
                           maxLength={280}
@@ -1009,7 +1009,7 @@ export default function ProposalDetailScreen() {
             <View style={styles.commentInputRow}>
               <TextInput
                 style={styles.commentInput}
-                placeholder=t('proposalDetail.saySomething')
+                placeholder={t('proposalDetail.saySomething')}
                 value={newComment}
                 onChangeText={setNewComment}
                 maxLength={500}

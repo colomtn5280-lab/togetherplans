@@ -142,6 +142,7 @@ function SuggestionCard({
   onImpulse: (item: AfterDarkSuggestion) => void;
 }) {
   const { colors } = useTheme();
+  const { t } = useTranslation();
   const radii = CARD_RADII[index % 4];
   const emoji = CATEGORY_EMOJI[item.category] ?? '🌙';
 

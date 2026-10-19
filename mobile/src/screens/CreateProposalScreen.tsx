@@ -158,6 +158,7 @@ function PreviewModal({
   partnerName: string;
   colors: any;
 }) {
+  const { t } = useTranslation();
   return (
     <Modal transparent animationType="slide" visible={visible} onRequestClose={onClose}>
       <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
@@ -172,7 +173,7 @@ function PreviewModal({
           }}
         >
           <DNText variant="heading" color={colors.ink} style={{ marginBottom: 4 }}>
-            Preview
+            {t('createProposal.previewTitle')}
           </DNText>
           <DNText variant="secondary" color={colors.ink2} style={{ marginBottom: SPACING.md }}>
             {t('createProposal.previewSubtitle', { name: partnerName })}
@@ -223,7 +224,7 @@ function PreviewModal({
           </ScrollView>
 
           <DNButton
-            label=t('createProposal.closePreview')
+            label={t('createProposal.closePreview')}
             variant="secondary"
             onPress={onClose}
             style={{ marginTop: SPACING.md }}
@@ -501,7 +502,7 @@ export default function CreateProposalScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <DNScreenHeader
-          title=t('createProposal.title')
+          title={t('createProposal.title')}
           onBack={() => navigation.goBack()}
         />
 
@@ -581,7 +582,7 @@ export default function CreateProposalScreen() {
 
           {/* ── Title ───────────────────────────────────────────────────── */}
           <DNInput
-            label=t('createProposal.titleLabel')
+            label={t('createProposal.titleLabel')}
             value={title}
             onChangeText={setTitle}
             placeholder="Date night · Friday"
@@ -722,7 +723,7 @@ export default function CreateProposalScreen() {
           }}
         >
           <DNButton
-            label=t('createProposal.previewBtn')
+            label={t('createProposal.previewBtn')}
             variant="tonal"
             onPress={() => localOptions.length > 0 && setPreviewVisible(true)}
             style={{ marginBottom: 4 }}
@@ -765,7 +766,7 @@ export default function CreateProposalScreen() {
             {t('createProposal.planSentBody')}
           </DNText>
           <DNButton
-            label=t('createProposal.viewPlan')
+            label={t('createProposal.viewPlan')}
             variant="primary"
             onPress={() => {
               setSuccessVisible(false);
@@ -774,7 +775,7 @@ export default function CreateProposalScreen() {
             style={{ width: '100%', marginBottom: SPACING.sm }}
           />
           <DNButton
-            label=t('createProposal.backToGroups')
+            label={t('createProposal.backToGroups')}
             variant="secondary"
             onPress={() => {
               setSuccessVisible(false);
