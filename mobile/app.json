@@ -2,7 +2,7 @@
   "expo": {
     "name": "DateMeUp",
     "slug": "togetherplans",
-    "version": "1.2.0",
+    "version": "1.3.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -22,11 +22,11 @@
         "NSCalendarsUsageDescription": "TogetherPlans needs calendar access to add your date night to your calendar.",
         "ITSAppUsesNonExemptEncryption": false
       },
-      "buildNumber": "7"
+      "buildNumber": "8"
     },
     "android": {
       "package": "datemeup.app",
-      "versionCode": 7,
+      "versionCode": 8,
       "targetSdkVersion": 35,
       "adaptiveIcon": {
         "foregroundImage": "./assets/android-icon-foreground.png",
