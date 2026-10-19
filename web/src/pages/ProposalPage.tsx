@@ -578,8 +578,15 @@ export function ProposalPage() {
   if (isError || !proposal) return (
     <>
       <AppNav />
-      <main className="dmu-wrap dmu-page" style={{ textAlign: "center" }}>
-        <p role="alert" style={{ color: "var(--error)" }}>Proposal not found.</p>
+      <main className="dmu-wrap dmu-page" style={{ textAlign: "center", padding: "4rem 1rem" }}>
+        <div style={{ fontSize: "4rem", marginBottom: "1rem" }}>🗓️</div>
+        <h1 style={{ fontSize: "1.5rem", fontWeight: 700, marginBottom: "0.5rem" }}>Plan not found</h1>
+        <p style={{ color: "var(--ink2)", marginBottom: "2rem", maxWidth: 360, margin: "0 auto 2rem" }}>
+          This plan may have been cancelled, or you may not have access to it.
+        </p>
+        <Link to="/groups" className="dn-btn dn-btn--primary" style={{ display: "inline-block" }}>
+          ← Back to your plans
+        </Link>
       </main>
     </>
   );

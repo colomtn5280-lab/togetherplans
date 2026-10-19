@@ -130,6 +130,7 @@ export function AppNav() {
       icon: (<CalendarSvg size={16} color="currentColor" />) as React.ReactNode,
     },
     { to: "/suggestions", label: "Discover", icon: "🧭" as React.ReactNode },
+    { to: "/after-dark", label: "After Dark 🌙", icon: "🌙" as React.ReactNode },
   ];
 
   // ── Render ────────────────────────────────────────────────
@@ -505,6 +506,15 @@ export function AppNav() {
           >
             <span className="app-nav__tab-icon">🧭</span>
             Discover
+          </Link>
+
+          {/* After Dark */}
+          <Link
+            to="/after-dark"
+            className={`app-nav__tab${location.pathname === "/after-dark" ? " app-nav__tab--active" : ""}`}
+          >
+            <span className="app-nav__tab-icon">🌙</span>
+            After Dark
           </Link>
 
           {/* Menu / Hamburger */}

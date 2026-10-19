@@ -233,7 +233,7 @@ export function DashboardPage() {
                         <h2 style={{ marginTop: 0 }}>{proposal.title ?? "Open proposal"}</h2>
                         <p>{optionCount} option{optionCount !== 1 ? "s" : ""} to vote on</p>
                         <Link
-                          to={`/groups/${proposal.groupId}/proposals/${proposal.id}`}
+                          to={`/proposals/${proposal.id}`}
                           className="dmu-btn dmu-btn-light"
                         >
                           Vote Now →

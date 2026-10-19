@@ -1,11 +1,11 @@
 {
-  "name": "DateMeUp",
-  "short_name": "DateMeUp",
+  "name": "TogetherPlans",
+  "short_name": "TogetherPlans",
   "description": "Plan Together. Go Together.",
   "start_url": "/",
   "display": "standalone",
-  "theme_color": "#aa3bff",
-  "background_color": "#ffffff",
+  "theme_color": "#0E8C8C",
+  "background_color": "#0E8C8C",
   "orientation": "portrait-primary",
   "icons": [
     {
