@@ -407,7 +407,7 @@ export function DashboardPage() {
                     Settings
                   </Link>
                   <form onSubmit={(e) => { e.preventDefault(); handleLogout(); }}>
-                    <button type="submit" className="dmu-btn dmu-btn-ghost dmu-danger" style={{ width: "100%" }}>
+                    <button type="submit" className="dn-btn dn-btn--secondary" style={{ width: "100%" }}>
                       Sign out
                     </button>
                   </form>

@@ -5,6 +5,7 @@ import { useAuthStore } from "../store/auth.store";
 import { Link } from "react-router-dom";
 import { FavCategoryChips, loadFavCategories, saveFavCategories } from "../components/FavCategories";
 import { findCategory } from "../constants/categories";
+import { AppNav } from "../components/AppNav";
 
 interface CategoryPref {
   categoryId: string;
@@ -42,8 +43,10 @@ export function NotificationsPage() {
   if (isLoading) return <div style={{ padding: 32 }}>Loading notifications…</div>;
 
   return (
-    <div style={{ maxWidth: 640, margin: "0 auto", padding: 24 }}>
-      <h1>Notifications</h1>
+    <>
+      <AppNav />
+      <div style={{ maxWidth: 640, margin: "0 auto", padding: 24 }}>
+      <h1 style={{ fontSize: 32 }}>Notifications</h1>
 
       {notifications.length === 0 ? (
         <div style={{ textAlign: "center", padding: 48, color: "#666" }}>
@@ -99,6 +102,7 @@ export function NotificationsPage() {
         </ul>
       )}
     </div>
+    </>
   );
 }
 
@@ -168,8 +172,10 @@ export function SettingsPage() {
   const cats = (preferences?.categories ?? []) as CategoryPref[];
 
   return (
-    <div style={{ maxWidth: 560, margin: "0 auto", padding: 24 }}>
-      <h1>Settings</h1>
+    <>
+      <AppNav />
+      <div style={{ maxWidth: 560, margin: "0 auto", padding: 24 }}>
+      <h1 style={{ fontSize: 32 }}>Settings</h1>
 
       {/* Account info */}
       <section style={{ marginBottom: 32, padding: 20, background: "#f9f9f9", borderRadius: 16 }}>
@@ -326,5 +332,6 @@ export function SettingsPage() {
         </div>
       </section>
     </div>
+    </>
   );
 }

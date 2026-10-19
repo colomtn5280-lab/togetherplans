@@ -172,7 +172,10 @@ export function GroupsPage() {
                       {members.length > 0
                         ? members.slice(0, 4).map((m: any, idx: number) => (
                             <div key={m.id ?? idx} className={`dmu-av ${AVATAR_COLORS[idx % 4]}`}>
-                              {(m.firstName ?? m.name ?? "?").charAt(0).toUpperCase()}
+                              {m.imageUrl
+                                ? <img src={m.imageUrl} alt="" style={{ width: "100%", height: "100%", borderRadius: "inherit", objectFit: "cover" }} />
+                                : (m.firstName ?? m.name ?? "?").charAt(0).toUpperCase()
+                              }
                             </div>
                           ))
                         : (

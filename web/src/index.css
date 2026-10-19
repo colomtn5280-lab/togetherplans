@@ -12,7 +12,7 @@
   --primary-soft: #D9F1F0;
   --on-primary: #FFFFFF;
   --lime: #7CB518;
-  --lime-soft: #EAF6D3;
+  --lime-soft: #D1F5F0;
   --on-lime: #101820;
   --success: #1E9A55;
   --success-soft: #DDF4E6;
@@ -239,7 +239,7 @@ a:hover { text-decoration: underline; }
   background: var(--primary-soft);
   color: var(--primary);
 }
-.dn-sticker--lime { background: var(--lime-soft); color: var(--lime); }
+.dn-sticker--lime { background: var(--lime-soft); color: var(--primary); }
 .dn-sticker--warning { background: var(--warning-soft); color: var(--on-warning-soft); }
 .dn-sticker--error { background: var(--error-soft); color: var(--error); }
 .dn-sticker--ink { background: var(--ink); color: var(--bg); }

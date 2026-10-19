@@ -235,7 +235,7 @@ export function LoginPage() {
           <div>
             <label
               htmlFor="email"
-              style={{ display: "block", fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 12, marginBottom: 6, color: "var(--ink2)", textTransform: "uppercase", letterSpacing: "0.06em" }}
+              style={{ display: "block", fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 13, marginBottom: 6, color: "var(--ink2)" }}
             >
               Email
             </label>
@@ -257,7 +257,7 @@ export function LoginPage() {
           <div>
             <label
               htmlFor="password"
-              style={{ display: "block", fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 12, marginBottom: 6, color: "var(--ink2)", textTransform: "uppercase", letterSpacing: "0.06em" }}
+              style={{ display: "block", fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 13, marginBottom: 6, color: "var(--ink2)" }}
             >
               Password
             </label>

@@ -169,11 +169,9 @@ export function SignupPage() {
     display: "block",
     fontFamily: "var(--font-display)",
     fontWeight: 700,
-    fontSize: 12,
+    fontSize: 13,
     marginBottom: 6,
     color: "var(--ink2)",
-    textTransform: "uppercase",
-    letterSpacing: "0.06em",
   };
 
   return (
