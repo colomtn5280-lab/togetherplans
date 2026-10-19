@@ -428,6 +428,7 @@ export function AfterDarkPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [tierFilter, setTierFilter] = useState<"ALL" | "ROMANTIC" | "SPICY">("ALL");
+  const [currentPage, setCurrentPage] = useState(0);
   const [groups, setGroups] = useState<Group[]>([]);
 
   // Modal states
@@ -462,6 +463,10 @@ export function AfterDarkPage() {
 
   const filteredItems =
     tierFilter === "ALL" ? items : items.filter((i) => i.tier === tierFilter);
+
+  const ITEMS_PER_PAGE = 20;
+  const totalPages = Math.ceil(filteredItems.length / ITEMS_PER_PAGE);
+  const paginatedItems = filteredItems.slice(currentPage * ITEMS_PER_PAGE, (currentPage + 1) * ITEMS_PER_PAGE);
 
   const handleAddToPlan = (item: AfterDarkItem) => {
     if (!isAuthenticated) {
@@ -631,7 +636,7 @@ export function AfterDarkPage() {
           {(["ALL", "ROMANTIC", "SPICY"] as const).map((t) => (
             <button
               key={t}
-              onClick={() => setTierFilter(t)}
+              onClick={() => { setTierFilter(t); setCurrentPage(0); }}
               style={{
                 padding: "9px 20px",
                 borderRadius: 100,
@@ -680,7 +685,7 @@ export function AfterDarkPage() {
                 gap: 18,
               }}
             >
-              {filteredItems.map((item) => (
+              {paginatedItems.map((item) => (
                 <AfterDarkCard
                   key={item.id}
                   item={item}
@@ -739,6 +744,31 @@ export function AfterDarkPage() {
                 </div>
               )}
             </div>
+
+            {/* Pagination controls */}
+            {totalPages > 1 && (
+              <div style={{ display: "flex", justifyContent: "center", gap: "0.5rem", marginTop: "2rem", paddingBottom: "2rem" }}>
+                <button
+                  className="dn-btn"
+                  onClick={() => setCurrentPage((p) => Math.max(0, p - 1))}
+                  disabled={currentPage === 0}
+                  style={{ background: "rgba(178,72,94,0.15)", border: "1px solid #B2485E", color: "#F7E3E7" }}
+                >
+                  ← Prev
+                </button>
+                <span style={{ lineHeight: "2.5rem", color: "rgba(247,227,231,0.7)", fontFamily: "'DM Sans', sans-serif" }}>
+                  {currentPage + 1} / {totalPages}
+                </span>
+                <button
+                  className="dn-btn"
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages - 1, p + 1))}
+                  disabled={currentPage === totalPages - 1}
+                  style={{ background: "rgba(178,72,94,0.15)", border: "1px solid #B2485E", color: "#F7E3E7" }}
+                >
+                  Next →
+                </button>
+              </div>
+            )}
 
             {addIdeaSuccess && (
               <div

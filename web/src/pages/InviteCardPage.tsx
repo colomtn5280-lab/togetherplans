@@ -7,6 +7,44 @@ import { CARD_HTML, CARD_SHARED_CSS, CARD_NAMES } from "../constants/inviteCardT
 type Template = { id: string; name: string };
 type Step = "pick" | "customise";
 
+// ── Card category filter ─────────────────────────────────────────────────────
+const CARD_CATEGORIES = [
+  { key: "all", label: "All" },
+  { key: "formal", label: "📜 Formal" },
+  { key: "playful", label: "🎨 Playful" },
+  { key: "minimal", label: "⬜ Minimal" },
+  { key: "bold", label: "⚡ Bold" },
+] as const;
+type CardCategory = (typeof CARD_CATEGORIES)[number]["key"];
+
+// Map template IDs to categories (unlisted → "playful" by default)
+const CARD_CATEGORY_MAP: Record<string, CardCategory> = {
+  // Formal
+  "2a": "formal", // Boarding Pass
+  "3e": "formal", // Passport Page
+  "3d": "formal", // Formal Invitation
+  "2g": "formal", // Newspaper
+  "2l": "formal", // Magazine Cover
+  // Minimal
+  "1k": "minimal", // Receipt
+  "1d": "minimal", // Retro Postcard
+  "3c": "minimal", // Trading Card
+  "2k": "minimal", // Badge / Seal
+  // Bold
+  "1j": "bold",   // Neon Sign
+  "1a": "bold",   // Bold Poster
+  "2f": "bold",   // Scoreboard
+  "2e": "bold",   // Chalkboard
+  // Playful (explicit)
+  "3a": "playful", // Luggage Tag
+  "3b": "playful", // Mixtape / Tape
+  "3j": "playful", // Tarot Card
+  "3h": "playful", // Bingo Card
+  "2d": "playful", // Comic Panel
+  "3g": "playful", // Sticky Notes
+  "1c": "playful", // Polaroid
+};
+
 // ── Card Preview ────────────────────────────────────────────────────────────
 // Renders the actual sc-card design at 35% scale inside a fixed-size thumbnail.
 function CardPreview({ templateId, size = "thumb" }: { templateId: string; size?: "thumb" | "large" }) {
@@ -70,6 +108,7 @@ export function InviteCardPage() {
   const navigate = useNavigate();
 
   const [step, setStep] = useState<Step>("pick");
+  const [selectedCategory, setSelectedCategory] = useState<CardCategory>("all");
   const [selected, setSelected] = useState<Template | null>(null);
   const [note, setNote] = useState("");
   const [photo, setPhoto] = useState<File | null>(null);
@@ -118,6 +157,11 @@ export function InviteCardPage() {
     saveMutation.mutate({ templateId: selected?.id, noteText: note.trim() || undefined, file: photo });
   };
 
+  // Filter templates by selected category (unlisted → playful)
+  const filteredTemplates = selectedCategory === "all"
+    ? templates
+    : templates.filter((tpl) => (CARD_CATEGORY_MAP[tpl.id] ?? "playful") === selectedCategory);
+
   return (
     <div style={{ maxWidth: 1080, margin: "0 auto", padding: "24px 16px 80px" }}>
 
@@ -136,9 +180,23 @@ export function InviteCardPage() {
           <h1 style={{ margin: "16px 0 6px", fontSize: 28, fontFamily: "var(--font-display)" }}>
             Pick an invite card
           </h1>
-          <p style={{ margin: "0 0 28px", color: "var(--ink2)", fontSize: 15 }}>
+          <p style={{ margin: "0 0 20px", color: "var(--ink2)", fontSize: 15 }}>
             {templates.length} designs — each personalised with your plan details.
           </p>
+
+          {/* Category filter tabs */}
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 24 }}>
+            {CARD_CATEGORIES.map((cat) => (
+              <button
+                key={cat.key}
+                onClick={() => setSelectedCategory(cat.key)}
+                className={selectedCategory === cat.key ? "dn-btn dn-btn--primary dn-btn--sm" : "dn-btn dn-btn--sm"}
+                style={{ fontWeight: selectedCategory === cat.key ? 700 : 500 }}
+              >
+                {cat.label}
+              </button>
+            ))}
+          </div>
 
           {isLoading ? (
             <div style={{ textAlign: "center", padding: "60px 0", color: "var(--ink2)" }}>
@@ -152,7 +210,7 @@ export function InviteCardPage() {
                 gap: 20,
               }}
             >
-              {templates.map((tpl) => {
+              {filteredTemplates.map((tpl) => {
                 const isSelected = selected?.id === tpl.id;
                 const displayName = CARD_NAMES[tpl.id] || tpl.name;
                 return (

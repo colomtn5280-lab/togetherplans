@@ -1177,6 +1177,22 @@ export function ProposalPage() {
                 >
                   🎨 Pick an invite card
                 </Link>
+                {/* Message partner */}
+                {(() => {
+                  const isMobileWeb = /iPhone|Android/i.test(navigator.userAgent);
+                  const messageHref = isMobileWeb
+                    ? `sms:?&body=${encodeURIComponent("Let's celebrate! Our plan is decided on TogetherPlans 🎉")}`
+                    : `https://wa.me/?text=${encodeURIComponent("Let's celebrate! Our plan is decided on TogetherPlans 🎉")}`;
+                  return (
+                    <a
+                      href={messageHref}
+                      className="dn-btn dn-btn--outline"
+                      style={{ display: "block", textAlign: "center", textDecoration: "none" }}
+                    >
+                      💬 Message your partner
+                    </a>
+                  );
+                })()}
                 <button
                   className="dn-btn"
                   style={{ background: "var(--lime)", color: "#fff", border: "none" }}

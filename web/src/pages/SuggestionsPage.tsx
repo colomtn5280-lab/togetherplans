@@ -938,78 +938,78 @@ export function SuggestionsPage() {
             aria-checked={!categoryId ? true : false}
             onClick={() => setSearchParams((p) => { p.delete("category"); return p; })}
           >
-            <span className="tp-dot" aria-hidden={true} />
+            <span className="tp-dot" aria-hidden={true} style={{ background: "var(--ink3, #9CA3AF)" }} />
             All categories
           </button>
           {/* Comedy → comedy */}
           <button className="tp-tile" role="radio" aria-checked={categoryId === "comedy" ? true : false}
             onClick={() => setSearchParams((p) => { p.set("category", "comedy"); return p; })}>
-            <span className="tp-dot" aria-hidden={true} />Comedy
+            <span className="tp-dot" aria-hidden={true} style={{ background: "var(--ink3, #9CA3AF)" }} />Comedy
           </button>
           {/* Concerts → concerts */}
           <button className="tp-tile" role="radio" aria-checked={categoryId === "concerts" ? true : false}
             onClick={() => setSearchParams((p) => { p.set("category", "concerts"); return p; })}>
-            <span className="tp-dot" aria-hidden={true} />Concerts
+            <span className="tp-dot" aria-hidden={true} style={{ background: "var(--primary)" }} />Concerts
           </button>
           {/* Family Events → family-events */}
           <button className="tp-tile" role="radio" aria-checked={categoryId === "family-events" ? true : false}
             onClick={() => setSearchParams((p) => { p.set("category", "family-events"); return p; })}>
-            <span className="tp-dot" aria-hidden={true} />Family Events
+            <span className="tp-dot" aria-hidden={true} style={{ background: "var(--ink3, #9CA3AF)" }} />Family Events
           </button>
           {/* Sports & Active → sports-active */}
           <button className="tp-tile" role="radio" aria-checked={categoryId === "sports-active" ? true : false}
             onClick={() => setSearchParams((p) => { p.set("category", "sports-active"); return p; })}>
-            <span className="tp-dot" aria-hidden={true} />Sports &amp; Active
+            <span className="tp-dot" aria-hidden={true} style={{ background: "#5B8A6F" }} />Sports &amp; Active
           </button>
           {/* Hiking Trails → hiking-trails */}
           <button className="tp-tile" role="radio" aria-checked={categoryId === "hiking-trails" ? true : false}
             onClick={() => setSearchParams((p) => { p.set("category", "hiking-trails"); return p; })}>
-            <span className="tp-dot" aria-hidden={true} />Hiking Trails
+            <span className="tp-dot" aria-hidden={true} style={{ background: "#5B8A6F" }} />Hiking Trails
           </button>
           {/* Hotel Stays → hotel-stays */}
           <button className="tp-tile" role="radio" aria-checked={categoryId === "hotel-stays" ? true : false}
             onClick={() => setSearchParams((p) => { p.set("category", "hotel-stays"); return p; })}>
-            <span className="tp-dot" aria-hidden={true} />Hotel Stays
+            <span className="tp-dot" aria-hidden={true} style={{ background: "var(--ink3, #9CA3AF)" }} />Hotel Stays
           </button>
           {/* Local Experiences → local-experiences */}
           <button className="tp-tile" role="radio" aria-checked={categoryId === "local-experiences" ? true : false}
             onClick={() => setSearchParams((p) => { p.set("category", "local-experiences"); return p; })}>
-            <span className="tp-dot" aria-hidden={true} />Local Experiences
+            <span className="tp-dot" aria-hidden={true} style={{ background: "var(--ink3, #9CA3AF)" }} />Local Experiences
           </button>
           {/* Movies → movies */}
           <button className="tp-tile" role="radio" aria-checked={categoryId === "movies" ? true : false}
             onClick={() => setSearchParams((p) => { p.set("category", "movies"); return p; })}>
-            <span className="tp-dot" aria-hidden={true} />Movies
+            <span className="tp-dot" aria-hidden={true} style={{ background: "var(--primary)" }} />Movies
           </button>
           {/* Netflix Shows → netflix-shows */}
           <button className="tp-tile" role="radio" aria-checked={categoryId === "netflix-shows" ? true : false}
             onClick={() => setSearchParams((p) => { p.set("category", "netflix-shows"); return p; })}>
-            <span className="tp-dot" aria-hidden={true} />Netflix Shows
+            <span className="tp-dot" aria-hidden={true} style={{ background: "var(--ink3, #9CA3AF)" }} />Netflix Shows
           </button>
           {/* Performing Arts → performing-arts */}
           <button className="tp-tile" role="radio" aria-checked={categoryId === "performing-arts" ? true : false}
             onClick={() => setSearchParams((p) => { p.set("category", "performing-arts"); return p; })}>
-            <span className="tp-dot" aria-hidden={true} />Performing Arts
+            <span className="tp-dot" aria-hidden={true} style={{ background: "var(--primary)" }} />Performing Arts
           </button>
           {/* Restaurants & Dining → restaurants-dining */}
           <button className="tp-tile" role="radio" aria-checked={categoryId === "restaurants-dining" ? true : false}
             onClick={() => setSearchParams((p) => { p.set("category", "restaurants-dining"); return p; })}>
-            <span className="tp-dot" aria-hidden={true} />Restaurants &amp; Dining
+            <span className="tp-dot" aria-hidden={true} style={{ background: "var(--primary)" }} />Restaurants &amp; Dining
           </button>
           {/* Volunteering → volunteering */}
           <button className="tp-tile" role="radio" aria-checked={categoryId === "volunteering" ? true : false}
             onClick={() => setSearchParams((p) => { p.set("category", "volunteering"); return p; })}>
-            <span className="tp-dot" aria-hidden={true} />Volunteering
+            <span className="tp-dot" aria-hidden={true} style={{ background: "var(--ink3, #9CA3AF)" }} />Volunteering
           </button>
           {/* Wellness & Spa → wellness-spa */}
           <button className="tp-tile" role="radio" aria-checked={categoryId === "wellness-spa" ? true : false}
             onClick={() => setSearchParams((p) => { p.set("category", "wellness-spa"); return p; })}>
-            <span className="tp-dot" aria-hidden={true} />Wellness &amp; Spa
+            <span className="tp-dot" aria-hidden={true} style={{ background: "#5B8A6F" }} />Wellness &amp; Spa
           </button>
           {/* Wine & Drinks → wine-drinks */}
           <button className="tp-tile" role="radio" aria-checked={categoryId === "wine-drinks" ? true : false}
             onClick={() => setSearchParams((p) => { p.set("category", "wine-drinks"); return p; })}>
-            <span className="tp-dot" aria-hidden={true} />Wine &amp; Drinks
+            <span className="tp-dot" aria-hidden={true} style={{ background: "var(--ink3, #9CA3AF)" }} />Wine &amp; Drinks
           </button>
 
           {/* After Dark → after-dark */}
