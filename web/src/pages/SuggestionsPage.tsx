@@ -13,6 +13,7 @@ import { usePlanBuilder } from "../contexts/PlanBuilderContext";
 import { useAuthStore } from "../store/auth.store";
 import { PageLoader } from "../components/LoadingSpinner";
 import type { Suggestion } from "../types";
+import { AdUnit } from "../components/AdUnit";
 
 // ── VenueDetail (Firecrawl enrichment) ───────────────────────────────────────
 interface VenueDetail {
@@ -1268,6 +1269,12 @@ export function SuggestionsPage() {
             .category-grid { grid-template-columns: repeat(3, 1fr) !important; }
           }
         `}</style>
+
+        <AdUnit
+          slot="XXXXXXXXXX"
+          style={{ position: 'sticky', bottom: 0, background: 'var(--bg)', padding: '0.5rem 0', zIndex: 10 }}
+          className="ad-unit--suggestions-footer"
+        />
       </main>
 
       {/* Event detail modal */}

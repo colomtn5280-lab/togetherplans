@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { publicShareApi } from "../api/client";
 import type { PublicShareProposal, PublicShareOption } from "../types";
+import { AdUnit } from "../components/AdUnit";
 
 const GUEST_ID_KEY = "tp.guestId";
 const GUEST_NAME_KEY = "tp.guestName";
@@ -337,6 +338,8 @@ export function GuestVotePage() {
           {t("guestVote.couldntSaveVote")}
         </p>
       )}
+
+      <AdUnit slot="XXXXXXXXXX" style={{ margin: '1.5rem 0' }} className="ad-unit--guest-vote" />
 
       {/* Post-vote signup panel */}
       {(hasVoted || !isOpen) && (

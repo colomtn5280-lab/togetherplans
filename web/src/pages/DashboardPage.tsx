@@ -6,6 +6,7 @@ import { groupsApi, suggestionsApi } from "../api/client";
 import { useAuthStore } from "../store/auth.store";
 import { AppNav } from "../components/AppNav";
 import { OnboardingModal } from "../components/OnboardingModal";
+import { AdUnit } from "../components/AdUnit";
 import { usePlanBuilder } from "../contexts/PlanBuilderContext";
 import type { Group, Proposal } from "../types";
 import "./add-to-date-button.css";
@@ -410,6 +411,12 @@ export function DashboardPage() {
                   ))}
                 </section>
               )}
+
+              <AdUnit
+                slot="XXXXXXXXXX"
+                style={{ margin: '1.5rem 0' }}
+                className="ad-unit--dashboard"
+              />
             </div>
 
             {/* Right rail */}
