@@ -6,6 +6,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import * as Haptics from 'expo-haptics';
 import {
   FlatList,
+  Platform,
   RefreshControl,
   ScrollView,
   Text,
@@ -14,6 +15,7 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTheme } from '@/contexts/ThemeContext';
 import { SPACING, TYPE, SHADOWS } from '@/constants';
@@ -215,9 +217,12 @@ export default function GroupsScreen() {
   const navigation = useNavigation<Nav>();
   const { user } = useAuth();
 
+  const insets = useSafeAreaInsets();
+
   const [groups, setGroups] = useState<Group[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [decidedProposals, setDecidedProposals] = useState<Proposal[]>([]);
   // Map from groupId -> { openCount, decidedCount, actionNeeded }
   const [proposalStats, setProposalStats] = useState<
     Record<string, { openCount: number; decidedCount: number; actionNeeded: boolean }>
@@ -237,9 +242,11 @@ export default function GroupsScreen() {
       );
 
       const stats: Record<string, { openCount: number; decidedCount: number; actionNeeded: boolean }> = {};
+      const allDecided: Proposal[] = [];
       for (const { groupId, proposals } of results) {
         const openProposals = proposals.filter((p) => p.status === 'OPEN' || p.status === 'ACTIVE');
-        const decidedProposals = proposals.filter((p) => p.status === 'DECIDED' || p.status === 'ACCEPTED');
+        const groupDecided = proposals.filter((p) => p.status === 'DECIDED' || p.status === 'ACCEPTED');
+        allDecided.push(...groupDecided);
         // actionNeeded: an OPEN proposal where current user hasn't voted
         let actionNeeded = false;
         if (user) {
@@ -250,9 +257,10 @@ export default function GroupsScreen() {
             if (!allVoterIds.has(user.id)) { actionNeeded = true; break; }
           }
         }
-        stats[groupId] = { openCount: openProposals.length, decidedCount: decidedProposals.length, actionNeeded };
+        stats[groupId] = { openCount: openProposals.length, decidedCount: groupDecided.length, actionNeeded };
       }
       setProposalStats(stats);
+      setDecidedProposals(allDecided);
     } catch {
       // silently fail — show empty state
     } finally {
@@ -345,8 +353,9 @@ export default function GroupsScreen() {
 
   // ── POPULATED STATE ──────────────────────────────────────────────────────────
   return (
+    <View style={{ flex: 1, backgroundColor: colors.bg }}>
     <ScrollView
-      style={{ flex: 1, backgroundColor: colors.bg }}
+      style={{ flex: 1 }}
       contentContainerStyle={{ paddingBottom: 120 }}
       showsVerticalScrollIndicator={false}
       refreshControl={
@@ -406,7 +415,62 @@ export default function GroupsScreen() {
             </View>
           </View>
         )}
+
+        {/* ── PAST PLANS ──────────────────────────────────────────────────────── */}
+        {decidedProposals.length > 0 && (
+          <View style={{ marginTop: 24, marginBottom: 8 }}>
+            <Text style={[TYPE.section, { color: colors.ink2, marginBottom: 8 }]}>
+              PAST PLANS ({decidedProposals.length})
+            </Text>
+            {decidedProposals.map((p) => (
+              <TouchableOpacity
+                key={p.id}
+                onPress={() => navigation.navigate('ProposalDetail', { proposalId: p.id })}
+                style={{
+                  paddingVertical: 10,
+                  opacity: 0.75,
+                  borderBottomWidth: 1,
+                  borderBottomColor: colors.line,
+                }}
+                accessibilityRole="button"
+                accessibilityLabel={`Past plan: ${p.title}`}
+              >
+                <Text style={[TYPE.body, { color: colors.ink }]}>{p.title}</Text>
+                <Text style={[TYPE.secondary, { color: colors.ink2, fontSize: 12 }]}>✓ Decided</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
       </View>
     </ScrollView>
+
+    {/* ── FAB: New Plan ──────────────────────────────────────────────────────── */}
+    <TouchableOpacity
+      onPress={() => {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        navigation.navigate('CreateGroup');
+      }}
+      style={{
+        position: 'absolute',
+        right: 20,
+        bottom: insets.bottom + 20,
+        width: 56,
+        height: 56,
+        borderRadius: 28,
+        backgroundColor: colors.primary,
+        alignItems: 'center',
+        justifyContent: 'center',
+        elevation: 6,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 0.3,
+        shadowRadius: 6,
+      }}
+      accessibilityLabel="Create new group"
+      accessibilityRole="button"
+    >
+      <Text style={{ color: '#fff', fontSize: 28, lineHeight: 32 }}>+</Text>
+    </TouchableOpacity>
+    </View>
   );
 }
