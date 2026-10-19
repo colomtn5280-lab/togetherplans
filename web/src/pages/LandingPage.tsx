@@ -59,6 +59,29 @@ export default function LandingPage() {
             </div>
           </section>
 
+          <section style={{
+            padding: '3rem 1.5rem',
+            background: 'var(--bg2)',
+            textAlign: 'center',
+          }}>
+            <p style={{ fontSize: '0.85rem', color: 'var(--ink2)', marginBottom: '1.5rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+              Loved by couples everywhere
+            </p>
+            <div style={{ display: 'flex', gap: '1.5rem', justifyContent: 'center', flexWrap: 'wrap', maxWidth: '800px', margin: '0 auto' }}>
+              {[
+                { quote: "Finally stopped arguing about where to go. We just vote and it decides!", name: "Sarah & Tom", emoji: "💑" },
+                { quote: "The invite cards are so cute — we screenshot them every time.", name: "Alex & Jordan", emoji: "🎨" },
+                { quote: "After Dark is... let's just say it's become our Friday tradition.", name: "Riley & Morgan", emoji: "🌙" },
+              ].map((t, i) => (
+                <div key={i} className="dn-card" style={{ flex: '1 1 220px', padding: '1.5rem', textAlign: 'left', maxWidth: '280px' }}>
+                  <div style={{ fontSize: '1.5rem', marginBottom: '0.75rem' }}>{t.emoji}</div>
+                  <p style={{ fontSize: '0.9rem', color: 'var(--ink)', lineHeight: 1.5, marginBottom: '0.75rem' }}>'{t.quote}'</p>
+                  <p style={{ fontSize: '0.8rem', color: 'var(--ink2)', fontWeight: 600 }}>— {t.name}</p>
+                </div>
+              ))}
+            </div>
+          </section>
+
           <section className="cards" id="groups">
             <div className="card">
               <span className="ic" style={{background:'var(--primary-soft)',transform:'rotate(-6deg)'}}>
