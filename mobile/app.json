@@ -84,6 +84,17 @@
         {
           "userTrackingPermission": "DateMeUp shows ads to keep the app free. Allowing tracking lets us show you ads relevant to your interests. You can change this anytime in Settings > Privacy."
         }
+      ],
+      [
+        "react-native-google-mobile-ads",
+        {
+          "androidAppId": "ca-app-pub-3940256099942544~3347511713",
+          "iosAppId": "ca-app-pub-3940256099942544~1458002511",
+          "userTrackingUsageDescription": "DateMeUp shows ads to keep the app free. Allowing tracking helps us show you more relevant ads.",
+          "skAdNetworkItems": [
+            { "SKAdNetworkIdentifier": "cstr6suwn9.skadnetwork" }
+          ]
+        }
       ]
     ],
     "extra": {

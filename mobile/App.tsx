@@ -24,6 +24,7 @@ import { AuthProvider } from '@/hooks/useAuth';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import AppNavigator from '@/navigation/AppNavigator';
 import { COLORS } from '@/constants';
+import { initAdMob } from '@/services/admob';
 
 const queryClient = new QueryClient();
 
@@ -33,6 +34,11 @@ export default function App() {
     SecureStore.getItemAsync('appLanguage').then(lng => {
       if (lng) i18n.changeLanguage(lng);
     });
+  }, []);
+
+  // Initialise AdMob SDK (dormant until remote config enables ads)
+  useEffect(() => {
+    initAdMob();
   }, []);
 
   const [fontsLoaded] = useFonts({

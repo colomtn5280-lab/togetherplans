@@ -24,6 +24,7 @@ import {
   DNScreenHeader,
 } from '@/components/ui';
 import { groupsAPI } from '@/services/api';
+import { requestATT } from '@/services/att';
 import type { RootStackParamList } from '@/types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
@@ -66,6 +67,9 @@ export default function CreateGroupScreen() {
         typeMap[groupType],
       );
       const newGroup = res.data?.group ?? res.data;
+      // Post-value ATT prompt: user just created their first group.
+      // Fire and forget — don't block navigation on the result.
+      requestATT().catch(() => {});
       navigation.replace('GroupDetail', {
         groupId: newGroup?.id ?? 'new',
         groupName: newGroup?.name ?? name.trim(),
