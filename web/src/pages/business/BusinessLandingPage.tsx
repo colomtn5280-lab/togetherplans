@@ -1,7 +1,6 @@
-// TODO i18n: instrument this file with useTranslation() hooks
-// All strings have translations in /public/locales/{en,es}/translation.json
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { businessApi } from '../../api/client';
 
 interface PublicStats {
@@ -143,6 +142,7 @@ const tiers = [
 ];
 
 export default function BusinessLandingPage() {
+  const { t } = useTranslation();
   const [stats, setStats] = useState<PublicStats>({ activeUsers: 0, cities: 0, plansLockedThisWeek: 0 });
 
   useEffect(() => {
@@ -167,46 +167,46 @@ export default function BusinessLandingPage() {
           <span style={s.badge}>For Business</span>
         </div>
         <div style={s.navActions}>
-          <Link to="/business/login" style={ghostBtnStyle}>Business log in</Link>
-          <Link to="/business/register" style={btnStyle}>List your business</Link>
+          <Link to="/business/login" style={ghostBtnStyle}>{t('business.businessLogIn')}</Link>
+          <Link to="/business/register" style={btnStyle}>{t('business.listYourBusiness').replace(' →', '')}</Link>
         </div>
       </nav>
 
       {/* Hero */}
       <section style={s.hero}>
-        <h1 style={s.heroHeadline}>Be the plan<br />they agree on.</h1>
+        <h1 style={s.heroHeadline}>{t('business.beThePlan')}</h1>
         <p style={s.heroSub}>
-          Get your venue into the options when couples and groups are deciding where to go.
+          {t('business.heroDesc')}
         </p>
         <Link to="/business/register" style={{ ...btnStyle, fontSize: 17, padding: '16px 36px' }}>
-          List your business free →
+          {t('business.listFree')}
         </Link>
 
         {/* Stats */}
         <div style={s.statsRow}>
           <div style={s.statBox}>
             <div style={s.statVal}>{stats.activeUsers.toLocaleString() || '—'}</div>
-            <div style={s.statLabel}>Active users</div>
+            <div style={s.statLabel}>{t('business.activeUsers')}</div>
           </div>
           <div style={s.statBox}>
             <div style={s.statVal}>{stats.cities || '—'}</div>
-            <div style={s.statLabel}>Cities covered</div>
+            <div style={s.statLabel}>{t('business.cities')}</div>
           </div>
           <div style={s.statBox}>
             <div style={s.statVal}>{stats.plansLockedThisWeek?.toLocaleString() || '—'}</div>
-            <div style={s.statLabel}>Plans locked this week</div>
+            <div style={s.statLabel}>{t('business.plansLocked')}</div>
           </div>
         </div>
       </section>
 
       {/* How it works */}
       <section style={s.section}>
-        <h2 style={s.sectionTitle}>How it works</h2>
+        <h2 style={s.sectionTitle}>{t('business.howItWorks')}</h2>
         <div style={s.stepsRow}>
           {[
-            { n: 1, title: 'Create your profile', desc: 'Set up your venue, photos, price range, and mood tags in minutes.' },
-            { n: 2, title: 'Appear in searches', desc: 'Show up when users are planning their next date night or group outing.' },
-            { n: 3, title: 'Track your results', desc: 'See impressions, clicks, and how many plans included your venue.' },
+            { n: 1, title: t('business.createProfile'), desc: t('business.createProfileDesc') },
+            { n: 2, title: t('business.appearInSearches'), desc: t('business.appearInSearchesDesc') },
+            { n: 3, title: t('business.trackResults'), desc: t('business.trackResultsDesc') },
           ].map((step) => (
             <div key={step.n} style={s.step}>
               <div style={s.stepNum}>{step.n}</div>
@@ -220,7 +220,7 @@ export default function BusinessLandingPage() {
       {/* Pricing */}
       <section style={{ ...s.section, background: '#F4F6F8', maxWidth: '100%', padding: '64px 40px' }}>
         <div style={{ maxWidth: 1080, margin: '0 auto' }}>
-          <h2 style={s.sectionTitle}>Simple, transparent pricing</h2>
+          <h2 style={s.sectionTitle}>{t('business.simplePricing')}</h2>
           <div style={s.pricingRow}>
             {tiers.map((tier) => (
               <div key={tier.name} style={tier.featured ? s.pricingCardFeatured : s.pricingCard}>
@@ -266,20 +266,20 @@ export default function BusinessLandingPage() {
       {/* Bottom CTA */}
       <section style={s.ctaSection}>
         <h2 style={{ fontFamily: "'Sora', sans-serif", fontWeight: 800, fontSize: 32, color: '#101820', marginBottom: 16 }}>
-          Ready to get discovered?
+          {t('business.readyToBeDiscovered')}
         </h2>
         <p style={{ color: '#5D6B76', fontSize: 18, marginBottom: 32 }}>
-          Join venues already showing up in TogetherPlans suggestions.
+          {t('business.joinVenues')}
         </p>
         <Link to="/business/register" style={{ ...btnStyle, fontSize: 17, padding: '16px 36px' }}>
-          List your business free →
+          {t('business.listFree')}
         </Link>
       </section>
 
       <footer style={s.footer}>
-        <Link to="/" style={{ color: '#0E8C8C', textDecoration: 'none', marginRight: 16 }}>← Back to TogetherPlans</Link>
-        <Link to="/privacy" style={{ color: '#5D6B76', textDecoration: 'none', marginRight: 12 }}>Privacy</Link>
-        <Link to="/terms" style={{ color: '#5D6B76', textDecoration: 'none' }}>Terms</Link>
+        <Link to="/" style={{ color: '#0E8C8C', textDecoration: 'none', marginRight: 16 }}>{t('business.backToTogetherPlans')}</Link>
+        <Link to="/privacy" style={{ color: '#5D6B76', textDecoration: 'none', marginRight: 12 }}>{t('landing.privacy')}</Link>
+        <Link to="/terms" style={{ color: '#5D6B76', textDecoration: 'none' }}>{t('landing.terms')}</Link>
       </footer>
     </div>
   );

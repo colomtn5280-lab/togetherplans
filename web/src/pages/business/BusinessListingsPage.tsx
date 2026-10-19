@@ -1,6 +1,5 @@
-// TODO i18n: instrument this file with useTranslation() hooks
-// All strings have translations in /public/locales/{en,es}/translation.json
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { businessApi } from '../../api/client';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -140,6 +139,7 @@ const emptyFeaturedForm = {
 };
 
 function FeaturedListingsTab() {
+  const { t } = useTranslation();
   const [listings, setListings] = useState<FeaturedListing[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -199,8 +199,8 @@ function FeaturedListingsTab() {
   return (
     <>
       <div style={s.header}>
-        <div style={{ fontSize: 14, color: '#5D6B76' }}>Featured offers, events, or promotions that appear in suggestions.</div>
-        <button style={s.addBtn} onClick={openAdd}>+ Add listing</button>
+        <div style={{ fontSize: 14, color: '#5D6B76' }}>{t('business.featuredListingsDesc')}</div>
+        <button style={s.addBtn} onClick={openAdd}>{t('business.addListing')}</button>
       </div>
 
       {loading ? (
@@ -208,9 +208,9 @@ function FeaturedListingsTab() {
       ) : listings.length === 0 ? (
         <div style={s.empty}>
           <div style={{ fontSize: 40, marginBottom: 12 }}>📋</div>
-          <div style={{ fontFamily: "'Sora', sans-serif", fontWeight: 700, fontSize: 16, color: '#101820', marginBottom: 8 }}>No listings yet</div>
-          <div style={{ color: '#5D6B76', fontSize: 14, marginBottom: 20 }}>Create your first featured listing to stand out in suggestions.</div>
-          <button style={s.addBtn} onClick={openAdd}>Create first listing</button>
+          <div style={{ fontFamily: "'Sora', sans-serif", fontWeight: 700, fontSize: 16, color: '#101820', marginBottom: 8 }}>{t('business.noListings')}</div>
+          <div style={{ color: '#5D6B76', fontSize: 14, marginBottom: 20 }}>{t('business.noListingsDesc')}</div>
+          <button style={s.addBtn} onClick={openAdd}>{t('business.createFirstListing')}</button>
         </div>
       ) : (
         listings.map((l) => (
@@ -219,7 +219,7 @@ function FeaturedListingsTab() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
                 <div style={s.cardTitle}>{l.title}</div>
                 <span style={{ ...s.badge, background: l.active ? '#D9F1F0' : '#F4F6F8', color: l.active ? '#086B6B' : '#5D6B76' }}>
-                  {l.active ? 'Active' : 'Inactive'}
+                  {l.active ? t('business.active') : t('business.inactive')}
                 </span>
               </div>
               <div style={s.cardDesc}>{l.description}</div>
@@ -304,6 +304,7 @@ const emptyDirectForm = {
 };
 
 function DirectListingsTab() {
+  const { t } = useTranslation();
   const [listings, setListings] = useState<DirectListing[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -365,8 +366,8 @@ function DirectListingsTab() {
   return (
     <>
       <div style={s.header}>
-        <div style={{ fontSize: 14, color: '#5D6B76' }}>Events and offerings entered manually — appear directly in DateMeUp searches.</div>
-        <button style={s.addBtn} onClick={openAdd}>+ Add event / offering</button>
+        <div style={{ fontSize: 14, color: '#5D6B76' }}>{t('business.directListingsDesc')}</div>
+        <button style={s.addBtn} onClick={openAdd}>{t('business.addEvent')}</button>
       </div>
 
       {loading ? (
@@ -374,9 +375,9 @@ function DirectListingsTab() {
       ) : listings.length === 0 ? (
         <div style={s.empty}>
           <div style={{ fontSize: 40, marginBottom: 12 }}>🎟️</div>
-          <div style={{ fontFamily: "'Sora', sans-serif", fontWeight: 700, fontSize: 16, color: '#101820', marginBottom: 8 }}>No direct listings yet</div>
-          <div style={{ color: '#5D6B76', fontSize: 14, marginBottom: 20 }}>Add your events and offerings so couples can find them in DateMeUp.</div>
-          <button style={s.addBtn} onClick={openAdd}>Add first event</button>
+          <div style={{ fontFamily: "'Sora', sans-serif", fontWeight: 700, fontSize: 16, color: '#101820', marginBottom: 8 }}>{t('business.noDirectListings')}</div>
+          <div style={{ color: '#5D6B76', fontSize: 14, marginBottom: 20 }}>{t('business.noDirectListingsDesc')}</div>
+          <button style={s.addBtn} onClick={openAdd}>{t('business.addFirstEvent')}</button>
         </div>
       ) : (
         listings.map((l) => (
@@ -466,12 +467,13 @@ function DirectListingsTab() {
 // ── Main Export ───────────────────────────────────────────────────────────────
 
 export function BusinessListingsPage() {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<'featured' | 'direct'>('featured');
 
   return (
     <div>
-      <h1 style={s.title}>Listings</h1>
-      <p style={s.sub}>Manage your featured promotions and direct event listings.</p>
+      <h1 style={s.title}>{t('business.listingsTitle')}</h1>
+      <p style={s.sub}>{t('business.listingsDesc')}</p>
 
       {/* Tabs */}
       <div style={s.tabRow}>
@@ -479,13 +481,13 @@ export function BusinessListingsPage() {
           style={{ ...s.tab, ...(activeTab === 'featured' ? s.tabActive : {}) }}
           onClick={() => setActiveTab('featured')}
         >
-          📋 Featured Listings
+          {t('business.featuredListingsTab')}
         </button>
         <button
           style={{ ...s.tab, ...(activeTab === 'direct' ? s.tabActive : {}) }}
           onClick={() => setActiveTab('direct')}
         >
-          🎟️ Direct Listings
+          {t('business.directListingsTab')}
         </button>
       </div>
 

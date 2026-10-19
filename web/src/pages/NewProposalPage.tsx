@@ -1,13 +1,7 @@
-// TODO i18n: instrument this file with useTranslation() hooks
 // All strings have translations in /public/locales/{en,es}/translation.json
-/**
- * NewProposalPage — Finalize step
- * Redesigned to match Jarvis 9.24.26 design system.
- * Flow update 10.12.26: partner name/contact entry moved to the point of
- * sending (via the InviteModal on ProposalPage) — no longer blocks the form.
- */
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useMutation } from "@tanstack/react-query";
 import { proposalsApi, groupsApi } from "../api/client";
 import { AppNav } from "../components/AppNav";
@@ -176,6 +170,7 @@ function OptionCard({ opt, index, onRemove }: { opt: PlanBuilderOption; index: n
 
 // ── Main component ────────────────────────────────────────────────────────────
 export function NewProposalPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const { options: pbOptions, clearPlan } = usePlanBuilder();
@@ -344,17 +339,17 @@ export function NewProposalPage() {
               }}>
                 <div style={{ fontSize: 52, marginBottom: 12 }}>🗓️</div>
                 <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 16, marginBottom: 6, color: "var(--ink)" }}>
-                  Nothing added yet
+                  {t("proposal.nothingAddedYet")}
                 </div>
                 <div style={{ fontSize: 14, marginBottom: 24 }}>
-                  Browse Discover and tap + Add to Date on anything that looks good.
+                  {t("proposal.browseDiscover")}
                 </div>
                 <Link
                   to="/discover"
                   className="dn-btn"
                   style={{ display: "inline-flex", justifyContent: "center" }}
                 >
-                  Browse Discover
+                  {t("proposal.browseDiscoverBtn")}
                 </Link>
               </div>
             ) : (
@@ -387,7 +382,7 @@ export function NewProposalPage() {
                     onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.borderColor = "var(--primary)"; (e.currentTarget as HTMLAnchorElement).style.color = "var(--primary)"; }}
                     onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.borderColor = "var(--line)"; (e.currentTarget as HTMLAnchorElement).style.color = "var(--ink2)"; }}
                   >
-                    + Add another activity
+                    {t("proposal.addAnotherActivity")}
                   </Link>
                 )}
               </>
@@ -405,7 +400,7 @@ export function NewProposalPage() {
             {/* Title */}
             <div style={{ marginBottom: 20 }}>
               <label style={{ display: "block", fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 11, letterSpacing: ".1em", textTransform: "uppercase", color: "var(--ink2)", marginBottom: 8 }}>
-                Plan Title
+                {t("proposal.planTitleLabel")}
               </label>
               <input
                 type="text"
@@ -422,7 +417,7 @@ export function NewProposalPage() {
             {/* Date / time */}
             <div style={{ marginBottom: 20 }}>
               <label style={{ display: "block", fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 11, letterSpacing: ".1em", textTransform: "uppercase", color: "var(--ink2)", marginBottom: 8 }}>
-                When?
+                {t("proposal.when")}
               </label>
               <input
                 type="datetime-local"
@@ -438,7 +433,7 @@ export function NewProposalPage() {
             {groups.length > 1 && (
               <div style={{ marginBottom: 20 }}>
                 <label style={{ display: "block", fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 11, letterSpacing: ".1em", textTransform: "uppercase", color: "var(--ink2)", marginBottom: 8 }}>
-                  Send To
+                  {t("proposal.sendTo")}
                 </label>
                 <select
                   value={selectedGroupId}

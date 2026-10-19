@@ -15,7 +15,6 @@ const createSchema = z.object({
   description: z.string().optional(),
 });
 
-
 type CreateFormData = z.infer<typeof createSchema>;
 
 const AVATAR_COLORS = ["dmu-av-teal", "dmu-av-lime", "dmu-av-amber", "dmu-av-teal"];
@@ -79,14 +78,14 @@ export function GroupsPage() {
           {/* Page header */}
           <div className="dmu-page-head">
             <div>
-              <h1 className="dmu-hello" style={{ fontSize: 32 }}>Your groups</h1>
-              <p className="dmu-sub">Plan with the people you love.</p>
+              <h1 className="dmu-hello" style={{ fontSize: 32 }}>{t("groups.yourGroups")}</h1>
+              <p className="dmu-sub">{t("groups.planWithPeople")}</p>
             </div>
             <button
               className={`dmu-btn ${showCreate ? "dmu-btn-ghost" : "dmu-btn-primary"}`}
               onClick={() => setShowCreate((v) => !v)}
             >
-              {showCreate ? "Cancel" : "+ New group"}
+              {showCreate ? t("common.cancel") : t("groups.newGroup")}
             </button>
           </div>
 
@@ -94,7 +93,7 @@ export function GroupsPage() {
           {showCreate && (
             <div className="dmu-card" style={{ marginTop: 24, border: "1.5px solid var(--primary)" }}>
               <h3 style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: 16, marginBottom: 16 }}>
-                Create a group
+                {t("groups.createGroup")}
               </h3>
               <form
                 onSubmit={handleSubmit((d) => createMutation.mutate(d))}
@@ -102,7 +101,7 @@ export function GroupsPage() {
               >
                 <div>
                   <label htmlFor="name" style={{ display: "block", fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 11, marginBottom: 6, color: "var(--ink2)", textTransform: "uppercase", letterSpacing: ".08em" }}>
-                    Group name
+                    {t("groups.groupName")}
                   </label>
                   <input
                     id="name"
@@ -116,7 +115,7 @@ export function GroupsPage() {
                 </div>
                 <div>
                   <label htmlFor="description" style={{ display: "block", fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 11, marginBottom: 6, color: "var(--ink2)", textTransform: "uppercase", letterSpacing: ".08em" }}>
-                    Description (optional)
+                    {t("groups.descriptionOptional")}
                   </label>
                   <input
                     id="description"
@@ -132,10 +131,10 @@ export function GroupsPage() {
                 )}
                 <div style={{ display: "flex", gap: 10 }}>
                   <button type="submit" className="dmu-btn dmu-btn-primary" disabled={createMutation.isPending}>
-                    {createMutation.isPending ? "Creating…" : "Create group →"}
+                    {createMutation.isPending ? t("groups.creating") : t("groups.createGroupBtn")}
                   </button>
                   <button type="button" className="dmu-btn dmu-btn-ghost" onClick={() => setShowCreate(false)}>
-                    Cancel
+                    {t("common.cancel")}
                   </button>
                 </div>
               </form>
@@ -151,15 +150,15 @@ export function GroupsPage() {
                   aria-selected={filter === tab}
                   onClick={() => setFilter(tab)}
                 >
-                  {tab === "all" ? "All" : tab === "couples" ? "Couples" : "Friends & family"} · {counts[tab]}
+                  {tab === "all" ? t("groups.all") : tab === "couples" ? t("groups.couples") : t("groups.friendsFamily")} · {counts[tab]}
                 </button>
               ))}
             </div>
           )}
 
           {/* State feedback */}
-          {isLoading && <p style={{ color: "var(--ink2)", marginTop: 24 }}>Loading groups…</p>}
-          {isError && <p role="alert" style={{ color: "var(--error)", marginTop: 24 }}>Failed to load groups.</p>}
+          {isLoading && <p style={{ color: "var(--ink2)", marginTop: 24 }}>{t("groups.loadingGroups")}</p>}
+          {isError && <p role="alert" style={{ color: "var(--error)", marginTop: 24 }}>{t("groups.failedToLoad")}</p>}
 
           {/* Groups grid */}
           <div className="dmu-groups-grid" data-testid="groups-grid">
@@ -190,20 +189,20 @@ export function GroupsPage() {
                         </div>
                       )}
                     </div>
-                    <span className="dmu-pill dmu-pill-active">Active</span>
+                    <span className="dmu-pill dmu-pill-active">{t("groups.active")}</span>
                   </div>
 
                   <h2>{g.name}</h2>
                   <p className="dmu-group-meta">
-                    {memberCount === 2 ? "Couple" : "Group"} · {memberLabel}
+                    {memberCount === 2 ? t("groups.couple") : t("groups.group")} · {memberLabel}
                   </p>
 
                   {/* Open plan row */}
                   <div className="dmu-open">
                     <span className="dmu-open-dot" />
                     <span className="dmu-open-text">
-                      <b>No plan yet</b>
-                      <small>Start one →</small>
+                      <b>{t("groups.noPlanYet")}</b>
+                      <small>{t("groups.startOne")}</small>
                     </span>
                     <span className="dmu-open-go">›</span>
                   </div>
@@ -214,8 +213,8 @@ export function GroupsPage() {
             {/* New group dashed card */}
             <button className="dmu-group dmu-group-new" onClick={() => setShowCreate(true)}>
               <div className="dmu-new-plus">+</div>
-              <b>New group</b>
-              <small>Couple, friends, or family</small>
+              <b>{t("groups.newGroupCard")}</b>
+              <small>{t("groups.coupleGroupFamily")}</small>
             </button>
           </div>
 
@@ -223,10 +222,10 @@ export function GroupsPage() {
           {!isLoading && allGroups.length === 0 && !showCreate && (
             <div data-testid="no-groups" style={{ textAlign: "center", padding: "60px 0" }}>
               <div style={{ fontSize: 56, marginBottom: 16 }}>📅</div>
-              <h2 style={{ fontFamily: "var(--font-display)", fontWeight: 800, marginBottom: 8 }}>No groups yet</h2>
-              <p style={{ color: "var(--ink2)", marginBottom: 24 }}>Create a group to start planning with your partner or friends.</p>
+              <h2 style={{ fontFamily: "var(--font-display)", fontWeight: 800, marginBottom: 8 }}>{t("groups.noGroupsYet")}</h2>
+              <p style={{ color: "var(--ink2)", marginBottom: 24 }}>{t("groups.noGroupsDesc")}</p>
               <button className="dmu-btn dmu-btn-primary" onClick={() => setShowCreate(true)}>
-                Create your first group →
+                {t("groups.createFirstGroupBtn")}
               </button>
             </div>
           )}
@@ -237,14 +236,14 @@ export function GroupsPage() {
         <footer className="dmu-foot">
           <div className="dmu-wrap dmu-foot-in">
             <div className="dmu-legal">
-              <Link to="/privacy">Privacy</Link> · <Link to="/terms">Terms</Link>
+              <Link to="/privacy">{t("groups.privacy")}</Link> · <Link to="/terms">{t("groups.terms")}</Link>
             </div>
-            <span className="dmu-foot-label">Vote on the go</span>
+            <span className="dmu-foot-label">{t("groups.voteOnGo")}</span>
             <a href="https://apps.apple.com/app/id6806890578" target="_blank" rel="noopener noreferrer" className="dmu-store">
-              <span>🍎</span> App Store
+              <span>🍎</span> {t("groups.appStore")}
             </a>
             <a href="https://play.google.com/store/apps/details?id=app.datemeup.datenight" target="_blank" rel="noopener noreferrer" className="dmu-store">
-              <span>▶</span> Google Play
+              <span>▶</span> {t("groups.googlePlay")}
             </a>
           </div>
         </footer>

@@ -1,7 +1,6 @@
-// TODO i18n: instrument this file with useTranslation() hooks
-// All strings have translations in /public/locales/{en,es}/translation.json
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useOutletContext } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { businessApi } from '../../api/client';
 import type { BusinessProfile } from '../../hooks/useBusinessAuth';
 
@@ -90,6 +89,7 @@ const btnWhiteStyle: React.CSSProperties = {
 };
 
 export function BusinessDashboardPage() {
+  const { t } = useTranslation();
   const { business } = useOutletContext<OutletCtx>();
   const navigate = useNavigate();
   const [analytics, setAnalytics] = useState<Analytics>({ impressions: 0, clicks: 0, addedToProposals: 0, matches: 0 });
@@ -108,10 +108,10 @@ export function BusinessDashboardPage() {
   const tierColor = tier !== 'free' ? '#fff' : '#5D6B76';
 
   const kpis = [
-    { label: 'Impressions (7d)', value: analytics.impressions, icon: '👁️' },
-    { label: 'Clicks (7d)', value: analytics.clicks, icon: '🖱️' },
-    { label: 'Added to Plans (7d)', value: analytics.addedToProposals, icon: '📋' },
-    { label: 'Matches (7d)', value: analytics.matches, icon: '💑' },
+    { label: t('business.impressions') + ' (7d)', value: analytics.impressions, icon: '👁️' },
+    { label: t('business.clicks') + ' (7d)', value: analytics.clicks, icon: '🖱️' },
+    { label: t('business.addedToPlans') + ' (7d)', value: analytics.addedToProposals, icon: '📋' },
+    { label: t('business.matches') + ' (7d)', value: analytics.matches, icon: '💑' },
   ];
 
   const handleManageBilling = async () => {
@@ -131,9 +131,9 @@ export function BusinessDashboardPage() {
     <div>
       <div style={s.header}>
         <h1 style={s.welcome}>
-          {business ? `Welcome back, ${business.name}` : 'Dashboard'}
+          {business ? `${t('business.welcomeBack')}, ${business.name}` : t('business.dashboardTitle')}
         </h1>
-        <p style={s.sub}>Here's how your venue is performing this week.</p>
+        <p style={s.sub}>{t('business.dashboardDesc')}</p>
       </div>
 
       {/* Onboarding completion banner */}
@@ -141,14 +141,14 @@ export function BusinessDashboardPage() {
         <div style={s.onboardBanner}>
           <div>
             <div style={{ fontFamily: "'Sora', sans-serif", fontWeight: 800, fontSize: 17, color: '#fff', marginBottom: 4 }}>
-              🚀 Complete your setup to start appearing in searches
+              {t('business.completeSetup')}
             </div>
             <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.85)' }}>
-              Add your service area, photos, and choose a category — takes 3 minutes.
+              {t('business.completeSetupDesc')}
             </div>
           </div>
           <button style={btnWhiteStyle} onClick={() => navigate('/business/onboarding')}>
-            Continue Setup →
+            {t('business.continueSetup')}
           </button>
         </div>
       )}
@@ -164,16 +164,16 @@ export function BusinessDashboardPage() {
           </div>
           <div>
             <div style={{ fontFamily: "'Sora', sans-serif", fontWeight: 700, fontSize: 15, color: '#101820' }}>
-              {tier === 'free' ? 'Free Plan' : tier === 'featured' ? 'Featured Plan — $49/mo' : 'Premium Plan — $149/mo'}
+              {tier === 'free' ? t('business.freePlan') : tier === 'featured' ? t('business.featuredPlan') : t('business.premiumPlan')}
             </div>
             {business?.subscriptionRenewsAt && (
               <div style={{ fontSize: 13, color: '#5D6B76', marginTop: 2 }}>
-                Renews {new Date(business.subscriptionRenewsAt).toLocaleDateString()}
+                {t('business.renewsAt')} {new Date(business.subscriptionRenewsAt).toLocaleDateString()}
               </div>
             )}
             {tier === 'free' && (
               <div style={{ fontSize: 13, color: '#5D6B76', marginTop: 2 }}>
-                Upgrade for priority placement and a Featured badge
+                {t('business.upgradeForPriority')}
               </div>
             )}
           </div>
@@ -181,12 +181,12 @@ export function BusinessDashboardPage() {
         <div style={{ display: 'flex', gap: 12 }}>
           {tier !== 'free' && (
             <button style={{ ...btnStyle, opacity: billingLoading ? 0.7 : 1 }} onClick={handleManageBilling} disabled={billingLoading}>
-              {billingLoading ? 'Loading…' : 'Manage Billing'}
+              {billingLoading ? t('business.loadingBilling') : t('business.manageBilling')}
             </button>
           )}
           {tier === 'free' && (
             <button style={btnStyle} onClick={() => navigate('/business/onboarding')}>
-              Upgrade Plan
+              {t('business.upgradePlan')}
             </button>
           )}
         </div>
@@ -234,40 +234,40 @@ export function BusinessDashboardPage() {
 
       {/* Quick Actions */}
       <div style={{ fontFamily: "'Sora', sans-serif", fontWeight: 700, fontSize: 16, color: '#101820', marginBottom: 16 }}>
-        Quick actions
+        {t('business.quickActions')}
       </div>
       <div style={s.actionsRow}>
         <div style={s.actionCard}>
           <div style={{ fontSize: 28, marginBottom: 10 }}>🏢</div>
           <div style={{ fontFamily: "'Sora', sans-serif", fontWeight: 700, fontSize: 15, color: '#101820', marginBottom: 6 }}>
-            Edit Profile
+            {t('business.editProfile')}
           </div>
           <div style={{ fontSize: 13, color: '#5D6B76', marginBottom: 16 }}>
-            Update your business details, hours, and mood tags.
+            {t('business.editProfileDesc')}
           </div>
-          <Link to="/business/profile" style={btnStyle}>Edit Profile</Link>
+          <Link to="/business/profile" style={btnStyle}>{t('business.editProfile')}</Link>
         </div>
 
         <div style={s.actionCard}>
           <div style={{ fontSize: 28, marginBottom: 10 }}>📋</div>
           <div style={{ fontFamily: "'Sora', sans-serif", fontWeight: 700, fontSize: 15, color: '#101820', marginBottom: 6 }}>
-            Manage Listings
+            {t('business.manageListings')}
           </div>
           <div style={{ fontSize: 13, color: '#5D6B76', marginBottom: 16 }}>
-            Create featured listings with special offers or events.
+            {t('business.manageListingsDesc')}
           </div>
-          <Link to="/business/listings" style={btnStyle}>Manage Listings</Link>
+          <Link to="/business/listings" style={btnStyle}>{t('business.manageListings')}</Link>
         </div>
 
         <div style={s.actionCard}>
           <div style={{ fontSize: 28, marginBottom: 10 }}>📈</div>
           <div style={{ fontFamily: "'Sora', sans-serif", fontWeight: 700, fontSize: 15, color: '#101820', marginBottom: 6 }}>
-            View Analytics
+            {t('business.viewAnalytics')}
           </div>
           <div style={{ fontSize: 13, color: '#5D6B76', marginBottom: 16 }}>
-            See detailed performance over 7, 30, or 90 days.
+            {t('business.viewAnalyticsDesc')}
           </div>
-          <Link to="/business/analytics" style={btnStyle}>View Analytics</Link>
+          <Link to="/business/analytics" style={btnStyle}>{t('business.viewAnalytics')}</Link>
         </div>
       </div>
     </div>

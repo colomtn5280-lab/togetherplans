@@ -1,7 +1,6 @@
-// TODO i18n: instrument this file with useTranslation() hooks
-// All strings have translations in /public/locales/{en,es}/translation.json
 import { useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { groupsApi, invitationsApi, safetyApi } from "../api/client";
 import { AppNav } from "../components/AppNav";
@@ -42,6 +41,7 @@ function formatDate(dateStr?: string) {
 }
 
 export function GroupDetailPage() {
+  const { t } = useTranslation();
   const { groupId } = useParams<{ groupId: string }>();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -166,7 +166,7 @@ export function GroupDetailPage() {
       <>
         <AppNav />
         <main style={{ padding: "40px var(--gutter)", textAlign: "center" }}>
-          <p style={{ color: "var(--ink2)" }}>Loading group…</p>
+          <p style={{ color: "var(--ink2)" }}>{t("groups.loadingGroup")}</p>
         </main>
       </>
     );
@@ -177,7 +177,7 @@ export function GroupDetailPage() {
         <AppNav />
         <main style={{ padding: "40px var(--gutter)", textAlign: "center" }}>
           <p role="alert" style={{ color: "var(--error)" }}>
-            Group not found.
+            {t("groups.groupNotFound")}
           </p>
         </main>
       </>
@@ -190,7 +190,7 @@ export function GroupDetailPage() {
         <div className="dmu-wrap dmu-gd-grid">
 
           {/* Back link */}
-          <Link to="/groups" className="dmu-back">← Your groups</Link>
+          <Link to="/groups" className="dmu-back">{t("groups.backToGroups")}</Link>
 
           {/* ── Group Header ── */}
           <div className="dmu-gd-head">
@@ -225,7 +225,7 @@ export function GroupDetailPage() {
               className="dmu-btn dmu-btn-primary dmu-gd-cta"
               style={{ textDecoration: "none" }}
             >
-              New Date Plan
+              {t("groups.newDatePlan")}
             </Link>
           </div>
 
@@ -237,7 +237,7 @@ export function GroupDetailPage() {
             {/* Left: Recent proposals */}
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               <div className="dmu-section-head">
-                <span>Proposals</span>
+                <span>{t("groups.proposals")}</span>
               </div>
 
             {recentProposals.length === 0 ? (
@@ -247,22 +247,22 @@ export function GroupDetailPage() {
                   <span className="dmu-card-b">🎭 Show</span>
                   <span className="dmu-card-c">🌄 Hike</span>
                 </div>
-                <h2>No plans yet. Start one.</h2>
-                <p>Propose ideas and let everyone vote on the perfect plan.</p>
+                <h2>{t("groups.noPlansYet")}</h2>
+                <p>{t("groups.proposeIdeas")}</p>
                 <div className="dmu-gd-empty-actions">
                   <Link
                     to={`/groups/${groupId}/proposals/new`}
                     className="dmu-btn dmu-btn-primary"
                     style={{ textDecoration: "none" }}
                   >
-                  New Date Plan
+                  {t("groups.newDatePlan")}
                                     </Link>
                                     <Link
                                       to="/suggestions"
                                       className="dmu-btn dmu-btn-ghost dmu-btn-auto"
                                       style={{ textDecoration: "none" }}
                                     >
-                                      Browse ideas
+                                      {t("groups.browseIdeas")}
                                     </Link>
                                   </div>
                                 </div>
@@ -305,7 +305,7 @@ export function GroupDetailPage() {
                               whiteSpace: "nowrap",
                             }}
                           >
-                            {p.title ?? "Untitled proposal"}
+                  {p.title ?? t("groups.untitledProposal")}
                           </div>
                           <div
                             style={{
@@ -404,7 +404,7 @@ export function GroupDetailPage() {
 
           {/* Right: Invite panel */}
           <div className="dmu-card" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-            <div className="dmu-card-head"><h2>Invite members</h2></div>
+            <div className="dmu-card-head"><h2>{t("groups.inviteMembers")}</h2></div>
 
             {/* Method chips */}
             <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
@@ -515,7 +515,7 @@ export function GroupDetailPage() {
                     onClick={handleCopy}
                     style={{ flexShrink: 0, height: 40, padding: "0 14px", fontSize: 13 }}
                   >
-                    {copied ? "✓" : "Copy"}
+                    {copied ? "✓" : t("groups.copy")}
                   </button>
                 </div>
               </div>
@@ -571,7 +571,7 @@ export function GroupDetailPage() {
               className="dmu-btn dmu-btn-primary"
               style={{ width: "100%" }}
             >
-              {inviteMutation.isPending ? "Generating…" : "Generate invite"}
+              {inviteMutation.isPending ? t("groups.generating") : t("groups.generateInvite")}
             </button>
 
             {inviteMutation.isError && (
@@ -598,7 +598,7 @@ export function GroupDetailPage() {
                     marginBottom: 4,
                   }}
                 >
-                  ✓ Invite created
+                  ✓ {t("groups.inviteCreated")}
                 </div>
                 <div style={{ fontSize: 12, color: "var(--ink2)" }}>
                   Code:{" "}
@@ -616,7 +616,7 @@ export function GroupDetailPage() {
             {/* Members list */}
             <div style={{ borderTop: "1px solid var(--line)", paddingTop: 16 }}>
               <h3 style={{ marginBottom: 12, fontSize: 15 }}>
-                Members ({group.members?.length ?? 0})
+                {t("groups.membersHeader", { count: group.members?.length ?? 0 })}
               </h3>
 
               {safetyMessage && (
@@ -694,7 +694,7 @@ export function GroupDetailPage() {
                         </div>
                       </div>
                       {m.role === "owner" && (
-                        <span className="dn-sticker dn-sticker--ink">Owner</span>
+                        <span className="dn-sticker dn-sticker--ink">{t("groups.owner")}</span>
                       )}
 
                       {/* Three-dot menu — only show for non-owner members */}
@@ -752,7 +752,7 @@ export function GroupDetailPage() {
                                       marginBottom: 8,
                                     }}
                                   >
-                                    Report reason
+                                  {t("groups.reportReason")}
                                   </div>
                                   {["spam", "harassment", "inappropriate", "other"].map(
                                     (r) => (
@@ -802,14 +802,14 @@ export function GroupDetailPage() {
                                             reportedUserId: m.userId,
                                             reason: reportReason,
                                           });
-                                          setSafetyMessage("Report submitted");
+                                          setSafetyMessage(t("groups.reportSubmitted"));
                                           setTimeout(
                                             () => setSafetyMessage(null),
                                             3000
                                           );
                                         } catch {
                                           setSafetyMessage(
-                                            "Could not submit report"
+                                            t("groups.couldNotSubmitReport")
                                           );
                                           setTimeout(
                                             () => setSafetyMessage(null),
@@ -821,8 +821,7 @@ export function GroupDetailPage() {
                                           setReportReason("");
                                         }
                                       }}
-                                    >
-                                      Submit report
+                                    >\n                                      {t("groups.submitReport")}
                                     </button>
                                     <button
                                       className="dn-btn dn-btn--sm dn-btn--tonal"
@@ -831,7 +830,7 @@ export function GroupDetailPage() {
                                         setReportReason("");
                                       }}
                                     >
-                                      Cancel
+                                      {t("common.cancel")}
                                     </button>
                                   </div>
                                 </div>
@@ -842,13 +841,13 @@ export function GroupDetailPage() {
                                     onClick={async () => {
                                       try {
                                         await safetyApi.blockUser(m.userId);
-                                        setSafetyMessage("User blocked");
+                                        setSafetyMessage(t("groups.userBlocked"));
                                         setTimeout(
                                           () => setSafetyMessage(null),
                                           3000
                                         );
                                       } catch {
-                                        setSafetyMessage("Could not block user");
+                                        setSafetyMessage(t("groups.couldNotBlockUser"));
                                         setTimeout(
                                           () => setSafetyMessage(null),
                                           3000
@@ -871,29 +870,29 @@ export function GroupDetailPage() {
                                       fontWeight: 700,
                                     }}
                                   >
-                                    Block user
+                                  {t("groups.blockUser")}
                                   </button>
                                   <button
-                                    onClick={() => {
-                                      setReportingUserId(m.userId);
-                                      setReportReason("");
-                                    }}
-                                    style={{
-                                      display: "block",
-                                      width: "100%",
-                                      background: "none",
-                                      border: "none",
-                                      textAlign: "left",
-                                      padding: "10px 14px",
-                                      cursor: "pointer",
-                                      fontSize: 13,
-                                      color: "var(--ink)",
-                                      fontFamily: "var(--font-display)",
-                                      fontWeight: 700,
-                                      borderTop: "1px solid var(--line)",
-                                    }}
+                                  onClick={() => {
+                                    setReportingUserId(m.userId);
+                                    setReportReason("");
+                                  }}
+                                  style={{
+                                    display: "block",
+                                    width: "100%",
+                                    background: "none",
+                                    border: "none",
+                                    textAlign: "left",
+                                    padding: "10px 14px",
+                                    cursor: "pointer",
+                                    fontSize: 13,
+                                    color: "var(--ink)",
+                                    fontFamily: "var(--font-display)",
+                                    fontWeight: 700,
+                                    borderTop: "1px solid var(--line)",
+                                  }}
                                   >
-                                    Report user
+                                  {t("groups.reportUser")}
                                   </button>
                                 </>
                               )}
@@ -906,7 +905,7 @@ export function GroupDetailPage() {
                 </ul>
               ) : (
                 <p style={{ color: "var(--ink2)", fontSize: 14 }}>
-                  No members yet.
+                  {t("groups.noMembers")}
                 </p>
               )}
             </div>
@@ -921,12 +920,12 @@ export function GroupDetailPage() {
               style={{ width: "100%" }}
               onClick={() => setConfirmDelete(true)}
             >
-              Delete group
+              {t("groups.deleteGroup")}
             </button>
           ) : (
             <div style={{ background: "var(--surface)", borderRadius: "22px 16px 22px 16px", padding: "18px 20px", border: "1.5px solid var(--error)" }}>
               <p style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 14, marginBottom: 12, color: "var(--ink)" }}>
-                Delete this group? This can't be undone. All plans will be removed.
+                {t("groups.deleteGroupConfirm")}
               </p>
               <div style={{ display: "flex", gap: 8 }}>
                 <button
@@ -935,19 +934,19 @@ export function GroupDetailPage() {
                   onClick={() => deleteGroupMutation.mutate()}
                   disabled={deleteGroupMutation.isPending}
                 >
-                  {deleteGroupMutation.isPending ? "Deleting…" : "Yes, delete"}
+                  {deleteGroupMutation.isPending ? t("groups.deleting") : t("groups.yesDelete")}
                 </button>
                 <button
                   className="dmu-btn dmu-btn-ghost"
                   style={{ flex: 1, height: 40 }}
                   onClick={() => setConfirmDelete(false)}
                 >
-                  Cancel
+                  {t("common.cancel")}
                 </button>
               </div>
               {deleteGroupMutation.isError && (
                 <p style={{ color: "var(--error)", fontSize: 12, marginTop: 8 }}>
-                  Could not delete group. You may not be the owner.
+                  {t("groups.couldNotDeleteGroup")}
                 </p>
               )}
             </div>

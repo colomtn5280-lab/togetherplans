@@ -1,6 +1,5 @@
-// TODO i18n: instrument this file with useTranslation() hooks
-// All strings have translations in /public/locales/{en,es}/translation.json
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { businessApi } from '../../api/client';
 
 type Period = '7d' | '30d' | '90d';
@@ -67,6 +66,7 @@ function BarChart({ data }: { data: { label: string; value: number; color: strin
 }
 
 export function BusinessAnalyticsPage() {
+  const { t } = useTranslation();
   const [period, setPeriod] = useState<Period>('7d');
   const [data, setData] = useState<Analytics>({ impressions: 0, clicks: 0, addedToProposals: 0, matches: 0 });
   const [loading, setLoading] = useState(false);
@@ -79,37 +79,37 @@ export function BusinessAnalyticsPage() {
   }, [period]);
 
   const kpis = [
-    { label: 'Impressions', value: data.impressions },
-    { label: 'Clicks', value: data.clicks },
-    { label: 'Added to Plans', value: data.addedToProposals },
-    { label: 'Matches', value: data.matches },
+    { label: t('business.impressions'), value: data.impressions },
+    { label: t('business.clicks'), value: data.clicks },
+    { label: t('business.addedToPlans'), value: data.addedToProposals },
+    { label: t('business.matches'), value: data.matches },
   ];
 
   const chartData = [
-    { label: 'Impressions', value: data.impressions, color: '#0E8C8C' },
-    { label: 'Clicks', value: data.clicks, color: '#7CB518' },
-    { label: 'Added', value: data.addedToProposals, color: '#086B6B' },
-    { label: 'Matches', value: data.matches, color: '#EAF6D3' },
-  ].map((d) => ({ ...d, color: d.label === 'Impressions' ? '#0E8C8C' : d.label === 'Clicks' ? '#7CB518' : d.label === 'Added' ? '#086B6B' : '#101820' }));
+    { label: t('business.impressions'), value: data.impressions, color: '#0E8C8C' },
+    { label: t('business.clicks'), value: data.clicks, color: '#7CB518' },
+    { label: t('business.addedToPlans'), value: data.addedToProposals, color: '#086B6B' },
+    { label: t('business.matches'), value: data.matches, color: '#EAF6D3' },
+  ].map((d) => ({ ...d, color: d.label === t('business.impressions') ? '#0E8C8C' : d.label === t('business.clicks') ? '#7CB518' : d.label === t('business.addedToPlans') ? '#086B6B' : '#101820' }));
 
   const ctr = data.impressions > 0 ? ((data.clicks / data.impressions) * 100).toFixed(1) : '0.0';
 
   return (
     <div>
-      <h1 style={s.title}>Analytics</h1>
-      <p style={s.sub}>Track how your venue performs in DateMeUp suggestions.</p>
+      <h1 style={s.title}>{t('business.analytics')}</h1>
+      <p style={s.sub}>{t('business.analyticsDesc')}</p>
 
       {/* Period selector */}
       <div style={s.periodRow}>
         {(['7d', '30d', '90d'] as Period[]).map((p) => (
           <button key={p} style={periodBtn(period === p)} onClick={() => setPeriod(p)}>
-            {p === '7d' ? 'Last 7 days' : p === '30d' ? 'Last 30 days' : 'Last 90 days'}
+            {p === '7d' ? t('business.last7days') : p === '30d' ? t('business.last30days') : t('business.last90days')}
           </button>
         ))}
       </div>
 
       {loading ? (
-        <div style={{ color: '#5D6B76', fontSize: 15 }}>Loading analytics…</div>
+        <div style={{ color: '#5D6B76', fontSize: 15 }}>{t('business.loadingAnalytics')}</div>
       ) : (
         <>
           {/* KPIs */}
@@ -124,13 +124,13 @@ export function BusinessAnalyticsPage() {
 
           {/* Bar chart */}
           <div style={s.chartSection}>
-            <div style={s.chartTitle}>Performance overview</div>
+            <div style={s.chartTitle}>{t('business.performanceOverview')}</div>
             <BarChart data={chartData} />
           </div>
 
           {/* Conversion funnel */}
           <div style={s.funnelSection}>
-            <div style={s.chartTitle}>Conversion funnel</div>
+            <div style={s.chartTitle}>{t('business.conversionFunnel')}</div>
             <div style={s.funnelText}>
               <span style={{ color: '#0E8C8C', fontWeight: 700 }}>{data.impressions.toLocaleString()}</span>
               {' impressions → '}
@@ -142,10 +142,10 @@ export function BusinessAnalyticsPage() {
               {' matches'}
             </div>
             <div style={{ marginTop: 12, fontSize: 14, color: '#5D6B76' }}>
-              Click-through rate: <strong>{ctr}%</strong>
+              {t('business.ctr')} <strong>{ctr}%</strong>
               {data.impressions === 0 && (
                 <span style={{ marginLeft: 12, background: '#F4F6F8', padding: '2px 10px', borderRadius: 20, fontSize: 12 }}>
-                  No data yet — impressions will appear as users discover your venue
+                  {t('business.noDataYet')}
                 </span>
               )}
             </div>

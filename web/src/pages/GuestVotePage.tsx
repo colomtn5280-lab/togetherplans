@@ -1,16 +1,7 @@
-// TODO i18n: instrument this file with useTranslation() hooks
 // All strings have translations in /public/locales/{en,es}/translation.json
-/**
- * GuestVotePage — public guest voting via share link (the viral loop).
- *
- * Route: /vote/:shareToken  (also rendered by /share/:shareToken for OPEN proposals)
- *
- * A guest opens the link, sees the proposal + options, taps to vote (no account),
- * can change their vote, sees live tallies after voting, then gets a warm
- * signup CTA. guestId is a random UUID persisted in localStorage (tp.guestId).
- */
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { publicShareApi } from "../api/client";
 import type { PublicShareProposal, PublicShareOption } from "../types";
@@ -176,6 +167,7 @@ function GuestOptionCard({
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export function GuestVotePage() {
+  const { t } = useTranslation();
   const { shareToken } = useParams<{ shareToken: string }>();
   const queryClient = useQueryClient();
   const guestId = getGuestId();
@@ -218,7 +210,7 @@ export function GuestVotePage() {
   if (isLoading) {
     return (
       <main style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh" }}>
-        <p style={{ color: "var(--ink2)" }}>Loading the plan…</p>
+        <p style={{ color: "var(--ink2)" }}>{t("guestVote.loading")}</p>
       </main>
     );
   }
@@ -228,13 +220,12 @@ export function GuestVotePage() {
     return (
       <main style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "100vh", gap: 14, padding: 24, textAlign: "center" }}>
         <div style={{ fontSize: 64 }}>🗺️</div>
-        <h1 style={{ fontSize: 24, margin: 0 }}>Hmm, this link isn't working</h1>
+        <h1 style={{ fontSize: 24, margin: 0 }}>{t("guestVote.linkNotWorking")}</h1>
         <p style={{ color: "var(--ink2)", maxWidth: 380 }}>
-          The plan may have been removed, or the link was copied incompletely.
-          Ask whoever sent it for a fresh one!
+          {t("guestVote.linkBroken")}
         </p>
         <Link to="/signup" className="dn-btn dn-btn--primary" style={{ marginTop: 8 }}>
-          Plan your own night →
+          {t("guestVote.planYourNight")}
         </Link>
         <a href="https://togetherplans.app" style={{ color: "var(--ink2)", fontSize: 13 }}>togetherplans.app</a>
       </main>
@@ -284,7 +275,7 @@ export function GuestVotePage() {
           background: "rgba(124,181,24,0.12)", border: "2px solid var(--lime)",
           borderRadius: 16, padding: "14px 18px", marginBottom: 18, textAlign: "center",
         }}>
-          <strong>This plan is decided{winner ? ` — ${winner.name} won! 🎉` : "! 🎉"}</strong>
+          <strong>{winner ? t("guestVote.wonBanner", { name: winner.name }) : `${t("guestVote.planDecided")} 🎉`}</strong>
         </div>
       )}
 
@@ -294,17 +285,17 @@ export function GuestVotePage() {
           background: "rgba(14,140,140,0.1)", border: "2px solid var(--primary)",
           borderRadius: 16, padding: "12px 18px", marginBottom: 18, textAlign: "center",
         }}>
-          ✓ Vote counted! Tap another option to change it.
+          {t("guestVote.voteCounted")}
         </div>
       )}
       {isOpen && !justVoted && hasVoted && (
         <p style={{ textAlign: "center", color: "var(--ink2)", fontSize: 14, marginBottom: 16 }}>
-          You've voted — tap another option to change your pick.
+          {t("guestVote.youVoted")}
         </p>
       )}
       {isOpen && !hasVoted && (
         <p style={{ textAlign: "center", color: "var(--ink2)", fontSize: 15, marginBottom: 16 }}>
-          Tap your favorite — no account needed 👇
+          {t("guestVote.tapFavorite")}
         </p>
       )}
 
@@ -314,7 +305,7 @@ export function GuestVotePage() {
           type="text"
           value={guestName}
           onChange={(e) => setGuestName(e.target.value)}
-          placeholder="Your name (optional)"
+          placeholder={t("guestVote.namePlaceholder")}
           maxLength={60}
           style={{
             width: "100%", boxSizing: "border-box", padding: "11px 16px",
@@ -343,7 +334,7 @@ export function GuestVotePage() {
 
       {voteMutation.isError && (
         <p style={{ color: "var(--error, #c0392b)", fontSize: 14, textAlign: "center" }}>
-          Couldn't save your vote — try again.
+          {t("guestVote.couldntSaveVote")}
         </p>
       )}
 
@@ -357,28 +348,26 @@ export function GuestVotePage() {
             <>
               <div style={{ fontSize: 32, marginBottom: 8 }}>💬</div>
               <h2 style={{ margin: "0 0 6px", fontSize: 19, fontFamily: "'Sora', system-ui, sans-serif" }}>
-                Want a say in what wins?
+                {t("guestVote.wantASay")}
               </h2>
               <p style={{ color: "var(--ink2)", fontSize: 14, margin: "0 0 16px" }}>
-                Guest votes advise the group — members make the final call.
-                Create a free account to join {proposal.groupName} and make your vote count.
-                Your vote comes with you.
+                {t("guestVote.guestVotesAdvise", { groupName: proposal.groupName })}
               </p>
               <Link to="/signup" className="dn-btn dn-btn--primary" style={{ minWidth: 220 }}>
-                Create your free account
+                {t("guestVote.createFreeAccount")}
               </Link>
             </>
           ) : (
             <>
               <div style={{ fontSize: 32, marginBottom: 8 }}>✨</div>
               <h2 style={{ margin: "0 0 6px", fontSize: 19, fontFamily: "'Sora', system-ui, sans-serif" }}>
-                Plan your own night
+                {t("guestVote.planYourOwnNight")}
               </h2>
               <p style={{ color: "var(--ink2)", fontSize: 14, margin: "0 0 16px" }}>
-                Browse real events near you, build a plan, and let your people vote.
+                {t("guestVote.browseEvents")}
               </p>
               <Link to="/signup" className="dn-btn dn-btn--primary" style={{ minWidth: 220 }}>
-                Get started free →
+                {t("guestVote.getStartedFree")}
               </Link>
             </>
           )}
@@ -387,7 +376,7 @@ export function GuestVotePage() {
 
       {/* Footer branding */}
       <p style={{ textAlign: "center", color: "var(--ink2)", fontSize: 12, marginTop: 28 }}>
-        Made with <a href="https://togetherplans.app" style={{ color: "var(--primary)", fontWeight: 700 }}>TogetherPlans</a> — plan together, go together.
+        {t("guestVote.madeWith")}
       </p>
     </main>
   );

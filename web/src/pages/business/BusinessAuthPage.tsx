@@ -1,7 +1,6 @@
-// TODO i18n: instrument this file with useTranslation() hooks
-// All strings have translations in /public/locales/{en,es}/translation.json
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { businessApi } from '../../api/client';
 
 interface Props {
@@ -56,6 +55,7 @@ const styles: Record<string, React.CSSProperties> = {
 };
 
 export function BusinessAuthPage({ mode }: Props) {
+  const { t } = useTranslation();
   const [activeMode, setActiveMode] = useState<'login' | 'register'>(mode);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -84,7 +84,7 @@ export function BusinessAuthPage({ mode }: Props) {
       navigate('/business/dashboard');
     } catch (err: unknown) {
       const e2 = err as { response?: { data?: { error?: string } } };
-      setError(e2?.response?.data?.error || 'Login failed. Check your credentials.');
+      setError(e2?.response?.data?.error || t('business.loginFailed'));
     } finally {
       setLoading(false);
     }
@@ -101,7 +101,7 @@ export function BusinessAuthPage({ mode }: Props) {
       navigate('/business/dashboard');
     } catch (err: unknown) {
       const e2 = err as { response?: { data?: { error?: string } } };
-      setError(e2?.response?.data?.error || 'Registration failed. Please try again.');
+      setError(e2?.response?.data?.error || t('business.registrationFailed'));
     } finally {
       setLoading(false);
     }
@@ -121,11 +121,11 @@ export function BusinessAuthPage({ mode }: Props) {
 
         {activeMode === 'login' ? (
           <>
-            <h1 style={styles.title}>Welcome back</h1>
-            <p style={styles.sub}>Sign in to your business account</p>
+            <h1 style={styles.title}>{t('business.welcomeBack')}</h1>
+            <p style={styles.sub}>{t('business.signInToAccount')}</p>
             <form onSubmit={handleLogin}>
               <div style={styles.fieldGroup}>
-                <label style={styles.label}>Email address</label>
+                <label style={styles.label}>{t('business.emailAddress')}</label>
                 <input
                   type="email" required style={styles.input}
                   value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)}
@@ -133,7 +133,7 @@ export function BusinessAuthPage({ mode }: Props) {
                 />
               </div>
               <div style={styles.fieldGroup}>
-                <label style={styles.label}>Password</label>
+                <label style={styles.label}>{t('business.password')}</label>
                 <input
                   type="password" required style={styles.input}
                   value={loginPass} onChange={(e) => setLoginPass(e.target.value)}
@@ -141,45 +141,45 @@ export function BusinessAuthPage({ mode }: Props) {
                 />
               </div>
               <button type="submit" style={styles.btn} disabled={loading}>
-                {loading ? 'Signing in…' : 'Sign in →'}
+                {loading ? t('business.signingIn') : t('business.signIn')}
               </button>
             </form>
           </>
         ) : (
           <>
-            <h1 style={styles.title}>List your business</h1>
-            <p style={styles.sub}>Create your free business account</p>
+            <h1 style={styles.title}>{t('business.listYourBusiness')}</h1>
+            <p style={styles.sub}>{t('business.createFreeAccount')}</p>
             <form onSubmit={handleRegister}>
               <div style={styles.fieldGroup}>
-                <label style={styles.label}>Business name</label>
+                <label style={styles.label}>{t('business.businessName')}</label>
                 <input type="text" required style={styles.input} value={name} onChange={(e) => setName(e.target.value)} placeholder="The Sunset Rooftop" />
               </div>
               <div style={styles.fieldGroup}>
-                <label style={styles.label}>Category</label>
+                <label style={styles.label}>{t('business.category')}</label>
                 <select required style={{ ...styles.input, height: 44 }} value={category} onChange={(e) => setCategory(e.target.value)}>
                   {CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
                 </select>
               </div>
               <div style={styles.fieldGroup}>
-                <label style={styles.label}>Email address</label>
+                <label style={styles.label}>{t('business.emailAddress')}</label>
                 <input type="email" required style={styles.input} value={regEmail} onChange={(e) => setRegEmail(e.target.value)} placeholder="you@yourbusiness.com" />
               </div>
               <div style={styles.fieldGroup}>
-                <label style={styles.label}>Password</label>
+                <label style={styles.label}>{t('business.password')}</label>
                 <input type="password" required minLength={8} style={styles.input} value={regPass} onChange={(e) => setRegPass(e.target.value)} placeholder="8+ characters" />
               </div>
               <div style={styles.row}>
                 <div style={styles.fieldGroup}>
-                  <label style={styles.label}>City</label>
+                  <label style={styles.label}>{t('business.cityField')}</label>
                   <input type="text" required style={styles.input} value={city} onChange={(e) => setCity(e.target.value)} placeholder="Denver" />
                 </div>
                 <div style={styles.fieldGroup}>
-                  <label style={styles.label}>State</label>
+                  <label style={styles.label}>{t('business.stateField')}</label>
                   <input type="text" required style={styles.input} value={state} onChange={(e) => setState(e.target.value)} placeholder="CO" maxLength={2} />
                 </div>
               </div>
               <button type="submit" style={styles.btn} disabled={loading}>
-                {loading ? 'Creating account…' : 'Create free account →'}
+                {loading ? t('business.creating') : t('business.createFreeAccountBtn')}
               </button>
             </form>
           </>
@@ -187,22 +187,22 @@ export function BusinessAuthPage({ mode }: Props) {
 
         <div style={styles.toggle}>
           {activeMode === 'login' ? (
-            <>New business?{' '}
+            <>{t('business.newBusiness')}{' '}
               <button onClick={() => { setActiveMode('register'); setError(''); }} style={{ background: 'none', border: 'none', color: '#0E8C8C', fontWeight: 700, cursor: 'pointer', fontSize: 14 }}>
-                Create an account
+                {t('business.createAccount')}
               </button>
             </>
           ) : (
-            <>Already have an account?{' '}
+            <>{t('business.alreadyHaveAccount')}{' '}
               <button onClick={() => { setActiveMode('login'); setError(''); }} style={{ background: 'none', border: 'none', color: '#0E8C8C', fontWeight: 700, cursor: 'pointer', fontSize: 14 }}>
-                Sign in
+                {t('business.signIn').replace(' →', '')}
               </button>
             </>
           )}
         </div>
 
         <div style={{ textAlign: 'center', marginTop: 16 }}>
-          <Link to="/business" style={{ color: '#5D6B76', fontSize: 13, textDecoration: 'none' }}>← Back to business overview</Link>
+          <Link to="/business" style={{ color: '#5D6B76', fontSize: 13, textDecoration: 'none' }}>{t('business.backToOverview')}</Link>
         </div>
       </div>
     </div>

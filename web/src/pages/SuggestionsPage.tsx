@@ -1,7 +1,6 @@
-// TODO i18n: instrument this file with useTranslation() hooks
-// All strings have translations in /public/locales/{en,es}/translation.json
 import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { suggestionsApi } from "../api/client";
 import api from "../api/client";
@@ -540,6 +539,7 @@ function EventDetailModal({
 
 // ── Main Page ──────────────────────────────────────────────────────────────────
 export function SuggestionsPage() {
+  const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const categoryId = searchParams.get("category") ?? "";
   const radius = parseInt(searchParams.get("radius") ?? "25", 10) || 25;
@@ -731,7 +731,7 @@ export function SuggestionsPage() {
             gap: 8,
           }}>
             <span style={{ fontSize: 14, color: "var(--primary)", fontWeight: 500 }}>
-              You're browsing as a guest · Sign up free to save plans and vote with your partner
+              {t("suggestions.guestBanner")}
             </span>
             <a href="/signup" style={{
               background: "var(--primary)",
@@ -742,7 +742,7 @@ export function SuggestionsPage() {
               fontWeight: 700,
               textDecoration: "none",
             }}>
-              Sign up free →
+              {t("suggestions.signUpFree")}
             </a>
           </div>
         )}
@@ -769,7 +769,7 @@ export function SuggestionsPage() {
                     padding: 0,
                   }}
                 >
-                  back to my location ×
+                  {t("suggestions.backToMyLocation")}
                 </button>
               ) : !zipInputOpen ? (
                 <button
@@ -785,7 +785,7 @@ export function SuggestionsPage() {
                     textDecoration: "underline",
                   }}
                 >
-                  Change location
+                  {t("discover.changeLocation")}
                 </button>
               ) : null}
             </div>
@@ -793,7 +793,7 @@ export function SuggestionsPage() {
           {zipInputOpen && !zipActive && (
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 8, flexWrap: "wrap" }} data-testid="zip-override">
               <span style={{ fontSize: 13, color: "var(--ink2)" }}>
-                Planning a getaway? Search another area:
+                {t("suggestions.planningGetaway")}
               </span>
               <input
                 value={overrideZipDraft}
@@ -905,7 +905,7 @@ export function SuggestionsPage() {
         {tonightActive && geoError && !coords && !zip && (
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
             <span style={{ fontSize: 13, color: "var(--ink2)" }}>
-              Location blocked — enter a zip instead:
+              {t("suggestions.locationBlocked")}
             </span>
             <input
               value={zipDraft}
@@ -1048,7 +1048,7 @@ export function SuggestionsPage() {
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 24, flexWrap: "wrap" }}>
           {geoError && !zipActive && (
             <button className="dn-btn dn-btn--sm dn-btn--tonal" onClick={retryGeo}>
-              Retry location
+              {t("suggestions.retryLocation")}
             </button>
           )}
         </div>
@@ -1056,7 +1056,7 @@ export function SuggestionsPage() {
         {/* Day-trip copy nuance */}
         {radius === 150 && !isLoading && !isError && (
           <p style={{ fontSize: 13, color: "var(--ink2)", marginBottom: 16, fontWeight: 600 }} data-testid="daytrip-header">
-            Showing results within 150 mi — worth the drive 🚗
+            {t("suggestions.dayTripBanner")}
           </p>
         )}
 
@@ -1067,7 +1067,7 @@ export function SuggestionsPage() {
         )}
         {isError && (
           <div style={{ textAlign: "center", padding: "60px 0", color: "var(--error)" }}>
-            Failed to load suggestions.
+            {t("suggestions.failedToLoad")}
           </div>
         )}
 
@@ -1092,8 +1092,8 @@ export function SuggestionsPage() {
         {!isLoading && !isError && !weekendLoading && displayed.length === 0 && !showWeekendFallback && (
           <div style={{ textAlign: "center", padding: "60px 0", color: "var(--ink2)" }}>
             <div style={{ fontSize: 56, marginBottom: 16 }}>🧭</div>
-            <h2 style={{ marginBottom: 8 }}>Nothing here yet</h2>
-            <p style={{ color: "var(--ink2)" }}>Try a different category or wider radius.</p>
+            <h2 style={{ marginBottom: 8 }}>{t("suggestions.nothingHereYet")}</h2>
+            <p style={{ color: "var(--ink2)" }}>{t("suggestions.tryDifferent")}</p>
           </div>
         )}
 

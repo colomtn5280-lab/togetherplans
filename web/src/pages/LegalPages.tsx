@@ -1,6 +1,5 @@
-// TODO i18n: instrument this file with useTranslation() hooks
-// All strings have translations in /public/locales/{en,es}/translation.json
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import "./LegalPages.css";
 
@@ -12,11 +11,12 @@ import "./LegalPages.css";
    Effective date: August 2026
 ───────────────────────────────────────────────────────────── */
 export function PrivacyPolicyPage() {
+  const { t } = useTranslation();
   return (
     <div className="legal-page">
       <div className="legal-page__inner">
-        <Link to="/" className="legal-page__back">← Back to home</Link>
-        <h1>Privacy Policy</h1>
+        <Link to="/" className="legal-page__back">{t("legal.backToHome")}</Link>
+        <h1>{t("legal.privacyPolicy")}</h1>
         <p className="legal-page__effective">Effective date: August 1, 2026</p>
         <p>
           This Privacy Policy explains how <strong>DateMeUp LLC</strong>{" "}
@@ -56,8 +56,10 @@ export function PrivacyPolicyPage() {
           <li>To detect and prevent fraud, abuse, and security incidents.</li>
         </ul>
         <p>
-          We do <strong>not</strong> sell your personal data to third parties. We do not use your
-          data to serve targeted advertising.
+          We do not sell your personal data. We may use third-party advertising services (such as
+          Google AdSense and Google AdMob) that use cookies and advertising identifiers to serve
+          relevant ads. You may opt out of personalized advertising in your device settings or via
+          our Privacy Settings.
         </p>
 
         <h2>3. Third-Party Services</h2>
@@ -107,8 +109,8 @@ export function PrivacyPolicyPage() {
         <h2>6. Cookies and Local Storage</h2>
         <p>
           DateMeUp uses browser <code>localStorage</code> to store authentication tokens (JWT
-          access token and refresh token). We do not use advertising cookies or third-party tracking
-          cookies.
+          access token and refresh token). We use cookies and similar technologies, including
+          advertising cookies from third-party ad networks. See our Cookie Policy section for details.
         </p>
 
         <h2>7. Data Security</h2>
@@ -134,15 +136,29 @@ export function PrivacyPolicyPage() {
 
         <h2>10. Contact Us</h2>
         <p>
-          {/* TODO_REGISTERED_ADDRESS: Replace with full registered business address */}
           <strong>DateMeUp LLC</strong><br />
-          [TODO_REGISTERED_ADDRESS]<br />
+          8401 Mayland Dr #11956, Richmond, VA 23294, USA<br />
           Email: <a href="mailto:privacy@datemeup.app">privacy@datemeup.app</a>
         </p>
 
+        <h2>11. Advertising</h2>
+        <p>
+          We display ads served by third-party advertising networks including Google AdSense (web)
+          and Google AdMob (mobile apps). These services may collect and use your advertising
+          identifier (IDFA on iOS, AAID on Android), IP address, and usage data to serve ads
+          relevant to your interests. On iOS, we will ask for your permission before allowing
+          personalized advertising via the App Tracking Transparency prompt. You may opt out of
+          personalized ads at any time in Settings &gt; Privacy. When you opt out, you will still
+          see ads, but they will not be personalized to your interests. For more information, see
+          Google&rsquo;s Privacy Policy at{" "}
+          <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">
+            https://policies.google.com/privacy
+          </a>.
+        </p>
+
         <div className="legal-page__footer-links">
-          <Link to="/terms">Terms of Service</Link>
-          <Link to="/support">Support</Link>
+          <Link to="/terms">{t("legal.termsOfService")}</Link>
+          <Link to="/support">{t("legal.support")}</Link>
         </div>
       </div>
     </div>
@@ -154,11 +170,12 @@ export function PrivacyPolicyPage() {
    TODO (Jake): Fill in governing jurisdiction before launch.
 ───────────────────────────────────────────────────────────── */
 export function TermsPage() {
+  const { t } = useTranslation();
   return (
     <div className="legal-page">
       <div className="legal-page__inner">
-        <Link to="/" className="legal-page__back">← Back to home</Link>
-        <h1>Terms of Service</h1>
+        <Link to="/" className="legal-page__back">{t("legal.backToHome")}</Link>
+        <h1>{t("legal.termsOfService")}</h1>
         <p className="legal-page__effective">Effective date: August 1, 2026</p>
 
         <h2>1. Acceptance of Terms</h2>
@@ -270,8 +287,8 @@ export function TermsPage() {
         </p>
 
         <div className="legal-page__footer-links">
-          <Link to="/privacy">Privacy Policy</Link>
-          <Link to="/support">Support</Link>
+          <Link to="/privacy">{t("legal.privacyPolicy")}</Link>
+          <Link to="/support">{t("legal.support")}</Link>
         </div>
       </div>
     </div>
@@ -282,6 +299,7 @@ export function TermsPage() {
    Support Page
 ───────────────────────────────────────────────────────────── */
 export function SupportPage() {
+  const { t } = useTranslation();
   const faqs: { q: string; a: string }[] = [
     {
       q: "How do I invite someone to a group?",
@@ -314,16 +332,16 @@ export function SupportPage() {
   return (
     <div className="legal-page">
       <div className="legal-page__inner">
-        <Link to="/" className="legal-page__back">← Back to home</Link>
-        <h1>Support</h1>
+        <Link to="/" className="legal-page__back">{t("legal.backToHome")}</Link>
+        <h1>{t("legal.support")}</h1>
         <p className="legal-page__lead">
-          Need help? We&rsquo;re here for you.
+          {t("legal.needHelp")}
         </p>
 
         <div className="support-contact">
           <div className="support-contact__card">
             <div className="support-contact__icon">✉️</div>
-            <h2>Email support</h2>
+            <h2>{t("legal.emailSupport")}</h2>
             <p>
               Our support team typically responds within 1 business day.
             </p>
@@ -336,7 +354,7 @@ export function SupportPage() {
           </div>
         </div>
 
-        <h2>Frequently asked questions</h2>
+        <h2>{t("legal.faqTitle")}</h2>
         <div className="support-faq">
           {faqs.map((faq, i) => (
             <div key={i} className="support-faq__item">
@@ -359,10 +377,10 @@ export function SupportPage() {
         </div>
 
         <div className="support-legal-links">
-          <p>Looking for our policies?</p>
+          <p>{t("legal.lookingForPolicies")}</p>
           <div className="legal-page__footer-links">
-            <Link to="/privacy">Privacy Policy</Link>
-            <Link to="/terms">Terms of Service</Link>
+            <Link to="/privacy">{t("legal.privacyPolicy")}</Link>
+            <Link to="/terms">{t("legal.termsOfService")}</Link>
           </div>
         </div>
       </div>

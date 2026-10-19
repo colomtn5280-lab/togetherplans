@@ -1,7 +1,6 @@
-// TODO i18n: instrument this file with useTranslation() hooks
-// All strings have translations in /public/locales/{en,es}/translation.json
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { AppNav } from "../components/AppNav";
 import { shareCardsApi } from "../api/client";
@@ -76,6 +75,7 @@ function VoteBar({
 // ── ShareCardPage ─────────────────────────────────────────────────────────────
 
 export function ShareCardPage() {
+  const { t } = useTranslation();
   const { proposalId } = useParams<{ proposalId: string }>();
   const [copied, setCopied] = useState(false);
 
@@ -114,7 +114,7 @@ export function ShareCardPage() {
     <>
       <AppNav />
       <main style={{ padding: "40px var(--gutter)", textAlign: "center" }}>
-        <p style={{ color: "var(--ink2)" }}>Building your share card…</p>
+        <p style={{ color: "var(--ink2)" }}>{t("shareCard.building")}</p>
       </main>
     </>
   );
@@ -123,9 +123,9 @@ export function ShareCardPage() {
     <>
       <AppNav />
       <main style={{ padding: "40px var(--gutter)", textAlign: "center" }}>
-        <p style={{ color: "var(--error)" }}>Couldn't load share card.</p>
+        <p style={{ color: "var(--error)" }}>{t("shareCard.couldntLoad")}</p>
         <Link to="/dashboard" style={{ color: "var(--primary)", marginTop: 12, display: "block" }}>
-          ← Back to dashboard
+          {t("shareCard.backToDashboard")}
         </Link>
       </main>
     </>
@@ -148,7 +148,7 @@ export function ShareCardPage() {
             to={`/proposals/${card.proposalId}`}
             style={{ color: "var(--ink2)", fontSize: 13, fontFamily: "var(--font-display)", fontWeight: 700 }}
           >
-            ← Back to proposal
+            {t("shareCard.backToProposal")}
           </Link>
         </div>
 
@@ -180,7 +180,7 @@ export function ShareCardPage() {
               }} />
 
               <span className="dn-sticker dn-sticker--lime" style={{ marginBottom: 20, display: "inline-block" }}>
-                DECIDED 🎉
+                {t("shareCard.decided")}
               </span>
 
               <div style={{ fontSize: 64, marginBottom: 12 }}>{emoji}</div>
@@ -246,7 +246,7 @@ export function ShareCardPage() {
             {/* Vote breakdown */}
             <div className="dn-card">
               <h3 style={{ marginBottom: 20, fontSize: 15, color: "var(--ink2)", textTransform: "uppercase", letterSpacing: "0.06em" }}>
-                How the group voted
+                {t("shareCard.howGroupVoted")}
               </h3>
               {card.allOptions.map((opt) => (
                 <VoteBar
@@ -267,9 +267,9 @@ export function ShareCardPage() {
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             {/* Share URL */}
             <div className="dn-card dn-card--alt1">
-              <h3 style={{ marginBottom: 12, fontSize: 15 }}>Share this plan</h3>
+              <h3 style={{ marginBottom: 12, fontSize: 15 }}>{t("shareCard.shareThisPlan")}</h3>
               <p style={{ color: "var(--ink2)", fontSize: 13, marginBottom: 16 }}>
-                Anyone with this link can view the card — no account needed.
+                {t("shareCard.anyoneCanView")}
               </p>
 
               {/* URL box */}
@@ -294,8 +294,8 @@ export function ShareCardPage() {
                   style={{ flex: 1 }}
                 >
                   {typeof navigator !== "undefined" && "share" in navigator
-                    ? "📤 Share"
-                    : copied ? "✓ Copied!" : "📋 Copy link"}
+                    ? t("shareCard.share")
+                    : copied ? t("shareCard.copied") : t("shareCard.copyLink")}
                 </button>
               </div>
             </div>
@@ -303,7 +303,7 @@ export function ShareCardPage() {
             {/* OG preview */}
             <div className="dn-card dn-card--alt2">
               <h3 style={{ marginBottom: 12, fontSize: 14, color: "var(--ink2)" }}>
-                Preview (how it looks when shared)
+                {t("shareCard.preview")}
               </h3>
               <div style={{
                 border: "1px solid var(--line)",
@@ -345,7 +345,7 @@ export function ShareCardPage() {
                 className="dn-btn dn-btn--secondary"
                 style={{ textAlign: "center", textDecoration: "none" }}
               >
-                🎟 Get tickets
+                {t("shareCard.getTickets")}
               </a>
             )}
           </div>
@@ -367,6 +367,7 @@ export function ShareCardPage() {
 // Route: /share/:shareToken  — resolves token → card and shows read-only view
 
 export function PublicSharePage() {
+  const { t } = useTranslation();
   const { shareToken } = useParams<{ shareToken: string }>();
   const [copied, setCopied] = useState(false);
 
@@ -389,16 +390,16 @@ export function PublicSharePage() {
 
   if (isLoading) return (
     <main style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh" }}>
-      <p style={{ color: "var(--ink2)" }}>Loading…</p>
+      <p style={{ color: "var(--ink2)" }}>{t("common.loading")}</p>
     </main>
   );
 
   if (isError || !card) return (
     <main style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "100vh", gap: 16 }}>
       <div style={{ fontSize: 64 }}>🔍</div>
-      <h2>Share card not found</h2>
-      <p style={{ color: "var(--ink2)" }}>This link may have expired or been removed.</p>
-      <a href="/" className="dn-btn">Go to TogetherPlans</a>
+      <h2>{t("shareCard.notFound")}</h2>
+      <p style={{ color: "var(--ink2)" }}>{t("shareCard.linkExpired")}</p>
+      <a href="/" className="dn-btn">{t("shareCard.goToApp")}</a>
     </main>
   );
 
@@ -423,7 +424,7 @@ export function PublicSharePage() {
           borderRadius: "50%", background: "var(--lime)", opacity: 0.15,
         }} />
         <span className="dn-sticker dn-sticker--lime" style={{ marginBottom: 20, display: "inline-block" }}>
-          DECIDED 🎉
+          {t("shareCard.decided")}
         </span>
         <div style={{ fontSize: 72, marginBottom: 16 }}>{emoji}</div>
         <h1 style={{ color: "#fff", fontSize: 28, marginBottom: 8 }}>{winner?.name ?? card.title}</h1>
@@ -436,7 +437,7 @@ export function PublicSharePage() {
       {/* Vote breakdown */}
       <div className="dn-card" style={{ marginBottom: 20 }}>
         <h3 style={{ marginBottom: 16, fontSize: 14, color: "var(--ink2)", textTransform: "uppercase", letterSpacing: "0.06em" }}>
-          How the group voted
+          {t("shareCard.howGroupVoted")}
         </h3>
         {card.allOptions.map((opt) => (
           <VoteBar
@@ -452,12 +453,12 @@ export function PublicSharePage() {
       {/* CTA */}
       <div style={{ textAlign: "center" }}>
         <p style={{ color: "var(--ink2)", fontSize: 14, marginBottom: 16 }}>
-          Planned with TogetherPlans — the app for couples & friends
+          {t("shareCard.plannedWith")}
         </p>
         <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
-          <a href="https://togetherplans.app" className="dn-btn">Get DateNight →</a>
+          <a href="https://togetherplans.app" className="dn-btn">{t("shareCard.getDateNight")}</a>
           <button className="dn-btn dn-btn--secondary" onClick={handleCopy}>
-            {copied ? "✓ Copied!" : "📋 Copy link"}
+            {copied ? t("shareCard.copied") : t("shareCard.copyLink")}
           </button>
         </div>
       </div>

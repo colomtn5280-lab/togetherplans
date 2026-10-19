@@ -1,7 +1,6 @@
-// TODO i18n: instrument this file with useTranslation() hooks
-// All strings have translations in /public/locales/{en,es}/translation.json
 import { useState, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { businessApi } from '../../api/client';
 import type { BusinessProfile } from '../../hooks/useBusinessAuth';
 
@@ -61,6 +60,7 @@ const s: Record<string, React.CSSProperties> = {
 };
 
 export function BusinessProfilePage() {
+  const { t } = useTranslation();
   const { business } = useOutletContext<OutletCtx>();
 
   const [form, setForm] = useState({
@@ -167,9 +167,9 @@ export function BusinessProfilePage() {
     setSuccess('');
     try {
       await businessApi.updateMe(form);
-      setSuccess('Profile saved successfully!');
+      setSuccess(t('business.profileSaved'));
     } catch {
-      setError('Failed to save. Please try again.');
+      setError(t('business.failedToSave'));
     } finally {
       setSaving(false);
     }
@@ -177,8 +177,8 @@ export function BusinessProfilePage() {
 
   return (
     <div>
-      <h1 style={s.title}>Business Profile</h1>
-      <p style={s.sub}>Update your listing details — changes appear in DateMeUp suggestions.</p>
+      <h1 style={s.title}>{t('business.profileTitle')}</h1>
+      <p style={s.sub}>{t('business.profileDesc')}</p>
 
       {success && <div style={s.success}>{success}</div>}
       {error && <div style={s.error}>{error}</div>}
@@ -186,7 +186,7 @@ export function BusinessProfilePage() {
       <form onSubmit={handleSave}>
         {/* Basic Info */}
         <div style={s.section}>
-          <div style={s.sectionTitle}>Basic Information</div>
+          <div style={s.sectionTitle}>{t('business.basicInfo')}</div>
           <div style={s.fieldGroup}>
             <label style={s.label}>Business name</label>
             <input type="text" required style={s.input} value={form.name} onChange={(e) => set('name', e.target.value)} />
@@ -205,7 +205,7 @@ export function BusinessProfilePage() {
 
         {/* Location */}
         <div style={s.section}>
-          <div style={s.sectionTitle}>Location</div>
+          <div style={s.sectionTitle}>{t('business.location')}</div>
           <div style={s.fieldGroup}>
             <label style={s.label}>Street address</label>
             <input type="text" style={s.input} value={form.address} onChange={(e) => set('address', e.target.value)} />
@@ -228,7 +228,7 @@ export function BusinessProfilePage() {
 
         {/* Contact */}
         <div style={s.section}>
-          <div style={s.sectionTitle}>Contact</div>
+          <div style={s.sectionTitle}>{t('business.contact')}</div>
           <div style={s.grid2}>
             <div style={s.fieldGroup}>
               <label style={s.label}>Phone</label>
@@ -281,9 +281,9 @@ export function BusinessProfilePage() {
 
         {/* Mood Tags */}
         <div style={s.section}>
-          <div style={s.sectionTitle}>Mood Tags</div>
+          <div style={s.sectionTitle}>{t('business.moodTags')}</div>
           <p style={{ fontSize: 13, color: '#5D6B76', marginBottom: 16 }}>
-            Select moods that describe your venue. This helps match you to the right couples.
+            {t('business.moodTagsDesc')}
           </p>
           <div>
             {MOOD_TAGS.map((tag) => {
@@ -308,7 +308,7 @@ export function BusinessProfilePage() {
         </div>
 
         <button type="submit" style={s.saveBtn} disabled={saving}>
-          {saving ? 'Saving…' : 'Save profile'}
+          {saving ? t('business.saving') : t('business.saveProfile')}
         </button>
       </form>
     </div>

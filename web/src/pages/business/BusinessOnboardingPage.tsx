@@ -1,7 +1,6 @@
-// TODO i18n: instrument this file with useTranslation() hooks
-// All strings have translations in /public/locales/{en,es}/translation.json
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { businessApi } from '../../api/client';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
@@ -150,6 +149,7 @@ const s: Record<string, React.CSSProperties> = {
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export function BusinessOnboardingPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [saving, setSaving] = useState(false);
@@ -347,8 +347,8 @@ export function BusinessOnboardingPage() {
 
   const renderStep1 = () => (
     <div style={s.card}>
-      <h2 style={s.stepTitle}>Tell us about your business</h2>
-      <p style={s.stepSub}>This information appears on your listing in TogetherPlans.</p>
+      <h2 style={s.stepTitle}>{t('business.tellAboutBusiness')}</h2>
+      <p style={s.stepSub}>{t('business.step1Desc')}</p>
 
       {successMsg && <div style={s.success}>{successMsg}</div>}
       {error && <div style={s.error}>{error}</div>}
@@ -435,7 +435,7 @@ export function BusinessOnboardingPage() {
       <div style={s.navRow}>
         <div />
         <button style={s.btnPrimary} onClick={saveStep1} disabled={saving || !step1.name}>
-          {saving ? 'Saving…' : 'Next — Service Area →'}
+          {saving ? t('business.saving') : t('business.nextServiceArea')}
         </button>
       </div>
     </div>
@@ -443,8 +443,8 @@ export function BusinessOnboardingPage() {
 
   const renderStep2 = () => (
     <div style={s.card}>
-      <h2 style={s.stepTitle}>Service area & category</h2>
-      <p style={s.stepSub}>Tell us where you serve and which TogetherPlans category fits you best.</p>
+      <h2 style={s.stepTitle}>{t('business.serviceAreaCategory')}</h2>
+      <p style={s.stepSub}>{t('business.step2Desc')}</p>
 
       {error && <div style={s.error}>{error}</div>}
 
@@ -495,9 +495,9 @@ export function BusinessOnboardingPage() {
       </div>
 
       <div style={s.navRow}>
-        <button style={s.btnSecondary} onClick={() => setStep(1)}>← Back</button>
+        <button style={s.btnSecondary} onClick={() => setStep(1)}>{t('common.back')}</button>
         <button style={s.btnPrimary} onClick={saveStep2} disabled={saving || !step2.featuredCategory}>
-          {saving ? 'Saving…' : 'Next — Photos →'}
+          {saving ? t('business.saving') : t('business.nextPhotos')}
         </button>
       </div>
     </div>
@@ -505,8 +505,8 @@ export function BusinessOnboardingPage() {
 
   const renderStep3 = () => (
     <div style={s.card}>
-      <h2 style={s.stepTitle}>Photos & branding</h2>
-      <p style={s.stepSub}>Your logo appears on your listing card. Your hero image is shown when users tap your listing.</p>
+      <h2 style={s.stepTitle}>{t('business.photoBranding')}</h2>
+      <p style={s.stepSub}>{t('business.step3Desc')}</p>
 
       {error && <div style={s.error}>{error}</div>}
 
@@ -575,9 +575,9 @@ export function BusinessOnboardingPage() {
       </div>
 
       <div style={s.navRow}>
-        <button style={s.btnSecondary} onClick={() => setStep(2)}>← Back</button>
+        <button style={s.btnSecondary} onClick={() => setStep(2)}>{t('common.back')}</button>
         <button style={s.btnPrimary} onClick={saveStep3} disabled={saving}>
-          {saving ? 'Saving…' : 'Next — Platform IDs →'}
+          {saving ? t('business.saving') : t('business.nextPlatformIds')}
         </button>
       </div>
     </div>
@@ -585,8 +585,8 @@ export function BusinessOnboardingPage() {
 
   const renderStep4 = () => (
     <div style={s.card}>
-      <h2 style={s.stepTitle}>Platform presence</h2>
-      <p style={s.stepSub}>Enter your IDs on these platforms and we will always include your events and venue in TogetherPlans searches. All fields are optional.</p>
+      <h2 style={s.stepTitle}>{t('business.platformPresence')}</h2>
+      <p style={s.stepSub}>{t('business.step4Desc')}</p>
 
       {error && <div style={s.error}>{error}</div>}
 
@@ -625,11 +625,11 @@ export function BusinessOnboardingPage() {
       ))}
 
       <div style={s.navRow}>
-        <button style={s.btnSecondary} onClick={() => setStep(3)}>← Back</button>
+        <button style={s.btnSecondary} onClick={() => setStep(3)}>{t('common.back')}</button>
         <div style={{ display: 'flex', gap: 12 }}>
-          <button style={s.btnSecondary} onClick={() => setStep(5)}>Skip</button>
+          <button style={s.btnSecondary} onClick={() => setStep(5)}>{t('business.skip')}</button>
           <button style={s.btnPrimary} onClick={saveStep4} disabled={saving}>
-            {saving ? 'Saving…' : 'Next — Choose Plan →'}
+            {saving ? t('business.saving') : t('business.nextChoosePlan')}
           </button>
         </div>
       </div>
@@ -644,8 +644,8 @@ export function BusinessOnboardingPage() {
 
     return (
       <div style={s.card}>
-        <h2 style={s.stepTitle}>Choose your visibility</h2>
-        <p style={s.stepSub}>Pick the plan that fits your growth goals. Upgrade or cancel anytime.</p>
+      <h2 style={s.stepTitle}>{t('business.chooseVisibility')}</h2>
+      <p style={s.stepSub}>{t('business.step5Desc')}</p>
 
         {error && <div style={s.error}>{error}</div>}
 
@@ -721,7 +721,7 @@ export function BusinessOnboardingPage() {
               onClick={() => handleSubscribe(billingCycle === 'monthly' ? 'featured_monthly' : 'featured_annual')}
               disabled={saving}
             >
-              {saving ? 'Redirecting…' : 'Subscribe — Featured'}
+              {saving ? t('business.redirecting') : t('business.subscribeFeatured')}
             </button>
           </div>
 
@@ -754,19 +754,19 @@ export function BusinessOnboardingPage() {
               onClick={() => handleSubscribe(billingCycle === 'monthly' ? 'premium_monthly' : 'premium_annual')}
               disabled={saving}
             >
-              {saving ? 'Redirecting…' : 'Subscribe — Premium'}
+              {saving ? t('business.redirecting') : t('business.subscribePremium')}
             </button>
           </div>
         </div>
 
         <p style={{ textAlign: 'center', fontSize: 13, color: '#5D6B76', marginBottom: 28 }}>
-          You can upgrade, downgrade, or cancel anytime from your dashboard.
+          {t('business.upgradeDowngradeAnytime')}
         </p>
 
         <div style={s.navRow}>
-          <button style={s.btnSecondary} onClick={() => setStep(4)}>← Back</button>
+          <button style={s.btnSecondary} onClick={() => setStep(4)}>{t('common.back')}</button>
           <button style={s.btnPrimary} onClick={() => navigate('/business/dashboard')}>
-            Go to Dashboard →
+            {t('business.goToDashboard')}
           </button>
         </div>
       </div>
@@ -789,7 +789,7 @@ export function BusinessOnboardingPage() {
         <ProgressDots />
 
         <div style={{ textAlign: 'center', marginBottom: 12, fontSize: 13, color: '#5D6B76', fontFamily: "'Sora', sans-serif", fontWeight: 600 }}>
-          Step {step} of {TOTAL_STEPS}
+          {t('business.stepOf', { step, total: TOTAL_STEPS })}
         </div>
 
         {step === 1 && renderStep1()}

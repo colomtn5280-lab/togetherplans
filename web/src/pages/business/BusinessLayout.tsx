@@ -1,7 +1,6 @@
-// TODO i18n: instrument this file with useTranslation() hooks
-// All strings have translations in /public/locales/{en,es}/translation.json
 import React from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useBusinessAuth } from '../../hooks/useBusinessAuth';
 
 const bz: Record<string, React.CSSProperties> = {
@@ -22,20 +21,21 @@ const bz: Record<string, React.CSSProperties> = {
 };
 
 const navItems = [
-  { to: '/business/dashboard', label: 'Dashboard', icon: '📊' },
-  { to: '/business/profile', label: 'Profile', icon: '🏢' },
-  { to: '/business/listings', label: 'Listings', icon: '📋' },
-  { to: '/business/analytics', label: 'Analytics', icon: '📈' },
+  { to: '/business/dashboard', label: 'navDashboard', icon: '📊' },
+  { to: '/business/profile', label: 'profileNav', icon: '🏢' },
+  { to: '/business/listings', label: 'listingsNav', icon: '📋' },
+  { to: '/business/analytics', label: 'analytics', icon: '📈' },
 ];
 
 export function BusinessLayout() {
+  const { t } = useTranslation();
   const { business, loading, signOut } = useBusinessAuth();
   const navigate = useNavigate();
 
   if (loading) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
-        <div style={{ fontFamily: "'Sora', sans-serif", color: '#0E8C8C', fontSize: 18 }}>Loading…</div>
+        <div style={{ fontFamily: "'Sora', sans-serif", color: '#0E8C8C', fontSize: 18 }}>{t('business.loading')}</div>
       </div>
     );
   }
@@ -56,7 +56,7 @@ export function BusinessLayout() {
 
         {business && (
           <div style={{ padding: '12px 20px', borderBottom: '1px solid #DDE3E8' }}>
-            <div style={{ fontSize: 13, color: '#5D6B76' }}>Signed in as</div>
+            <div style={{ fontSize: 13, color: '#5D6B76' }}>{t('business.signedInAs')}</div>
             <div style={{ fontSize: 14, fontWeight: 600, color: '#101820', fontFamily: "'Sora', sans-serif" }}>
               {business.name}
             </div>
@@ -86,7 +86,7 @@ export function BusinessLayout() {
               })}
             >
               <span style={{ fontSize: 16 }}>{item.icon}</span>
-              {item.label}
+              {t(`business.${item.label}`)}
             </NavLink>
           ))}
 
@@ -96,7 +96,7 @@ export function BusinessLayout() {
             color: '#5D6B76', cursor: 'default', marginTop: 4,
           }}>
             <span style={{ fontSize: 16 }}>💳</span>
-            Billing <span style={{ fontSize: 10, marginLeft: 4, color: '#aaa' }}>(soon)</span>
+            Billing <span style={{ fontSize: 10, marginLeft: 4, color: '#aaa' }}>{t('business.billingSoon')}</span>
           </div>
         </nav>
 
@@ -110,7 +110,7 @@ export function BusinessLayout() {
             }}
           >
             <span style={{ fontSize: 16 }}>🚪</span>
-            Sign out
+            {t('business.signOut')}
           </button>
         </div>
       </aside>

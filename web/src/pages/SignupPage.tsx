@@ -1,5 +1,3 @@
-// TODO i18n: instrument this file with useTranslation() hooks
-// All strings have translations in /public/locales/{en,es}/translation.json
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -7,6 +5,7 @@ import { z } from "zod";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { useGoogleLogin } from "@react-oauth/google";
+import { useTranslation } from "react-i18next";
 import { authApi } from "../api/client";
 import { useAuthStore } from "../store/auth.store";
 import type { SignupResponse } from "../types";
@@ -52,6 +51,7 @@ declare global {
 }
 
 export function SignupPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const setAuth = useAuthStore((s) => s.setAuth);
@@ -262,7 +262,7 @@ export function SignupPage() {
         </div>
 
         <div style={{ textAlign: "center", marginBottom: 24 }}>
-          <h2 style={{ display: "inline", fontSize: 26 }}>Create your account </h2>
+          <h2 style={{ display: "inline", fontSize: 26 }}>{t("auth.createAccount")} </h2>
           <span className="dn-sticker dn-sticker--lime" style={{ verticalAlign: "middle" }}>free</span>
         </div>
 
@@ -270,7 +270,7 @@ export function SignupPage() {
           {/* Name row */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
             <div>
-              <label htmlFor="firstName" style={labelStyle}>First name</label>
+              <label htmlFor="firstName" style={labelStyle}>{t("auth.firstName")}</label>
               <input
                 id="firstName"
                 type="text"
@@ -285,7 +285,7 @@ export function SignupPage() {
               )}
             </div>
             <div>
-              <label htmlFor="lastName" style={labelStyle}>Last name</label>
+              <label htmlFor="lastName" style={labelStyle}>{t("auth.lastName")}</label>
               <input
                 id="lastName"
                 type="text"
@@ -297,7 +297,7 @@ export function SignupPage() {
           </div>
 
           <div>
-            <label htmlFor="email" style={labelStyle}>Email</label>
+            <label htmlFor="email" style={labelStyle}>{t("auth.email")}</label>
             <input
               id="email"
               type="email"
@@ -314,7 +314,7 @@ export function SignupPage() {
           </div>
 
           <div>
-            <label htmlFor="password" style={labelStyle}>Password</label>
+            <label htmlFor="password" style={labelStyle}>{t("auth.password")}</label>
             <input
               id="password"
               type="password"
@@ -331,7 +331,7 @@ export function SignupPage() {
           </div>
 
           <div>
-            <label htmlFor="confirmPassword" style={labelStyle}>Confirm password</label>
+            <label htmlFor="confirmPassword" style={labelStyle}>{t("auth.confirmPassword")}</label>
             <input
               id="confirmPassword"
               type="password"
@@ -371,7 +371,7 @@ export function SignupPage() {
             disabled={isSubmitting || mutation.isPending}
             style={{ width: "100%", marginTop: 8 }}
           >
-            {mutation.isPending ? "Creating account…" : "Create account →"}
+            {mutation.isPending ? t("auth.creatingAccount") : t("auth.createAccountArrow")}
           </button>
         </form>
 
@@ -410,7 +410,7 @@ export function SignupPage() {
               <path fill="#FBBC05" d="M3.964 10.707c-.18-.54-.282-1.117-.282-1.707s.102-1.167.282-1.707V4.961H.957C.347 6.174 0 7.548 0 9s.348 2.826.957 4.039l3.007-2.332z"/>
               <path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.961L3.964 7.293C4.672 5.166 6.656 3.58 9 3.58z"/>
             </svg>
-            Continue with Google
+            {t("auth.continueWithGoogle")}
           </button>
 
           {/* or divider between Google and Facebook */}
@@ -444,7 +444,7 @@ export function SignupPage() {
             <svg width="20" height="20" viewBox="0 0 24 24" fill="white" aria-hidden="true">
               <path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.236 2.686.236v2.97h-1.513c-1.491 0-1.956.93-1.956 1.886v2.268h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/>
             </svg>
-            Sign up with Facebook
+            {t("auth.signUpWithFacebook")}
           </button>
 
           {/* Apple — requires VITE_APPLE_SERVICE_ID configured by Jake */}
@@ -472,7 +472,7 @@ export function SignupPage() {
               <svg width="18" height="20" viewBox="0 0 814 1000" fill="white" aria-hidden="true">
                 <path d="M788.1 340.9c-5.8 4.5-108.2 62.2-108.2 190.5 0 148.4 130.3 200.9 134.2 202.2-.6 3.2-20.7 71.9-68.7 141.9-42.8 61.6-87.5 123.1-155.5 123.1s-85.5-39.5-164-39.5c-76 0-103.7 40.8-165.9 40.8s-105-42.4-148.3-107.3C46.8 793.7 0 663.6 0 542.5C0 285.8 199.3 146 395.6 146c99.2 0 181.9 66.6 244.4 66.6 60.5 0 155.3-70.4 270.2-70.4zM574.4 0C617.7 0 720.6 28.5 790.9 120.5c-3.2 3.2-76 44.2-76 148.4 0 89.8 67.5 141.2 68.7 142.5-1.3 3.9-24.1 81.2-111.7 116.6-14.1 5.8-46.2 16-84.5 16-57.3 0-108.2-32.3-166.5-32.3-54.5 0-111.7 32.3-165.9 32.3-3.2 0-22.7-.6-33.3-1.3z"/>
               </svg>
-              Sign up with Apple
+              {t("auth.signUpWithApple")}
             </button>
           )}
 
@@ -499,9 +499,9 @@ export function SignupPage() {
 
         <div style={{ marginTop: 24, textAlign: "center" }}>
           <span style={{ fontSize: 14, color: "var(--ink2)" }}>
-            Already have an account?{" "}
+            {t("auth.hasAccount")}{" "}
             <Link to="/login" style={{ color: "var(--primary)", fontWeight: 700 }}>
-              Log in →
+              {t("auth.logInArrow")}
             </Link>
           </span>
         </div>

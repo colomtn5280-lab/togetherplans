@@ -1,7 +1,6 @@
-// TODO i18n: instrument this file with useTranslation() hooks
-// All strings have translations in /public/locales/{en,es}/translation.json
 import React, { useState, useRef } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { inviteCardsApi } from "../api/client";
 import { CARD_HTML, CARD_SHARED_CSS, CARD_NAMES } from "../constants/inviteCardTemplates";
@@ -106,6 +105,7 @@ function CardPreview({ templateId, size = "thumb" }: { templateId: string; size?
 
 // ── Main Page ───────────────────────────────────────────────────────────────
 export function InviteCardPage() {
+  const { t } = useTranslation();
   const { proposalId } = useParams<{ proposalId: string }>();
   const navigate = useNavigate();
 
@@ -175,15 +175,15 @@ export function InviteCardPage() {
               to={`/proposals/${proposalId}`}
               style={{ color: "var(--ink2)", fontSize: 14, textDecoration: "none", fontWeight: 600 }}
             >
-              ← Back to proposal
+              {t("inviteCard.backToProposal")}
             </Link>
           </div>
 
           <h1 style={{ margin: "16px 0 6px", fontSize: 28, fontFamily: "var(--font-display)" }}>
-            Pick an invite card
+            {t("inviteCard.title")}
           </h1>
           <p style={{ margin: "0 0 20px", color: "var(--ink2)", fontSize: 15 }}>
-            {templates.length} designs — each personalised with your plan details.
+            {t("inviteCard.designs", { count: templates.length })}
           </p>
 
           {/* Category filter tabs */}
@@ -202,7 +202,7 @@ export function InviteCardPage() {
 
           {isLoading ? (
             <div style={{ textAlign: "center", padding: "60px 0", color: "var(--ink2)" }}>
-              Loading card designs…
+              {t("inviteCard.loadingDesigns")}
             </div>
           ) : (
             <div
@@ -280,7 +280,7 @@ export function InviteCardPage() {
                 color: "var(--ink2)", fontSize: 14, fontWeight: 600,
               }}
             >
-              {saveMutation.isPending ? "Saving…" : "Skip this step →"}
+              {saveMutation.isPending ? t("inviteCard.saving") : t("inviteCard.skip")}
             </button>
           </div>
 
@@ -303,12 +303,12 @@ export function InviteCardPage() {
                 color: "var(--ink2)", fontSize: 14, fontWeight: 600, padding: 0,
               }}
             >
-              ← Change template
+              {t("inviteCard.changeTemplate")}
             </button>
           </div>
 
           <h1 style={{ margin: "0 0 24px", fontSize: 28, fontFamily: "var(--font-display)" }}>
-            Customise your card
+            {t("inviteCard.customise")}
           </h1>
 
           <div style={{ display: "flex", gap: 40, alignItems: "flex-start", flexWrap: "wrap" }}>
@@ -333,8 +333,8 @@ export function InviteCardPage() {
               {/* Note */}
               <div className="dn-card" style={{ marginBottom: 16, padding: 20 }}>
                 <label htmlFor="card-note" style={{ display: "block", fontWeight: 700, marginBottom: 8, fontSize: 14 }}>
-                  Add a personal note{" "}
-                  <span style={{ color: "var(--ink2)", fontWeight: 400 }}>(optional)</span>
+                  {t("inviteCard.addPersonalNote")}{" "}
+                  <span style={{ color: "var(--ink2)", fontWeight: 400 }}>({t("common.cancel").toLowerCase() === "cancel" ? "optional" : "opcional"})</span>
                 </label>
                 <textarea
                   id="card-note"
@@ -354,8 +354,8 @@ export function InviteCardPage() {
               {/* Photo */}
               <div className="dn-card" style={{ marginBottom: 24, padding: 20 }}>
                 <label style={{ display: "block", fontWeight: 700, marginBottom: 12, fontSize: 14 }}>
-                  Add a photo{" "}
-                  <span style={{ color: "var(--ink2)", fontWeight: 400 }}>(optional)</span>
+                  {t("inviteCard.addPhoto")}{" "}
+                  <span style={{ color: "var(--ink2)", fontWeight: 400 }}>({t("common.cancel").toLowerCase() === "cancel" ? "optional" : "opcional"})</span>
                 </label>
                 {photoPreview ? (
                   <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
@@ -369,16 +369,16 @@ export function InviteCardPage() {
                       onClick={() => { setPhoto(null); setPhotoPreview(null); if (fileInputRef.current) fileInputRef.current.value = ""; }}
                       style={{ height: 36, fontSize: 13 }}
                     >
-                      Remove
+                      {t("inviteCard.remove")}
                     </button>
                   </div>
                 ) : (
                   <button className="dn-btn dn-btn--secondary" onClick={() => fileInputRef.current?.click()} style={{ height: 40 }}>
-                    📷 Choose photo
+                    {t("inviteCard.choosePhoto")}
                   </button>
                 )}
                 <input ref={fileInputRef} type="file" accept="image/*" style={{ display: "none" }} onChange={handlePhotoChange} />
-                <p style={{ margin: "8px 0 0", fontSize: 12, color: "var(--ink2)" }}>Max 20 MB</p>
+                <p style={{ margin: "8px 0 0", fontSize: 12, color: "var(--ink2)" }}>{t("inviteCard.maxPhotoSize")}</p>
               </div>
 
               {/* CTA */}
@@ -388,7 +388,7 @@ export function InviteCardPage() {
                 disabled={saveMutation.isPending}
                 style={{ width: "100%" }}
               >
-                {saveMutation.isPending ? "Saving…" : "Use this card ✓"}
+                {saveMutation.isPending ? t("inviteCard.saving") : t("inviteCard.useThisCard")}
               </button>
 
               {saveMutation.isError && (
