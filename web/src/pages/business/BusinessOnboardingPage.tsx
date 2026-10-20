@@ -308,8 +308,8 @@ export function BusinessOnboardingPage() {
     try {
       const res = await businessApi.subscribe({
         plan,
-        successUrl: 'https://togetherplans.app/business/dashboard?subscribed=true',
-        cancelUrl: 'https://togetherplans.app/business/onboarding?step=5',
+        successUrl: 'https://datemeup.app/business/dashboard?subscribed=true',
+        cancelUrl: 'https://datemeup.app/business/onboarding?step=5',
       });
       const d = res.data as { url?: string; sessionUrl?: string };
       const url = d.url || d.sessionUrl;
@@ -461,13 +461,13 @@ export function BusinessOnboardingPage() {
             <option key={r.value} value={r.value}>{r.label}</option>
           ))}
         </select>
-        <div style={s.helperText}>Your listings will appear in TogetherPlans searches for users within this radius of your address.</div>
+        <div style={s.helperText}>Your listings will appear in DateMeUp searches for users within this radius of your address.</div>
       </div>
 
       <div style={s.fieldGroup}>
         <label style={s.label}>Featured category</label>
         <p style={{ fontSize: 13, color: '#5D6B76', marginBottom: 16 }}>
-          Which TogetherPlans category should your business appear in?
+          Which DateMeUp category should your business appear in?
         </p>
         <div style={{
           display: 'grid',
@@ -781,8 +781,8 @@ export function BusinessOnboardingPage() {
       <div style={s.container}>
         {/* Logo header */}
         <div style={s.logo}>
-          <img src="/mark-teal.svg" alt="TogetherPlans" style={{ width: 28, height: 28 }} />
-          <span style={s.logoText}>TogetherPlans</span>
+          <img src="/mark-teal.svg" alt="DateMeUp" style={{ width: 28, height: 28 }} />
+          <span style={s.logoText}>DateMeUp</span>
           <span style={s.badge}>Business Setup</span>
         </div>
 

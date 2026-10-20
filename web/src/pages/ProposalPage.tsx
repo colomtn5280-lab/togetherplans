@@ -1215,8 +1215,8 @@ export function ProposalPage() {
                 {(() => {
                   const isMobileWeb = /iPhone|Android/i.test(navigator.userAgent);
                   const messageHref = isMobileWeb
-                    ? `sms:?&body=${encodeURIComponent("Let's celebrate! Our plan is decided on TogetherPlans 🎉")}`
-                    : `https://wa.me/?text=${encodeURIComponent("Let's celebrate! Our plan is decided on TogetherPlans 🎉")}`;
+                    ? `sms:?&body=${encodeURIComponent("Let's celebrate! Our plan is decided on DateMeUp 🎉")}`
+                    : `https://wa.me/?text=${encodeURIComponent("Let's celebrate! Our plan is decided on DateMeUp 🎉")}`;
                   return (
                     <a
                       href={messageHref}

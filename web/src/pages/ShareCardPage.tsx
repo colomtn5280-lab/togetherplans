@@ -330,7 +330,7 @@ export function ShareCardPage() {
                     {card.og.description}
                   </div>
                   <div style={{ color: "var(--ink2)", fontSize: 11, marginTop: 6 }}>
-                    togetherplans.app
+                    datemeup.app
                   </div>
                 </div>
               </div>
@@ -456,7 +456,7 @@ export function PublicSharePage() {
           {t("shareCard.plannedWith")}
         </p>
         <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
-          <a href="https://togetherplans.app" className="dn-btn">{t("shareCard.getDateNight")}</a>
+          <a href="https://datemeup.app" className="dn-btn">{t("shareCard.getDateNight")}</a>
           <button className="dn-btn dn-btn--secondary" onClick={handleCopy}>
             {copied ? t("shareCard.copied") : t("shareCard.copyLink")}
           </button>

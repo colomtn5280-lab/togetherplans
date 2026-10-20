@@ -9,11 +9,11 @@ interface OnboardingModalProps {
 const STEPS = [
   {
     emoji: "🎉",
-    title: "Welcome to TogetherPlans",
+    title: "Welcome to DateMeUp",
     illustration: (
       <div style={{ fontSize: 64, marginBottom: 16, lineHeight: 1 }}>🗓️✨</div>
     ),
-    body: "TogetherPlans makes it easy to plan date nights, outings, and adventures with the people you love. Propose ideas, everyone votes, and the best plan wins — together.",
+    body: "DateMeUp makes it easy to plan date nights, outings, and adventures with the people you love. Propose ideas, everyone votes, and the best plan wins — together.",
     cta: null,
   },
   {

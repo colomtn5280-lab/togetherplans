@@ -112,8 +112,8 @@ export function BusinessAuthPage({ mode }: Props) {
       <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
       <div style={styles.card}>
         <div style={styles.logo}>
-          <img src="/mark-teal.svg" alt="TogetherPlans" style={{ width: 28, height: 28 }} />
-          <span style={styles.logoText}>TogetherPlans</span>
+          <img src="/mark-teal.svg" alt="DateMeUp" style={{ width: 28, height: 28 }} />
+          <span style={styles.logoText}>DateMeUp</span>
           <span style={styles.badge}>Business</span>
         </div>
 

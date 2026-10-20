@@ -285,7 +285,7 @@
     "sendResetLink": "Enviar enlace",
     "sending": "Enviando…",
     "backToSignIn": "Volver a iniciar sesión",
-    "appName": "TogetherPlans"
+    "appName": "DateMeUp"
   },
   "resetPassword": {
     "title": "Restablecer contraseña",
@@ -297,7 +297,7 @@
     "passwordsNoMatch": "Las contraseñas no coinciden.",
     "passwordTooShort": "La contraseña debe tener al menos 8 caracteres.",
     "requestNewLink": "Solicitar nuevo enlace",
-    "appName": "TogetherPlans"
+    "appName": "DateMeUp"
   },
   "join": {
     "loading": "Cargando invitación…",
@@ -320,7 +320,7 @@
   "landing": {
     "forCouplesGroups": "PARA PAREJAS Y GRUPOS",
     "heroTitle": "Planifica juntos.",
-    "heroDesc": "47 mensajes después y sin plan. Propón opciones, todos votan y TogetherPlans elige al ganador.",
+    "heroDesc": "47 mensajes después y sin plan. Propón opciones, todos votan y DateMeUp elige al ganador.",
     "startPlanFree": "Empieza un plan gratis",
     "seeHowItWorks": "Ver cómo funciona",
     "appStore": "App Store",
@@ -347,7 +347,7 @@
     "proposeDesc": "Elige una noche, añade 3-5 opciones o impórtalas desde Descubrir.",
     "agree": "Acordar",
     "agreeDesc": "Todos votan. El consenso lo confirma y lo añade a tu calendario.",
-    "copyright": "© 2026 TogetherPlans · togetherplans.app",
+    "copyright": "© 2026 DateMeUp · datemeup.app",
     "privacy": "Privacidad",
     "terms": "Términos"
   },
@@ -383,7 +383,7 @@
     "browseEvents": "Explora eventos cerca de ti, crea un plan y deja que tu gente vote.",
     "getStartedFree": "Comenzar gratis →",
     "couldntSaveVote": "No se pudo guardar tu voto — intenta de nuevo.",
-    "madeWith": "Hecho con TogetherPlans — planifica juntos, salid juntos."
+    "madeWith": "Hecho con DateMeUp — planifica juntos, salid juntos."
   },
   "shareCard": {
     "building": "Creando tu tarjeta…",
@@ -401,8 +401,8 @@
     "getTickets": "🎟 Obtener entradas",
     "notFound": "Tarjeta no encontrada",
     "linkExpired": "Este enlace puede haber expirado o fue eliminado.",
-    "goToApp": "Ir a TogetherPlans",
-    "plannedWith": "Planificado con TogetherPlans — la app para parejas y amigos",
+    "goToApp": "Ir a DateMeUp",
+    "plannedWith": "Planificado con DateMeUp — la app para parejas y amigos",
     "getDateNight": "Obtener DateNight →",
     "votes": "votos",
     "vote": "voto"
@@ -504,8 +504,8 @@
     "startFeatured": "Empezar Destacado",
     "goPremium": "Ir Premium",
     "readyToBeDiscovered": "¿Listo para ser descubierto?",
-    "joinVenues": "Únete a negocios que ya aparecen en las sugerencias de TogetherPlans.",
-    "backToTogetherPlans": "← Volver a TogetherPlans",
+    "joinVenues": "Únete a negocios que ya aparecen en las sugerencias de DateMeUp.",
+    "backToDateMeUp": "← Volver a DateMeUp",
     "businessLogIn": "Iniciar sesión empresarial",
     "forBusiness": "Para empresas",
     "businessPortal": "Empresa",
@@ -577,12 +577,12 @@
     "phoneField": "Teléfono",
     "websiteField": "Sitio web",
     "tellAboutBusiness": "Cuéntanos sobre tu negocio",
-    "step1Desc": "Esta información aparece en tu listado en TogetherPlans.",
+    "step1Desc": "Esta información aparece en tu listado en DateMeUp.",
     "serviceAreaCategory": "Área de servicio y categoría",
-    "step2Desc": "Dinos dónde operas y qué categoría de TogetherPlans te representa mejor.",
+    "step2Desc": "Dinos dónde operas y qué categoría de DateMeUp te representa mejor.",
     "serviceRadius": "Radio de servicio",
     "featuredCategory": "Categoría destacada",
-    "featuredCategoryDesc": "¿En qué categoría de TogetherPlans debe aparecer tu negocio?",
+    "featuredCategoryDesc": "¿En qué categoría de DateMeUp debe aparecer tu negocio?",
     "photoBranding": "Fotos y marca",
     "step3Desc": "Tu logo aparece en tu tarjeta de listado. Tu imagen principal se muestra cuando los usuarios tocan tu listado.",
     "logoUpload": "Logo (círculo 128×128 en la tarjeta de listado)",
@@ -594,7 +594,7 @@
     "maxFileSize": "JPEG, PNG o WebP — máx. 5 MB",
     "fileTooLarge": "Archivo demasiado grande — máx. 5 MB",
     "platformPresence": "Presencia en plataformas",
-    "step4Desc": "Ingresa tus IDs en estas plataformas y siempre incluiremos tus eventos y negocio en las búsquedas de TogetherPlans. Todos los campos son opcionales.",
+    "step4Desc": "Ingresa tus IDs en estas plataformas y siempre incluiremos tus eventos y negocio en las búsquedas de DateMeUp. Todos los campos son opcionales.",
     "chooseVisibility": "Elige tu visibilidad",
     "step5Desc": "Elige el plan que se adapte a tus objetivos de crecimiento. Actualiza o cancela en cualquier momento.",
     "monthly": "Mensual",

@@ -10,9 +10,9 @@ export default function LandingPage() {
         <div className="blob b1" /><div className="blob b2" />
         <div className="wrap">
           <nav className="nav">
-            <Link className="brand" to="/" aria-label="TogetherPlans home">
-              <img src="/mark-teal.svg" alt="TogetherPlans mark" width={36} height={36} />
-              <b>TogetherPlans</b>
+            <Link className="brand" to="/" aria-label="DateMeUp home">
+              <img src="/mark-teal.svg" alt="DateMeUp mark" width={36} height={36} />
+              <b>DateMeUp</b>
             </Link>
             <div className="nav-links">
               <a href="#how">{t("landing.howItWorksNav")}</a>
@@ -55,7 +55,7 @@ export default function LandingPage() {
               }}>
                 <img
                   src="/screenshots/app-preview.png"
-                  alt="TogetherPlans app — vote on date night activities with your partner"
+                  alt="DateMeUp app — vote on date night activities with your partner"
                   style={{
                     width: '100%',
                     display: 'block',

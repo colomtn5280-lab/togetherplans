@@ -285,7 +285,7 @@
     "sendResetLink": "Send reset link",
     "sending": "Sending…",
     "backToSignIn": "Back to sign in",
-    "appName": "TogetherPlans"
+    "appName": "DateMeUp"
   },
   "resetPassword": {
     "title": "Reset your password",
@@ -297,7 +297,7 @@
     "passwordsNoMatch": "Passwords do not match.",
     "passwordTooShort": "Password must be at least 8 characters.",
     "requestNewLink": "Request a new reset link",
-    "appName": "TogetherPlans"
+    "appName": "DateMeUp"
   },
   "join": {
     "loading": "Loading invite…",
@@ -320,7 +320,7 @@
   "landing": {
     "forCouplesGroups": "FOR COUPLES & GROUPS",
     "heroTitle": "Plan together.",
-    "heroDesc": "47 messages later, still no plan? Propose a few options, everyone votes, and TogetherPlans locks in the winner.",
+    "heroDesc": "47 messages later, still no plan? Propose a few options, everyone votes, and DateMeUp locks in the winner.",
     "startPlanFree": "Start a plan, free",
     "seeHowItWorks": "See how it works",
     "appStore": "App Store",
@@ -347,7 +347,7 @@
     "proposeDesc": "Pick a night, add 3–5 options, or pull them straight from Discover.",
     "agree": "Agree",
     "agreeDesc": "Everyone votes. Consensus locks it in and adds it to your calendar.",
-    "copyright": "© 2026 TogetherPlans · togetherplans.app",
+    "copyright": "© 2026 DateMeUp · datemeup.app",
     "privacy": "Privacy",
     "terms": "Terms"
   },
@@ -383,7 +383,7 @@
     "browseEvents": "Browse real events near you, build a plan, and let your people vote.",
     "getStartedFree": "Get started free →",
     "couldntSaveVote": "Couldn't save your vote — try again.",
-    "madeWith": "Made with TogetherPlans — plan together, go together."
+    "madeWith": "Made with DateMeUp — plan together, go together."
   },
   "shareCard": {
     "building": "Building your share card…",
@@ -401,8 +401,8 @@
     "getTickets": "🎟 Get tickets",
     "notFound": "Share card not found",
     "linkExpired": "This link may have expired or been removed.",
-    "goToApp": "Go to TogetherPlans",
-    "plannedWith": "Planned with TogetherPlans — the app for couples & friends",
+    "goToApp": "Go to DateMeUp",
+    "plannedWith": "Planned with DateMeUp — the app for couples & friends",
     "getDateNight": "Get DateNight →",
     "votes": "votes",
     "vote": "vote"
@@ -504,8 +504,8 @@
     "startFeatured": "Start Featured",
     "goPremium": "Go Premium",
     "readyToBeDiscovered": "Ready to get discovered?",
-    "joinVenues": "Join venues already showing up in TogetherPlans suggestions.",
-    "backToTogetherPlans": "← Back to TogetherPlans",
+    "joinVenues": "Join venues already showing up in DateMeUp suggestions.",
+    "backToDateMeUp": "← Back to DateMeUp",
     "businessLogIn": "Business log in",
     "forBusiness": "For Business",
     "businessPortal": "Business",
@@ -577,12 +577,12 @@
     "phoneField": "Phone",
     "websiteField": "Website",
     "tellAboutBusiness": "Tell us about your business",
-    "step1Desc": "This information appears on your listing in TogetherPlans.",
+    "step1Desc": "This information appears on your listing in DateMeUp.",
     "serviceAreaCategory": "Service area & category",
-    "step2Desc": "Tell us where you serve and which TogetherPlans category fits you best.",
+    "step2Desc": "Tell us where you serve and which DateMeUp category fits you best.",
     "serviceRadius": "Service radius",
     "featuredCategory": "Featured category",
-    "featuredCategoryDesc": "Which TogetherPlans category should your business appear in?",
+    "featuredCategoryDesc": "Which DateMeUp category should your business appear in?",
     "photoBranding": "Photos & branding",
     "step3Desc": "Your logo appears on your listing card. Your hero image is shown when users tap your listing.",
     "logoUpload": "Logo (128×128 circle on listing card)",
@@ -594,7 +594,7 @@
     "maxFileSize": "JPEG, PNG, or WebP — max 5 MB",
     "fileTooLarge": "File too large — max 5 MB",
     "platformPresence": "Platform presence",
-    "step4Desc": "Enter your IDs on these platforms and we will always include your events and venue in TogetherPlans searches. All fields are optional.",
+    "step4Desc": "Enter your IDs on these platforms and we will always include your events and venue in DateMeUp searches. All fields are optional.",
     "chooseVisibility": "Choose your visibility",
     "step5Desc": "Pick the plan that fits your growth goals. Upgrade or cancel anytime.",
     "monthly": "Monthly",

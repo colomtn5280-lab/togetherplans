@@ -475,7 +475,7 @@ export function GroupDetailPage() {
                       : `${window.location.origin}/join/${generatedInvite.token ?? ""}`;
                     if (navigator.share) {
                       navigator.share({
-                        title: "Join me on TogetherPlans",
+                        title: "Join me on DateMeUp",
                         text: "Help us pick our next date night — vote on the plan:",
                         url,
                       }).catch(() => {});

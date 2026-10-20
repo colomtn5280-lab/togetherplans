@@ -192,7 +192,7 @@ export function AppNav({ yourTurnCount = 0 }: { yourTurnCount?: number }) {
               color: "var(--ink)",
             }}
           >
-            TogetherPlans
+            DateMeUp
           </span>
         </Link>
 
