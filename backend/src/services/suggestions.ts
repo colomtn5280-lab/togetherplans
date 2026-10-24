@@ -559,14 +559,7 @@ export async function getSuggestions(query: SuggestionQuery): Promise<Suggestion
 
   // Deduplicate, sort, pad with seed if thin
   const deduped = deduplicate(filtered);
-  let sorted = sortSuggestions(deduped, lat, lng);
-
-  // E9: Personalized ranking — boost categories the user has voted for historically.
-  // Fires only when userId is provided (authenticated requests). Cache-safe: applied
-  // after cache read and before writing new entries.
-  if (query.userId) {
-    sorted = await personalizeRanking(sorted, query.userId);
-  }
+  const sorted = sortSuggestions(deduped, lat, lng);
 
   // Always include some seed suggestions if external sources are thin
   const minExternal = 5;
@@ -580,8 +573,19 @@ export async function getSuggestions(query: SuggestionQuery): Promise<Suggestion
   logger.info(`Suggestions assembled: ${final.length} total [${sourceSummary.join(', ')}]`);
 
   // ---------------------------------------------------------------------------
-  // Resolve city/state for AI Ideas + Tavily (shared lookup, cached)
+  // Return core results immediately, then enrich in background (Fix 1)
   // ---------------------------------------------------------------------------
+  // Gemini AI ideas, Tavily fallback, and photo enrichment are non-critical
+  // for the core venue list. Moving them to background cuts cold-path latency
+  // from ~10s to ~1-2s. The enriched result overwrites the cache entry seconds
+  // later — every subsequent request gets the full version.
+  //
+  // First user in a new metro sees: real venues, no AI ideas, some missing photos.
+  // Second user (seconds later): full enriched cached result.
+  //
+  // Rollback: revert this commit to restore blocking behaviour.
+
+  // Resolve city/state needed by Gemini + Tavily — do this NOW (fast, shared)
   let ideaCity = '';
   let ideaState = '';
   if (query.zip) {
@@ -594,7 +598,6 @@ export async function getSuggestions(query: SuggestionQuery): Promise<Suggestion
       }
     } catch { ideaCity = query.zip; }
   } else if (lat && lng) {
-    // Reverse-geocode lat/lng to city name via bigdatacloud (no key, free)
     try {
       const geo = await fetch(
         `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=en`,
@@ -608,64 +611,71 @@ export async function getSuggestions(query: SuggestionQuery): Promise<Suggestion
     } catch { ideaCity = `${lat.toFixed(2)},${lng.toFixed(2)}`; }
   }
 
-  // Append AI-generated ideas (Gemini) if key is configured.
-  // Always adds 5 fresh ideas tagged as isIdea:true.
-  if (process.env.GEMINI_API_KEY) {
-    const aiIdeas = await fetchAiIdeas(category ?? 'Local Experience', ideaCity, ideaState, 5);
-    if (aiIdeas.length) {
-      final = deduplicate([...final, ...aiIdeas]);
-      logger.info(`AI ideas appended: ${aiIdeas.length} for ${category} near ${ideaCity}`);
-    }
-  }
-
-  // ---------------------------------------------------------------------------
-  // Tavily web search fallback — fires when:
-  //   (a) category always needs it (e.g. Volunteering), OR
-  //   (b) real external results are below TAVILY_THRESHOLD
-  // Skipped for Movies / Streaming Night (TMDB is definitive) and After Dark.
-  // ---------------------------------------------------------------------------
-  const TAVILY_THRESHOLD = 5;
-  const realResults = final.filter((s) => !s.isIdea && s.source !== 'seed').length;
-  const skipCategories = new Set(['Movies', 'Streaming Night', 'After Dark']);
-  const shouldFireTavily =
-    process.env.TAVILY_API_KEY &&
-    !skipCategories.has(category ?? '') &&
-    ideaCity &&
-    (tavilyAlwaysFires(category ?? '') || realResults < TAVILY_THRESHOLD);
-
-  if (shouldFireTavily) {
-    const tavilyResults = await fetchTavilyFallback(category ?? 'Local Experience', ideaCity, ideaState);
-    if (tavilyResults.length) {
-      final = deduplicate([...final, ...tavilyResults]);
-      logger.info(`Tavily fallback: ${tavilyResults.length} results for ${category} near ${ideaCity} (real=${realResults})`);
-    }
-  }
-
-  // Enrich photos for any results still missing imageUrl (PredictHQ, Overpass,
-  // seed cards, etc.) — uses Foursquare venue name search, cached 24h.
-  await enrichPhotos(final, lat, lng);
-
-  // ── Featured Business Injection ──────────────────────────────────────────────
-  // Inject paid B2B businesses at the front of results, after all organic
-  // sources are assembled. Skip if no location or no category.
+  // Featured businesses: inject into the result we return NOW (paid placement must be immediate)
   if (hasLocation && query.category && query.category !== 'All') {
     const [featured, directListings] = await Promise.all([
       getFeaturedBusinesses(query.category, lat!, lng!),
       getDirectListings(query.category),
     ]);
-
     if (featured.length > 0 || directListings.length > 0) {
-      // Remove organic results that match featured business names (dedup)
       const featuredNames = new Set([...featured, ...directListings].map(f => f.name.toLowerCase()));
       final = final.filter(r => !featuredNames.has(r.name.toLowerCase()));
-      // Inject: Premium/Featured businesses first (max 3), then direct listings, then organic
       final = [...featured.slice(0, 3), ...directListings, ...final];
       if (featured.length > 0) logger.info(`Featured injection: ${featured.length} businesses, ${directListings.length} direct listings for ${query.category}`);
     }
   }
 
-  // Cache it
+  // Cache the core result immediately — fast for the returning user
   await cacheSet(key, JSON.stringify(final), cacheTtl(final));
+
+  // E9: Personalized ranking (applied post-cache so cached entry stays generic)
+  if (query.userId) {
+    final = await personalizeRanking(final, query.userId);
+  }
+
+  // Background enrichment: Gemini + Tavily + photos
+  // Runs after response is sent. Overwrites cache with enriched version.
+  void (async () => {
+    try {
+      let enriched = [...final];
+
+      // Gemini AI ideas
+      if (process.env.GEMINI_API_KEY) {
+        const aiIdeas = await fetchAiIdeas(category ?? 'Local Experience', ideaCity, ideaState, 5);
+        if (aiIdeas.length) {
+          enriched = deduplicate([...enriched, ...aiIdeas]);
+          logger.info(`[bg] AI ideas appended: ${aiIdeas.length} for ${category} near ${ideaCity}`);
+        }
+      }
+
+      // Tavily fallback
+      const TAVILY_THRESHOLD = 5;
+      const realCount = enriched.filter((s) => !s.isIdea && s.source !== 'seed').length;
+      const skipCategories = new Set(['Movies', 'Streaming Night', 'After Dark']);
+      const shouldFireTavily =
+        process.env.TAVILY_API_KEY &&
+        !skipCategories.has(category ?? '') &&
+        ideaCity &&
+        (tavilyAlwaysFires(category ?? '') || realCount < TAVILY_THRESHOLD);
+
+      if (shouldFireTavily) {
+        const tavilyResults = await fetchTavilyFallback(category ?? 'Local Experience', ideaCity, ideaState);
+        if (tavilyResults.length) {
+          enriched = deduplicate([...enriched, ...tavilyResults]);
+          logger.info(`[bg] Tavily fallback: ${tavilyResults.length} results for ${category} near ${ideaCity}`);
+        }
+      }
+
+      // Photo enrichment
+      await enrichPhotos(enriched, lat, lng);
+
+      // Overwrite cache with fully enriched result
+      await cacheSet(key, JSON.stringify(enriched), cacheTtl(enriched));
+      logger.info(`[bg] Enrichment complete for ${key}: ${enriched.length} results`);
+    } catch (err) {
+      logger.warn(`[bg] Enrichment failed for ${key}: ${err instanceof Error ? err.message : err}`);
+    }
+  })();
 
   return final;
 }
