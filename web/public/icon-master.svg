@@ -1,59 +1,15 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
-  <defs>
-    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#7c3aed;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#aa3bff;stop-opacity:1" />
-    </linearGradient>
-  </defs>
-
-  <!-- Background rounded rectangle -->
-  <rect width="1024" height="1024" rx="220" ry="220" fill="url(#bgGrad)"/>
-
-  <!-- Calendar body -->
-  <rect x="232" y="300" width="560" height="480" rx="48" ry="48" fill="white" opacity="0.95"/>
-
-  <!-- Calendar header bar -->
-  <rect x="232" y="300" width="560" height="120" rx="48" ry="48" fill="white" opacity="0.95"/>
-  <!-- Clip the bottom corners of the header -->
-  <rect x="232" y="370" width="560" height="50" fill="white" opacity="0.95"/>
-
-  <!-- Header background accent -->
-  <rect x="232" y="300" width="560" height="120" rx="48" ry="48" fill="#7c3aed" opacity="0.15"/>
-  <rect x="232" y="370" width="560" height="50" fill="#7c3aed" opacity="0.15"/>
-
-  <!-- Calendar ring posts -->
-  <rect x="360" y="250" width="44" height="100" rx="22" fill="#aa3bff"/>
-  <rect x="620" y="250" width="44" height="100" rx="22" fill="#aa3bff"/>
-
-  <!-- Calendar grid lines (horizontal) -->
-  <line x1="272" y1="500" x2="752" y2="500" stroke="#e5e7eb" stroke-width="2"/>
-  <line x1="272" y1="580" x2="752" y2="580" stroke="#e5e7eb" stroke-width="2"/>
-  <line x1="272" y1="660" x2="752" y2="660" stroke="#e5e7eb" stroke-width="2"/>
-
-  <!-- Calendar grid lines (vertical) -->
-  <line x1="392" y1="430" x2="392" y2="740" stroke="#e5e7eb" stroke-width="2"/>
-  <line x1="512" y1="430" x2="512" y2="740" stroke="#e5e7eb" stroke-width="2"/>
-  <line x1="632" y1="430" x2="632" y2="740" stroke="#e5e7eb" stroke-width="2"/>
-
-  <!-- Day dots (calendar date circles - subtle) -->
-  <circle cx="332" cy="538" r="20" fill="#f3f4f6"/>
-  <circle cx="452" cy="538" r="20" fill="#f3f4f6"/>
-  <circle cx="572" cy="538" r="20" fill="#f3f4f6"/>
-  <circle cx="692" cy="538" r="20" fill="#f3f4f6"/>
-  <circle cx="332" cy="618" r="20" fill="#f3f4f6"/>
-  <circle cx="452" cy="618" r="20" fill="#f3f4f6"/>
-  <circle cx="572" cy="618" r="20" fill="#f3f4f6"/>
-  <circle cx="692" cy="618" r="20" fill="#f3f4f6"/>
-  <circle cx="332" cy="698" r="20" fill="#f3f4f6"/>
-  <circle cx="452" cy="698" r="20" fill="#f3f4f6"/>
-
-  <!-- Heart — highlighted date (center-ish) -->
-  <circle cx="572" cy="698" r="32" fill="#aa3bff"/>
-  <!-- Heart shape inside highlight circle -->
-  <path d="M572 720 C542 698 550 668 572 678 C594 668 602 698 572 720Z" fill="white"/>
-  <circle cx="558" cy="684" r="10" fill="white"/>
-  <circle cx="586" cy="684" r="10" fill="white"/>
-
-  <!-- Month label area -->
-  <text x="512" y="360" font-family="system-ui, -apple-system, sans-serif" font-size="52" font-weight="700" text-anchor="middle" fill="#7c3aed" opacity="0.9">DATE NIGHT</text>
+  <!-- DateMeUp logo mark at icon scale -->
+  <!-- Teal chevron -->
+  <path d="M338 245L512 113L686 245" fill="none" stroke="#0E8C8C" stroke-width="92" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Left figure (teal) -->
+  <g transform="rotate(8 348 840)">
+    <circle cx="348" cy="480" r="123" fill="#0E8C8C"/>
+    <path d="M174 1003V819a174 174 0 0 1 348 0v184z" fill="#0E8C8C"/>
+  </g>
+  <!-- Right figure (green) -->
+  <g transform="rotate(-8 676 860)">
+    <circle cx="676" cy="501" r="123" fill="#7CB518"/>
+    <path d="M502 1003V838a174 174 0 0 1 348 0v165z" fill="#7CB518"/>
+  </g>
 </svg>

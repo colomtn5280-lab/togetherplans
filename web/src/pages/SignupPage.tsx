@@ -6,6 +6,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { useGoogleLogin } from "@react-oauth/google";
 import { useTranslation } from "react-i18next";
+import { DmuLogo } from "../components/DmuLogo";
 import { authApi } from "../api/client";
 import { useAuthStore } from "../store/auth.store";
 import type { SignupResponse } from "../types";
@@ -232,23 +233,7 @@ export function SignupPage() {
       >
         {/* Logo */}
         <div style={{ textAlign: "center", marginBottom: 28 }}>
-          <div
-            style={{
-              width: 52,
-              height: 52,
-              background: "var(--primary)",
-              borderRadius: "38% 62% 55% 45%",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 24,
-              margin: "0 auto 10px",
-              transform: "rotate(-6deg)",
-            }}
-            aria-hidden="true"
-          >
-            📅
-          </div>
+          <DmuLogo size={52} />
           <div
             style={{
               fontFamily: "var(--font-display)",

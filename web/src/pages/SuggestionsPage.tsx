@@ -543,7 +543,7 @@ export function SuggestionsPage() {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const categoryId = searchParams.get("category") ?? "";
-  const radius = parseInt(searchParams.get("radius") ?? "25", 10) || 25;
+  const radius = parseInt(searchParams.get("radius") ?? "60", 10) || 60;
   const dateFilter = (searchParams.get("dateFilter") ?? "anytime") as
     | "tonight"
     | "this-weekend"

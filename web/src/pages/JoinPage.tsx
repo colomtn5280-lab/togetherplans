@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { DmuLogo } from "../components/DmuLogo";
 import { invitationsApi } from "../api/client";
 import { useAuthStore } from "../store/auth.store";
 import type { Invitation } from "../types";
@@ -150,29 +151,14 @@ export function JoinPage() {
       >
         {/* Logo */}
         <div style={{ marginBottom: 24 }}>
-          <div
-            style={{
-              width: 52,
-              height: 52,
-              background: "var(--primary)",
-              borderRadius: "38% 62% 55% 45%",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 24,
-              margin: "0 auto 10px",
-              transform: "rotate(-6deg)",
-            }}
-            aria-hidden="true"
-          >
-            📅
-          </div>
+          <DmuLogo size={52} />
           <div
             style={{
               fontFamily: "var(--font-display)",
               fontWeight: 800,
               fontSize: 17,
               color: "var(--ink)",
+              marginTop: 8,
             }}
           >
             DateMeUp
