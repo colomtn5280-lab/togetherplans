@@ -1,7 +1,14 @@
 /**
  * Invite Card Renderer
- * Renders a card template to PNG (via puppeteer/Chromium) and PDF,
- * uploads both to GCS, and returns the public URLs.
+ *
+ * Cards are authored at 360×640 CSS px (.sc-card in sharedCss).
+ * Correct render approach (per SHARE_CARD_RENDER_FIX.md):
+ *   - Viewport: 360×640, deviceScaleFactor: 3  → 1080×1920 px PNG output
+ *   - Capture the .sc-card element directly, not the full page
+ *   - Inject render-mode CSS: no border-radius, no box-shadow, no grey background
+ *   - Wait for fonts + images before capturing
+ *
+ * PDF: 8.5×15.11" page (exact 9:16 ratio at 8.5" width) — card fills page edge-to-edge.
  */
 
 import { Storage } from '@google-cloud/storage';
@@ -53,31 +60,69 @@ export async function renderAndUploadCard(
   templateId: string,
   data: CardData,
 ): Promise<{ pngUrl: string; pdfUrl: string }> {
-  const html = renderCardHtml(templateId, data);
+  // Build HTML with a ?render=1 body class injected for clean capture
+  let html = renderCardHtml(templateId, data);
+
+  // Inject render-mode overrides into the <body> and card styles:
+  // - No rounded corners or drop shadows on the card
+  // - No grey page background behind the card
+  // - Card is position:fixed inset:0 so it truly fills 360×640
+  const renderCss = `
+<style id="render-mode">
+  html, body {
+    margin: 0; padding: 0;
+    width: 360px; height: 640px;
+    overflow: hidden;
+    /* background matches card — avoids grey bleed at edges */
+    background: transparent;
+  }
+  .sc-card {
+    width: 360px !important;
+    height: 640px !important;
+    position: fixed !important;
+    inset: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    outline: none !important;
+    margin: 0 !important;
+  }
+</style>`;
+
+  // Insert render CSS just before </head>
+  html = html.replace('</head>', `${renderCss}\n</head>`);
+  // Override body/html dimensions in the existing inline styles
+  html = html.replace(/width:1080px;height:1920px/g, 'width:360px;height:640px');
+
   const browser = await getBrowser();
   const page = await browser.newPage();
 
   try {
-    // 1080x1920 viewport — the native card design dimensions (9:16 story format)
-    await page.setViewport({ width: 1080, height: 1920, deviceScaleFactor: 2 });
-    await page.setContent(html, { waitUntil: 'load', timeout: 15000 });
+    // 360×640 at 3× device pixel ratio → 1080×1920 px PNG output
+    // This is the correct approach: render at card's native CSS size, upscale via DPR.
+    await page.setViewport({ width: 360, height: 640, deviceScaleFactor: 3 });
+    await page.setContent(html, { waitUntil: 'load', timeout: 20000 });
 
-    // PNG screenshot at native 1080x1920 (@2x = 2160x3840 for crisp displays)
-    const pngBuf = await page.screenshot({ type: 'png', fullPage: false }) as Buffer;
+    // Wait 800ms for web fonts (Sora, DM Sans, Caveat) and images after load
+    await new Promise<void>((resolve) => setTimeout(resolve, 800));
+
+    // Capture the card element, not the full page — ensures exact 1080×1920 output
+    const cardEl = await page.$('.sc-card');
+    const pngBuf = cardEl
+      ? await cardEl.screenshot({ type: 'png' }) as Buffer
+      : await page.screenshot({ type: 'png', clip: { x: 0, y: 0, width: 360, height: 640 } }) as Buffer;
+
     const pngPath = `invite-cards/${proposalId}/${templateId}-${data.mode}.png`;
     const pngUrl = await uploadBuffer(pngBuf, pngPath, 'image/png');
 
-    // PDF — US Letter size (8.5x11"), card scaled to fill the page.
-    // The card is 9:16 (tall), letter is 8.5x11 (also tall portrait).
-    // At letter DPI: 8.5" = 816px, 11" = 1056px. Card is 1080x1920.
-    // Scale to fit width (816/1080 = 0.756x) → card renders at 816x1451px on letter.
-    // We render at 1080x1920 and let the PDF engine scale to letter.
+    // PDF — page sized to exact 9:16 ratio at 8.5" width:
+    // 8.5" × (16/9 × 8.5") = 8.5" × 15.11" = 612pt × 1088pt
+    // Card fills the page edge-to-edge, no margins.
     const pdfBuf = await page.pdf({
-      format: 'Letter',
+      width: '612pt',   // 8.5 inches
+      height: '1088pt', // 15.11 inches (9:16 at 8.5")
       printBackground: true,
       margin: { top: '0', right: '0', bottom: '0', left: '0' },
-      // Scale the 1080px-wide card to fill 8.5" letter width
-      scale: 0.756,
+      // No scale needed — card fills the 360×640 viewport which maps to the page
     }) as Buffer;
     const pdfPath = `invite-cards/${proposalId}/${templateId}-${data.mode}.pdf`;
     const pdfUrl = await uploadBuffer(pdfBuf, pdfPath, 'application/pdf');
