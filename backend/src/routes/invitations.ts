@@ -50,9 +50,9 @@ invitationsRouter.use(requireAuth);
 // POST /api/invitations — create an invitation to a group
 invitationsRouter.post('/', async (req: AuthRequest, res: Response, next) => {
   try {
-    const { groupId, method, target } = req.body || {};
+    const { groupId, method = 'LINK', target } = req.body || {};
     if (!groupId) return res.status(400).json({ error: 'groupId is required' });
-    if (!method || !METHODS.includes(method as Method)) {
+    if (!METHODS.includes(method as Method)) {
       return res.status(400).json({ error: `method must be one of ${METHODS.join(', ')}` });
     }
     if (['EMAIL', 'SMS', 'USERNAME'].includes(method) && !target) {

@@ -1,10 +1,19 @@
 import { Router, Response } from 'express';
 import { prisma } from '@/services/db';
 import { requireAuth, AuthRequest } from '@/middleware/auth';
+import { proposalsRouter } from '@/routes/proposals';
 
 export const groupsRouter = Router();
 
 groupsRouter.use(requireAuth);
+
+// POST /api/groups/:id/proposals — convenience alias for POST /api/proposals
+// Injects groupId from the URL so clients can use the nested route pattern.
+groupsRouter.post('/:id/proposals', (req: AuthRequest, res, next) => {
+  req.body = { ...req.body, groupId: req.params.id };
+  // Delegate to the proposals handler by re-routing through the proposals router
+  proposalsRouter(req, res, next);
+});
 
 // POST /api/groups — create a group (creator becomes OWNER)
 groupsRouter.post('/', async (req: AuthRequest, res: Response, next) => {

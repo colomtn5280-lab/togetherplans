@@ -56,13 +56,14 @@ function validateOptions(options: unknown): string | null {
 proposalsRouter.post('/', async (req: AuthRequest, res: Response, next) => {
   try {
     const { groupId, title, dateTime, options } = req.body || {};
-    if (!groupId || !title || !dateTime) {
-      return res.status(400).json({ error: 'groupId, title and dateTime are required' });
+    if (!groupId || !title) {
+      return res.status(400).json({ error: 'groupId and title are required' });
     }
     if (title.length > 200) {
       return res.status(400).json({ error: 'title must be 200 characters or fewer' });
     }
-    const parsedDate = new Date(dateTime);
+    // dateTime is optional — defaults to 7 days from now if omitted
+    const parsedDate = dateTime ? new Date(dateTime) : new Date(Date.now() + 7 * 24 * 3600 * 1000);
     if (isNaN(parsedDate.getTime())) {
       return res.status(400).json({ error: 'dateTime must be a valid ISO date' });
     }
