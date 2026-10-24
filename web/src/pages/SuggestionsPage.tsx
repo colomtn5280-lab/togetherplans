@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -612,7 +612,6 @@ export function SuggestionsPage() {
   const clearTonight = () => setDateFilter("anytime");
 
   const [searchQuery, setSearchQuery] = useState("");
-  const searchTimeoutRef = useRef<number | null>(null);
 
   const handleSearch = useCallback((q: string) => {
     setSearchQuery(q);
