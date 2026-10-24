@@ -451,9 +451,14 @@ export async function getSuggestions(query: SuggestionQuery): Promise<Suggestion
         { name: 'overpass', fetch: () => fetchOverpass(lat!, lng!, Math.min(radiusMiles, 30), category) },
         { name: 'foursquare', fetch: () => fetchFoursquare(lat!, lng!, radiusMiles, category) },
       ] : []),
-      // NPS: national parks + events — primary for Outdoors, included in All
-      // (NPS events are live; NPS parks are now in static DB too, but keep for events)
-      ...(!category || category === 'Outdoors'
+      // NPS: national parks + events — primary for Outdoors, included in All.
+      // Parks are already in the static DB (ETL loads NPS data nightly); the live
+      // NPS call adds minimal marginal results but costs ~800ms per request.
+      // Both nps-parks and nps-events are moved to the background enrichment block
+      // for the Outdoors/hiking category to keep cold path fast (~1-2s vs ~8s).
+      // They are still fetched synchronously for the 'All' category (lower traffic,
+      // broader result set makes the wait worth it).
+      ...(!category
         ? [
             { name: 'nps-parks', fetch: () => fetchNpsParks(lat!, lng!, radiusMiles) },
             { name: 'nps-events', fetch: () => fetchNpsEvents(lat!, lng!, radiusMiles) },
@@ -668,6 +673,24 @@ export async function getSuggestions(query: SuggestionQuery): Promise<Suggestion
 
       // Photo enrichment
       await enrichPhotos(enriched, lat, lng);
+
+      // NPS parks + events for Outdoors/hiking — moved to background to cut cold path
+      // from ~8s to ~1-2s. Static DB already covers parks; events are the main value-add.
+      if (!category || category === 'Outdoors') {
+        try {
+          const [npsParks, npsEvents] = await Promise.all([
+            fetchNpsParks(lat!, lng!, radiusMiles).catch(() => [] as typeof enriched),
+            fetchNpsEvents(lat!, lng!, radiusMiles).catch(() => [] as typeof enriched),
+          ]);
+          const npsAll = [...npsParks, ...npsEvents];
+          if (npsAll.length) {
+            enriched = deduplicate([...enriched, ...npsAll]);
+            logger.info(`[bg] NPS: ${npsParks.length} parks + ${npsEvents.length} events for hiking near ${ideaCity}`);
+          }
+        } catch (err) {
+          logger.warn(`[bg] NPS fetch failed: ${err instanceof Error ? err.message : err}`);
+        }
+      }
 
       // Overwrite cache with fully enriched result
       await cacheSet(key, JSON.stringify(enriched), cacheTtl(enriched));
