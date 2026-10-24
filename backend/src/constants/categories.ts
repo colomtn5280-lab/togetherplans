@@ -28,6 +28,7 @@ export const CATEGORIES: Category[] = [
   { id: 'restaurants-dining', name: 'Restaurants & Dining', emoji: '🍽️', tagline: 'New spots & favorite tables' },
   { id: 'volunteering',       name: 'Volunteering',        emoji: '🤝', tagline: 'Give back, together' },
   { id: 'wellness-spa',       name: 'Wellness & Spa',      emoji: '💆', tagline: 'Massages, saunas & self-care' },
+  { id: 'fun-ideas',         name: 'Fun Ideas',          emoji: '💡', tagline: 'Creative non-venue ideas for couples, friends & families' },
   { id: 'wine-drinks',        name: 'Bars & Nightlife',    emoji: '🍷', tagline: 'Bars, breweries, wineries & cocktail lounges' },
 ];
 

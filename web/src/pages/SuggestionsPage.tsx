@@ -1107,6 +1107,12 @@ export function SuggestionsPage() {
             style={{ background: categoryId === "after-dark" ? "#101820" : undefined, color: categoryId === "after-dark" ? "#fff" : undefined }}>
             <span className="tp-dot" aria-hidden={true} style={{ background: "#B2485E" }} />🌙 After Dark
           </button>
+          {/* Fun Ideas → /fun-ideas */}
+          <button className="tp-tile" role="radio" aria-checked={false}
+            onClick={() => navigate("/fun-ideas")}
+            style={{ background: undefined, color: undefined }}>
+            <span className="tp-dot" aria-hidden={true} style={{ background: "#F59E0B" }} />💡 Fun Ideas
+          </button>
         </div>
 
 

@@ -485,4 +485,9 @@ export const businessApi = {
   deleteDirectListing: (id: string) => businessClient.delete(`/business/me/direct-listings/${id}`),
 };
 
+export const funIdeasApi = {
+  list: (audience?: 'Couples' | 'Friends' | 'Family') =>
+    api.get('/fun-ideas', { params: audience ? { audience } : {} }),
+};
+
 export default api;

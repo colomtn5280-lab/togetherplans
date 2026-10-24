@@ -32,6 +32,7 @@ import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { publicShareApi } from "./api/client";
 import { AfterDarkPage } from './pages/AfterDarkPage';
+import { FunIdeasPage } from './pages/FunIdeasPage';
 import { FacebookCallbackPage } from './pages/FacebookCallbackPage';
 import { AppleCallbackPage } from './pages/AppleCallbackPage';
 import BusinessLandingPage from './pages/business/BusinessLandingPage';
@@ -175,6 +176,7 @@ export default function App() {
             <Route path="/proposals/:proposalId/invite-card" element={<InviteCardPage />} />
             <Route path="/groups/:groupId/after-dark" element={<AfterDarkPage />} />
             <Route path="/after-dark" element={<AfterDarkPage />} />
+            <Route path="/fun-ideas" element={<FunIdeasPage />} />
           </Route>
 
           {/* ── Catch-all 404 ── */}
