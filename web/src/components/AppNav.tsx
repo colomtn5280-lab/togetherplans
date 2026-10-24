@@ -10,24 +10,6 @@ import "./AppNav.css";
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-function CalendarSvg({ size = 22, color = "white" }: { size?: number; color?: string }) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-hidden="true"
-    >
-      <rect x="3" y="4" width="18" height="17" rx="2.5" stroke={color} strokeWidth="2" />
-      <line x1="3" y1="9" x2="21" y2="9" stroke={color} strokeWidth="2" />
-      <line x1="8" y1="2" x2="8" y2="7" stroke={color} strokeWidth="2" strokeLinecap="round" />
-      <line x1="16" y1="2" x2="16" y2="7" stroke={color} strokeWidth="2" strokeLinecap="round" />
-    </svg>
-  );
-}
-
 // ── Main component ────────────────────────────────────────────────────────────
 
 export function AppNav({ yourTurnCount = 0 }: { yourTurnCount?: number }) {
@@ -134,7 +116,7 @@ export function AppNav({ yourTurnCount = 0 }: { yourTurnCount?: number }) {
     {
       to: "/groups",
       label: t('nav.plans'),
-      icon: (<CalendarSvg size={16} color="currentColor" />) as React.ReactNode,
+      icon: (<DmuLogo size={16} />) as React.ReactNode,
     },
     { to: "/suggestions", label: t('nav.discover'), icon: "🧭" as React.ReactNode },
     { to: "/after-dark", label: t('nav.afterDark') + " 🌙", icon: "🌙" as React.ReactNode },
@@ -173,17 +155,14 @@ export function AppNav({ yourTurnCount = 0 }: { yourTurnCount?: number }) {
             style={{
               width: 48,
               height: 48,
-              background: "var(--primary)",
-              borderRadius: "38% 62% 55% 45%",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              transform: "rotate(-6deg)",
               flexShrink: 0,
             }}
             aria-hidden="true"
           >
-            <CalendarSvg size={22} color="white" />
+            <DmuLogo size={36} />
           </div>
           <span
             style={{

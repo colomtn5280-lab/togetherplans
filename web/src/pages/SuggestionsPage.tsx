@@ -1001,103 +1001,6 @@ export function SuggestionsPage() {
           </div>
         )}
 
-        {/* Cuisine chips — tap to filter by type, then refine with search below */}
-        {categoryId === "restaurants-dining" && (
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}>
-            {([
-              { label: "🍕 Italian", q: "Italian restaurant" },
-              { label: "🌮 Mexican", q: "Mexican restaurant" },
-              { label: "🍣 Japanese", q: "sushi Japanese" },
-              { label: "🍜 Chinese", q: "Chinese restaurant" },
-              { label: "🍛 Indian", q: "Indian restaurant" },
-              { label: "🥗 American", q: "American restaurant" },
-              { label: "🫙 Mediterranean", q: "Mediterranean restaurant" },
-              { label: "🍜 Thai", q: "Thai restaurant" },
-            ] as { label: string; q: string }[]).map(({ label, q }) => (
-              <button
-                key={q}
-                onClick={() => handleSearch(q)}
-                style={{
-                  padding: "6px 14px", borderRadius: 100,
-                  border: "1.5px solid var(--line)",
-                  background: searchQuery === q ? "var(--primary)" : "var(--surface)",
-                  color: searchQuery === q ? "var(--on-primary)" : "var(--ink)",
-                  fontSize: 13, fontFamily: "'DM Sans', sans-serif",
-                  fontWeight: 600, cursor: "pointer", whiteSpace: "nowrap" as const,
-                }}
-              >{label}</button>
-            ))}
-          </div>
-        )}
-
-        {/* Search bar — below cuisine chips for restaurants; use to search by name */}
-        {(categoryId === "restaurants-dining" || categoryId === "netflix-shows" || categoryId === "movies") && (
-          <div style={{ marginBottom: 16, position: "relative" }}>
-            <input
-              type="text"
-              placeholder={
-                categoryId === "restaurants-dining"
-                  ? "Or search by name (e.g. Nobu, Chipotle)"
-                  : "Search movies & shows (e.g. Inception, The Office)"
-              }
-              value={searchQuery}
-              onChange={(e) => handleSearch(e.target.value)}
-              style={{
-                width: "100%",
-                padding: "12px 40px 12px 16px",
-                borderRadius: 16,
-                border: "1.5px solid var(--line)",
-                fontSize: 15,
-                fontFamily: "'DM Sans', sans-serif",
-                background: "var(--surface)",
-                color: "var(--ink)",
-                boxSizing: "border-box" as const,
-                outline: "none",
-              }}
-            />
-            {searchQuery && (
-              <button
-                onClick={clearSearch}
-                style={{
-                  position: "absolute", right: 12, top: "50%",
-                  transform: "translateY(-50%)",
-                  background: "none", border: "none", cursor: "pointer",
-                  fontSize: 18, color: "var(--ink2)",
-                }}
-              >×</button>
-            )}
-          </div>
-        )}
-
-        {/* Genre chips for Streaming Night */}
-        {(categoryId === "netflix-shows" || categoryId === "movies") && !searchQuery && (
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 16 }}>
-            {([
-              { label: "❤️ Romance", q: "romance" },
-              { label: "😂 Comedy", q: "comedy" },
-              { label: "😱 Thriller", q: "thriller" },
-              { label: "🎭 Drama", q: "drama" },
-              { label: "🚀 Sci-Fi", q: "sci-fi" },
-              { label: "📽 Documentary", q: "documentary" },
-              { label: "🦸 Action", q: "action" },
-              { label: "👨‍👩‍👧 Family", q: "family movie" },
-            ] as { label: string; q: string }[]).map(({ label, q }) => (
-              <button
-                key={q}
-                onClick={() => handleSearch(q)}
-                style={{
-                  padding: "6px 14px", borderRadius: 100,
-                  border: "1.5px solid var(--line)",
-                  background: searchQuery === q ? "var(--primary)" : "var(--surface)",
-                  color: searchQuery === q ? "var(--on-primary)" : "var(--ink)",
-                  fontSize: 13, fontFamily: "'DM Sans', sans-serif",
-                  fontWeight: 600, cursor: "pointer", whiteSpace: "nowrap" as const,
-                }}
-              >{label}</button>
-            ))}
-          </div>
-        )}
-
                 {/* Category blob tiles */}
         <div className="tp-filter-label">Category</div>
         <div className="tp-tiles" role="radiogroup" aria-label="Category" data-testid="category-tiles">
@@ -1205,6 +1108,104 @@ export function SuggestionsPage() {
             <span className="tp-dot" aria-hidden={true} style={{ background: "#B2485E" }} />🌙 After Dark
           </button>
         </div>
+
+
+        {/* Cuisine chips — tap to filter by type, then refine with search below */}
+        {categoryId === "restaurants-dining" && (
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}>
+            {([
+              { label: "🍕 Italian", q: "Italian restaurant" },
+              { label: "🌮 Mexican", q: "Mexican restaurant" },
+              { label: "🍣 Japanese", q: "sushi Japanese" },
+              { label: "🍜 Chinese", q: "Chinese restaurant" },
+              { label: "🍛 Indian", q: "Indian restaurant" },
+              { label: "🥗 American", q: "American restaurant" },
+              { label: "🫙 Mediterranean", q: "Mediterranean restaurant" },
+              { label: "🍜 Thai", q: "Thai restaurant" },
+            ] as { label: string; q: string }[]).map(({ label, q }) => (
+              <button
+                key={q}
+                onClick={() => handleSearch(q)}
+                style={{
+                  padding: "6px 14px", borderRadius: 100,
+                  border: "1.5px solid var(--line)",
+                  background: searchQuery === q ? "var(--primary)" : "var(--surface)",
+                  color: searchQuery === q ? "var(--on-primary)" : "var(--ink)",
+                  fontSize: 13, fontFamily: "'DM Sans', sans-serif",
+                  fontWeight: 600, cursor: "pointer", whiteSpace: "nowrap" as const,
+                }}
+              >{label}</button>
+            ))}
+          </div>
+        )}
+
+        {/* Search bar — below cuisine chips for restaurants; use to search by name */}
+        {(categoryId === "restaurants-dining" || categoryId === "netflix-shows" || categoryId === "movies") && (
+          <div style={{ marginBottom: 16, position: "relative" }}>
+            <input
+              type="text"
+              placeholder={
+                categoryId === "restaurants-dining"
+                  ? "Or search by name (e.g. Nobu, Chipotle)"
+                  : "Search movies & shows (e.g. Inception, The Office)"
+              }
+              value={searchQuery}
+              onChange={(e) => handleSearch(e.target.value)}
+              style={{
+                width: "100%",
+                padding: "12px 40px 12px 16px",
+                borderRadius: 16,
+                border: "1.5px solid var(--line)",
+                fontSize: 15,
+                fontFamily: "'DM Sans', sans-serif",
+                background: "var(--surface)",
+                color: "var(--ink)",
+                boxSizing: "border-box" as const,
+                outline: "none",
+              }}
+            />
+            {searchQuery && (
+              <button
+                onClick={clearSearch}
+                style={{
+                  position: "absolute", right: 12, top: "50%",
+                  transform: "translateY(-50%)",
+                  background: "none", border: "none", cursor: "pointer",
+                  fontSize: 18, color: "var(--ink2)",
+                }}
+              >×</button>
+            )}
+          </div>
+        )}
+
+        {/* Genre chips for Streaming Night */}
+        {(categoryId === "netflix-shows" || categoryId === "movies") && !searchQuery && (
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 16 }}>
+            {([
+              { label: "❤️ Romance", q: "romance" },
+              { label: "😂 Comedy", q: "comedy" },
+              { label: "😱 Thriller", q: "thriller" },
+              { label: "🎭 Drama", q: "drama" },
+              { label: "🚀 Sci-Fi", q: "sci-fi" },
+              { label: "📽 Documentary", q: "documentary" },
+              { label: "🦸 Action", q: "action" },
+              { label: "👨‍👩‍👧 Family", q: "family movie" },
+            ] as { label: string; q: string }[]).map(({ label, q }) => (
+              <button
+                key={q}
+                onClick={() => handleSearch(q)}
+                style={{
+                  padding: "6px 14px", borderRadius: 100,
+                  border: "1.5px solid var(--line)",
+                  background: searchQuery === q ? "var(--primary)" : "var(--surface)",
+                  color: searchQuery === q ? "var(--on-primary)" : "var(--ink)",
+                  fontSize: 13, fontFamily: "'DM Sans', sans-serif",
+                  fontWeight: 600, cursor: "pointer", whiteSpace: "nowrap" as const,
+                }}
+              >{label}</button>
+            ))}
+          </div>
+        )}
 
         {/* When + How far segmented controls */}
         <div className="tp-filter-rows">

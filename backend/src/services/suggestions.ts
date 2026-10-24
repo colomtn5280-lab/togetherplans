@@ -625,6 +625,19 @@ export async function getSuggestions(query: SuggestionQuery): Promise<Suggestion
   }
 
   // Cache the core result immediately — fast for the returning user
+  // But first: inline photo enrichment for the top 12 items with a hard 2.5s deadline.
+  // This ensures tiles have photos when the user taps "Add to Date" on the fast path.
+  // Items that don't resolve in time are covered by background enrichment.
+  if (hasLocation && lat !== undefined && lng !== undefined) {
+    try {
+      const top = final.slice(0, 12);
+      await Promise.race([
+        enrichPhotos(top, lat, lng),
+        new Promise<void>((resolve) => setTimeout(resolve, 2500)),
+      ]);
+      // Propagate resolved imageUrls back into final (top is same object refs)
+    } catch { /* never block on photo enrichment */ }
+  }
   await cacheSet(key, JSON.stringify(final), cacheTtl(final));
 
   // E9: Personalized ranking (applied post-cache so cached entry stays generic)
