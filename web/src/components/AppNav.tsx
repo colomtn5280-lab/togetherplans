@@ -5,6 +5,7 @@ import { notificationsApi, groupsApi } from "../api/client";
 import type { Group } from "../types";
 import { useDarkMode } from "../hooks/useDarkMode";
 import { useTranslation } from "react-i18next";
+import { DmuLogo } from "./DmuLogo";
 import "./AppNav.css";
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -520,7 +521,7 @@ export function AppNav({ yourTurnCount = 0 }: { yourTurnCount?: number }) {
             to="/groups"
             className={`app-nav__tab${location.pathname === "/groups" ? " app-nav__tab--active" : ""}`}
           >
-            <span className="app-nav__tab-icon">📅</span>
+            <span className="app-nav__tab-icon"><DmuLogo size={22} /></span>
             {t('nav.plans')}
             {yourTurnCount > 0 && (
               <span style={{
