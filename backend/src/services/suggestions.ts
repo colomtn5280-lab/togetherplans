@@ -396,26 +396,15 @@ export async function getSuggestions(query: SuggestionQuery): Promise<Suggestion
     return seeds;
   }
 
-  // Cache check — stale-while-revalidate (E3)
-  // Fresh hit: return immediately.
-  // Stale hit: return immediately AND kick a background refresh so the NEXT
-  //   request is fast. The background refresh runs without awaiting.
-  const STALE_GRACE: Record<string, number> = {
-    events: 2 * 3600,   // serve event results up to 2h stale
-    places: 12 * 3600,  // serve place results up to 12h stale
-  };
-
   const cacheHit = !query._skipCache ? await cacheGetWithStale(key) : null;
   if (cacheHit) {
     try {
       const parsed = JSON.parse(cacheHit.value) as Suggestion[];
-      const hasEvents = parsed.some((s) => s.date);
-      const gracePeriod = hasEvents ? STALE_GRACE.events : STALE_GRACE.places;
       if (!cacheHit.stale) {
         logger.info(`Suggestions cache hit (fresh): ${key} (${parsed.length} results)`);
         return parsed;
       }
-      // Stale but within grace — return immediately, refresh in background
+      // Stale — return immediately, refresh in background
       logger.info(`Suggestions cache hit (stale, refreshing bg): ${key} (${parsed.length} results)`);
       void fetchAndCache(query, lat, lng, radiusMiles, category, key);
       return parsed;
