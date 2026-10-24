@@ -447,9 +447,13 @@ export async function getSuggestions(query: SuggestionQuery): Promise<Suggestion
       // Skip Overpass + Foursquare if static spine has adequate coverage (≥10 results).
       // They provide the same venue data from the same upstream sources,
       // but the static DB is faster and has no rate limits.
+      // Exception: Foursquare for hiking-trails is moved to background because it takes
+      // ~10s for that category on their end. Overpass covers trails fast (~400ms).
       ...(!useStaticSpine ? [
         { name: 'overpass', fetch: () => fetchOverpass(lat!, lng!, Math.min(radiusMiles, 30), category) },
-        { name: 'foursquare', fetch: () => fetchFoursquare(lat!, lng!, radiusMiles, category) },
+        ...(categorySlug !== 'hiking-trails' ? [
+          { name: 'foursquare', fetch: () => fetchFoursquare(lat!, lng!, radiusMiles, category) },
+        ] : []),
       ] : []),
       // NPS: national parks + events — primary for Outdoors, included in All.
       // Parks are already in the static DB (ETL loads NPS data nightly); the live
@@ -674,21 +678,25 @@ export async function getSuggestions(query: SuggestionQuery): Promise<Suggestion
       // Photo enrichment
       await enrichPhotos(enriched, lat, lng);
 
-      // NPS parks + events for Outdoors/hiking — moved to background to cut cold path
-      // from ~8s to ~1-2s. Static DB already covers parks; events are the main value-add.
+      // NPS parks + events + Foursquare trails for Outdoors/hiking — moved to background.
+      // NPS: static DB already covers parks; events are the main value-add.
+      // Foursquare hiking: takes ~10s for this category on their end; Overpass covers
+      // trails fast synchronously, Foursquare enriches the result in background.
       if (!category || category === 'Outdoors') {
         try {
-          const [npsParks, npsEvents] = await Promise.all([
+          const bgFetches: Promise<typeof enriched>[] = [
             fetchNpsParks(lat!, lng!, radiusMiles).catch(() => [] as typeof enriched),
             fetchNpsEvents(lat!, lng!, radiusMiles).catch(() => [] as typeof enriched),
-          ]);
-          const npsAll = [...npsParks, ...npsEvents];
-          if (npsAll.length) {
-            enriched = deduplicate([...enriched, ...npsAll]);
-            logger.info(`[bg] NPS: ${npsParks.length} parks + ${npsEvents.length} events for hiking near ${ideaCity}`);
+            fetchFoursquare(lat!, lng!, radiusMiles, category).catch(() => [] as typeof enriched),
+          ];
+          const [npsParks, npsEvents, fsqTrails] = await Promise.all(bgFetches);
+          const bgAll = [...npsParks, ...npsEvents, ...fsqTrails];
+          if (bgAll.length) {
+            enriched = deduplicate([...enriched, ...bgAll]);
+            logger.info(`[bg] hiking enrichment: NPS ${npsParks.length}+${npsEvents.length}, FSQ ${fsqTrails.length} near ${ideaCity}`);
           }
         } catch (err) {
-          logger.warn(`[bg] NPS fetch failed: ${err instanceof Error ? err.message : err}`);
+          logger.warn(`[bg] hiking enrichment failed: ${err instanceof Error ? err.message : err}`);
         }
       }
 
