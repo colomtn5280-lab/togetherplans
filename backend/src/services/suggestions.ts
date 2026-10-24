@@ -666,8 +666,12 @@ export async function getSuggestions(query: SuggestionQuery): Promise<Suggestion
         }
       }
 
-      // Photo enrichment
-      await enrichPhotos(enriched, lat, lng);
+      // Photo enrichment — skip for Hotels: LiteAPI provides curated CDN photos.
+      // Google Places hotel search returns generic stock/pool images. LiteAPI photos
+      // that came back as imageUrl are already correct — don't overwrite them.
+      if (category !== 'Hotels') {
+        await enrichPhotos(enriched, lat, lng);
+      }
 
       // Overwrite cache with fully enriched result
       await cacheSet(key, JSON.stringify(enriched), cacheTtl(enriched));
