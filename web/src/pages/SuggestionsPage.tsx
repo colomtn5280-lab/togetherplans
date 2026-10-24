@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { suggestionsApi } from "../api/client";
 import api from "../api/client";
 import { AppNav } from "../components/AppNav";
@@ -611,6 +611,25 @@ export function SuggestionsPage() {
 
   const clearTonight = () => setDateFilter("anytime");
 
+  const queryClient = useQueryClient();
+
+  // E6: Prefetch a category when the user hovers/touches the tile.
+  // Fires ~200-400ms before the click, giving a head-start on the cache warm.
+  const prefetchCategory = useCallback((catId: string | undefined) => {
+    const params = {
+      category: catId || undefined,
+      radius,
+      lat: zipActive ? undefined : coords?.lat,
+      lng: zipActive ? undefined : coords?.lng,
+      zip: zipActive ? zip : undefined,
+    };
+    queryClient.prefetchQuery({
+      queryKey: ["suggestions", { categoryId: catId, radius, lat: params.lat, lng: params.lng, dateFilter, zip: params.zip }],
+      queryFn: () => suggestionsApi.list({ ...params, dateFilter: dateFilter !== "anytime" ? dateFilter : undefined }),
+      staleTime: 5 * 60 * 1000, // 5 min — don't re-prefetch if already fresh
+    });
+  }, [queryClient, radius, zipActive, coords, zip, dateFilter]);
+
   const { data, isLoading, isError } = useQuery({
     queryKey: [
       "suggestions",
@@ -694,10 +713,37 @@ export function SuggestionsPage() {
       ];
   const weekendResults = weekendAll.filter((s) => s.isIdea !== true);
 
+  // E4: Phase-2 live events overlay — fires after Phase 1 renders.
+  // Only fetches when we have location. Merges dated events from external APIs
+  // on top of already-displayed static results (no blank screen waiting).
+  const liveQueryParams = {
+    category: categoryId || undefined,
+    radius,
+    lat: zipActive ? undefined : coords?.lat,
+    lng: zipActive ? undefined : coords?.lng,
+    zip: zipActive ? zip : undefined,
+    dateFilter: dateFilter !== "anytime" ? dateFilter : undefined,
+  };
+  const hasLocation = !!(coords || (zipActive && zip));
+  const { data: liveData } = useQuery({
+    queryKey: ["suggestions-live", liveQueryParams],
+    queryFn: () => suggestionsApi.live(liveQueryParams),
+    enabled: hasLocation && !isLoading && !isError,
+    staleTime: 5 * 60 * 1000,
+    retry: false,
+  });
+  const liveEvents: Suggestion[] = (liveData?.data ?? []) as Suggestion[];
+
   const tonightActive = dateFilter === "tonight";
   const showWeekendFallback = tonightIsEmpty && weekendResults.length > 0;
   // What actually renders in the main grid
-  const gridResults = showWeekendFallback ? weekendResults : realResults;
+  // E4: merge live events into grid (dedup by id)
+  const baseGrid = showWeekendFallback ? weekendResults : realResults;
+  const liveIds = new Set(liveEvents.map((e) => e.id));
+  const gridResults = [
+    ...liveEvents,
+    ...baseGrid.filter((s) => !liveIds.has(s.id)),
+  ];
 
   // Added key set
   const addedKeys = new Set(planOptions.map((o) => o.name + (o.address ?? "")));
@@ -939,6 +985,8 @@ export function SuggestionsPage() {
             className="tp-tile"
             role="radio"
             aria-checked={!categoryId ? true : false}
+            onMouseEnter={() => prefetchCategory(undefined)}
+            onTouchStart={() => prefetchCategory(undefined)}
             onClick={() => setSearchParams((p) => { p.delete("category"); return p; })}
           >
             <span className="tp-dot" aria-hidden={true} style={{ background: "var(--ink3, #9CA3AF)" }} />
@@ -946,71 +994,85 @@ export function SuggestionsPage() {
           </button>
           {/* Comedy → comedy */}
           <button className="tp-tile" role="radio" aria-checked={categoryId === "comedy" ? true : false}
+            onMouseEnter={() => prefetchCategory("comedy")} onTouchStart={() => prefetchCategory("comedy")}
             onClick={() => setSearchParams((p) => { p.set("category", "comedy"); return p; })}>
             <span className="tp-dot" aria-hidden={true} style={{ background: "var(--ink3, #9CA3AF)" }} />Comedy
           </button>
           {/* Concerts → concerts */}
           <button className="tp-tile" role="radio" aria-checked={categoryId === "concerts" ? true : false}
+            onMouseEnter={() => prefetchCategory("concerts")} onTouchStart={() => prefetchCategory("concerts")}
             onClick={() => setSearchParams((p) => { p.set("category", "concerts"); return p; })}>
             <span className="tp-dot" aria-hidden={true} style={{ background: "var(--primary)" }} />Concerts
           </button>
           {/* Family Events → family-events */}
           <button className="tp-tile" role="radio" aria-checked={categoryId === "family-events" ? true : false}
+            onMouseEnter={() => prefetchCategory("family-events")} onTouchStart={() => prefetchCategory("family-events")}
             onClick={() => setSearchParams((p) => { p.set("category", "family-events"); return p; })}>
             <span className="tp-dot" aria-hidden={true} style={{ background: "var(--ink3, #9CA3AF)" }} />Family Events
           </button>
           {/* Sports & Active → sports-active */}
           <button className="tp-tile" role="radio" aria-checked={categoryId === "sports-active" ? true : false}
+            onMouseEnter={() => prefetchCategory("sports-active")} onTouchStart={() => prefetchCategory("sports-active")}
             onClick={() => setSearchParams((p) => { p.set("category", "sports-active"); return p; })}>
             <span className="tp-dot" aria-hidden={true} style={{ background: "#5B8A6F" }} />Sports &amp; Active
           </button>
           {/* Hiking Trails → hiking-trails */}
           <button className="tp-tile" role="radio" aria-checked={categoryId === "hiking-trails" ? true : false}
+            onMouseEnter={() => prefetchCategory("hiking-trails")} onTouchStart={() => prefetchCategory("hiking-trails")}
             onClick={() => setSearchParams((p) => { p.set("category", "hiking-trails"); return p; })}>
             <span className="tp-dot" aria-hidden={true} style={{ background: "#5B8A6F" }} />Hiking Trails
           </button>
           {/* Hotel Stays → hotel-stays */}
           <button className="tp-tile" role="radio" aria-checked={categoryId === "hotel-stays" ? true : false}
+            onMouseEnter={() => prefetchCategory("hotel-stays")} onTouchStart={() => prefetchCategory("hotel-stays")}
             onClick={() => setSearchParams((p) => { p.set("category", "hotel-stays"); return p; })}>
             <span className="tp-dot" aria-hidden={true} style={{ background: "var(--ink3, #9CA3AF)" }} />Hotel Stays
           </button>
           {/* Local Experiences → local-experiences */}
           <button className="tp-tile" role="radio" aria-checked={categoryId === "local-experiences" ? true : false}
+            onMouseEnter={() => prefetchCategory("local-experiences")} onTouchStart={() => prefetchCategory("local-experiences")}
             onClick={() => setSearchParams((p) => { p.set("category", "local-experiences"); return p; })}>
             <span className="tp-dot" aria-hidden={true} style={{ background: "var(--ink3, #9CA3AF)" }} />Local Experiences
           </button>
           {/* Movies → movies */}
           <button className="tp-tile" role="radio" aria-checked={categoryId === "movies" ? true : false}
+            onMouseEnter={() => prefetchCategory("movies")} onTouchStart={() => prefetchCategory("movies")}
             onClick={() => setSearchParams((p) => { p.set("category", "movies"); return p; })}>
             <span className="tp-dot" aria-hidden={true} style={{ background: "var(--primary)" }} />Movies
           </button>
           {/* Netflix Shows → netflix-shows */}
           <button className="tp-tile" role="radio" aria-checked={categoryId === "netflix-shows" ? true : false}
+            onMouseEnter={() => prefetchCategory("netflix-shows")} onTouchStart={() => prefetchCategory("netflix-shows")}
             onClick={() => setSearchParams((p) => { p.set("category", "netflix-shows"); return p; })}>
             <span className="tp-dot" aria-hidden={true} style={{ background: "var(--ink3, #9CA3AF)" }} />Netflix Shows
           </button>
           {/* Performing Arts → performing-arts */}
           <button className="tp-tile" role="radio" aria-checked={categoryId === "performing-arts" ? true : false}
+            onMouseEnter={() => prefetchCategory("performing-arts")} onTouchStart={() => prefetchCategory("performing-arts")}
             onClick={() => setSearchParams((p) => { p.set("category", "performing-arts"); return p; })}>
             <span className="tp-dot" aria-hidden={true} style={{ background: "var(--primary)" }} />Performing Arts
           </button>
           {/* Restaurants & Dining → restaurants-dining */}
           <button className="tp-tile" role="radio" aria-checked={categoryId === "restaurants-dining" ? true : false}
+            onMouseEnter={() => prefetchCategory("restaurants-dining")} onTouchStart={() => prefetchCategory("restaurants-dining")}
             onClick={() => setSearchParams((p) => { p.set("category", "restaurants-dining"); return p; })}>
             <span className="tp-dot" aria-hidden={true} style={{ background: "var(--primary)" }} />Restaurants &amp; Dining
           </button>
           {/* Volunteering → volunteering */}
           <button className="tp-tile" role="radio" aria-checked={categoryId === "volunteering" ? true : false}
+            onMouseEnter={() => prefetchCategory("volunteering")} onTouchStart={() => prefetchCategory("volunteering")}
             onClick={() => setSearchParams((p) => { p.set("category", "volunteering"); return p; })}>
             <span className="tp-dot" aria-hidden={true} style={{ background: "var(--ink3, #9CA3AF)" }} />Volunteering
           </button>
           {/* Wellness & Spa → wellness-spa */}
           <button className="tp-tile" role="radio" aria-checked={categoryId === "wellness-spa" ? true : false}
+            onMouseEnter={() => prefetchCategory("wellness-spa")} onTouchStart={() => prefetchCategory("wellness-spa")}
             onClick={() => setSearchParams((p) => { p.set("category", "wellness-spa"); return p; })}>
             <span className="tp-dot" aria-hidden={true} style={{ background: "#5B8A6F" }} />Wellness &amp; Spa
           </button>
           {/* Wine & Drinks → wine-drinks */}
           <button className="tp-tile" role="radio" aria-checked={categoryId === "wine-drinks" ? true : false}
+            onMouseEnter={() => prefetchCategory("wine-drinks")} onTouchStart={() => prefetchCategory("wine-drinks")}
             onClick={() => setSearchParams((p) => { p.set("category", "wine-drinks"); return p; })}>
             <span className="tp-dot" aria-hidden={true} style={{ background: "var(--ink3, #9CA3AF)" }} />Wine &amp; Drinks
           </button>

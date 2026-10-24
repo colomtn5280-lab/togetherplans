@@ -79,6 +79,10 @@ export interface SuggestionQuery {
   category?: string;
   radiusMiles?: number;
   dateFilter?: string;
+  /** Internal sentinel: skip cache read during background stale-while-revalidate refresh. */
+  _skipCache?: boolean;
+  /** E9: optional user id for personalized ranking boost */
+  userId?: string;
 }
 
 /** Distance in miles between two lat/lng points (Haversine) */

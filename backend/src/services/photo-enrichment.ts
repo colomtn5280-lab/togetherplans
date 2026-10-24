@@ -12,7 +12,7 @@
  */
 
 import { logger } from '@/services/logger';
-import { cache } from '@/services/cache';
+import { cacheGet, cacheSet } from '@/services/cache';
 import type { Suggestion } from './sources/types';
 
 const GMAPS_BASE = 'https://maps.googleapis.com/maps/api';
@@ -37,7 +37,7 @@ async function googlePhotoForVenue(
   const cacheKey = `photo:gplaces:${name.toLowerCase().replace(/\s+/g, '-').slice(0, 40)}:${lat.toFixed(2)},${lng.toFixed(2)}`;
 
   // Cache check
-  const cached = await cache.get(cacheKey);
+  const cached = await cacheGet(cacheKey);
   if (cached !== null) return cached || undefined;
 
   try {
@@ -51,14 +51,14 @@ async function googlePhotoForVenue(
     searchUrl.searchParams.set('key', apiKey);
 
     const searchResp = await fetch(searchUrl.toString(), { signal: controller.signal });
-    if (!searchResp.ok) { clearTimeout(timer); await cache.set(cacheKey, '', PHOTO_CACHE_TTL); return undefined; }
+    if (!searchResp.ok) { clearTimeout(timer); await cacheSet(cacheKey, '', PHOTO_CACHE_TTL); return undefined; }
 
     const searchData = await searchResp.json() as {
       results?: Array<{ photos?: Array<{ photo_reference: string }> }>;
     };
 
     const photoRef = searchData.results?.[0]?.photos?.[0]?.photo_reference;
-    if (!photoRef) { clearTimeout(timer); await cache.set(cacheKey, '', PHOTO_CACHE_TTL); return undefined; }
+    if (!photoRef) { clearTimeout(timer); await cacheSet(cacheKey, '', PHOTO_CACHE_TTL); return undefined; }
 
     const photoUrl = new URL(`${GMAPS_BASE}/place/photo`);
     photoUrl.searchParams.set('maxwidth', '600');
@@ -67,10 +67,10 @@ async function googlePhotoForVenue(
 
     clearTimeout(timer);
     const imgUrl = photoUrl.toString();
-    await cache.set(cacheKey, imgUrl, PHOTO_CACHE_TTL);
+    await cacheSet(cacheKey, imgUrl, PHOTO_CACHE_TTL);
     return imgUrl;
   } catch {
-    await cache.set(cacheKey, '', PHOTO_CACHE_TTL).catch(() => undefined);
+    await cacheSet(cacheKey, '', PHOTO_CACHE_TTL).catch(() => undefined);
     return undefined;
   }
 }

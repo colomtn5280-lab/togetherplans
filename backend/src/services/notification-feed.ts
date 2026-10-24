@@ -10,7 +10,7 @@
  */
 
 import crypto from 'crypto';
-import { cache } from '@/services/cache';
+import { cacheGet, cacheSet } from '@/services/cache';
 import { logger } from '@/services/logger';
 
 export interface FeedNotification {
@@ -31,7 +31,7 @@ function feedKey(userId: string): string {
 
 export async function getFeed(userId: string): Promise<FeedNotification[]> {
   try {
-    const raw = await cache.get(feedKey(userId));
+    const raw = await cacheGet(feedKey(userId));
     if (!raw) return [];
     const parsed = JSON.parse(raw);
     return Array.isArray(parsed) ? (parsed as FeedNotification[]) : [];
@@ -42,7 +42,7 @@ export async function getFeed(userId: string): Promise<FeedNotification[]> {
 }
 
 async function saveFeed(userId: string, feed: FeedNotification[]): Promise<void> {
-  await cache.set(feedKey(userId), JSON.stringify(feed.slice(0, FEED_MAX_ENTRIES)), FEED_TTL_SECONDS);
+  await cacheSet(feedKey(userId), JSON.stringify(feed.slice(0, FEED_MAX_ENTRIES)), FEED_TTL_SECONDS);
 }
 
 export async function addFeedNotification(

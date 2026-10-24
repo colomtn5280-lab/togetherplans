@@ -313,6 +313,26 @@ export const suggestionsApi = {
         dateFilter: params.dateFilter,
       },
     }),
+
+  // E4: Phase-2 live events overlay (dated results only, no cache)
+  live: (params: {
+    category?: string;
+    lat?: number;
+    lng?: number;
+    radius?: number;
+    zip?: string;
+    dateFilter?: string;
+  }): Promise<AxiosResponse<Suggestion[]>> =>
+    api.get("/suggestions/live", {
+      params: {
+        lat: params.lat,
+        lng: params.lng,
+        zip: params.zip,
+        category: params.category,
+        radius: params.radius,
+        dateFilter: params.dateFilter,
+      },
+    }),
 };
 
 // ── Notifications ─────────────────────────────────────────────────────────────

@@ -358,6 +358,17 @@ model InviteCard {
   @@index([proposalId])
 }
 
+// E1: Postgres-backed suggestion cache (replaces in-memory MemoryCache in prod)
+// Switch to Memorystore Redis at ~5k DAU alongside DB upgrade.
+model SuggestionCache {
+  key       String   @id
+  value     String   @db.Text
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([expiresAt])
+}
+
 model AfterDarkItem {
   id            String   @id @default(uuid())
   title         String   @db.VarChar(140)

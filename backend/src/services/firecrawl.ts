@@ -1,5 +1,5 @@
 import * as crypto from 'crypto';
-import { cache } from '@/services/cache';
+import { cacheGet, cacheSet } from '@/services/cache';
 import { logger } from '@/services/logger';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -80,7 +80,7 @@ export async function scrapeBusinessProfile(url: string): Promise<ScrapedProfile
   const cacheKey = `firecrawl:biz:${urlHash(url)}`;
 
   try {
-    const cached = await cache.get(cacheKey);
+    const cached = await cacheGet(cacheKey);
     if (cached) return JSON.parse(cached) as ScrapedProfile;
   } catch {
     // cache miss — continue
@@ -118,7 +118,7 @@ export async function scrapeBusinessProfile(url: string): Promise<ScrapedProfile
       reservationUrl: typeof data.reservationUrl === 'string' ? data.reservationUrl : undefined,
     };
 
-    await cache.set(cacheKey, JSON.stringify(profile), 604800); // 7 days
+    await cacheSet(cacheKey, JSON.stringify(profile), 604800); // 7 days
     return profile;
   } catch (err) {
     logger.warn(`scrapeBusinessProfile failed for ${url}: ${String(err)}`);
@@ -132,7 +132,7 @@ export async function scrapeVenueDetail(url: string): Promise<VenueDetail> {
   const cacheKey = `firecrawl:venue:${urlHash(url)}`;
 
   try {
-    const cached = await cache.get(cacheKey);
+    const cached = await cacheGet(cacheKey);
     if (cached) return JSON.parse(cached) as VenueDetail;
   } catch {
     // cache miss — continue
@@ -174,7 +174,7 @@ export async function scrapeVenueDetail(url: string): Promise<VenueDetail> {
       rating: typeof data.rating === 'string' ? data.rating : undefined,
     };
 
-    await cache.set(cacheKey, JSON.stringify(detail), 86400); // 24 hours
+    await cacheSet(cacheKey, JSON.stringify(detail), 86400); // 24 hours
     return detail;
   } catch (err) {
     logger.warn(`scrapeVenueDetail failed for ${url}: ${String(err)}`);

@@ -7,6 +7,7 @@ import { logger } from '@/services/logger';
 import { getSourceHealth } from '@/services/source-health';
 import { runTomorrowReminders } from '@/services/notification-triggers';
 import { runVenueRefresh } from '@/jobs/venue-refresh';
+import { runWarmCache } from '@/jobs/warm-cache';
 
 export const internalRouter = Router();
 
@@ -223,5 +224,24 @@ internalRouter.post('/venue-refresh', async (req: Request, res: Response) => {
     .catch((err) => {
       logger.error('[venue-refresh] Failed', { err: String(err) });
     });
+});
+
+/**
+ * POST /api/internal/warm-cache
+ * E5: Metro pre-warming — fills suggestion cache for top 200 US metros × all categories.
+ * Returns immediately; job runs async in background (~4 hrs for full run).
+ * Query param: ?max=N to limit combos (useful for testing: ?max=10).
+ * Schedule: nightly at 2am UTC via Cloud Scheduler.
+ */
+internalRouter.post('/warm-cache', async (req: Request, res: Response) => {
+  const maxCombos = req.query.max ? parseInt(req.query.max as string, 10) : undefined;
+  const dryRun = req.query.dry === '1';
+
+  logger.info(`[warm-cache] Manual trigger via /api/internal/warm-cache max=${maxCombos ?? 'all'} dryRun=${dryRun}`);
+  res.json({ status: 'started', message: `Cache warm job started (dryRun=${dryRun}, max=${maxCombos ?? 'all'})` });
+
+  runWarmCache({ dryRun, maxCombos })
+    .then((results) => logger.info('[warm-cache] Complete', results))
+    .catch((err) => logger.error('[warm-cache] Failed', { err: String(err) }));
 });
 

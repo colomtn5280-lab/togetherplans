@@ -9,7 +9,7 @@ import { sendWelcomeEmail, sendPasswordResetEmail, sendAccountDeletedEmail, send
 import { verifyGoogleToken } from '@/services/oauth';
 import { verifyAppleToken } from '@/services/apple';
 import { logger } from '@/services/logger';
-import { cache } from '@/services/cache';
+import { cacheGet, cacheSet } from '@/services/cache';
 import { claimGuestVotes } from '@/services/guest-claim';
 import { config } from '@/config';
 
@@ -126,7 +126,7 @@ authRouter.post('/login', authLimiter, async (req, res: Response, next) => {
 
     // Email-based lockout check (effective behind proxies/CDNs where IP is shared)
     const attemptsKey = loginAttemptsKey(email);
-    const attemptsRaw = await cache.get(attemptsKey);
+    const attemptsRaw = await cacheGet(attemptsKey);
     const attempts = attemptsRaw ? parseInt(attemptsRaw, 10) : 0;
     if (attempts >= LOGIN_LOCKOUT_MAX) {
       return res.status(429).json({ error: 'Too many login attempts. Try again in 15 minutes.' });
@@ -135,7 +135,7 @@ authRouter.post('/login', authLimiter, async (req, res: Response, next) => {
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user || user.deletedAt) {
       // Increment failed attempt counter
-      await cache.set(attemptsKey, String(attempts + 1), LOGIN_LOCKOUT_TTL);
+      await cacheSet(attemptsKey, String(attempts + 1), LOGIN_LOCKOUT_TTL);
       return res.status(401).json({ error: 'Invalid credentials' });
     }
     if (!user.passwordHash) {
@@ -152,11 +152,11 @@ authRouter.post('/login', authLimiter, async (req, res: Response, next) => {
     }
     const ok = await bcrypt.compare(password, user.passwordHash);
     if (!ok) {
-      await cache.set(attemptsKey, String(attempts + 1), LOGIN_LOCKOUT_TTL);
+      await cacheSet(attemptsKey, String(attempts + 1), LOGIN_LOCKOUT_TTL);
       return res.status(401).json({ error: 'Invalid credentials' });
     }
     // Successful login — clear the lockout counter
-    await cache.set(attemptsKey, '0', LOGIN_LOCKOUT_TTL);
+    await cacheSet(attemptsKey, '0', LOGIN_LOCKOUT_TTL);
     const token = signToken(user.id, user.email);
     const refreshToken = await issueRefreshToken(user.id);
     res.cookie('refreshToken', refreshToken, {

@@ -87,9 +87,63 @@ suggestionsRouter.get('/', async (req: Request, res: Response, next: NextFunctio
       category: rawCategory,
       radiusMiles,
       dateFilter: rawDateFilter as string | undefined,
+      // E9: pass userId for personalized ranking when the request is authenticated
+      userId: (req as { user?: { userId?: string; id?: string } }).user?.userId ??
+               (req as { user?: { userId?: string; id?: string } }).user?.id,
     });
 
+    // E7: Cloudflare edge caching — suggestion results are identical per metro.
+    // Anon requests: cache 15 min at CDN edge, serve stale up to 1h.
+    // Auth'd requests: private (user-specific featured results may differ).
+    const isAuthed = !!req.headers.authorization;
+    if (!isAuthed) {
+      res.setHeader('Cache-Control', 'public, s-maxage=900, stale-while-revalidate=3600');
+    } else {
+      res.setHeader('Cache-Control', 'private, no-store');
+    }
+
     return res.json(suggestions);
+  } catch (err) {
+    return next(err);
+  }
+});
+
+/**
+ * GET /api/suggestions/live
+ *
+ * E4: Phase-2 progressive response. Returns ONLY live external-API results
+ * (Ticketmaster, PredictHQ, Bandsintown) without the static-spine wait.
+ * The frontend calls this after rendering Phase 1 (/api/suggestions) to
+ * overlay dated events on top of already-rendered venue cards.
+ *
+ * Same params as GET /api/suggestions.
+ */
+suggestionsRouter.get('/live', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const lat = req.query.lat !== undefined ? Number(req.query.lat) : undefined;
+    const lng = req.query.lng !== undefined ? Number(req.query.lng) : undefined;
+    const zip = typeof req.query.zip === 'string' ? req.query.zip.trim() : undefined;
+    const rawCategory = typeof req.query.category === 'string' ? req.query.category : undefined;
+    const rawRadius = req.query.radius !== undefined ? Number(req.query.radius) : undefined;
+    const rawDateFilter = typeof req.query.dateFilter === 'string' ? req.query.dateFilter : undefined;
+    const radiusMiles = rawRadius ? Math.min(Math.max(rawRadius, 1), 150) : 25;
+
+    // Fetch with a forced live-only flag (skip static spine + cache)
+    const suggestions = await getSuggestions({
+      lat: lat !== undefined && !isNaN(lat) ? lat : undefined,
+      lng: lng !== undefined && !isNaN(lng) ? lng : undefined,
+      zip,
+      category: rawCategory,
+      radiusMiles,
+      dateFilter: rawDateFilter as string | undefined,
+      _skipCache: true,
+    });
+
+    // Only return dated event results (the live-only value-add)
+    const liveEvents = suggestions.filter((s) => !!s.date);
+
+    res.setHeader('Cache-Control', 'no-store');
+    return res.json(liveEvents);
   } catch (err) {
     return next(err);
   }

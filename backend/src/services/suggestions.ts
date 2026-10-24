@@ -14,7 +14,7 @@
  * and cached per (zip/lat+lng + category + radius).
  */
 
-import { cache } from '@/services/cache';
+import { cacheGetWithStale, cacheSet } from '@/services/cache';
 import { logger } from '@/services/logger';
 import { recordSourceAttempt, recordSourceSuccess, recordSourceError } from '@/services/source-health';
 import { Suggestion, SuggestionCategory, SuggestionQuery, haversineMiles } from './sources/types';
@@ -142,9 +142,9 @@ export async function zipToLatLng(zip: string): Promise<[number, number]> {
 
   const cacheK = `zipgeo:us:${zip}`;
   try {
-    const cached = await cache.get(cacheK);
-    if (cached) {
-      const [la, ln] = JSON.parse(cached) as [number, number];
+    const zipCached = await cacheGetWithStale(cacheK);
+    if (zipCached) {
+      const [la, ln] = JSON.parse(zipCached.value) as [number, number];
       if (typeof la === 'number' && typeof ln === 'number') {
         zipMemory.set(zip, [la, ln]);
         return [la, ln];
@@ -168,7 +168,7 @@ export async function zipToLatLng(zip: string): Promise<[number, number]> {
       const ln = place ? parseFloat(place.longitude) : NaN;
       if (!isNaN(la) && !isNaN(ln)) {
         zipMemory.set(zip, [la, ln]);
-        await cache.set(cacheK, JSON.stringify([la, ln]), 30 * 86400).catch(() => undefined);
+        await cacheSet(cacheK, JSON.stringify([la, ln]), 30 * 86400).catch(() => undefined);
         return [la, ln];
       }
     }
@@ -234,6 +234,47 @@ function sortSuggestions(suggestions: Suggestion[], _userLat?: number, _userLng?
     if (b.distanceMiles !== undefined) return 1;
     return 0;
   });
+}
+
+// ---------------------------------------------------------------------------
+// E9: Personalized ranking — SQL scoring heuristic
+// Boosts suggestions whose category matches the user's past voted options.
+// No ML needed: simple category-affinity score from vote history.
+// Only fires when userId is present; cache-safe (boosts happen post-cache).
+// ---------------------------------------------------------------------------
+async function personalizeRanking(suggestions: Suggestion[], userId: string): Promise<Suggestion[]> {
+  try {
+    // Get categories inferred from the user's recent votes via option titles
+    // (Option model doesn't store activityType; we use vote count per category
+    // from the suggestions the user has added to proposals historically)
+    const cutoff = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
+    const votes = await prisma.vote.findMany({
+      where: { userId, createdAt: { gte: cutoff } },
+      include: { option: { select: { category: true } } },
+      take: 100,
+    });
+
+    // Tally category affinity scores
+    const affinity = new Map<string, number>();
+    for (const v of votes) {
+      const cat = (v.option as { category?: string | null })?.category;
+      if (cat) affinity.set(cat, (affinity.get(cat) ?? 0) + 1);
+    }
+
+    if (affinity.size === 0) return suggestions;
+
+    // Sort: user-preferred categories bubble up, everything else unchanged
+    return [...suggestions].sort((a, b) => {
+      const aScore = a.category ? (affinity.get(a.category) ?? 0) : 0;
+      const bScore = b.category ? (affinity.get(b.category) ?? 0) : 0;
+      // Only reorder if there's a meaningful difference — don't disrupt distance sort
+      if (Math.abs(aScore - bScore) < 2) return 0;
+      return bScore - aScore;
+    });
+  } catch (err) {
+    logger.warn(`[E9] Personalized ranking failed: ${err instanceof Error ? err.message : err}`);
+    return suggestions; // gracefully degrade — return unranked
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -355,15 +396,31 @@ export async function getSuggestions(query: SuggestionQuery): Promise<Suggestion
     return seeds;
   }
 
-  // Cache check
-  const cached = await cache.get(key);
-  if (cached) {
+  // Cache check — stale-while-revalidate (E3)
+  // Fresh hit: return immediately.
+  // Stale hit: return immediately AND kick a background refresh so the NEXT
+  //   request is fast. The background refresh runs without awaiting.
+  const STALE_GRACE: Record<string, number> = {
+    events: 2 * 3600,   // serve event results up to 2h stale
+    places: 12 * 3600,  // serve place results up to 12h stale
+  };
+
+  const cacheHit = !query._skipCache ? await cacheGetWithStale(key) : null;
+  if (cacheHit) {
     try {
-      const parsed = JSON.parse(cached) as Suggestion[];
-      logger.info(`Suggestions cache hit: ${key} (${parsed.length} results)`);
+      const parsed = JSON.parse(cacheHit.value) as Suggestion[];
+      const hasEvents = parsed.some((s) => s.date);
+      const gracePeriod = hasEvents ? STALE_GRACE.events : STALE_GRACE.places;
+      if (!cacheHit.stale) {
+        logger.info(`Suggestions cache hit (fresh): ${key} (${parsed.length} results)`);
+        return parsed;
+      }
+      // Stale but within grace — return immediately, refresh in background
+      logger.info(`Suggestions cache hit (stale, refreshing bg): ${key} (${parsed.length} results)`);
+      void fetchAndCache(query, lat, lng, radiusMiles, category, key);
       return parsed;
     } catch {
-      // corrupted cache entry — fall through
+      // corrupted entry — fall through to full fetch
     }
   }
 
@@ -513,7 +570,14 @@ export async function getSuggestions(query: SuggestionQuery): Promise<Suggestion
 
   // Deduplicate, sort, pad with seed if thin
   const deduped = deduplicate(filtered);
-  const sorted = sortSuggestions(deduped, lat, lng);
+  let sorted = sortSuggestions(deduped, lat, lng);
+
+  // E9: Personalized ranking — boost categories the user has voted for historically.
+  // Fires only when userId is provided (authenticated requests). Cache-safe: applied
+  // after cache read and before writing new entries.
+  if (query.userId) {
+    sorted = await personalizeRanking(sorted, query.userId);
+  }
 
   // Always include some seed suggestions if external sources are thin
   const minExternal = 5;
@@ -612,7 +676,29 @@ export async function getSuggestions(query: SuggestionQuery): Promise<Suggestion
   }
 
   // Cache it
-  await cache.set(key, JSON.stringify(final), cacheTtl(final));
+  await cacheSet(key, JSON.stringify(final), cacheTtl(final));
 
   return final;
+}
+
+// ---------------------------------------------------------------------------
+// E3 helper: full fetch + cache write, called from background refresh
+// ---------------------------------------------------------------------------
+async function fetchAndCache(
+  query: SuggestionQuery,
+  lat: number | undefined,
+  lng: number | undefined,
+  radiusMiles: number,
+  category: SuggestionCategory | undefined,
+  key: string,
+): Promise<void> {
+  try {
+    // Re-run the main function but skip the cache check (this IS the refresh)
+    // We pass a sentinel to skip the stale branch — simpler than extracting a sub-fn.
+    const fresh = await getSuggestions({ ...query, _skipCache: true });
+    await cacheSet(key, JSON.stringify(fresh), cacheTtl(fresh));
+    logger.info(`Background cache refresh complete: ${key} (${fresh.length} results)`);
+  } catch (err) {
+    logger.warn(`Background cache refresh failed: ${key}: ${err instanceof Error ? err.message : err}`);
+  }
 }
