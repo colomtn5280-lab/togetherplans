@@ -52,20 +52,26 @@ export async function renderAndUploadCard(
   const page = await browser.newPage();
 
   try {
-    // 1080x1920 viewport (9:16 story format)
-    await page.setViewport({ width: 1080, height: 1920, deviceScaleFactor: 1 });
+    // 1080x1920 viewport — the native card design dimensions (9:16 story format)
+    await page.setViewport({ width: 1080, height: 1920, deviceScaleFactor: 2 });
     await page.setContent(html, { waitUntil: 'load', timeout: 15000 });
 
-    // PNG screenshot
+    // PNG screenshot at native 1080x1920 (@2x = 2160x3840 for crisp displays)
     const pngBuf = await page.screenshot({ type: 'png', fullPage: false }) as Buffer;
     const pngPath = `invite-cards/${proposalId}/${templateId}-${data.mode}.png`;
     const pngUrl = await uploadBuffer(pngBuf, pngPath, 'image/png');
 
-    // PDF (A4 but cropped to 9:16 equivalent)
+    // PDF — US Letter size (8.5x11"), card scaled to fill the page.
+    // The card is 9:16 (tall), letter is 8.5x11 (also tall portrait).
+    // At letter DPI: 8.5" = 816px, 11" = 1056px. Card is 1080x1920.
+    // Scale to fit width (816/1080 = 0.756x) → card renders at 816x1451px on letter.
+    // We render at 1080x1920 and let the PDF engine scale to letter.
     const pdfBuf = await page.pdf({
-      width: '1080px',
-      height: '1920px',
+      format: 'Letter',
       printBackground: true,
+      margin: { top: '0', right: '0', bottom: '0', left: '0' },
+      // Scale the 1080px-wide card to fill 8.5" letter width
+      scale: 0.756,
     }) as Buffer;
     const pdfPath = `invite-cards/${proposalId}/${templateId}-${data.mode}.pdf`;
     const pdfUrl = await uploadBuffer(pdfBuf, pdfPath, 'application/pdf');
