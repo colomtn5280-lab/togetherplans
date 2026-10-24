@@ -33,8 +33,14 @@ async function getBrowser() {
 
 async function uploadBuffer(buf: Buffer, gcsPath: string, contentType: string): Promise<string> {
   const file = storage.bucket(BUCKET).file(gcsPath);
-  await file.save(buf, { contentType, resumable: false });
-  await file.makePublic();
+  await file.save(buf, {
+    contentType,
+    resumable: false,
+    // Uniform bucket-level access is enabled — makePublic() is not allowed.
+    // Public read is granted at the bucket IAM level; just set Cache-Control.
+    metadata: { cacheControl: 'public, max-age=31536000' },
+  });
+  // Do NOT call file.makePublic() — uniform bucket-level access blocks per-object ACLs.
   return `https://storage.googleapis.com/${BUCKET}/${gcsPath}`;
 }
 

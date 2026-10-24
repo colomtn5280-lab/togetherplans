@@ -94,8 +94,12 @@ inviteCardsRouter.post('/:proposalId/photo', upload.single('photo'), async (req:
     const ext = req.file.mimetype.split('/')[1] || 'jpg';
     const gcsPath = `invite-cards/${proposalId}/user-photo.${ext}`;
     const file = storage.bucket(BUCKET).file(gcsPath);
-    await file.save(req.file.buffer, { contentType: req.file.mimetype, resumable: false });
-    await file.makePublic();
+    await file.save(req.file.buffer, {
+      contentType: req.file.mimetype,
+      resumable: false,
+      metadata: { cacheControl: 'public, max-age=31536000' },
+    });
+    // Do NOT call makePublic() — uniform bucket-level access blocks per-object ACLs.
     const photoUrl = `https://storage.googleapis.com/${BUCKET}/${gcsPath}`;
 
     // Update card record
