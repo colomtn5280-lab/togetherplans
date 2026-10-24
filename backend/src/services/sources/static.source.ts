@@ -27,7 +27,8 @@ export const STATIC_CATEGORIES = new Set<string>([
   'performing-arts',   // stored in DB as 'arts-culture'
   'concerts',          // stored in DB as 'live-music-concerts'
   'comedy',
-  'movies',
+  // movies intentionally excluded: static DB has movie theaters, not films.
+  // TMDB is the only correct source for this category.
   'local-experiences', // stored in DB as 'experiences'
   'family-events',
   'hiking-trails',

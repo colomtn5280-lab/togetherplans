@@ -447,24 +447,16 @@ export async function getSuggestions(query: SuggestionQuery): Promise<Suggestion
       // Skip Overpass + Foursquare if static spine has adequate coverage (≥10 results).
       // They provide the same venue data from the same upstream sources,
       // but the static DB is faster and has no rate limits.
-      // Exception: for hiking-trails, BOTH Overpass and Foursquare are moved to background.
-      // Overpass has an 8s timeout that stalls Promise.allSettled for the entire fan-out;
-      // Foursquare hiking also takes ~10s. Static DB has no hiking data yet, so first user
-      // gets Ticketmaster/PredictHQ general events. Background fills trails 8-10s later.
-      ...(!useStaticSpine && categorySlug !== 'hiking-trails' ? [
+      // Also skip for movies: Overpass/FSQ return theaters, not films. TMDB is correct.
+      // Revert hiking: run Overpass + Foursquare synchronously so users get real trails
+      // (not generic seeds). The spinner is better UX than seed placeholders.
+      ...(!useStaticSpine && categorySlug !== 'movies' ? [
         { name: 'overpass', fetch: () => fetchOverpass(lat!, lng!, Math.min(radiusMiles, 30), category) },
         { name: 'foursquare', fetch: () => fetchFoursquare(lat!, lng!, radiusMiles, category) },
-      ] : !useStaticSpine && categorySlug === 'hiking-trails' ? [
-        // Overpass is included for non-hiking categories only (see background block for hiking)
       ] : []),
-      // NPS: national parks + events — primary for Outdoors, included in All.
-      // Parks are already in the static DB (ETL loads NPS data nightly); the live
-      // NPS call adds minimal marginal results but costs ~800ms per request.
-      // Both nps-parks and nps-events are moved to the background enrichment block
-      // for the Outdoors/hiking category to keep cold path fast (~1-2s vs ~8s).
-      // They are still fetched synchronously for the 'All' category (lower traffic,
-      // broader result set makes the wait worth it).
-      ...(!category
+      // NPS: national parks + events — primary for Outdoors/hiking.
+      // Run synchronously so users see real park data, not seeds.
+      ...(!category || category === 'Outdoors'
         ? [
             { name: 'nps-parks', fetch: () => fetchNpsParks(lat!, lng!, radiusMiles) },
             { name: 'nps-events', fetch: () => fetchNpsEvents(lat!, lng!, radiusMiles) },
@@ -572,14 +564,10 @@ export async function getSuggestions(query: SuggestionQuery): Promise<Suggestion
   const deduped = deduplicate(filtered);
   const sorted = sortSuggestions(deduped, lat, lng);
 
-  // Always include some seed suggestions if external sources are thin
-  const minExternal = 5;
+  // No seed fallback — return empty array and let the frontend spinner show.
+  // Users should see a spinner while APIs load rather than generic placeholder tiles
+  // that look like real results and cause them to click away.
   let final = sorted;
-  if (deduped.filter((s) => s.source !== 'seed').length < minExternal) {
-    const seeds = getSeedSuggestions(category, 12);
-    const withSeeds = deduplicate([...sorted, ...seeds]);
-    final = sortSuggestions(withSeeds, lat, lng);
-  }
 
   logger.info(`Suggestions assembled: ${final.length} total [${sourceSummary.join(', ')}]`);
 
@@ -662,7 +650,8 @@ export async function getSuggestions(query: SuggestionQuery): Promise<Suggestion
       // Tavily fallback
       const TAVILY_THRESHOLD = 5;
       const realCount = enriched.filter((s) => !s.isIdea && s.source !== 'seed').length;
-      const skipCategories = new Set(['Movies', 'Streaming Night', 'After Dark']);
+      // Skip Outdoors/hiking: Tavily returns "10 best trails in..." listicles, not venues.
+      const skipCategories = new Set(['Movies', 'Streaming Night', 'After Dark', 'Outdoors']);
       const shouldFireTavily =
         process.env.TAVILY_API_KEY &&
         !skipCategories.has(category ?? '') &&
@@ -679,29 +668,6 @@ export async function getSuggestions(query: SuggestionQuery): Promise<Suggestion
 
       // Photo enrichment
       await enrichPhotos(enriched, lat, lng);
-
-      // NPS parks + events + Foursquare trails for Outdoors/hiking — moved to background.
-      // NPS: static DB already covers parks; events are the main value-add.
-      // Foursquare hiking: takes ~10s for this category on their end; Overpass covers
-      // trails fast synchronously, Foursquare enriches the result in background.
-      if (!category || category === 'Outdoors') {
-        try {
-          const bgFetches: Promise<typeof enriched>[] = [
-            fetchNpsParks(lat!, lng!, radiusMiles).catch(() => [] as typeof enriched),
-            fetchNpsEvents(lat!, lng!, radiusMiles).catch(() => [] as typeof enriched),
-            fetchFoursquare(lat!, lng!, radiusMiles, category).catch(() => [] as typeof enriched),
-            fetchOverpass(lat!, lng!, Math.min(radiusMiles, 30), category).catch(() => [] as typeof enriched),
-          ];
-          const [npsParks, npsEvents, fsqTrails, overpassTrails] = await Promise.all(bgFetches);
-          const bgAll = [...npsParks, ...npsEvents, ...fsqTrails, ...overpassTrails];
-          if (bgAll.length) {
-            enriched = deduplicate([...enriched, ...bgAll]);
-            logger.info(`[bg] hiking enrichment: NPS ${npsParks.length}+${npsEvents.length}, FSQ ${fsqTrails.length}, OSM ${overpassTrails.length} near ${ideaCity}`);
-          }
-        } catch (err) {
-          logger.warn(`[bg] hiking enrichment failed: ${err instanceof Error ? err.message : err}`);
-        }
-      }
 
       // Overwrite cache with fully enriched result
       await cacheSet(key, JSON.stringify(enriched), cacheTtl(enriched));
