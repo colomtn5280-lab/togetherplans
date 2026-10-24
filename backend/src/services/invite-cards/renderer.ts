@@ -115,14 +115,13 @@ export async function renderAndUploadCard(
     const pngUrl = await uploadBuffer(pngBuf, pngPath, 'image/png');
 
     // PDF — page sized to exact 9:16 ratio at 8.5" width:
-    // 8.5" × (16/9 × 8.5") = 8.5" × 15.11" = 612pt × 1088pt
+    // 8.5" x 15.11" (9:16 ratio) — card fills page edge-to-edge
     // Card fills the page edge-to-edge, no margins.
     const pdfBuf = await page.pdf({
-      width: '612pt',   // 8.5 inches
-      height: '1088pt', // 15.11 inches (9:16 at 8.5")
+      width: '8.5in',
+      height: '15.11in',
       printBackground: true,
       margin: { top: '0', right: '0', bottom: '0', left: '0' },
-      // No scale needed — card fills the 360×640 viewport which maps to the page
     }) as Buffer;
     const pdfPath = `invite-cards/${proposalId}/${templateId}-${data.mode}.pdf`;
     const pdfUrl = await uploadBuffer(pdfBuf, pdfPath, 'application/pdf');
