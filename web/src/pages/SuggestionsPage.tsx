@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -611,6 +611,17 @@ export function SuggestionsPage() {
 
   const clearTonight = () => setDateFilter("anytime");
 
+  const [searchQuery, setSearchQuery] = useState("");
+  const searchTimeoutRef = useRef<number | null>(null);
+
+  const handleSearch = useCallback((q: string) => {
+    setSearchQuery(q);
+  }, []);
+
+  const clearSearch = useCallback(() => {
+    setSearchQuery("");
+  }, []);
+
   const queryClient = useQueryClient();
 
   // E6: Prefetch a category when the user hovers/touches the tile.
@@ -640,17 +651,24 @@ export function SuggestionsPage() {
         lng: zipActive ? undefined : coords?.lng,
         dateFilter,
         zip: zipActive ? zip : undefined,
+        searchQuery,
       },
     ],
-    queryFn: () =>
-      suggestionsApi.list({
+    queryFn: () => {
+      if (searchQuery.trim()) {
+        return api.get("/suggestions/search", {
+          params: { q: searchQuery.trim(), category: categoryId || undefined },
+        });
+      }
+      return suggestionsApi.list({
         category: categoryId || undefined,
         radius,
         lat: zipActive ? undefined : coords?.lat,
         lng: zipActive ? undefined : coords?.lng,
         zip: zipActive ? zip : undefined,
         dateFilter: dateFilter !== "anytime" ? dateFilter : undefined,
-      }),
+      });
+    },
     enabled: true,
   });
 
@@ -977,6 +995,101 @@ export function SuggestionsPage() {
           </div>
         )}
 
+        {/* Search bar for searchable categories */}
+        {(categoryId === "restaurants-dining" || categoryId === "netflix-shows" || categoryId === "movies") && (
+          <div style={{ marginBottom: 16, position: "relative" }}>
+            <input
+              type="text"
+              placeholder={
+                categoryId === "restaurants-dining"
+                  ? "Search restaurants (e.g. Nobu, sushi near me)"
+                  : "Search movies & shows (e.g. Inception, The Office)"
+              }
+              value={searchQuery}
+              onChange={(e) => handleSearch(e.target.value)}
+              style={{
+                width: "100%",
+                padding: "12px 40px 12px 16px",
+                borderRadius: 16,
+                border: "1.5px solid var(--line)",
+                fontSize: 15,
+                fontFamily: "'DM Sans', sans-serif",
+                background: "var(--surface)",
+                color: "var(--ink)",
+                boxSizing: "border-box" as const,
+                outline: "none",
+              }}
+            />
+            {searchQuery && (
+              <button
+                onClick={clearSearch}
+                style={{
+                  position: "absolute", right: 12, top: "50%",
+                  transform: "translateY(-50%)",
+                  background: "none", border: "none", cursor: "pointer",
+                  fontSize: 18, color: "var(--ink2)",
+                }}
+              >×</button>
+            )}
+          </div>
+        )}
+
+        {/* Cuisine chips */}
+        {categoryId === "restaurants-dining" && !searchQuery && (
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 16 }}>
+            {([
+              { label: "\uD83C\uDF55 Italian", q: "Italian restaurant" },
+              { label: "\uD83C\uDF2E Mexican", q: "Mexican restaurant" },
+              { label: "\uD83C\uDF63 Japanese", q: "sushi Japanese" },
+              { label: "\uD83C\uDF5C Chinese", q: "Chinese restaurant" },
+              { label: "\uD83C\uDF5B Indian", q: "Indian restaurant" },
+              { label: "\uD83E\uDD57 American", q: "American restaurant" },
+              { label: "\uD83C\uDF2F Mediterranean", q: "Mediterranean restaurant" },
+              { label: "\uD83C\uDF5C Thai", q: "Thai restaurant" },
+            ] as { label: string; q: string }[]).map(({ label, q }) => (
+              <button
+                key={q}
+                onClick={() => handleSearch(q)}
+                style={{
+                  padding: "6px 14px", borderRadius: 100,
+                  border: "1.5px solid var(--line)",
+                  background: "var(--surface)", color: "var(--ink)",
+                  fontSize: 13, fontFamily: "'DM Sans', sans-serif",
+                  fontWeight: 600, cursor: "pointer", whiteSpace: "nowrap" as const,
+                }}
+              >{label}</button>
+            ))}
+          </div>
+        )}
+
+        {/* Genre chips for Movie Night */}
+        {(categoryId === "netflix-shows" || categoryId === "movies") && !searchQuery && (
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 16 }}>
+            {([
+              { label: "\u2764\uFE0F Romance", q: "romance" },
+              { label: "\uD83D\uDE02 Comedy", q: "comedy" },
+              { label: "\uD83D\uDE31 Thriller", q: "thriller" },
+              { label: "\uD83C\uDFAD Drama", q: "drama" },
+              { label: "\uD83D\uDE80 Sci-Fi", q: "sci-fi" },
+              { label: "\uD83D\uDCFD Documentary", q: "documentary" },
+              { label: "\uD83E\uDDB8 Action", q: "action" },
+              { label: "\uD83D\uDC68\u200D\uD83D\uDC69\u200D\uD83D\uDC67 Family", q: "family movie" },
+            ] as { label: string; q: string }[]).map(({ label, q }) => (
+              <button
+                key={q}
+                onClick={() => handleSearch(q)}
+                style={{
+                  padding: "6px 14px", borderRadius: 100,
+                  border: "1.5px solid var(--line)",
+                  background: "var(--surface)", color: "var(--ink)",
+                  fontSize: 13, fontFamily: "'DM Sans', sans-serif",
+                  fontWeight: 600, cursor: "pointer", whiteSpace: "nowrap" as const,
+                }}
+              >{label}</button>
+            ))}
+          </div>
+        )}
+
         {/* Category blob tiles */}
         <div className="tp-filter-label">Category</div>
         <div className="tp-tiles" role="radiogroup" aria-label="Category" data-testid="category-tiles">
@@ -987,7 +1100,7 @@ export function SuggestionsPage() {
             aria-checked={!categoryId ? true : false}
             onMouseEnter={() => prefetchCategory(undefined)}
             onTouchStart={() => prefetchCategory(undefined)}
-            onClick={() => setSearchParams((p) => { p.delete("category"); return p; })}
+            onClick={() => { clearSearch(); setSearchParams((p) => { p.delete("category"); return p; }); }}
           >
             <span className="tp-dot" aria-hidden={true} style={{ background: "var(--ink3, #9CA3AF)" }} />
             All categories
@@ -995,86 +1108,86 @@ export function SuggestionsPage() {
           {/* Comedy → comedy */}
           <button className="tp-tile" role="radio" aria-checked={categoryId === "comedy" ? true : false}
             onMouseEnter={() => prefetchCategory("comedy")} onTouchStart={() => prefetchCategory("comedy")}
-            onClick={() => setSearchParams((p) => { p.set("category", "comedy"); return p; })}>
+            onClick={() => { clearSearch(); setSearchParams((p) => { p.set("category", "comedy"); return p; }); }}>
             <span className="tp-dot" aria-hidden={true} style={{ background: "var(--ink3, #9CA3AF)" }} />Comedy
           </button>
           {/* Concerts → concerts */}
           <button className="tp-tile" role="radio" aria-checked={categoryId === "concerts" ? true : false}
             onMouseEnter={() => prefetchCategory("concerts")} onTouchStart={() => prefetchCategory("concerts")}
-            onClick={() => setSearchParams((p) => { p.set("category", "concerts"); return p; })}>
+            onClick={() => { clearSearch(); setSearchParams((p) => { p.set("category", "concerts"); return p; }); }}>
             <span className="tp-dot" aria-hidden={true} style={{ background: "var(--primary)" }} />Concerts
           </button>
           {/* Family Events → family-events */}
           <button className="tp-tile" role="radio" aria-checked={categoryId === "family-events" ? true : false}
             onMouseEnter={() => prefetchCategory("family-events")} onTouchStart={() => prefetchCategory("family-events")}
-            onClick={() => setSearchParams((p) => { p.set("category", "family-events"); return p; })}>
-            <span className="tp-dot" aria-hidden={true} style={{ background: "var(--ink3, #9CA3AF)" }} />Family Events
+            onClick={() => { clearSearch(); setSearchParams((p) => { p.set("category", "family-events"); return p; }); }}>
+            <span className="tp-dot" aria-hidden={true} style={{ background: "var(--ink3, #9CA3AF)" }} />Family Activities
           </button>
           {/* Sports & Active → sports-active */}
           <button className="tp-tile" role="radio" aria-checked={categoryId === "sports-active" ? true : false}
             onMouseEnter={() => prefetchCategory("sports-active")} onTouchStart={() => prefetchCategory("sports-active")}
-            onClick={() => setSearchParams((p) => { p.set("category", "sports-active"); return p; })}>
+            onClick={() => { clearSearch(); setSearchParams((p) => { p.set("category", "sports-active"); return p; }); }}>
             <span className="tp-dot" aria-hidden={true} style={{ background: "#5B8A6F" }} />Sports &amp; Active
           </button>
           {/* Hiking Trails → hiking-trails */}
           <button className="tp-tile" role="radio" aria-checked={categoryId === "hiking-trails" ? true : false}
             onMouseEnter={() => prefetchCategory("hiking-trails")} onTouchStart={() => prefetchCategory("hiking-trails")}
-            onClick={() => setSearchParams((p) => { p.set("category", "hiking-trails"); return p; })}>
+            onClick={() => { clearSearch(); setSearchParams((p) => { p.set("category", "hiking-trails"); return p; }); }}>
             <span className="tp-dot" aria-hidden={true} style={{ background: "#5B8A6F" }} />Hiking Trails
           </button>
           {/* Hotel Stays → hotel-stays */}
           <button className="tp-tile" role="radio" aria-checked={categoryId === "hotel-stays" ? true : false}
             onMouseEnter={() => prefetchCategory("hotel-stays")} onTouchStart={() => prefetchCategory("hotel-stays")}
-            onClick={() => setSearchParams((p) => { p.set("category", "hotel-stays"); return p; })}>
+            onClick={() => { clearSearch(); setSearchParams((p) => { p.set("category", "hotel-stays"); return p; }); }}>
             <span className="tp-dot" aria-hidden={true} style={{ background: "var(--ink3, #9CA3AF)" }} />Hotel Stays
           </button>
           {/* Local Experiences → local-experiences */}
           <button className="tp-tile" role="radio" aria-checked={categoryId === "local-experiences" ? true : false}
             onMouseEnter={() => prefetchCategory("local-experiences")} onTouchStart={() => prefetchCategory("local-experiences")}
-            onClick={() => setSearchParams((p) => { p.set("category", "local-experiences"); return p; })}>
+            onClick={() => { clearSearch(); setSearchParams((p) => { p.set("category", "local-experiences"); return p; }); }}>
             <span className="tp-dot" aria-hidden={true} style={{ background: "var(--ink3, #9CA3AF)" }} />Local Experiences
           </button>
           {/* Movies → movies */}
           <button className="tp-tile" role="radio" aria-checked={categoryId === "movies" ? true : false}
             onMouseEnter={() => prefetchCategory("movies")} onTouchStart={() => prefetchCategory("movies")}
-            onClick={() => setSearchParams((p) => { p.set("category", "movies"); return p; })}>
+            onClick={() => { clearSearch(); setSearchParams((p) => { p.set("category", "movies"); return p; }); }}>
             <span className="tp-dot" aria-hidden={true} style={{ background: "var(--primary)" }} />Movies
           </button>
           {/* Netflix Shows → netflix-shows */}
           <button className="tp-tile" role="radio" aria-checked={categoryId === "netflix-shows" ? true : false}
             onMouseEnter={() => prefetchCategory("netflix-shows")} onTouchStart={() => prefetchCategory("netflix-shows")}
-            onClick={() => setSearchParams((p) => { p.set("category", "netflix-shows"); return p; })}>
-            <span className="tp-dot" aria-hidden={true} style={{ background: "var(--ink3, #9CA3AF)" }} />Netflix Shows
+            onClick={() => { clearSearch(); setSearchParams((p) => { p.set("category", "netflix-shows"); return p; }); }}>
+            <span className="tp-dot" aria-hidden={true} style={{ background: "var(--ink3, #9CA3AF)" }} />Movie Night
           </button>
           {/* Performing Arts → performing-arts */}
           <button className="tp-tile" role="radio" aria-checked={categoryId === "performing-arts" ? true : false}
             onMouseEnter={() => prefetchCategory("performing-arts")} onTouchStart={() => prefetchCategory("performing-arts")}
-            onClick={() => setSearchParams((p) => { p.set("category", "performing-arts"); return p; })}>
+            onClick={() => { clearSearch(); setSearchParams((p) => { p.set("category", "performing-arts"); return p; }); }}>
             <span className="tp-dot" aria-hidden={true} style={{ background: "var(--primary)" }} />Performing Arts
           </button>
           {/* Restaurants & Dining → restaurants-dining */}
           <button className="tp-tile" role="radio" aria-checked={categoryId === "restaurants-dining" ? true : false}
             onMouseEnter={() => prefetchCategory("restaurants-dining")} onTouchStart={() => prefetchCategory("restaurants-dining")}
-            onClick={() => setSearchParams((p) => { p.set("category", "restaurants-dining"); return p; })}>
+            onClick={() => { clearSearch(); setSearchParams((p) => { p.set("category", "restaurants-dining"); return p; }); }}>
             <span className="tp-dot" aria-hidden={true} style={{ background: "var(--primary)" }} />Restaurants &amp; Dining
           </button>
           {/* Volunteering → volunteering */}
           <button className="tp-tile" role="radio" aria-checked={categoryId === "volunteering" ? true : false}
             onMouseEnter={() => prefetchCategory("volunteering")} onTouchStart={() => prefetchCategory("volunteering")}
-            onClick={() => setSearchParams((p) => { p.set("category", "volunteering"); return p; })}>
+            onClick={() => { clearSearch(); setSearchParams((p) => { p.set("category", "volunteering"); return p; }); }}>
             <span className="tp-dot" aria-hidden={true} style={{ background: "var(--ink3, #9CA3AF)" }} />Volunteering
           </button>
           {/* Wellness & Spa → wellness-spa */}
           <button className="tp-tile" role="radio" aria-checked={categoryId === "wellness-spa" ? true : false}
             onMouseEnter={() => prefetchCategory("wellness-spa")} onTouchStart={() => prefetchCategory("wellness-spa")}
-            onClick={() => setSearchParams((p) => { p.set("category", "wellness-spa"); return p; })}>
+            onClick={() => { clearSearch(); setSearchParams((p) => { p.set("category", "wellness-spa"); return p; }); }}>
             <span className="tp-dot" aria-hidden={true} style={{ background: "#5B8A6F" }} />Wellness &amp; Spa
           </button>
           {/* Wine & Drinks → wine-drinks */}
           <button className="tp-tile" role="radio" aria-checked={categoryId === "wine-drinks" ? true : false}
             onMouseEnter={() => prefetchCategory("wine-drinks")} onTouchStart={() => prefetchCategory("wine-drinks")}
-            onClick={() => setSearchParams((p) => { p.set("category", "wine-drinks"); return p; })}>
-            <span className="tp-dot" aria-hidden={true} style={{ background: "var(--ink3, #9CA3AF)" }} />Wine &amp; Drinks
+            onClick={() => { clearSearch(); setSearchParams((p) => { p.set("category", "wine-drinks"); return p; }); }}>
+            <span className="tp-dot" aria-hidden={true} style={{ background: "var(--ink3, #9CA3AF)" }} />Bars &amp; Nightlife
           </button>
 
           {/* After Dark → after-dark */}

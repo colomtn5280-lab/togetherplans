@@ -105,7 +105,6 @@ export async function getStaticVenues(
     }>;
 
     if (categorySlug === 'hiking-trails') {
-      // UNION venues (NPS) + venues_osm (OSM trails) for hiking
       rows = await (prisma as any).$queryRaw`
         SELECT
           id, name, category, address, city, state,
@@ -130,6 +129,44 @@ export async function getStaticVenues(
           ST_Distance(location, ST_MakePoint(${lng}, ${lat})::geography) AS dist_m
         FROM venues_osm
         WHERE category = 'hiking-trails'
+          AND ST_DWithin(
+            location,
+            ST_MakePoint(${lng}, ${lat})::geography,
+            ${radiusMeters}
+          )
+        ORDER BY dist_m ASC
+        LIMIT ${limit}
+      `;
+    } else if (categorySlug === 'family-events') {
+      // Family Activities: include family venues + IMLS museums (stored under 'experiences')
+      rows = await (prisma as any).$queryRaw`
+        SELECT
+          id, name, category, address, city, state,
+          lat, lng, phone, website, price_level, rating, source,
+          ST_Distance(location, ST_MakePoint(${lng}, ${lat})::geography) AS dist_m
+        FROM venues
+        WHERE (category = 'family-events' OR (source = 'imls' AND category = 'experiences'))
+          AND country = 'US'
+          AND date_closed IS NULL
+          AND ST_DWithin(
+            location,
+            ST_MakePoint(${lng}, ${lat})::geography,
+            ${radiusMeters}
+          )
+        ORDER BY dist_m ASC
+        LIMIT ${limit}
+      `;
+    } else if (categorySlug === 'local-experiences') {
+      // Local Experiences: include experiences + all IMLS museums
+      rows = await (prisma as any).$queryRaw`
+        SELECT
+          id, name, category, address, city, state,
+          lat, lng, phone, website, price_level, rating, source,
+          ST_Distance(location, ST_MakePoint(${lng}, ${lat})::geography) AS dist_m
+        FROM venues
+        WHERE (category = 'experiences' OR source = 'imls')
+          AND country = 'US'
+          AND date_closed IS NULL
           AND ST_DWithin(
             location,
             ST_MakePoint(${lng}, ${lat})::geography,

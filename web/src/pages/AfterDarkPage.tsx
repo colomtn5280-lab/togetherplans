@@ -432,7 +432,6 @@ export function AfterDarkPage() {
   const [items, setItems] = useState<AfterDarkItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [tierFilter, setTierFilter] = useState<"ALL" | "ROMANTIC" | "SPICY">("ALL");
   const [currentPage, setCurrentPage] = useState(0);
   const [groups, setGroups] = useState<Group[]>([]);
 
@@ -466,8 +465,7 @@ export function AfterDarkPage() {
       .catch(() => {});
   }, [isAuthenticated]);
 
-  const filteredItems =
-    tierFilter === "ALL" ? items : items.filter((i) => i.tier === tierFilter);
+  const filteredItems = items;
 
   const ITEMS_PER_PAGE = 20;
   const totalPages = Math.ceil(filteredItems.length / ITEMS_PER_PAGE);
@@ -628,38 +626,6 @@ export function AfterDarkPage() {
           </div>
         )}
 
-        {/* Tier toggle */}
-        <div
-          style={{
-            display: "flex",
-            gap: 8,
-            justifyContent: "center",
-            marginBottom: 32,
-            marginTop: hoursAway > 0 ? 0 : 24,
-          }}
-        >
-          {(["ALL", "ROMANTIC", "SPICY"] as const).map((tier) => (
-            <button
-              key={tier}
-              onClick={() => { setTierFilter(tier); setCurrentPage(0); }}
-              style={{
-                padding: "9px 20px",
-                borderRadius: 100,
-                border: "1px solid",
-                borderColor: tierFilter === tier ? "#B2485E" : "rgba(247,227,231,0.2)",
-                background: tierFilter === tier ? "#B2485E" : "transparent",
-                color: tierFilter === tier ? "#fff" : "rgba(247,227,231,0.6)",
-                fontFamily: "'DM Sans', sans-serif",
-                fontWeight: 600,
-                fontSize: 14,
-                cursor: "pointer",
-                transition: "all 0.2s",
-              }}
-            >
-              {tier === "ALL" ? t("afterDark.all") : tier === "ROMANTIC" ? `💫 ${t("afterDark.romantic")}` : `🔥 ${t("afterDark.spicy")}`}
-            </button>
-          ))}
-        </div>
 
         {/* Loading */}
         {loading && (
@@ -690,21 +656,13 @@ export function AfterDarkPage() {
                 gap: 18,
               }}
             >
-              {paginatedItems.map((item) => (
-                <AfterDarkCard
-                  key={item.id}
-                  item={item}
-                  onAddToPlan={handleAddToPlan}
-                />
-              ))}
-
-              {/* Add your own idea card */}
+              {/* Add your own idea card — pinned first */}
               {isAuthenticated && groups.length > 0 && (
                 <div
                   onClick={() => setShowAddIdeaModal(true)}
                   style={{
                     background: "transparent",
-                    border: "2px dashed rgba(178,72,94,0.4)",
+                    border: "2px dashed rgba(178,72,94,0.6)",
                     borderRadius: 22,
                     padding: "32px 20px",
                     display: "flex",
@@ -718,13 +676,13 @@ export function AfterDarkPage() {
                     gap: 12,
                   }}
                   onMouseEnter={(e) =>
-                    (e.currentTarget.style.borderColor = "rgba(178,72,94,0.8)")
+                    (e.currentTarget.style.borderColor = "rgba(178,72,94,1)")
                   }
                   onMouseLeave={(e) =>
-                    (e.currentTarget.style.borderColor = "rgba(178,72,94,0.4)")
+                    (e.currentTarget.style.borderColor = "rgba(178,72,94,0.6)")
                   }
                 >
-                  <div style={{ fontSize: 36 }}>✨</div>
+                  <div style={{ fontSize: 36 }}>✏️</div>
                   <p
                     style={{
                       fontFamily: "'Sora', sans-serif",
@@ -734,7 +692,7 @@ export function AfterDarkPage() {
                       margin: 0,
                     }}
                   >
-                    {t("afterDark.addYourOwn")}
+                    Create your own
                   </p>
                   <p
                     style={{
@@ -744,10 +702,18 @@ export function AfterDarkPage() {
                       margin: 0,
                     }}
                   >
-                    {t("afterDark.onlyYouTwo")}
+                    Design a custom After Dark activity
                   </p>
                 </div>
               )}
+
+              {paginatedItems.map((item) => (
+                <AfterDarkCard
+                  key={item.id}
+                  item={item}
+                  onAddToPlan={handleAddToPlan}
+                />
+              ))}
             </div>
 
             {/* Pagination controls */}

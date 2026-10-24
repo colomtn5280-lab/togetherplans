@@ -10,7 +10,7 @@
 import { prisma as db } from '@/services/db';
 import { logger } from '@/services/logger';
 
-// Romantic activities (20 items)
+// Romantic activities (18 items — 'Couples getaway' and 'Adventure bucket list' removed; not After Dark)
 const ROMANTIC_ITEMS = [
   {
     title: 'Cook-off challenge',
@@ -93,24 +93,9 @@ const ROMANTIC_ITEMS = [
     icon: '🛁',
   },
   {
-    title: 'Couples getaway',
-    description: 'Plan and take a weekend trip together',
-    icon: '🏖️',
-  },
-  {
-    title: 'Love letters',
-    description: 'Write heartfelt letters to each other',
-    icon: '💌',
-  },
-  {
     title: 'Couples playlist',
     description: 'Create a playlist of songs that represent your love',
     icon: '🎵',
-  },
-  {
-    title: 'Adventure bucket list',
-    description: 'Create and plan adventures together',
-    icon: '✨',
   },
 ];
 
@@ -211,21 +196,16 @@ const SPICY_ITEMS = [
     description: 'Exercise together as a duo',
     icon: '📺',
   },
-  {
-    title: 'Retreat planning',
-    description: 'Plan a romantic couples retreat',
-    icon: '🏨',
-  },
 ];
 
 export async function seedAfterDarkCatalog(): Promise<void> {
   try {
-    // Check if already seeded
+    // Check if already seeded (17 romantic + 19 spicy = 36 total after removing 3 planning items)
     const count = await db.afterDarkItem.count({
       where: { createdBy: null } // Seed items have no creator
     });
 
-    if (count >= 40) {
+    if (count >= 36) {
       logger.info('After Dark catalog already seeded, skipping...');
       return;
     }
@@ -262,7 +242,7 @@ export async function seedAfterDarkCatalog(): Promise<void> {
       });
     }
 
-    logger.info('After Dark catalog seeded successfully (40 items)', {
+    logger.info(`After Dark catalog seeded successfully (${ROMANTIC_ITEMS.length + SPICY_ITEMS.length} items)`, {
       romantic: ROMANTIC_ITEMS.length,
       spicy: SPICY_ITEMS.length
     });

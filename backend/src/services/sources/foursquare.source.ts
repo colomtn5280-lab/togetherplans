@@ -89,7 +89,12 @@ const FSQ_CATEGORY_RULES: Array<{
   { ids: ['4bf58dd8d48988d193941735'], category: 'Family', costTier: '$$', durationMinutes: 240 },          // Water Park
   { ids: ['4bf58dd8d48988d1e1931735'], category: 'Family', costTier: '$', durationMinutes: 90 },            // Arcade
   { ids: ['4bf58dd8d48988d191941735'], category: 'Family', costTier: '$', durationMinutes: 150 },           // Science Museum
-  { ids: ['4bf58dd8d48988d1e4931735'], category: 'Family', costTier: '$', durationMinutes: 90 },            // Bowling Alley (also under Sports; filter-aware match handles overlap)
+  { ids: ['4bf58dd8d48988d181941735'], category: 'Family', costTier: '$', durationMinutes: 120 },           // Art Museum (also Arts & Culture)
+  { ids: ['4bf58dd8d48988d1e2931735'], category: 'Family', costTier: 'free', durationMinutes: 90 },         // Art Gallery (family-friendly)
+  { ids: ['4bf58dd8d48988d17b941735'], category: 'Local Experience', costTier: '$$', durationMinutes: 180 },// Zoo (also Local Experience)
+  { ids: ['4fceea171983d5d06c3e9823'], category: 'Local Experience', costTier: '$$', durationMinutes: 150 },// Aquarium (also Local Experience)
+  { ids: ['4bf58dd8d48988d181941735'], category: 'Local Experience', costTier: '$', durationMinutes: 120 }, // Museum (Local Experience)
+  { ids: ['4bf58dd8d48988d1e4931735'], category: 'Family', costTier: '$', durationMinutes: 90 },            // Bowling Alley
   { ids: ['4bf58dd8d48988d1ed941735'], category: 'Wellness', costTier: '$$', durationMinutes: 120 },        // Spa
   { ids: ['52f2ab2ebcbc57f1066b8b3c'], category: 'Wellness', costTier: '$$', durationMinutes: 90 },         // Massage Clinic
   { ids: ['4bf58dd8d48988d102941735'], category: 'Wellness', costTier: '$', durationMinutes: 75 },          // Yoga Studio

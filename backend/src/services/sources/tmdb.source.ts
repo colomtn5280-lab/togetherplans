@@ -62,13 +62,13 @@ async function fetchNowPlaying(key: string): Promise<Suggestion[]> {
       id: `tmdb:movie:${m.id}`,
       name: m.title,
       category: 'Movies',
-      shortDescription: m.overview?.slice(0, 150) || `${genreStr} film${score} -- now playing in theaters.`,
+      shortDescription: (m.overview?.slice(0, 120) || `${genreStr} film${score}`) + ' — vote on it then find showtimes.',
       imageUrl: m.poster_path ? `${IMG_BASE}${m.poster_path}` : undefined,
       costTier: '$',
       dateFriendly: true,
       groupFriendly: true,
       durationMinutes: 130,
-      ticketUrl: `https://www.themoviedb.org/movie/${m.id}`,
+      ticketUrl: `https://www.fandango.com/search?q=${encodeURIComponent(m.title)}`,
       source: 'tmdb',
       externalId: `movie:${m.id}`,
       attribution: 'Movie data © TMDB',
@@ -187,7 +187,7 @@ export async function searchTmdb(query: string): Promise<Suggestion[]> {
           groupFriendly: isMovie,
           durationMinutes: isMovie ? 130 : 150,
           ticketUrl: isMovie
-            ? `https://www.themoviedb.org/movie/${r.id}`
+            ? `https://www.fandango.com/search?q=${encodeURIComponent(name)}`
             : `https://www.netflix.com/search?q=${encodeURIComponent(name)}`,
           source: 'tmdb',
           externalId: `${r.media_type}:${r.id}`,
