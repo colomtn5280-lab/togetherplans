@@ -17,14 +17,12 @@ let _browser: import('puppeteer-core').Browser | null = null;
 async function getBrowser() {
   if (_browser) return _browser;
   const puppeteer = await import('puppeteer-core');
-  // Try system chromium first, fall back to @sparticuz/chromium for Cloud Run
-  let executablePath: string;
-  try {
-    const chromium = await import('@sparticuz/chromium');
-    executablePath = await chromium.default.executablePath();
-  } catch {
-    executablePath = '/usr/bin/chromium-browser';
-  }
+  // Use system Chromium installed in the Docker image (PUPPETEER_EXECUTABLE_PATH env var).
+  // @sparticuz/chromium ships a musl binary that won't run on Debian/Cloud Run glibc.
+  const executablePath =
+    process.env.PUPPETEER_EXECUTABLE_PATH ||
+    '/usr/bin/chromium' ||
+    '/usr/bin/chromium-browser';
   _browser = await puppeteer.default.launch({
     executablePath,
     args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-gpu', '--disable-dev-shm-usage'],
