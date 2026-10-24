@@ -1,0 +1,10 @@
+# Service worker must never be cached — stale SW = blank screen for all users
+/sw.js
+  Cache-Control: no-cache, no-store, must-revalidate
+
+# index.html must also never be cached (it references hashed asset filenames)
+/
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/index.html
+  Cache-Control: no-cache, no-store, must-revalidate
