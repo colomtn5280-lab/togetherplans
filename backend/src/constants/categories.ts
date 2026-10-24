@@ -23,7 +23,7 @@ export const CATEGORIES: Category[] = [
   { id: 'hotel-stays',        name: 'Hotel Stays',         emoji: '🏨', tagline: 'Staycations & weekend getaways' },
   { id: 'local-experiences',  name: 'Local Experiences',   emoji: '📍', tagline: 'Escape rooms, trivia & hidden gems' },
   { id: 'movies',             name: 'Movies',              emoji: '🎬', tagline: 'Now playing on the big screen' },
-  { id: 'netflix-shows',      name: 'Movie Night',         emoji: '📺', tagline: 'Vote on a movie or show to stream together' },
+  { id: 'netflix-shows',      name: 'Streaming Night',         emoji: '📺', tagline: 'Stream a show or movie together — vote on what to watch' },
   { id: 'performing-arts',    name: 'Performing Arts',     emoji: '🎭', tagline: 'Theater, dance & live stage' },
   { id: 'restaurants-dining', name: 'Restaurants & Dining', emoji: '🍽️', tagline: 'New spots & favorite tables' },
   { id: 'volunteering',       name: 'Volunteering',        emoji: '🤝', tagline: 'Give back, together' },

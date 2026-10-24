@@ -2,6 +2,7 @@ import { Router, Request, Response, NextFunction } from 'express';
 import { getSuggestions } from '@/services/suggestions';
 import { ALL_CATEGORIES } from '@/constants/categories';
 import { searchTmdb } from '@/services/sources/tmdb.source';
+import { searchFoursquareVenues } from '@/services/sources/foursquare.source';
 import { requireAuth, AuthRequest } from '@/middleware/auth';
 import { scrapeVenueDetail } from '@/services/firecrawl';
 
@@ -152,16 +153,47 @@ suggestionsRouter.get('/live', async (req: Request, res: Response, next: NextFun
 
 
 /**
- * GET /api/suggestions/search?q=...&category=Movies
+ * GET /api/suggestions/search?q=...&category=...
  *
- * Search TMDB for movies or TV shows. Used by mobile Netflix/Movies search bar.
+ * Category-aware search:
+ *   - restaurants-dining / Dining: Foursquare text search (cuisine chips + name search)
+ *   - Movies / Streaming Night / netflix-shows: TMDB title search
+ *   - Default: TMDB
+ *
+ * Requires lat+lng or zip for location-based searches (restaurants).
  */
 suggestionsRouter.get('/search', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const q = typeof req.query.q === 'string' ? req.query.q.trim() : '';
-    if (!q) {
-      return res.json([]);
+    if (!q) return res.json([]);
+
+    const category = typeof req.query.category === 'string' ? req.query.category : '';
+    const lat = req.query.lat !== undefined ? Number(req.query.lat) : undefined;
+    const lng = req.query.lng !== undefined ? Number(req.query.lng) : undefined;
+    const zip = typeof req.query.zip === 'string' ? req.query.zip.trim() : undefined;
+    const radius = req.query.radius !== undefined ? Number(req.query.radius) : 25;
+
+    const isDining = category === 'restaurants-dining' || category === 'Dining';
+
+    if (isDining) {
+      // Resolve coordinates for FSQ search
+      let searchLat = lat;
+      let searchLng = lng;
+      if ((!searchLat || !searchLng) && zip) {
+        try {
+          const { zipToLatLng } = await import('@/services/suggestions');
+          [searchLat, searchLng] = await zipToLatLng(zip);
+        } catch { /* fall through */ }
+      }
+      if (!searchLat || !searchLng) {
+        return res.json([]); // no location for restaurant search
+      }
+      const results = await searchFoursquareVenues(q, searchLat, searchLng, radius);
+      res.setHeader('Cache-Control', 'no-store');
+      return res.json(results);
     }
+
+    // Movies / Streaming Night / default: TMDB
     const results = await searchTmdb(q);
     return res.json(results);
   } catch (err) {

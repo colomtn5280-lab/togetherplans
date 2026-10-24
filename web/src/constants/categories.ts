@@ -29,7 +29,7 @@ export const CATEGORIES: Category[] = [
   { id: 'hotel-stays',        name: 'Hotel Stays',         emoji: '🏨', tagline: 'Staycations & weekend getaways',          color: '#CFE3FB', matches: ['Hotels'] },
   { id: 'local-experiences',  name: 'Local Experiences',   emoji: '📍', tagline: 'Escape rooms, trivia & hidden gems',      color: '#FFE8D1', matches: ['Local Experience'] },
   { id: 'movies',             name: 'Movies',              emoji: '🎬', tagline: 'Now playing on the big screen',           color: '#D5E8FD', matches: ['Movies'] },
-  { id: 'netflix-shows',      name: 'Movie Night',         emoji: '📺', tagline: 'Vote on a movie or show to stream together', color: '#E2E8F0', matches: ['Streaming Night'] },
+  { id: 'netflix-shows',      name: 'Streaming Night',         emoji: '📺', tagline: 'Stream a show or movie together — vote on what to watch', color: '#E2E8F0', matches: ['Streaming Night'] },
   { id: 'performing-arts',    name: 'Performing Arts',     emoji: '🎭', tagline: 'Theater, dance & live stage',             color: '#F3D9FA', matches: ['Theater & Plays'] },
   { id: 'restaurants-dining', name: 'Restaurants & Dining', emoji: '🍽️', tagline: 'New spots & favorite tables',            color: '#FDEBD0', matches: ['Dining'] },
   { id: 'volunteering',       name: 'Volunteering',        emoji: '🤝', tagline: 'Give back, together',                     color: '#D0F4E4', matches: ['Volunteering'] },

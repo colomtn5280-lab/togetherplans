@@ -253,3 +253,78 @@ export async function fetchFoursquare(
 
   return results;
 }
+
+/**
+ * Text-search Foursquare venues by keyword (for cuisine chips / restaurant search).
+ * Uses the same v2 /venues/search but with `query` param instead of categoryId.
+ */
+export async function searchFoursquareVenues(
+  query: string,
+  lat: number,
+  lng: number,
+  radiusMiles: number,
+): Promise<Suggestion[]> {
+  const clientId = process.env.FOURSQUARE_CLIENT_ID;
+  const clientSecret = process.env.FOURSQUARE_CLIENT_SECRET;
+  if (!clientId || !clientSecret) return [];
+
+  const radiusM = Math.min(Math.round(radiusMiles * 1609.34), 40000);
+  // Restrict to food category so "Italian restaurant" doesn't return Italian clothing stores
+  const FOOD_CAT = '4d4b7105d754a06374d81259';
+
+  try {
+    const url = new URL(`${FSQ_BASE}/venues/search`);
+    url.searchParams.set('ll', `${lat},${lng}`);
+    url.searchParams.set('radius', String(radiusM));
+    url.searchParams.set('limit', '30');
+    url.searchParams.set('query', query);
+    url.searchParams.set('categoryId', FOOD_CAT);
+    url.searchParams.set('client_id', clientId);
+    url.searchParams.set('client_secret', clientSecret);
+    url.searchParams.set('v', FSQ_VERSION);
+    url.searchParams.set('intent', 'browse');
+
+    const resp = await fetch(url.toString());
+    if (!resp.ok) return [];
+
+    const data = (await resp.json()) as FsqSearchResponse;
+    const venues = data.response?.venues ?? [];
+    const results: Suggestion[] = [];
+    const seen = new Set<string>();
+
+    for (const venue of venues) {
+      if (seen.has(venue.id)) continue;
+      seen.add(venue.id);
+
+      const vLat = venue.location?.lat;
+      const vLng = venue.location?.lng;
+      const dist = vLat && vLng ? haversineMiles(lat, lng, vLat, vLng) : undefined;
+      const addr = venue.location?.formattedAddress?.join(', ') ?? venue.location?.address;
+
+      results.push({
+        id: `fsq:${venue.id}`,
+        name: venue.name,
+        category: 'Dining',
+        shortDescription: venueDescription(venue, 'Dining'),
+        venue: venue.name,
+        address: addr,
+        latitude: vLat,
+        longitude: vLng,
+        distanceMiles: dist !== undefined ? Math.round(dist * 10) / 10 : undefined,
+        costTier: costTierFromPrice(venue.price),
+        imageUrl: venueImage(venue.photos),
+        ticketUrl: venue.url,
+        dateFriendly: true,
+        groupFriendly: true,
+        durationMinutes: 75,
+        source: 'foursquare',
+        externalId: venue.id,
+        attribution: 'Venue data © Foursquare',
+      });
+    }
+
+    return results;
+  } catch {
+    return [];
+  }
+}
