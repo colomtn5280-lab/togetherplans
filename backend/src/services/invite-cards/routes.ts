@@ -139,11 +139,13 @@ inviteCardsRouter.post('/:proposalId/render', async (req: AuthRequest, res: Resp
 
     // Derive member first names (for 4E Library card, max 4)
     const memberNames = proposal.group.members
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .map((m: any) => (m.user?.displayName || '').split(' ')[0])
       .filter(Boolean)
       .slice(0, 4);
 
     const optionCount = options.length;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const votedUserIds = new Set(options.flatMap((o: any) => (o.votes || []).map((v: any) => v.userId)));
     const votedCount = votedUserIds.size;
 
@@ -174,6 +176,7 @@ inviteCardsRouter.post('/:proposalId/render', async (req: AuthRequest, res: Resp
     };
 
     // Check for After Dark options
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const afterDarkOption = options.find((o: any) =>
       (o.category || '').toLowerCase().includes('after dark') ||
       (o.sourceName || '').includes('after-dark')
@@ -182,6 +185,7 @@ inviteCardsRouter.post('/:proposalId/render', async (req: AuthRequest, res: Resp
     let afterDarkData: AfterDarkCardData | undefined;
     if (afterDarkOption) {
       const senderFirstName = (proposal.creator.displayName || '').split(' ')[0] || 'You';
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const otherMember = proposal.group.members.find((m: any) => m.userId !== proposal.creatorId);
       const partnerFirstName = (otherMember?.user?.displayName || '').split(' ')[0] || 'Partner';
       afterDarkData = {
