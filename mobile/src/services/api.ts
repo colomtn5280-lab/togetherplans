@@ -135,6 +135,9 @@ export const proposalsAPI = {
   /** Get/create the public guest-vote share link for an OPEN proposal */
   getShareLink: (id: string) =>
     api.post<{ shareToken: string; shareUrl: string }>(`/api/proposals/${id}/share-link`),
+  /** Nudge unvoted group members via push + email */
+  nudge: (id: string) =>
+    api.post<{ nudged: number }>(`/api/proposals/${id}/nudge`),
   suggestions: (lat?: number, lng?: number, category?: string, radius?: number, zip?: string, dateFilter?: string) =>
     api.get('/api/suggestions', { params: { lat, lng, category, radius, zip, dateFilter } }),
 };

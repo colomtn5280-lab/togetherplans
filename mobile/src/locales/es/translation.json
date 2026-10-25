@@ -124,7 +124,7 @@
     "closePreview": "Cerrar vista previa",
     "previewTitle": "Vista previa",
     "previewSubtitle": "Lo que verá {{name}}",
-    "sendToPartner": "Enviar a {{name}} ♥",
+    "sendToPartner": "Crear plan ✓",
     "createAndShare": "Crear plan y obtener enlace →",
     "planSent": "¡Plan enviado a {{name}}!",
     "planSentBody": "Votarán en tus opciones y te notificaremos cuando se tome una decisión.",

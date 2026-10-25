@@ -1459,6 +1459,36 @@ export default function SuggestionsScreen() {
         <ScrollView contentContainerStyle={{ paddingHorizontal: SPACING.gutter, paddingTop: SPACING.gutter, paddingBottom: 200 }}>
           <TonightBanner active={tonightActive} weekendFallback={weekendFallback} city={city} onActivate={activateTonight} onClear={clearTonight} colors={colors} />
           <DateChipsRow specificDate={specificDate} onOpenPicker={() => setShowDatePicker(true)} onClearDate={handleClearSpecificDate} colors={colors} />
+          {planOptions.length > 0 && (
+            <TouchableOpacity
+              onPress={() => navigation.navigate('CreateProposal', { groupId: route.params?.groupId })}
+              activeOpacity={0.88}
+              style={{
+                backgroundColor: colors.lime,
+                borderRadius: 18,
+                paddingVertical: SPACING.md,
+                paddingHorizontal: SPACING.md,
+                marginBottom: SPACING.md,
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                ...SHADOWS.card,
+              }}
+            >
+              <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+                <Text style={{ fontSize: 22, marginRight: SPACING.sm }}>✅</Text>
+                <View style={{ flex: 1 }}>
+                  <Text style={{ color: colors.bg, fontSize: 16, fontWeight: '800' }}>
+                    Finalize Plan ({planOptions.length} added)
+                  </Text>
+                  <Text style={{ color: 'rgba(0,0,0,0.55)', fontSize: 12, marginTop: 1 }}>
+                    Set date, pick invite card & share
+                  </Text>
+                </View>
+              </View>
+              <Text style={{ color: colors.bg, fontSize: 18 }}>→</Text>
+            </TouchableOpacity>
+          )}
           <AreaControls radius={radius} onRadius={handleRadiusChange} zipOverride={zipOverride} onApplyZip={handleApplyZip} onClearZip={handleClearZip} colors={colors} />
           <CategoryGrid activeId={activeCategory?.id ?? null} onSelect={handleCategorySelect} colors={colors} categories={orderedCategories} favIds={favIds} />
           <View style={{ paddingVertical: SPACING.xl, alignItems: 'center' }}>
@@ -1469,6 +1499,36 @@ export default function SuggestionsScreen() {
         <ScrollView contentContainerStyle={{ paddingHorizontal: SPACING.gutter, paddingTop: SPACING.gutter, paddingBottom: 200 }}>
           <TonightBanner active={tonightActive} weekendFallback={weekendFallback} city={city} onActivate={activateTonight} onClear={clearTonight} colors={colors} />
           <DateChipsRow specificDate={specificDate} onOpenPicker={() => setShowDatePicker(true)} onClearDate={handleClearSpecificDate} colors={colors} />
+          {planOptions.length > 0 && (
+            <TouchableOpacity
+              onPress={() => navigation.navigate('CreateProposal', { groupId: route.params?.groupId })}
+              activeOpacity={0.88}
+              style={{
+                backgroundColor: colors.lime,
+                borderRadius: 18,
+                paddingVertical: SPACING.md,
+                paddingHorizontal: SPACING.md,
+                marginBottom: SPACING.md,
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                ...SHADOWS.card,
+              }}
+            >
+              <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+                <Text style={{ fontSize: 22, marginRight: SPACING.sm }}>✅</Text>
+                <View style={{ flex: 1 }}>
+                  <Text style={{ color: colors.bg, fontSize: 16, fontWeight: '800' }}>
+                    Finalize Plan ({planOptions.length} added)
+                  </Text>
+                  <Text style={{ color: 'rgba(0,0,0,0.55)', fontSize: 12, marginTop: 1 }}>
+                    Set date, pick invite card & share
+                  </Text>
+                </View>
+              </View>
+              <Text style={{ color: colors.bg, fontSize: 18 }}>→</Text>
+            </TouchableOpacity>
+          )}
           <AreaControls radius={radius} onRadius={handleRadiusChange} zipOverride={zipOverride} onApplyZip={handleApplyZip} onClearZip={handleClearZip} colors={colors} />
           <CategoryGrid activeId={activeCategory?.id ?? null} onSelect={handleCategorySelect} colors={colors} categories={orderedCategories} favIds={favIds} />
           <EmptyState onUseLocation={requestLocation} colors={colors} />
@@ -1481,6 +1541,37 @@ export default function SuggestionsScreen() {
             <>
               <TonightBanner active={tonightActive} weekendFallback={weekendFallback} city={city} onActivate={activateTonight} onClear={clearTonight} colors={colors} />
               <DateChipsRow specificDate={specificDate} onOpenPicker={() => setShowDatePicker(true)} onClearDate={handleClearSpecificDate} colors={colors} />
+              {/* Finalize Plan CTA — takes user to invite card flow */}
+              {planOptions.length > 0 && (
+                <TouchableOpacity
+                  onPress={() => navigation.navigate('CreateProposal', { groupId: route.params?.groupId })}
+                  activeOpacity={0.88}
+                  style={{
+                    backgroundColor: colors.lime,
+                    borderRadius: 18,
+                    paddingVertical: SPACING.md,
+                    paddingHorizontal: SPACING.md,
+                    marginBottom: SPACING.md,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    ...SHADOWS.card,
+                  }}
+                >
+                  <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+                    <Text style={{ fontSize: 22, marginRight: SPACING.sm }}>✅</Text>
+                    <View style={{ flex: 1 }}>
+                      <Text style={{ color: colors.bg, fontSize: 16, fontWeight: '800' }}>
+                        Finalize Plan ({planOptions.length} added)
+                      </Text>
+                      <Text style={{ color: 'rgba(0,0,0,0.55)', fontSize: 12, marginTop: 1 }}>
+                        Set date, pick invite card & share
+                      </Text>
+                    </View>
+                  </View>
+                  <Text style={{ color: colors.bg, fontSize: 18 }}>→</Text>
+                </TouchableOpacity>
+              )}
               <AreaControls radius={radius} onRadius={handleRadiusChange} zipOverride={zipOverride} onApplyZip={handleApplyZip} onClearZip={handleClearZip} colors={colors} />
               <CategoryGrid activeId={activeCategory?.id ?? null} onSelect={handleCategorySelect} colors={colors} categories={orderedCategories} favIds={favIds} />
               {isMediaCategory && (

@@ -382,11 +382,15 @@ export default function ProposalDetailScreen() {
         } catch {}
       }
 
-      // Check DECIDED state
+      // Check DECIDED state — only show celebration if this user was the proposer
+      // Recipients stay on the voting page to vote remaining options; celebration
+      // is shown only when they explicitly navigate back to the plan or it's their own.
       if (p.status === 'DECIDED' || (p.status === 'ACCEPTED' && p.consensus?.reached)) {
         const seenKey = `seenDecision_${p.id}`;
         const seen = await AsyncStorage.getItem(seenKey);
-        if (!seen) {
+        // Only auto-show celebration if we navigated here intentionally (not from a vote tap)
+        // We suppress it here; the polling will show it when the creator sees it.
+        if (!seen && !openInvite) {
           setShowDecision(true);
         }
       }
@@ -411,11 +415,14 @@ export default function ProposalDetailScreen() {
         setProposal(p);
         if (p.status === 'DECIDED' || (p.status === 'ACCEPTED' && p.consensus?.reached)) {
           clearInterval(interval);
-          // Show celebration if not dismissed
-          const seenKey = `seenDecision_${p.id}`;
-          const { default: AS } = await import('@react-native-async-storage/async-storage');
-          const seen = await AS.getItem(seenKey);
-          if (!seen) setShowDecision(true);
+          // Show celebration if not dismissed — but NOT if user came here as a recipient
+          // (openInvite=true) so they can finish voting all remaining options first.
+          if (!openInvite) {
+            const seenKey = `seenDecision_${p.id}`;
+            const { default: AS } = await import('@react-native-async-storage/async-storage');
+            const seen = await AS.getItem(seenKey);
+            if (!seen) setShowDecision(true);
+          }
           await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         }
       } catch {
@@ -434,6 +441,31 @@ export default function ProposalDetailScreen() {
       handleInviteToVote(true);
     }
   }, [openInvite, proposal, handleInviteToVote]);
+
+  // Item 7: Send via DateMeUp — call nudge endpoint to push+email all group members
+  const [nudgeSent, setNudgeSent] = useState(false);
+  const [nudging, setNudging] = useState(false);
+  const handleNudge = useCallback(async () => {
+    if (nudging || nudgeSent) return;
+    setNudging(true);
+    try {
+      const res = await proposalsAPI.nudge(proposal!.id);
+      const nudged = res.data?.nudged ?? 0;
+      if (nudged === 0) {
+        Alert.alert(
+          'Partner not found',
+          'Your partner hasn\'t joined DateMeUp yet. Use the "Invite someone to vote" link to share without an account.',
+        );
+      } else {
+        setNudgeSent(true);
+      }
+    } catch (e: any) {
+      const msg = e?.response?.data?.error ?? 'Could not send notification. Try again shortly.';
+      Alert.alert('Could not send', msg);
+    } finally {
+      setNudging(false);
+    }
+  }, [nudging, nudgeSent, proposal]);
 
   const dismissDecision = async () => {
     if (proposal) {
@@ -956,13 +988,33 @@ export default function ProposalDetailScreen() {
             );
           })}
 
-          {/* Done voting banner */}
+          {/* Done voting banner + Send via DateMeUp */}
           {myVoteMap.size > 0 && proposal?.status === 'OPEN' && (
-            <View style={{ marginTop: 12 }}>
+            <View style={{ marginTop: 12, gap: 10 }}>
+              {/* Send via DateMeUp — push + email partner's DateMeUp account */}
+              <Pressable
+                onPress={handleNudge}
+                disabled={nudging || nudgeSent}
+                style={{
+                  height: 48,
+                  borderTopLeftRadius: 16,
+                  borderTopRightRadius: 22,
+                  borderBottomRightRadius: 16,
+                  borderBottomLeftRadius: 22,
+                  backgroundColor: nudgeSent ? colors.limeSoft : colors.primary,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '100%',
+                  opacity: nudging ? 0.7 : 1,
+                }}
+              >
+                <Text style={{ fontFamily: 'Sora_700Bold', fontSize: 15, color: nudgeSent ? colors.lime : '#fff' }}>
+                  {nudgeSent ? '✓ Sent via DateMeUp!' : nudging ? 'Sending…' : 'Send via DateMeUp 📱'}
+                </Text>
+              </Pressable>
               <Pressable
                 onPress={() => {
-                  const name = proposerName || 'them';
-                  Share.share({ message: `Hey! I'm in for our plan — check it out 👍` });
+                  Share.share({ message: `Hey! I've voted on our plan — check it out 👍` });
                 }}
                 style={{
                   height: 48,
@@ -970,19 +1022,20 @@ export default function ProposalDetailScreen() {
                   borderTopRightRadius: 16,
                   borderBottomRightRadius: 22,
                   borderBottomLeftRadius: 16,
-                  backgroundColor: colors.primary,
+                  backgroundColor: colors.surface,
+                  borderWidth: 1.5,
+                  borderColor: colors.line,
                   alignItems: 'center',
                   justifyContent: 'center',
                   width: '100%',
                 }}
               >
-                <Text style={{ fontFamily: 'Sora_700Bold', fontSize: 15, color: '#fff' }}>
+                <Text style={{ fontFamily: 'Sora_700Bold', fontSize: 15, color: colors.ink }}>
                   Let {proposerName || 'them'} know 👍
                 </Text>
               </Pressable>
               <Text style={{
                 textAlign: 'center',
-                marginTop: 8,
                 fontFamily: 'Sora_700Bold',
                 fontSize: 13,
                 color: colors.primaryDeep ?? colors.primary,

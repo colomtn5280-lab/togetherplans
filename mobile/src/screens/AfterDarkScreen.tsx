@@ -609,19 +609,6 @@ export default function AfterDarkScreen() {
                     >
                       {item.title}
                     </Text>
-                    <View
-                      style={{
-                        marginTop: 6,
-                        backgroundColor: isDark ? 'rgba(255,255,255,0.15)' : 'rgba(45,16,32,0.1)',
-                        borderRadius: 100,
-                        paddingHorizontal: 8,
-                        paddingVertical: 2,
-                      }}
-                    >
-                      <Text style={{ fontSize: 10, color: isDark ? '#F7E3E7' : '#2D1020' }}>
-                        {item.tier === 'ROMANTIC' ? t('afterDark.romantic') : t('afterDark.spicy')}
-                      </Text>
-                    </View>
                   </TouchableOpacity>
                 );
               })}
@@ -669,19 +656,7 @@ export default function AfterDarkScreen() {
                       <DNText variant="body" style={{ color: subColor, textAlign: 'center', marginBottom: SPACING.lg }}>
                         {selectedCatalogItem.description}
                       </DNText>
-                      <View
-                        style={{
-                          backgroundColor: isDark ? 'rgba(255,255,255,0.12)' : 'rgba(45,16,32,0.1)',
-                          borderRadius: 100,
-                          paddingHorizontal: 14,
-                          paddingVertical: 5,
-                          marginBottom: SPACING.lg,
-                        }}
-                      >
-                        <Text style={{ color: textColor, fontSize: 13, fontWeight: '600' }}>
-                          {selectedCatalogItem.tier === 'ROMANTIC' ? t('afterDark.romantic') : t('afterDark.spicy')}
-                        </Text>
-                      </View>
+                      <View style={{ marginBottom: SPACING.lg }} />
                       <AddToDateButton
                         onPress={() => {
                           addOption({

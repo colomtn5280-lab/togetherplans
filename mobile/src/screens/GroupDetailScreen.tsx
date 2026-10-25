@@ -429,12 +429,18 @@ export default function GroupDetailScreen() {
         </View>
       </View>
 
-      {/* New Proposal button */}
-      <View style={{ paddingHorizontal: SPACING.gutter, marginBottom: SPACING.lg }}>
+      {/* Action buttons */}
+      <View style={{ paddingHorizontal: SPACING.gutter, marginBottom: SPACING.lg, gap: SPACING.sm }}>
         <DNButton
           label={t('groupDetail.newProposal')}
           onPress={() => navigation.navigate('CreateProposal', { groupId })}
           variant="primary"
+          style={{ width: '100%' }}
+        />
+        <DNButton
+          label="+ Add more activities"
+          onPress={() => navigation.navigate('Suggestions', { groupId })}
+          variant="tonal"
           style={{ width: '100%' }}
         />
       </View>
