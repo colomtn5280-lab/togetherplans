@@ -14,8 +14,9 @@ import { prisma } from '@/services/db';
 import { requireAuth, AuthRequest } from '@/middleware/auth';
 import { logger } from '@/services/logger';
 import { getTemplateIndex, pickRandomTemplate, ALL_TEMPLATE_IDS } from './templates';
-import { renderAndUploadCard } from './renderer';
+import { renderAfterDarkAndUpload } from './renderer';
 import type { CardData } from './templates';
+import type { AfterDarkCardData } from './renderer';
 
 export const inviteCardsRouter = Router();
 inviteCardsRouter.use(requireAuth);
@@ -42,7 +43,7 @@ inviteCardsRouter.get('/:proposalId', async (req: AuthRequest, res: Response, ne
 inviteCardsRouter.post('/:proposalId', async (req: AuthRequest, res: Response, next) => {
   try {
     const { proposalId } = req.params;
-    const { templateId, note, skipped } = req.body as { templateId?: string; note?: string; skipped?: boolean };
+    const { templateId, skipped } = req.body as { templateId?: string; skipped?: boolean };
 
     // Verify proposer owns this proposal
     const proposal = await prisma.proposal.findUnique({
@@ -64,13 +65,11 @@ inviteCardsRouter.post('/:proposalId', async (req: AuthRequest, res: Response, n
       create: {
         proposalId,
         templateId: resolvedTemplateId,
-        note: note || null,
         skipped: skipped ?? false,
         mode: 'vote',
       },
       update: {
         templateId: resolvedTemplateId,
-        note: note !== undefined ? note : undefined,
         skipped: skipped ?? false,
         renderedPng: null, // invalidate cached render on update
         renderedPdf: null,
@@ -122,7 +121,7 @@ inviteCardsRouter.post('/:proposalId/render', async (req: AuthRequest, res: Resp
       prisma.proposal.findUnique({
         where: { id: proposalId },
         include: {
-          group: { include: { members: true } },
+          group: { include: { members: { include: { user: { select: { displayName: true } } } } } },
           creator: { select: { displayName: true } },
           options: { include: { votes: true } },
         },
@@ -138,36 +137,80 @@ inviteCardsRouter.post('/:proposalId/render', async (req: AuthRequest, res: Resp
       ? new Date(proposal.dateTime).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
       : 'TBD';
 
+    // Derive member first names (for 4E Library card, max 4)
+    const memberNames = proposal.group.members
+      .map((m: any) => (m.user?.displayName || '').split(' ')[0])
+      .filter(Boolean)
+      .slice(0, 4);
+
+    const optionCount = options.length;
+    const votedUserIds = new Set(options.flatMap((o: any) => (o.votes || []).map((v: any) => v.userId)));
+    const votedCount = votedUserIds.size;
+
     const data: CardData = {
       title: proposal.title,
       group: proposal.group.name,
+      groupDisplayName: proposal.group.name,
       activity: options[0]?.name || proposal.title,
       address: (options[0] as { address?: string })?.address || '',
       date: dateStr,
-      note: card.note || undefined,
+      city: '', // not stored per proposal — leave blank
       photoUrl: card.photoUrl || undefined,
       initiatorName: proposal.creator.displayName || 'Your host',
       memberCount: proposal.group.members.length,
+      memberNames,
+      optionCount,
+      votedCount,
       mode,
-      kicker: mode === 'vote' ? 'Is it a date?' : "It's on.",
-      cta: mode === 'vote' ? 'Vote now' : 'See the plan',
-      ctaShort: mode === 'vote' ? 'Vote' : 'Open',
+      kicker: mode === 'vote' ? 'IS IT A DATE?' : "IT'S ON.",
+      cta: mode === 'vote' ? 'Vote now →' : '',
+      ctaShort: mode === 'vote' ? 'Vote' : '',
       result: mode === 'vote'
-        ? `${options.length} option${options.length !== 1 ? 's' : ''} to vote on`
-        : 'You both said yes',
+        ? `${options.length} idea${options.length !== 1 ? 's' : ''} on the table`
+        : 'You both said yes 💛',
       opt1: options[0]?.name,
       opt2: options[1]?.name,
       opt3: options[2]?.name,
     };
 
-    const { pngUrl, pdfUrl } = await renderAndUploadCard(proposalId, card.templateId, data);
+    // Check for After Dark options
+    const afterDarkOption = options.find((o: any) =>
+      (o.category || '').toLowerCase().includes('after dark') ||
+      (o.sourceName || '').includes('after-dark')
+    );
+
+    let afterDarkData: AfterDarkCardData | undefined;
+    if (afterDarkOption) {
+      const senderFirstName = (proposal.creator.displayName || '').split(' ')[0] || 'You';
+      const otherMember = proposal.group.members.find((m: any) => m.userId !== proposal.creatorId);
+      const partnerFirstName = (otherMember?.user?.displayName || '').split(' ')[0] || 'Partner';
+      afterDarkData = {
+        senderFirstName,
+        partnerFirstName,
+        ideaName: afterDarkOption.name,
+        ideaDescription: afterDarkOption.description || undefined,
+        slotDay: proposal.dateTime
+          ? new Date(proposal.dateTime).toLocaleDateString('en-US', { weekday: 'short' })
+          : undefined,
+        slotTime: proposal.dateTime
+          ? new Date(proposal.dateTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+          : undefined,
+      };
+    }
+
+    const { pngUrl, pdfUrl, afterDarkPngUrl } = await renderAfterDarkAndUpload(
+      proposalId,
+      card.templateId,
+      data,
+      afterDarkData,
+    );
 
     const updated = await prisma.inviteCard.update({
       where: { proposalId },
       data: { renderedPng: pngUrl, renderedPdf: pdfUrl, mode },
     });
 
-    logger.info(`Invite card rendered: proposal=${proposalId} mode=${mode}`);
-    return res.json(updated);
+    logger.info(`Invite card rendered: proposal=${proposalId} mode=${mode}${afterDarkPngUrl ? ' +afterDark' : ''}`);
+    return res.json({ ...updated, afterDarkPngUrl });
   } catch (err) { return next(err); }
 });
