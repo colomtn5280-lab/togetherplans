@@ -294,6 +294,8 @@ export type UserWhereInput = {
   blockedBy?: Prisma.BlockedUserListRelationFilter
   reports?: Prisma.ReportListRelationFilter
   afterDarkIdeas?: Prisma.AfterDarkItemListRelationFilter
+  sentFriendRequests?: Prisma.FriendshipListRelationFilter
+  receivedFriendRequests?: Prisma.FriendshipListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -320,6 +322,8 @@ export type UserOrderByWithRelationInput = {
   blockedBy?: Prisma.BlockedUserOrderByRelationAggregateInput
   reports?: Prisma.ReportOrderByRelationAggregateInput
   afterDarkIdeas?: Prisma.AfterDarkItemOrderByRelationAggregateInput
+  sentFriendRequests?: Prisma.FriendshipOrderByRelationAggregateInput
+  receivedFriendRequests?: Prisma.FriendshipOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -350,6 +354,8 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   blockedBy?: Prisma.BlockedUserListRelationFilter
   reports?: Prisma.ReportListRelationFilter
   afterDarkIdeas?: Prisma.AfterDarkItemListRelationFilter
+  sentFriendRequests?: Prisma.FriendshipListRelationFilter
+  receivedFriendRequests?: Prisma.FriendshipListRelationFilter
 }, "id" | "email" | "provider_providerId">
 
 export type UserOrderByWithAggregationInput = {
@@ -416,6 +422,8 @@ export type UserCreateInput = {
   blockedBy?: Prisma.BlockedUserCreateNestedManyWithoutBlockedInput
   reports?: Prisma.ReportCreateNestedManyWithoutReporterInput
   afterDarkIdeas?: Prisma.AfterDarkItemCreateNestedManyWithoutCreatorInput
+  sentFriendRequests?: Prisma.FriendshipCreateNestedManyWithoutSenderInput
+  receivedFriendRequests?: Prisma.FriendshipCreateNestedManyWithoutReceiverInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -442,6 +450,8 @@ export type UserUncheckedCreateInput = {
   blockedBy?: Prisma.BlockedUserUncheckedCreateNestedManyWithoutBlockedInput
   reports?: Prisma.ReportUncheckedCreateNestedManyWithoutReporterInput
   afterDarkIdeas?: Prisma.AfterDarkItemUncheckedCreateNestedManyWithoutCreatorInput
+  sentFriendRequests?: Prisma.FriendshipUncheckedCreateNestedManyWithoutSenderInput
+  receivedFriendRequests?: Prisma.FriendshipUncheckedCreateNestedManyWithoutReceiverInput
 }
 
 export type UserUpdateInput = {
@@ -468,6 +478,8 @@ export type UserUpdateInput = {
   blockedBy?: Prisma.BlockedUserUpdateManyWithoutBlockedNestedInput
   reports?: Prisma.ReportUpdateManyWithoutReporterNestedInput
   afterDarkIdeas?: Prisma.AfterDarkItemUpdateManyWithoutCreatorNestedInput
+  sentFriendRequests?: Prisma.FriendshipUpdateManyWithoutSenderNestedInput
+  receivedFriendRequests?: Prisma.FriendshipUpdateManyWithoutReceiverNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -494,6 +506,8 @@ export type UserUncheckedUpdateInput = {
   blockedBy?: Prisma.BlockedUserUncheckedUpdateManyWithoutBlockedNestedInput
   reports?: Prisma.ReportUncheckedUpdateManyWithoutReporterNestedInput
   afterDarkIdeas?: Prisma.AfterDarkItemUncheckedUpdateManyWithoutCreatorNestedInput
+  sentFriendRequests?: Prisma.FriendshipUncheckedUpdateManyWithoutSenderNestedInput
+  receivedFriendRequests?: Prisma.FriendshipUncheckedUpdateManyWithoutReceiverNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -767,6 +781,34 @@ export type UserUpdateOneRequiredWithoutRefreshTokensNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutRefreshTokensInput, Prisma.UserUpdateWithoutRefreshTokensInput>, Prisma.UserUncheckedUpdateWithoutRefreshTokensInput>
 }
 
+export type UserCreateNestedOneWithoutSentFriendRequestsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSentFriendRequestsInput, Prisma.UserUncheckedCreateWithoutSentFriendRequestsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSentFriendRequestsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserCreateNestedOneWithoutReceivedFriendRequestsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutReceivedFriendRequestsInput, Prisma.UserUncheckedCreateWithoutReceivedFriendRequestsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutReceivedFriendRequestsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutSentFriendRequestsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSentFriendRequestsInput, Prisma.UserUncheckedCreateWithoutSentFriendRequestsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSentFriendRequestsInput
+  upsert?: Prisma.UserUpsertWithoutSentFriendRequestsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutSentFriendRequestsInput, Prisma.UserUpdateWithoutSentFriendRequestsInput>, Prisma.UserUncheckedUpdateWithoutSentFriendRequestsInput>
+}
+
+export type UserUpdateOneRequiredWithoutReceivedFriendRequestsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutReceivedFriendRequestsInput, Prisma.UserUncheckedCreateWithoutReceivedFriendRequestsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutReceivedFriendRequestsInput
+  upsert?: Prisma.UserUpsertWithoutReceivedFriendRequestsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutReceivedFriendRequestsInput, Prisma.UserUpdateWithoutReceivedFriendRequestsInput>, Prisma.UserUncheckedUpdateWithoutReceivedFriendRequestsInput>
+}
+
 export type UserCreateNestedOneWithoutAfterDarkIdeasInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutAfterDarkIdeasInput, Prisma.UserUncheckedCreateWithoutAfterDarkIdeasInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutAfterDarkIdeasInput
@@ -806,6 +848,8 @@ export type UserCreateWithoutBlockingInput = {
   blockedBy?: Prisma.BlockedUserCreateNestedManyWithoutBlockedInput
   reports?: Prisma.ReportCreateNestedManyWithoutReporterInput
   afterDarkIdeas?: Prisma.AfterDarkItemCreateNestedManyWithoutCreatorInput
+  sentFriendRequests?: Prisma.FriendshipCreateNestedManyWithoutSenderInput
+  receivedFriendRequests?: Prisma.FriendshipCreateNestedManyWithoutReceiverInput
 }
 
 export type UserUncheckedCreateWithoutBlockingInput = {
@@ -831,6 +875,8 @@ export type UserUncheckedCreateWithoutBlockingInput = {
   blockedBy?: Prisma.BlockedUserUncheckedCreateNestedManyWithoutBlockedInput
   reports?: Prisma.ReportUncheckedCreateNestedManyWithoutReporterInput
   afterDarkIdeas?: Prisma.AfterDarkItemUncheckedCreateNestedManyWithoutCreatorInput
+  sentFriendRequests?: Prisma.FriendshipUncheckedCreateNestedManyWithoutSenderInput
+  receivedFriendRequests?: Prisma.FriendshipUncheckedCreateNestedManyWithoutReceiverInput
 }
 
 export type UserCreateOrConnectWithoutBlockingInput = {
@@ -861,6 +907,8 @@ export type UserCreateWithoutBlockedByInput = {
   blocking?: Prisma.BlockedUserCreateNestedManyWithoutBlockerInput
   reports?: Prisma.ReportCreateNestedManyWithoutReporterInput
   afterDarkIdeas?: Prisma.AfterDarkItemCreateNestedManyWithoutCreatorInput
+  sentFriendRequests?: Prisma.FriendshipCreateNestedManyWithoutSenderInput
+  receivedFriendRequests?: Prisma.FriendshipCreateNestedManyWithoutReceiverInput
 }
 
 export type UserUncheckedCreateWithoutBlockedByInput = {
@@ -886,6 +934,8 @@ export type UserUncheckedCreateWithoutBlockedByInput = {
   blocking?: Prisma.BlockedUserUncheckedCreateNestedManyWithoutBlockerInput
   reports?: Prisma.ReportUncheckedCreateNestedManyWithoutReporterInput
   afterDarkIdeas?: Prisma.AfterDarkItemUncheckedCreateNestedManyWithoutCreatorInput
+  sentFriendRequests?: Prisma.FriendshipUncheckedCreateNestedManyWithoutSenderInput
+  receivedFriendRequests?: Prisma.FriendshipUncheckedCreateNestedManyWithoutReceiverInput
 }
 
 export type UserCreateOrConnectWithoutBlockedByInput = {
@@ -927,6 +977,8 @@ export type UserUpdateWithoutBlockingInput = {
   blockedBy?: Prisma.BlockedUserUpdateManyWithoutBlockedNestedInput
   reports?: Prisma.ReportUpdateManyWithoutReporterNestedInput
   afterDarkIdeas?: Prisma.AfterDarkItemUpdateManyWithoutCreatorNestedInput
+  sentFriendRequests?: Prisma.FriendshipUpdateManyWithoutSenderNestedInput
+  receivedFriendRequests?: Prisma.FriendshipUpdateManyWithoutReceiverNestedInput
 }
 
 export type UserUncheckedUpdateWithoutBlockingInput = {
@@ -952,6 +1004,8 @@ export type UserUncheckedUpdateWithoutBlockingInput = {
   blockedBy?: Prisma.BlockedUserUncheckedUpdateManyWithoutBlockedNestedInput
   reports?: Prisma.ReportUncheckedUpdateManyWithoutReporterNestedInput
   afterDarkIdeas?: Prisma.AfterDarkItemUncheckedUpdateManyWithoutCreatorNestedInput
+  sentFriendRequests?: Prisma.FriendshipUncheckedUpdateManyWithoutSenderNestedInput
+  receivedFriendRequests?: Prisma.FriendshipUncheckedUpdateManyWithoutReceiverNestedInput
 }
 
 export type UserUpsertWithoutBlockedByInput = {
@@ -988,6 +1042,8 @@ export type UserUpdateWithoutBlockedByInput = {
   blocking?: Prisma.BlockedUserUpdateManyWithoutBlockerNestedInput
   reports?: Prisma.ReportUpdateManyWithoutReporterNestedInput
   afterDarkIdeas?: Prisma.AfterDarkItemUpdateManyWithoutCreatorNestedInput
+  sentFriendRequests?: Prisma.FriendshipUpdateManyWithoutSenderNestedInput
+  receivedFriendRequests?: Prisma.FriendshipUpdateManyWithoutReceiverNestedInput
 }
 
 export type UserUncheckedUpdateWithoutBlockedByInput = {
@@ -1013,6 +1069,8 @@ export type UserUncheckedUpdateWithoutBlockedByInput = {
   blocking?: Prisma.BlockedUserUncheckedUpdateManyWithoutBlockerNestedInput
   reports?: Prisma.ReportUncheckedUpdateManyWithoutReporterNestedInput
   afterDarkIdeas?: Prisma.AfterDarkItemUncheckedUpdateManyWithoutCreatorNestedInput
+  sentFriendRequests?: Prisma.FriendshipUncheckedUpdateManyWithoutSenderNestedInput
+  receivedFriendRequests?: Prisma.FriendshipUncheckedUpdateManyWithoutReceiverNestedInput
 }
 
 export type UserCreateWithoutReportsInput = {
@@ -1038,6 +1096,8 @@ export type UserCreateWithoutReportsInput = {
   blocking?: Prisma.BlockedUserCreateNestedManyWithoutBlockerInput
   blockedBy?: Prisma.BlockedUserCreateNestedManyWithoutBlockedInput
   afterDarkIdeas?: Prisma.AfterDarkItemCreateNestedManyWithoutCreatorInput
+  sentFriendRequests?: Prisma.FriendshipCreateNestedManyWithoutSenderInput
+  receivedFriendRequests?: Prisma.FriendshipCreateNestedManyWithoutReceiverInput
 }
 
 export type UserUncheckedCreateWithoutReportsInput = {
@@ -1063,6 +1123,8 @@ export type UserUncheckedCreateWithoutReportsInput = {
   blocking?: Prisma.BlockedUserUncheckedCreateNestedManyWithoutBlockerInput
   blockedBy?: Prisma.BlockedUserUncheckedCreateNestedManyWithoutBlockedInput
   afterDarkIdeas?: Prisma.AfterDarkItemUncheckedCreateNestedManyWithoutCreatorInput
+  sentFriendRequests?: Prisma.FriendshipUncheckedCreateNestedManyWithoutSenderInput
+  receivedFriendRequests?: Prisma.FriendshipUncheckedCreateNestedManyWithoutReceiverInput
 }
 
 export type UserCreateOrConnectWithoutReportsInput = {
@@ -1104,6 +1166,8 @@ export type UserUpdateWithoutReportsInput = {
   blocking?: Prisma.BlockedUserUpdateManyWithoutBlockerNestedInput
   blockedBy?: Prisma.BlockedUserUpdateManyWithoutBlockedNestedInput
   afterDarkIdeas?: Prisma.AfterDarkItemUpdateManyWithoutCreatorNestedInput
+  sentFriendRequests?: Prisma.FriendshipUpdateManyWithoutSenderNestedInput
+  receivedFriendRequests?: Prisma.FriendshipUpdateManyWithoutReceiverNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReportsInput = {
@@ -1129,6 +1193,8 @@ export type UserUncheckedUpdateWithoutReportsInput = {
   blocking?: Prisma.BlockedUserUncheckedUpdateManyWithoutBlockerNestedInput
   blockedBy?: Prisma.BlockedUserUncheckedUpdateManyWithoutBlockedNestedInput
   afterDarkIdeas?: Prisma.AfterDarkItemUncheckedUpdateManyWithoutCreatorNestedInput
+  sentFriendRequests?: Prisma.FriendshipUncheckedUpdateManyWithoutSenderNestedInput
+  receivedFriendRequests?: Prisma.FriendshipUncheckedUpdateManyWithoutReceiverNestedInput
 }
 
 export type UserCreateWithoutMembershipsInput = {
@@ -1154,6 +1220,8 @@ export type UserCreateWithoutMembershipsInput = {
   blockedBy?: Prisma.BlockedUserCreateNestedManyWithoutBlockedInput
   reports?: Prisma.ReportCreateNestedManyWithoutReporterInput
   afterDarkIdeas?: Prisma.AfterDarkItemCreateNestedManyWithoutCreatorInput
+  sentFriendRequests?: Prisma.FriendshipCreateNestedManyWithoutSenderInput
+  receivedFriendRequests?: Prisma.FriendshipCreateNestedManyWithoutReceiverInput
 }
 
 export type UserUncheckedCreateWithoutMembershipsInput = {
@@ -1179,6 +1247,8 @@ export type UserUncheckedCreateWithoutMembershipsInput = {
   blockedBy?: Prisma.BlockedUserUncheckedCreateNestedManyWithoutBlockedInput
   reports?: Prisma.ReportUncheckedCreateNestedManyWithoutReporterInput
   afterDarkIdeas?: Prisma.AfterDarkItemUncheckedCreateNestedManyWithoutCreatorInput
+  sentFriendRequests?: Prisma.FriendshipUncheckedCreateNestedManyWithoutSenderInput
+  receivedFriendRequests?: Prisma.FriendshipUncheckedCreateNestedManyWithoutReceiverInput
 }
 
 export type UserCreateOrConnectWithoutMembershipsInput = {
@@ -1220,6 +1290,8 @@ export type UserUpdateWithoutMembershipsInput = {
   blockedBy?: Prisma.BlockedUserUpdateManyWithoutBlockedNestedInput
   reports?: Prisma.ReportUpdateManyWithoutReporterNestedInput
   afterDarkIdeas?: Prisma.AfterDarkItemUpdateManyWithoutCreatorNestedInput
+  sentFriendRequests?: Prisma.FriendshipUpdateManyWithoutSenderNestedInput
+  receivedFriendRequests?: Prisma.FriendshipUpdateManyWithoutReceiverNestedInput
 }
 
 export type UserUncheckedUpdateWithoutMembershipsInput = {
@@ -1245,6 +1317,8 @@ export type UserUncheckedUpdateWithoutMembershipsInput = {
   blockedBy?: Prisma.BlockedUserUncheckedUpdateManyWithoutBlockedNestedInput
   reports?: Prisma.ReportUncheckedUpdateManyWithoutReporterNestedInput
   afterDarkIdeas?: Prisma.AfterDarkItemUncheckedUpdateManyWithoutCreatorNestedInput
+  sentFriendRequests?: Prisma.FriendshipUncheckedUpdateManyWithoutSenderNestedInput
+  receivedFriendRequests?: Prisma.FriendshipUncheckedUpdateManyWithoutReceiverNestedInput
 }
 
 export type UserCreateWithoutSentInvitationsInput = {
@@ -1270,6 +1344,8 @@ export type UserCreateWithoutSentInvitationsInput = {
   blockedBy?: Prisma.BlockedUserCreateNestedManyWithoutBlockedInput
   reports?: Prisma.ReportCreateNestedManyWithoutReporterInput
   afterDarkIdeas?: Prisma.AfterDarkItemCreateNestedManyWithoutCreatorInput
+  sentFriendRequests?: Prisma.FriendshipCreateNestedManyWithoutSenderInput
+  receivedFriendRequests?: Prisma.FriendshipCreateNestedManyWithoutReceiverInput
 }
 
 export type UserUncheckedCreateWithoutSentInvitationsInput = {
@@ -1295,6 +1371,8 @@ export type UserUncheckedCreateWithoutSentInvitationsInput = {
   blockedBy?: Prisma.BlockedUserUncheckedCreateNestedManyWithoutBlockedInput
   reports?: Prisma.ReportUncheckedCreateNestedManyWithoutReporterInput
   afterDarkIdeas?: Prisma.AfterDarkItemUncheckedCreateNestedManyWithoutCreatorInput
+  sentFriendRequests?: Prisma.FriendshipUncheckedCreateNestedManyWithoutSenderInput
+  receivedFriendRequests?: Prisma.FriendshipUncheckedCreateNestedManyWithoutReceiverInput
 }
 
 export type UserCreateOrConnectWithoutSentInvitationsInput = {
@@ -1336,6 +1414,8 @@ export type UserUpdateWithoutSentInvitationsInput = {
   blockedBy?: Prisma.BlockedUserUpdateManyWithoutBlockedNestedInput
   reports?: Prisma.ReportUpdateManyWithoutReporterNestedInput
   afterDarkIdeas?: Prisma.AfterDarkItemUpdateManyWithoutCreatorNestedInput
+  sentFriendRequests?: Prisma.FriendshipUpdateManyWithoutSenderNestedInput
+  receivedFriendRequests?: Prisma.FriendshipUpdateManyWithoutReceiverNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSentInvitationsInput = {
@@ -1361,6 +1441,8 @@ export type UserUncheckedUpdateWithoutSentInvitationsInput = {
   blockedBy?: Prisma.BlockedUserUncheckedUpdateManyWithoutBlockedNestedInput
   reports?: Prisma.ReportUncheckedUpdateManyWithoutReporterNestedInput
   afterDarkIdeas?: Prisma.AfterDarkItemUncheckedUpdateManyWithoutCreatorNestedInput
+  sentFriendRequests?: Prisma.FriendshipUncheckedUpdateManyWithoutSenderNestedInput
+  receivedFriendRequests?: Prisma.FriendshipUncheckedUpdateManyWithoutReceiverNestedInput
 }
 
 export type UserCreateWithoutProposalsInput = {
@@ -1386,6 +1468,8 @@ export type UserCreateWithoutProposalsInput = {
   blockedBy?: Prisma.BlockedUserCreateNestedManyWithoutBlockedInput
   reports?: Prisma.ReportCreateNestedManyWithoutReporterInput
   afterDarkIdeas?: Prisma.AfterDarkItemCreateNestedManyWithoutCreatorInput
+  sentFriendRequests?: Prisma.FriendshipCreateNestedManyWithoutSenderInput
+  receivedFriendRequests?: Prisma.FriendshipCreateNestedManyWithoutReceiverInput
 }
 
 export type UserUncheckedCreateWithoutProposalsInput = {
@@ -1411,6 +1495,8 @@ export type UserUncheckedCreateWithoutProposalsInput = {
   blockedBy?: Prisma.BlockedUserUncheckedCreateNestedManyWithoutBlockedInput
   reports?: Prisma.ReportUncheckedCreateNestedManyWithoutReporterInput
   afterDarkIdeas?: Prisma.AfterDarkItemUncheckedCreateNestedManyWithoutCreatorInput
+  sentFriendRequests?: Prisma.FriendshipUncheckedCreateNestedManyWithoutSenderInput
+  receivedFriendRequests?: Prisma.FriendshipUncheckedCreateNestedManyWithoutReceiverInput
 }
 
 export type UserCreateOrConnectWithoutProposalsInput = {
@@ -1452,6 +1538,8 @@ export type UserUpdateWithoutProposalsInput = {
   blockedBy?: Prisma.BlockedUserUpdateManyWithoutBlockedNestedInput
   reports?: Prisma.ReportUpdateManyWithoutReporterNestedInput
   afterDarkIdeas?: Prisma.AfterDarkItemUpdateManyWithoutCreatorNestedInput
+  sentFriendRequests?: Prisma.FriendshipUpdateManyWithoutSenderNestedInput
+  receivedFriendRequests?: Prisma.FriendshipUpdateManyWithoutReceiverNestedInput
 }
 
 export type UserUncheckedUpdateWithoutProposalsInput = {
@@ -1477,6 +1565,8 @@ export type UserUncheckedUpdateWithoutProposalsInput = {
   blockedBy?: Prisma.BlockedUserUncheckedUpdateManyWithoutBlockedNestedInput
   reports?: Prisma.ReportUncheckedUpdateManyWithoutReporterNestedInput
   afterDarkIdeas?: Prisma.AfterDarkItemUncheckedUpdateManyWithoutCreatorNestedInput
+  sentFriendRequests?: Prisma.FriendshipUncheckedUpdateManyWithoutSenderNestedInput
+  receivedFriendRequests?: Prisma.FriendshipUncheckedUpdateManyWithoutReceiverNestedInput
 }
 
 export type UserCreateWithoutVotesInput = {
@@ -1502,6 +1592,8 @@ export type UserCreateWithoutVotesInput = {
   blockedBy?: Prisma.BlockedUserCreateNestedManyWithoutBlockedInput
   reports?: Prisma.ReportCreateNestedManyWithoutReporterInput
   afterDarkIdeas?: Prisma.AfterDarkItemCreateNestedManyWithoutCreatorInput
+  sentFriendRequests?: Prisma.FriendshipCreateNestedManyWithoutSenderInput
+  receivedFriendRequests?: Prisma.FriendshipCreateNestedManyWithoutReceiverInput
 }
 
 export type UserUncheckedCreateWithoutVotesInput = {
@@ -1527,6 +1619,8 @@ export type UserUncheckedCreateWithoutVotesInput = {
   blockedBy?: Prisma.BlockedUserUncheckedCreateNestedManyWithoutBlockedInput
   reports?: Prisma.ReportUncheckedCreateNestedManyWithoutReporterInput
   afterDarkIdeas?: Prisma.AfterDarkItemUncheckedCreateNestedManyWithoutCreatorInput
+  sentFriendRequests?: Prisma.FriendshipUncheckedCreateNestedManyWithoutSenderInput
+  receivedFriendRequests?: Prisma.FriendshipUncheckedCreateNestedManyWithoutReceiverInput
 }
 
 export type UserCreateOrConnectWithoutVotesInput = {
@@ -1568,6 +1662,8 @@ export type UserUpdateWithoutVotesInput = {
   blockedBy?: Prisma.BlockedUserUpdateManyWithoutBlockedNestedInput
   reports?: Prisma.ReportUpdateManyWithoutReporterNestedInput
   afterDarkIdeas?: Prisma.AfterDarkItemUpdateManyWithoutCreatorNestedInput
+  sentFriendRequests?: Prisma.FriendshipUpdateManyWithoutSenderNestedInput
+  receivedFriendRequests?: Prisma.FriendshipUpdateManyWithoutReceiverNestedInput
 }
 
 export type UserUncheckedUpdateWithoutVotesInput = {
@@ -1593,6 +1689,8 @@ export type UserUncheckedUpdateWithoutVotesInput = {
   blockedBy?: Prisma.BlockedUserUncheckedUpdateManyWithoutBlockedNestedInput
   reports?: Prisma.ReportUncheckedUpdateManyWithoutReporterNestedInput
   afterDarkIdeas?: Prisma.AfterDarkItemUncheckedUpdateManyWithoutCreatorNestedInput
+  sentFriendRequests?: Prisma.FriendshipUncheckedUpdateManyWithoutSenderNestedInput
+  receivedFriendRequests?: Prisma.FriendshipUncheckedUpdateManyWithoutReceiverNestedInput
 }
 
 export type UserCreateWithoutProposalCommentsInput = {
@@ -1618,6 +1716,8 @@ export type UserCreateWithoutProposalCommentsInput = {
   blockedBy?: Prisma.BlockedUserCreateNestedManyWithoutBlockedInput
   reports?: Prisma.ReportCreateNestedManyWithoutReporterInput
   afterDarkIdeas?: Prisma.AfterDarkItemCreateNestedManyWithoutCreatorInput
+  sentFriendRequests?: Prisma.FriendshipCreateNestedManyWithoutSenderInput
+  receivedFriendRequests?: Prisma.FriendshipCreateNestedManyWithoutReceiverInput
 }
 
 export type UserUncheckedCreateWithoutProposalCommentsInput = {
@@ -1643,6 +1743,8 @@ export type UserUncheckedCreateWithoutProposalCommentsInput = {
   blockedBy?: Prisma.BlockedUserUncheckedCreateNestedManyWithoutBlockedInput
   reports?: Prisma.ReportUncheckedCreateNestedManyWithoutReporterInput
   afterDarkIdeas?: Prisma.AfterDarkItemUncheckedCreateNestedManyWithoutCreatorInput
+  sentFriendRequests?: Prisma.FriendshipUncheckedCreateNestedManyWithoutSenderInput
+  receivedFriendRequests?: Prisma.FriendshipUncheckedCreateNestedManyWithoutReceiverInput
 }
 
 export type UserCreateOrConnectWithoutProposalCommentsInput = {
@@ -1684,6 +1786,8 @@ export type UserUpdateWithoutProposalCommentsInput = {
   blockedBy?: Prisma.BlockedUserUpdateManyWithoutBlockedNestedInput
   reports?: Prisma.ReportUpdateManyWithoutReporterNestedInput
   afterDarkIdeas?: Prisma.AfterDarkItemUpdateManyWithoutCreatorNestedInput
+  sentFriendRequests?: Prisma.FriendshipUpdateManyWithoutSenderNestedInput
+  receivedFriendRequests?: Prisma.FriendshipUpdateManyWithoutReceiverNestedInput
 }
 
 export type UserUncheckedUpdateWithoutProposalCommentsInput = {
@@ -1709,6 +1813,8 @@ export type UserUncheckedUpdateWithoutProposalCommentsInput = {
   blockedBy?: Prisma.BlockedUserUncheckedUpdateManyWithoutBlockedNestedInput
   reports?: Prisma.ReportUncheckedUpdateManyWithoutReporterNestedInput
   afterDarkIdeas?: Prisma.AfterDarkItemUncheckedUpdateManyWithoutCreatorNestedInput
+  sentFriendRequests?: Prisma.FriendshipUncheckedUpdateManyWithoutSenderNestedInput
+  receivedFriendRequests?: Prisma.FriendshipUncheckedUpdateManyWithoutReceiverNestedInput
 }
 
 export type UserCreateWithoutRefreshTokensInput = {
@@ -1734,6 +1840,8 @@ export type UserCreateWithoutRefreshTokensInput = {
   blockedBy?: Prisma.BlockedUserCreateNestedManyWithoutBlockedInput
   reports?: Prisma.ReportCreateNestedManyWithoutReporterInput
   afterDarkIdeas?: Prisma.AfterDarkItemCreateNestedManyWithoutCreatorInput
+  sentFriendRequests?: Prisma.FriendshipCreateNestedManyWithoutSenderInput
+  receivedFriendRequests?: Prisma.FriendshipCreateNestedManyWithoutReceiverInput
 }
 
 export type UserUncheckedCreateWithoutRefreshTokensInput = {
@@ -1759,6 +1867,8 @@ export type UserUncheckedCreateWithoutRefreshTokensInput = {
   blockedBy?: Prisma.BlockedUserUncheckedCreateNestedManyWithoutBlockedInput
   reports?: Prisma.ReportUncheckedCreateNestedManyWithoutReporterInput
   afterDarkIdeas?: Prisma.AfterDarkItemUncheckedCreateNestedManyWithoutCreatorInput
+  sentFriendRequests?: Prisma.FriendshipUncheckedCreateNestedManyWithoutSenderInput
+  receivedFriendRequests?: Prisma.FriendshipUncheckedCreateNestedManyWithoutReceiverInput
 }
 
 export type UserCreateOrConnectWithoutRefreshTokensInput = {
@@ -1800,6 +1910,8 @@ export type UserUpdateWithoutRefreshTokensInput = {
   blockedBy?: Prisma.BlockedUserUpdateManyWithoutBlockedNestedInput
   reports?: Prisma.ReportUpdateManyWithoutReporterNestedInput
   afterDarkIdeas?: Prisma.AfterDarkItemUpdateManyWithoutCreatorNestedInput
+  sentFriendRequests?: Prisma.FriendshipUpdateManyWithoutSenderNestedInput
+  receivedFriendRequests?: Prisma.FriendshipUpdateManyWithoutReceiverNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRefreshTokensInput = {
@@ -1825,6 +1937,256 @@ export type UserUncheckedUpdateWithoutRefreshTokensInput = {
   blockedBy?: Prisma.BlockedUserUncheckedUpdateManyWithoutBlockedNestedInput
   reports?: Prisma.ReportUncheckedUpdateManyWithoutReporterNestedInput
   afterDarkIdeas?: Prisma.AfterDarkItemUncheckedUpdateManyWithoutCreatorNestedInput
+  sentFriendRequests?: Prisma.FriendshipUncheckedUpdateManyWithoutSenderNestedInput
+  receivedFriendRequests?: Prisma.FriendshipUncheckedUpdateManyWithoutReceiverNestedInput
+}
+
+export type UserCreateWithoutSentFriendRequestsInput = {
+  id?: string
+  email: string
+  passwordHash?: string | null
+  displayName: string
+  provider?: string | null
+  providerId?: string | null
+  avatarUrl?: string | null
+  pushToken?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  memberships?: Prisma.GroupMemberCreateNestedManyWithoutUserInput
+  sentInvitations?: Prisma.InvitationCreateNestedManyWithoutInviterInput
+  proposals?: Prisma.ProposalCreateNestedManyWithoutCreatorInput
+  votes?: Prisma.VoteCreateNestedManyWithoutUserInput
+  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
+  proposalComments?: Prisma.ProposalCommentCreateNestedManyWithoutUserInput
+  blocking?: Prisma.BlockedUserCreateNestedManyWithoutBlockerInput
+  blockedBy?: Prisma.BlockedUserCreateNestedManyWithoutBlockedInput
+  reports?: Prisma.ReportCreateNestedManyWithoutReporterInput
+  afterDarkIdeas?: Prisma.AfterDarkItemCreateNestedManyWithoutCreatorInput
+  receivedFriendRequests?: Prisma.FriendshipCreateNestedManyWithoutReceiverInput
+}
+
+export type UserUncheckedCreateWithoutSentFriendRequestsInput = {
+  id?: string
+  email: string
+  passwordHash?: string | null
+  displayName: string
+  provider?: string | null
+  providerId?: string | null
+  avatarUrl?: string | null
+  pushToken?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  memberships?: Prisma.GroupMemberUncheckedCreateNestedManyWithoutUserInput
+  sentInvitations?: Prisma.InvitationUncheckedCreateNestedManyWithoutInviterInput
+  proposals?: Prisma.ProposalUncheckedCreateNestedManyWithoutCreatorInput
+  votes?: Prisma.VoteUncheckedCreateNestedManyWithoutUserInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+  proposalComments?: Prisma.ProposalCommentUncheckedCreateNestedManyWithoutUserInput
+  blocking?: Prisma.BlockedUserUncheckedCreateNestedManyWithoutBlockerInput
+  blockedBy?: Prisma.BlockedUserUncheckedCreateNestedManyWithoutBlockedInput
+  reports?: Prisma.ReportUncheckedCreateNestedManyWithoutReporterInput
+  afterDarkIdeas?: Prisma.AfterDarkItemUncheckedCreateNestedManyWithoutCreatorInput
+  receivedFriendRequests?: Prisma.FriendshipUncheckedCreateNestedManyWithoutReceiverInput
+}
+
+export type UserCreateOrConnectWithoutSentFriendRequestsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutSentFriendRequestsInput, Prisma.UserUncheckedCreateWithoutSentFriendRequestsInput>
+}
+
+export type UserCreateWithoutReceivedFriendRequestsInput = {
+  id?: string
+  email: string
+  passwordHash?: string | null
+  displayName: string
+  provider?: string | null
+  providerId?: string | null
+  avatarUrl?: string | null
+  pushToken?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  memberships?: Prisma.GroupMemberCreateNestedManyWithoutUserInput
+  sentInvitations?: Prisma.InvitationCreateNestedManyWithoutInviterInput
+  proposals?: Prisma.ProposalCreateNestedManyWithoutCreatorInput
+  votes?: Prisma.VoteCreateNestedManyWithoutUserInput
+  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
+  proposalComments?: Prisma.ProposalCommentCreateNestedManyWithoutUserInput
+  blocking?: Prisma.BlockedUserCreateNestedManyWithoutBlockerInput
+  blockedBy?: Prisma.BlockedUserCreateNestedManyWithoutBlockedInput
+  reports?: Prisma.ReportCreateNestedManyWithoutReporterInput
+  afterDarkIdeas?: Prisma.AfterDarkItemCreateNestedManyWithoutCreatorInput
+  sentFriendRequests?: Prisma.FriendshipCreateNestedManyWithoutSenderInput
+}
+
+export type UserUncheckedCreateWithoutReceivedFriendRequestsInput = {
+  id?: string
+  email: string
+  passwordHash?: string | null
+  displayName: string
+  provider?: string | null
+  providerId?: string | null
+  avatarUrl?: string | null
+  pushToken?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  memberships?: Prisma.GroupMemberUncheckedCreateNestedManyWithoutUserInput
+  sentInvitations?: Prisma.InvitationUncheckedCreateNestedManyWithoutInviterInput
+  proposals?: Prisma.ProposalUncheckedCreateNestedManyWithoutCreatorInput
+  votes?: Prisma.VoteUncheckedCreateNestedManyWithoutUserInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+  proposalComments?: Prisma.ProposalCommentUncheckedCreateNestedManyWithoutUserInput
+  blocking?: Prisma.BlockedUserUncheckedCreateNestedManyWithoutBlockerInput
+  blockedBy?: Prisma.BlockedUserUncheckedCreateNestedManyWithoutBlockedInput
+  reports?: Prisma.ReportUncheckedCreateNestedManyWithoutReporterInput
+  afterDarkIdeas?: Prisma.AfterDarkItemUncheckedCreateNestedManyWithoutCreatorInput
+  sentFriendRequests?: Prisma.FriendshipUncheckedCreateNestedManyWithoutSenderInput
+}
+
+export type UserCreateOrConnectWithoutReceivedFriendRequestsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutReceivedFriendRequestsInput, Prisma.UserUncheckedCreateWithoutReceivedFriendRequestsInput>
+}
+
+export type UserUpsertWithoutSentFriendRequestsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutSentFriendRequestsInput, Prisma.UserUncheckedUpdateWithoutSentFriendRequestsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutSentFriendRequestsInput, Prisma.UserUncheckedCreateWithoutSentFriendRequestsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutSentFriendRequestsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutSentFriendRequestsInput, Prisma.UserUncheckedUpdateWithoutSentFriendRequestsInput>
+}
+
+export type UserUpdateWithoutSentFriendRequestsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
+  provider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  providerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  memberships?: Prisma.GroupMemberUpdateManyWithoutUserNestedInput
+  sentInvitations?: Prisma.InvitationUpdateManyWithoutInviterNestedInput
+  proposals?: Prisma.ProposalUpdateManyWithoutCreatorNestedInput
+  votes?: Prisma.VoteUpdateManyWithoutUserNestedInput
+  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
+  proposalComments?: Prisma.ProposalCommentUpdateManyWithoutUserNestedInput
+  blocking?: Prisma.BlockedUserUpdateManyWithoutBlockerNestedInput
+  blockedBy?: Prisma.BlockedUserUpdateManyWithoutBlockedNestedInput
+  reports?: Prisma.ReportUpdateManyWithoutReporterNestedInput
+  afterDarkIdeas?: Prisma.AfterDarkItemUpdateManyWithoutCreatorNestedInput
+  receivedFriendRequests?: Prisma.FriendshipUpdateManyWithoutReceiverNestedInput
+}
+
+export type UserUncheckedUpdateWithoutSentFriendRequestsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
+  provider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  providerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  memberships?: Prisma.GroupMemberUncheckedUpdateManyWithoutUserNestedInput
+  sentInvitations?: Prisma.InvitationUncheckedUpdateManyWithoutInviterNestedInput
+  proposals?: Prisma.ProposalUncheckedUpdateManyWithoutCreatorNestedInput
+  votes?: Prisma.VoteUncheckedUpdateManyWithoutUserNestedInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+  proposalComments?: Prisma.ProposalCommentUncheckedUpdateManyWithoutUserNestedInput
+  blocking?: Prisma.BlockedUserUncheckedUpdateManyWithoutBlockerNestedInput
+  blockedBy?: Prisma.BlockedUserUncheckedUpdateManyWithoutBlockedNestedInput
+  reports?: Prisma.ReportUncheckedUpdateManyWithoutReporterNestedInput
+  afterDarkIdeas?: Prisma.AfterDarkItemUncheckedUpdateManyWithoutCreatorNestedInput
+  receivedFriendRequests?: Prisma.FriendshipUncheckedUpdateManyWithoutReceiverNestedInput
+}
+
+export type UserUpsertWithoutReceivedFriendRequestsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutReceivedFriendRequestsInput, Prisma.UserUncheckedUpdateWithoutReceivedFriendRequestsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutReceivedFriendRequestsInput, Prisma.UserUncheckedCreateWithoutReceivedFriendRequestsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutReceivedFriendRequestsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutReceivedFriendRequestsInput, Prisma.UserUncheckedUpdateWithoutReceivedFriendRequestsInput>
+}
+
+export type UserUpdateWithoutReceivedFriendRequestsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
+  provider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  providerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  memberships?: Prisma.GroupMemberUpdateManyWithoutUserNestedInput
+  sentInvitations?: Prisma.InvitationUpdateManyWithoutInviterNestedInput
+  proposals?: Prisma.ProposalUpdateManyWithoutCreatorNestedInput
+  votes?: Prisma.VoteUpdateManyWithoutUserNestedInput
+  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
+  proposalComments?: Prisma.ProposalCommentUpdateManyWithoutUserNestedInput
+  blocking?: Prisma.BlockedUserUpdateManyWithoutBlockerNestedInput
+  blockedBy?: Prisma.BlockedUserUpdateManyWithoutBlockedNestedInput
+  reports?: Prisma.ReportUpdateManyWithoutReporterNestedInput
+  afterDarkIdeas?: Prisma.AfterDarkItemUpdateManyWithoutCreatorNestedInput
+  sentFriendRequests?: Prisma.FriendshipUpdateManyWithoutSenderNestedInput
+}
+
+export type UserUncheckedUpdateWithoutReceivedFriendRequestsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
+  provider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  providerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  memberships?: Prisma.GroupMemberUncheckedUpdateManyWithoutUserNestedInput
+  sentInvitations?: Prisma.InvitationUncheckedUpdateManyWithoutInviterNestedInput
+  proposals?: Prisma.ProposalUncheckedUpdateManyWithoutCreatorNestedInput
+  votes?: Prisma.VoteUncheckedUpdateManyWithoutUserNestedInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+  proposalComments?: Prisma.ProposalCommentUncheckedUpdateManyWithoutUserNestedInput
+  blocking?: Prisma.BlockedUserUncheckedUpdateManyWithoutBlockerNestedInput
+  blockedBy?: Prisma.BlockedUserUncheckedUpdateManyWithoutBlockedNestedInput
+  reports?: Prisma.ReportUncheckedUpdateManyWithoutReporterNestedInput
+  afterDarkIdeas?: Prisma.AfterDarkItemUncheckedUpdateManyWithoutCreatorNestedInput
+  sentFriendRequests?: Prisma.FriendshipUncheckedUpdateManyWithoutSenderNestedInput
 }
 
 export type UserCreateWithoutAfterDarkIdeasInput = {
@@ -1850,6 +2212,8 @@ export type UserCreateWithoutAfterDarkIdeasInput = {
   blocking?: Prisma.BlockedUserCreateNestedManyWithoutBlockerInput
   blockedBy?: Prisma.BlockedUserCreateNestedManyWithoutBlockedInput
   reports?: Prisma.ReportCreateNestedManyWithoutReporterInput
+  sentFriendRequests?: Prisma.FriendshipCreateNestedManyWithoutSenderInput
+  receivedFriendRequests?: Prisma.FriendshipCreateNestedManyWithoutReceiverInput
 }
 
 export type UserUncheckedCreateWithoutAfterDarkIdeasInput = {
@@ -1875,6 +2239,8 @@ export type UserUncheckedCreateWithoutAfterDarkIdeasInput = {
   blocking?: Prisma.BlockedUserUncheckedCreateNestedManyWithoutBlockerInput
   blockedBy?: Prisma.BlockedUserUncheckedCreateNestedManyWithoutBlockedInput
   reports?: Prisma.ReportUncheckedCreateNestedManyWithoutReporterInput
+  sentFriendRequests?: Prisma.FriendshipUncheckedCreateNestedManyWithoutSenderInput
+  receivedFriendRequests?: Prisma.FriendshipUncheckedCreateNestedManyWithoutReceiverInput
 }
 
 export type UserCreateOrConnectWithoutAfterDarkIdeasInput = {
@@ -1916,6 +2282,8 @@ export type UserUpdateWithoutAfterDarkIdeasInput = {
   blocking?: Prisma.BlockedUserUpdateManyWithoutBlockerNestedInput
   blockedBy?: Prisma.BlockedUserUpdateManyWithoutBlockedNestedInput
   reports?: Prisma.ReportUpdateManyWithoutReporterNestedInput
+  sentFriendRequests?: Prisma.FriendshipUpdateManyWithoutSenderNestedInput
+  receivedFriendRequests?: Prisma.FriendshipUpdateManyWithoutReceiverNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAfterDarkIdeasInput = {
@@ -1941,6 +2309,8 @@ export type UserUncheckedUpdateWithoutAfterDarkIdeasInput = {
   blocking?: Prisma.BlockedUserUncheckedUpdateManyWithoutBlockerNestedInput
   blockedBy?: Prisma.BlockedUserUncheckedUpdateManyWithoutBlockedNestedInput
   reports?: Prisma.ReportUncheckedUpdateManyWithoutReporterNestedInput
+  sentFriendRequests?: Prisma.FriendshipUncheckedUpdateManyWithoutSenderNestedInput
+  receivedFriendRequests?: Prisma.FriendshipUncheckedUpdateManyWithoutReceiverNestedInput
 }
 
 
@@ -1959,6 +2329,8 @@ export type UserCountOutputType = {
   blockedBy: number
   reports: number
   afterDarkIdeas: number
+  sentFriendRequests: number
+  receivedFriendRequests: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1972,6 +2344,8 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   blockedBy?: boolean | UserCountOutputTypeCountBlockedByArgs
   reports?: boolean | UserCountOutputTypeCountReportsArgs
   afterDarkIdeas?: boolean | UserCountOutputTypeCountAfterDarkIdeasArgs
+  sentFriendRequests?: boolean | UserCountOutputTypeCountSentFriendRequestsArgs
+  receivedFriendRequests?: boolean | UserCountOutputTypeCountReceivedFriendRequestsArgs
 }
 
 /**
@@ -2054,6 +2428,20 @@ export type UserCountOutputTypeCountAfterDarkIdeasArgs<ExtArgs extends runtime.T
   where?: Prisma.AfterDarkItemWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountSentFriendRequestsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FriendshipWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountReceivedFriendRequestsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FriendshipWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -2079,6 +2467,8 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   blockedBy?: boolean | Prisma.User$blockedByArgs<ExtArgs>
   reports?: boolean | Prisma.User$reportsArgs<ExtArgs>
   afterDarkIdeas?: boolean | Prisma.User$afterDarkIdeasArgs<ExtArgs>
+  sentFriendRequests?: boolean | Prisma.User$sentFriendRequestsArgs<ExtArgs>
+  receivedFriendRequests?: boolean | Prisma.User$receivedFriendRequestsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -2142,6 +2532,8 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   blockedBy?: boolean | Prisma.User$blockedByArgs<ExtArgs>
   reports?: boolean | Prisma.User$reportsArgs<ExtArgs>
   afterDarkIdeas?: boolean | Prisma.User$afterDarkIdeasArgs<ExtArgs>
+  sentFriendRequests?: boolean | Prisma.User$sentFriendRequestsArgs<ExtArgs>
+  receivedFriendRequests?: boolean | Prisma.User$receivedFriendRequestsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -2160,6 +2552,8 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     blockedBy: Prisma.$BlockedUserPayload<ExtArgs>[]
     reports: Prisma.$ReportPayload<ExtArgs>[]
     afterDarkIdeas: Prisma.$AfterDarkItemPayload<ExtArgs>[]
+    sentFriendRequests: Prisma.$FriendshipPayload<ExtArgs>[]
+    receivedFriendRequests: Prisma.$FriendshipPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -2579,6 +2973,8 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   blockedBy<T extends Prisma.User$blockedByArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$blockedByArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BlockedUserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   reports<T extends Prisma.User$reportsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$reportsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReportPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   afterDarkIdeas<T extends Prisma.User$afterDarkIdeasArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$afterDarkIdeasArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AfterDarkItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  sentFriendRequests<T extends Prisma.User$sentFriendRequestsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$sentFriendRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FriendshipPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  receivedFriendRequests<T extends Prisma.User$receivedFriendRequestsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$receivedFriendRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FriendshipPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3251,6 +3647,54 @@ export type User$afterDarkIdeasArgs<ExtArgs extends runtime.Types.Extensions.Int
   take?: number
   skip?: number
   distinct?: Prisma.AfterDarkItemScalarFieldEnum | Prisma.AfterDarkItemScalarFieldEnum[]
+}
+
+/**
+ * User.sentFriendRequests
+ */
+export type User$sentFriendRequestsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Friendship
+   */
+  select?: Prisma.FriendshipSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Friendship
+   */
+  omit?: Prisma.FriendshipOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FriendshipInclude<ExtArgs> | null
+  where?: Prisma.FriendshipWhereInput
+  orderBy?: Prisma.FriendshipOrderByWithRelationInput | Prisma.FriendshipOrderByWithRelationInput[]
+  cursor?: Prisma.FriendshipWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FriendshipScalarFieldEnum | Prisma.FriendshipScalarFieldEnum[]
+}
+
+/**
+ * User.receivedFriendRequests
+ */
+export type User$receivedFriendRequestsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Friendship
+   */
+  select?: Prisma.FriendshipSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Friendship
+   */
+  omit?: Prisma.FriendshipOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FriendshipInclude<ExtArgs> | null
+  where?: Prisma.FriendshipWhereInput
+  orderBy?: Prisma.FriendshipOrderByWithRelationInput | Prisma.FriendshipOrderByWithRelationInput[]
+  cursor?: Prisma.FriendshipWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FriendshipScalarFieldEnum | Prisma.FriendshipScalarFieldEnum[]
 }
 
 /**

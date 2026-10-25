@@ -38,6 +38,8 @@ model User {
   blockedBy       BlockedUser[] @relation("BlockedRelation")
   reports         Report[]      @relation("ReporterRelation")
   afterDarkIdeas  AfterDarkItem[]
+  sentFriendRequests     Friendship[]  @relation("FriendshipSender")
+  receivedFriendRequests Friendship[]  @relation("FriendshipReceiver")
 
   @@unique([provider, providerId])
 }
@@ -336,6 +338,26 @@ model BusinessDirectListing {
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
   business     Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+}
+
+// ── Friendships (mutual connections) ─────────────────────────────────────────
+// Status flow: PENDING → ACCEPTED | DECLINED
+// Blocked: handled separately via BlockedUser; blocked users cannot send requests.
+model Friendship {
+  id         String   @id @default(uuid())
+  senderId   String
+  receiverId String
+  status     String   @default("PENDING") // PENDING | ACCEPTED | DECLINED
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  sender   User @relation("FriendshipSender",   fields: [senderId],   references: [id], onDelete: Cascade)
+  receiver User @relation("FriendshipReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  // Only one friendship record per pair (sender < receiver enforced at app level)
+  @@unique([senderId, receiverId])
+  @@index([receiverId])
+  @@index([status])
 }
 
 // ── Invite Cards ──────────────────────────────────────────────────────────────

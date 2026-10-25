@@ -27,6 +27,7 @@ import {
 } from '@/components/ui';
 import { authAPI } from '@/services/api';
 import { useAuth } from '@/hooks/useAuth';
+import { useNavigation } from '@react-navigation/native';
 import { FavCategoryChips, loadFavCategories, saveFavCategories } from '@/components/FavCategories';
 import { CATEGORIES } from '@/constants/categories';
 
@@ -210,6 +211,7 @@ export default function ProfileScreen() {
   const { colors, override, setOverride } = useTheme();
   const { user, logout } = useAuth();
   const { t, i18n } = useTranslation();
+  const navigation = useNavigation<any>();
 
   const changeLanguage = async (lng: string) => {
     await i18n.changeLanguage(lng);
@@ -297,8 +299,17 @@ export default function ProfileScreen() {
 
         {/* Settings cards */}
         <View style={{ paddingHorizontal: SPACING.gutter }}>
+          {/* Connections / Friends card */}
+          <SettingsCard title="CONNECTIONS" index={0}>
+            <SettingRow
+              label="My Friends"
+              right={<Text style={{ color: colors.ink2, fontSize: 16 }}>→</Text>}
+              onPress={() => (navigation as any).navigate('Friends')}
+            />
+          </SettingsCard>
+
           {/* Notifications card */}
-          <SettingsCard title="NOTIFICATIONS" index={0}>
+          <SettingsCard title="NOTIFICATIONS" index={1}>
             <SettingRow
               label="New proposals"
               right={<TogglePill value={notifNew} onChange={setNotifNew} />}

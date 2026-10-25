@@ -413,7 +413,9 @@ export const ModelName = {
   FeaturedListing: 'FeaturedListing',
   BusinessImpression: 'BusinessImpression',
   BusinessDirectListing: 'BusinessDirectListing',
+  Friendship: 'Friendship',
   InviteCard: 'InviteCard',
+  SuggestionCache: 'SuggestionCache',
   AfterDarkItem: 'AfterDarkItem'
 } as const
 
@@ -430,7 +432,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "blockedUser" | "report" | "group" | "groupMember" | "invitation" | "proposal" | "option" | "guestVote" | "vote" | "proposalComment" | "refreshToken" | "business" | "featuredListing" | "businessImpression" | "businessDirectListing" | "inviteCard" | "afterDarkItem"
+    modelProps: "user" | "blockedUser" | "report" | "group" | "groupMember" | "invitation" | "proposal" | "option" | "guestVote" | "vote" | "proposalComment" | "refreshToken" | "business" | "featuredListing" | "businessImpression" | "businessDirectListing" | "friendship" | "inviteCard" | "suggestionCache" | "afterDarkItem"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1618,6 +1620,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Friendship: {
+      payload: Prisma.$FriendshipPayload<ExtArgs>
+      fields: Prisma.FriendshipFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.FriendshipFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FriendshipPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.FriendshipFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FriendshipPayload>
+        }
+        findFirst: {
+          args: Prisma.FriendshipFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FriendshipPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.FriendshipFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FriendshipPayload>
+        }
+        findMany: {
+          args: Prisma.FriendshipFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FriendshipPayload>[]
+        }
+        create: {
+          args: Prisma.FriendshipCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FriendshipPayload>
+        }
+        createMany: {
+          args: Prisma.FriendshipCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.FriendshipCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FriendshipPayload>[]
+        }
+        delete: {
+          args: Prisma.FriendshipDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FriendshipPayload>
+        }
+        update: {
+          args: Prisma.FriendshipUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FriendshipPayload>
+        }
+        deleteMany: {
+          args: Prisma.FriendshipDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.FriendshipUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.FriendshipUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FriendshipPayload>[]
+        }
+        upsert: {
+          args: Prisma.FriendshipUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FriendshipPayload>
+        }
+        aggregate: {
+          args: Prisma.FriendshipAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateFriendship>
+        }
+        groupBy: {
+          args: Prisma.FriendshipGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FriendshipGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.FriendshipCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FriendshipCountAggregateOutputType> | number
+        }
+      }
+    }
     InviteCard: {
       payload: Prisma.$InviteCardPayload<ExtArgs>
       fields: Prisma.InviteCardFieldRefs
@@ -1689,6 +1765,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.InviteCardCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.InviteCardCountAggregateOutputType> | number
+        }
+      }
+    }
+    SuggestionCache: {
+      payload: Prisma.$SuggestionCachePayload<ExtArgs>
+      fields: Prisma.SuggestionCacheFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SuggestionCacheFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SuggestionCachePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SuggestionCacheFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SuggestionCachePayload>
+        }
+        findFirst: {
+          args: Prisma.SuggestionCacheFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SuggestionCachePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SuggestionCacheFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SuggestionCachePayload>
+        }
+        findMany: {
+          args: Prisma.SuggestionCacheFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SuggestionCachePayload>[]
+        }
+        create: {
+          args: Prisma.SuggestionCacheCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SuggestionCachePayload>
+        }
+        createMany: {
+          args: Prisma.SuggestionCacheCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.SuggestionCacheCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SuggestionCachePayload>[]
+        }
+        delete: {
+          args: Prisma.SuggestionCacheDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SuggestionCachePayload>
+        }
+        update: {
+          args: Prisma.SuggestionCacheUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SuggestionCachePayload>
+        }
+        deleteMany: {
+          args: Prisma.SuggestionCacheDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SuggestionCacheUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.SuggestionCacheUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SuggestionCachePayload>[]
+        }
+        upsert: {
+          args: Prisma.SuggestionCacheUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SuggestionCachePayload>
+        }
+        aggregate: {
+          args: Prisma.SuggestionCacheAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSuggestionCache>
+        }
+        groupBy: {
+          args: Prisma.SuggestionCacheGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SuggestionCacheGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SuggestionCacheCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SuggestionCacheCountAggregateOutputType> | number
         }
       }
     }
@@ -2062,6 +2212,18 @@ export const BusinessDirectListingScalarFieldEnum = {
 export type BusinessDirectListingScalarFieldEnum = (typeof BusinessDirectListingScalarFieldEnum)[keyof typeof BusinessDirectListingScalarFieldEnum]
 
 
+export const FriendshipScalarFieldEnum = {
+  id: 'id',
+  senderId: 'senderId',
+  receiverId: 'receiverId',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FriendshipScalarFieldEnum = (typeof FriendshipScalarFieldEnum)[keyof typeof FriendshipScalarFieldEnum]
+
+
 export const InviteCardScalarFieldEnum = {
   id: 'id',
   proposalId: 'proposalId',
@@ -2077,6 +2239,16 @@ export const InviteCardScalarFieldEnum = {
 } as const
 
 export type InviteCardScalarFieldEnum = (typeof InviteCardScalarFieldEnum)[keyof typeof InviteCardScalarFieldEnum]
+
+
+export const SuggestionCacheScalarFieldEnum = {
+  key: 'key',
+  value: 'value',
+  expiresAt: 'expiresAt',
+  createdAt: 'createdAt'
+} as const
+
+export type SuggestionCacheScalarFieldEnum = (typeof SuggestionCacheScalarFieldEnum)[keyof typeof SuggestionCacheScalarFieldEnum]
 
 
 export const AfterDarkItemScalarFieldEnum = {
@@ -2442,7 +2614,9 @@ export type GlobalOmitConfig = {
   featuredListing?: Prisma.FeaturedListingOmit
   businessImpression?: Prisma.BusinessImpressionOmit
   businessDirectListing?: Prisma.BusinessDirectListingOmit
+  friendship?: Prisma.FriendshipOmit
   inviteCard?: Prisma.InviteCardOmit
+  suggestionCache?: Prisma.SuggestionCacheOmit
   afterDarkItem?: Prisma.AfterDarkItemOmit
 }
 

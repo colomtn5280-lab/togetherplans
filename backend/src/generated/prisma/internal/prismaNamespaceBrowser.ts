@@ -67,7 +67,9 @@ export const ModelName = {
   FeaturedListing: 'FeaturedListing',
   BusinessImpression: 'BusinessImpression',
   BusinessDirectListing: 'BusinessDirectListing',
+  Friendship: 'Friendship',
   InviteCard: 'InviteCard',
+  SuggestionCache: 'SuggestionCache',
   AfterDarkItem: 'AfterDarkItem'
 } as const
 
@@ -344,6 +346,18 @@ export const BusinessDirectListingScalarFieldEnum = {
 export type BusinessDirectListingScalarFieldEnum = (typeof BusinessDirectListingScalarFieldEnum)[keyof typeof BusinessDirectListingScalarFieldEnum]
 
 
+export const FriendshipScalarFieldEnum = {
+  id: 'id',
+  senderId: 'senderId',
+  receiverId: 'receiverId',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FriendshipScalarFieldEnum = (typeof FriendshipScalarFieldEnum)[keyof typeof FriendshipScalarFieldEnum]
+
+
 export const InviteCardScalarFieldEnum = {
   id: 'id',
   proposalId: 'proposalId',
@@ -359,6 +373,16 @@ export const InviteCardScalarFieldEnum = {
 } as const
 
 export type InviteCardScalarFieldEnum = (typeof InviteCardScalarFieldEnum)[keyof typeof InviteCardScalarFieldEnum]
+
+
+export const SuggestionCacheScalarFieldEnum = {
+  key: 'key',
+  value: 'value',
+  expiresAt: 'expiresAt',
+  createdAt: 'createdAt'
+} as const
+
+export type SuggestionCacheScalarFieldEnum = (typeof SuggestionCacheScalarFieldEnum)[keyof typeof SuggestionCacheScalarFieldEnum]
 
 
 export const AfterDarkItemScalarFieldEnum = {

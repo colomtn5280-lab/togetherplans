@@ -52,6 +52,7 @@ import ProfileScreen from '@/screens/ProfileScreen';
 import ShareCardScreen from '@/screens/ShareCardScreen';
 import AfterDarkScreen from '@/screens/AfterDarkScreen';
 import InviteCardScreen from '@/screens/InviteCardScreen';
+import FriendsScreen from '@/screens/FriendsScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator();
@@ -326,6 +327,11 @@ export default function AppNavigator() {
               name="InviteCard"
               component={InviteCardScreen}
               options={{ title: 'Invite Card', headerShown: false, presentation: 'modal' }}
+            />
+            <Stack.Screen
+              name="Friends"
+              component={FriendsScreen}
+              options={{ headerShown: false }}
             />
           </>
         )}

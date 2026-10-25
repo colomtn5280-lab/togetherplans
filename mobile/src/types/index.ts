@@ -103,6 +103,23 @@ export interface ConsensusResult {
   votes: { optionId: string; count: number; percentage: number }[];
 }
 
+// Friendship / connections
+export interface Friend {
+  friendshipId: string;
+  since: string;
+  user: { id: string; displayName: string; avatarUrl?: string };
+}
+
+export interface FriendRequest {
+  id: string;
+  senderId: string;
+  receiverId: string;
+  status: 'PENDING' | 'ACCEPTED' | 'DECLINED';
+  createdAt: string;
+  sender?: { id: string; displayName: string; avatarUrl?: string };
+  receiver?: { id: string; displayName: string; avatarUrl?: string };
+}
+
 // Plan builder option shape — used by PlanBuilderContext and CreateProposalScreen
 export interface PlanBuilderOption {
   id: string; // uuid for local tracking
@@ -157,6 +174,7 @@ export type RootStackParamList = {
   ShareCard: { proposalId: string };
   InviteCard: { proposalId: string };
   AfterDark: { groupId?: string };
+  Friends: undefined;
 };
 
 // ── Share Card types ───────────────────────────────────────────────────────────

@@ -155,6 +155,24 @@ export const safetyAPI = {
     api.post('/api/safety/report', data),
 };
 
+// Friends / connections
+export const friendsAPI = {
+  /** List accepted friends */
+  list: () => api.get<{ friends: import('@/types').Friend[] }>('/api/friends'),
+  /** Incoming pending requests */
+  requests: () => api.get<{ requests: import('@/types').FriendRequest[] }>('/api/friends/requests'),
+  /** Outgoing pending requests */
+  sent: () => api.get<{ sent: import('@/types').FriendRequest[] }>('/api/friends/sent'),
+  /** Send a friend request to a user */
+  sendRequest: (userId: string) => api.post(`/api/friends/request/${userId}`),
+  /** Accept a pending request */
+  accept: (friendshipId: string) => api.patch(`/api/friends/${friendshipId}/accept`),
+  /** Decline a pending request */
+  decline: (friendshipId: string) => api.patch(`/api/friends/${friendshipId}/decline`),
+  /** Remove an accepted friend */
+  remove: (friendshipId: string) => api.delete(`/api/friends/${friendshipId}`),
+};
+
 // Invite Cards
 export const inviteCardsAPI = {
   getTemplates: () => api.get<{id: string; name: string}[]>('/api/invite-cards/templates'),

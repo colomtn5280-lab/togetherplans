@@ -98,10 +98,20 @@ export type BusinessImpression = Prisma.BusinessImpressionModel
  */
 export type BusinessDirectListing = Prisma.BusinessDirectListingModel
 /**
+ * Model Friendship
+ * 
+ */
+export type Friendship = Prisma.FriendshipModel
+/**
  * Model InviteCard
  * 
  */
 export type InviteCard = Prisma.InviteCardModel
+/**
+ * Model SuggestionCache
+ * 
+ */
+export type SuggestionCache = Prisma.SuggestionCacheModel
 /**
  * Model AfterDarkItem
  * 

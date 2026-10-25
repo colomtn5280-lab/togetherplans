@@ -24,6 +24,7 @@ import { businessRouter } from '@/routes/business';
 import { webhooksRouter } from '@/routes/webhooks';
 import { inviteCardsRouter } from '@/services/invite-cards/routes';
 import { configRouter } from '@/routes/config';
+import { friendsRouter } from '@/routes/friends';
 import { seedAfterDarkCatalog } from '@/seeds/after-dark-catalog';
 
 export function createApp(): express.Express {
@@ -73,6 +74,7 @@ export function createApp(): express.Express {
   app.use('/api/after-dark', afterDarkRouter);
   app.use('/api/fun-ideas', funIdeasRouter);
   app.use('/api/safety', safetyRouter);
+  app.use('/api/friends', friendsRouter);
   app.use('/api/business', businessRouter);
   app.use('/api', configRouter);
   app.use('/', legalRouter);

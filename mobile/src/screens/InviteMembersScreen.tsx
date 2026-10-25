@@ -30,16 +30,17 @@ import {
   DNInput,
   DNScreenHeader,
 } from '@/components/ui';
-import { invitationsAPI, groupsAPI, usersApi } from '@/services/api';
-import type { Invitation, RootStackParamList } from '@/types';
+import { invitationsAPI, groupsAPI, usersApi, friendsAPI } from '@/services/api';
+import type { Friend, Invitation, RootStackParamList } from '@/types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 type Route = NativeStackScreenProps<RootStackParamList, 'InviteMembers'>['route'];
 
-type InviteMethod = 'LINK' | 'EMAIL' | 'SHARE' | 'USERNAME';
-const METHODS: InviteMethod[] = ['LINK', 'EMAIL', 'SHARE', 'USERNAME'];
+type InviteMethod = 'FRIENDS' | 'LINK' | 'EMAIL' | 'SHARE' | 'USERNAME';
+const METHODS: InviteMethod[] = ['FRIENDS', 'LINK', 'EMAIL', 'SHARE', 'USERNAME'];
 
 const METHOD_LABELS: Record<InviteMethod, string> = {
+  FRIENDS: 'Friends',
   LINK: 'Link',
   EMAIL: 'Email',
   SHARE: 'Share',
@@ -51,10 +52,16 @@ function MethodCard({
   method,
   inviteUrl,
   groupId,
+  friends,
+  invitedIds,
+  onInviteFriend,
 }: {
   method: InviteMethod;
   inviteUrl: string;
   groupId: string;
+  friends: Friend[];
+  invitedIds: Set<string>;
+  onInviteFriend: (friend: Friend) => void;
 }) {
   const { colors } = useTheme();
   const { t } = useTranslation();
@@ -117,6 +124,37 @@ function MethodCard({
 
   return (
     <DNCard index={1} style={{ marginBottom: SPACING.md, overflow: 'visible' }}>
+      {method === 'FRIENDS' && (
+        <>
+          <Text style={[TYPE.body, { color: colors.ink2, marginBottom: SPACING.md }]}>
+            Pick from your connections to invite directly.
+          </Text>
+          {friends.length === 0 ? (
+            <Text style={[TYPE.secondary, { color: colors.ink2, textAlign: 'center' }]}>
+              No friends yet. Add connections from your Profile → Friends tab.
+            </Text>
+          ) : (
+            friends.map((friend) => {
+              const done = invitedIds.has(friend.user.id);
+              return (
+                <TouchableOpacity
+                  key={friend.friendshipId}
+                  onPress={() => !done && onInviteFriend(friend)}
+                  activeOpacity={done ? 1 : 0.75}
+                  style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: colors.line }}
+                >
+                  <DNAvatar name={friend.user.displayName} size={42} colorIndex={1} style={{ marginRight: 12 }} />
+                  <Text style={[TYPE.rowLabel, { color: colors.ink, flex: 1 }]}>{friend.user.displayName}</Text>
+                  <Text style={[TYPE.secondary, { color: done ? colors.lime : colors.primary }]}>
+                    {done ? 'Invited ✓' : 'Invite'}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })
+          )}
+        </>
+      )}
+
       {method === 'LINK' && (
         <>
           <DNSticker
@@ -270,9 +308,11 @@ export default function InviteMembersScreen() {
 
   const { groupId } = route.params;
 
-  const [method, setMethod] = useState<InviteMethod>('LINK');
+  const [method, setMethod] = useState<InviteMethod>('FRIENDS');
   const [inviteUrl, setInviteUrl] = useState('');
   const [groupName, setGroupName] = useState('your group');
+  const [friends, setFriends] = useState<Friend[]>([]);
+  const [invitedIds, setInvitedIds] = useState<Set<string>>(new Set());
   const linkGeneratedRef = useRef(false);
 
   // Fetch real group name
@@ -298,6 +338,20 @@ export default function InviteMembersScreen() {
       } catch {}
     })();
   }, [groupId]);
+
+  // Load friends for the Friends tab
+  useEffect(() => {
+    friendsAPI.list().then((res) => setFriends(res.data.friends ?? [])).catch(() => {});
+  }, []);
+
+  const handleInviteFriend = async (friend: Friend) => {
+    try {
+      await invitationsAPI.create(groupId, 'USERNAME', friend.user.id);
+      setInvitedIds((prev) => new Set([...prev, friend.user.id]));
+    } catch (e: any) {
+      Alert.alert('Could not invite', e?.response?.data?.error ?? 'Try again.');
+    }
+  };
 
   return (
     <ScrollView
@@ -331,6 +385,9 @@ export default function InviteMembersScreen() {
           method={method}
           inviteUrl={inviteUrl}
           groupId={groupId}
+          friends={friends}
+          invitedIds={invitedIds}
+          onInviteFriend={handleInviteFriend}
         />
       </View>
     </ScrollView>
