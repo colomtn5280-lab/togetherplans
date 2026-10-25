@@ -37,19 +37,28 @@ export default function RegisterScreen({ navigation }: Props) {
   const { promptAsync: facebookPromptAsync, request: facebookRequest, error: facebookError } = useFacebookAuth();
   const insets = useSafeAreaInsets();
 
+  // 'email' | 'phone' tab
+  const [authTab, setAuthTab] = useState<'email' | 'phone'>('email');
+
   const [displayName, setDisplayName] = useState('');
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState<{ displayName?: string; email?: string; password?: string; general?: string }>({});
+  const [errors, setErrors] = useState<{ displayName?: string; email?: string; phone?: string; password?: string; general?: string }>({});
 
   const validate = (): boolean => {
     const errs: typeof errors = {};
     if (!displayName.trim()) errs.displayName = t('register.nameRequired');
-    if (!email.trim()) errs.email = t('register.emailRequired');
-    else {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) errs.email = t('register.validEmail');
+    if (authTab === 'email') {
+      if (!email.trim()) errs.email = t('register.emailRequired');
+      else {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) errs.email = t('register.validEmail');
+      }
+    } else {
+      const digits = phone.replace(/\D/g, '');
+      if (!digits || digits.length < 10) errs.phone = 'Enter a valid phone number (10+ digits)';
     }
     if (!password) errs.password = t('register.passwordRequired');
     else if (password.length < 8) errs.password = t('register.passwordLength');
@@ -61,8 +70,12 @@ export default function RegisterScreen({ navigation }: Props) {
     if (!validate()) return;
     setLoading(true);
     try {
-      await register(email.trim().toLowerCase(), password, displayName.trim());
-      // After register, AppNavigator will redirect to Onboarding (if !hasOnboarded)
+      // For phone auth: use a synthetic email so the existing auth system works.
+      // When Twilio SMS-OTP is wired, swap this for a real phone verification flow.
+      const authEmail = authTab === 'phone'
+        ? `${phone.replace(/\D/g, '')}@phone.datemeup.app`
+        : email.trim().toLowerCase();
+      await register(authEmail, password, displayName.trim());
     } catch (err: unknown) {
       const e = err as { response?: { data?: { error?: string } } };
       setErrors({ general: e?.response?.data?.error || t('register.failed') });
@@ -132,6 +145,30 @@ export default function RegisterScreen({ navigation }: Props) {
 
         <View style={{ height: SPACING.lg }} />
 
+        {/* Email / Phone tab switcher */}
+        <View style={{ flexDirection: 'row', gap: 8, marginBottom: SPACING.md }}>
+          {(['email', 'phone'] as const).map((tab) => (
+            <TouchableOpacity
+              key={tab}
+              onPress={() => { setAuthTab(tab); setErrors({}); }}
+              style={{
+                flex: 1,
+                height: 44,
+                borderRadius: 16,
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: authTab === tab ? colors.primary : colors.surface,
+                borderWidth: 1.5,
+                borderColor: authTab === tab ? colors.primary : colors.line,
+              }}
+            >
+              <Text style={{ fontFamily: 'Sora_700Bold', fontSize: 14, color: authTab === tab ? '#fff' : colors.ink }}>
+                {tab === 'email' ? '✉️  Email' : '📱  Phone'}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
         {/* Inputs */}
         <DNInput
           label={t('register.displayNameLabel')}
@@ -141,16 +178,29 @@ export default function RegisterScreen({ navigation }: Props) {
           error={errors.displayName}
           autoCapitalize="words"
         />
-        <DNInput
-          label={t('auth.email')}
-          placeholder={t('register.emailPlaceholder')}
-          value={email}
-          onChangeText={(tx) => { setEmail(tx); clearError('email'); }}
-          error={errors.email}
-          keyboardType="email-address"
-          autoCapitalize="none"
-          autoCorrect={false}
-        />
+        {authTab === 'email' ? (
+          <DNInput
+            label={t('auth.email')}
+            placeholder={t('register.emailPlaceholder')}
+            value={email}
+            onChangeText={(tx) => { setEmail(tx); clearError('email'); }}
+            error={errors.email}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoCorrect={false}
+          />
+        ) : (
+          <DNInput
+            label="Phone number"
+            placeholder="+1 (555) 000-0000"
+            value={phone}
+            onChangeText={(tx) => { setPhone(tx); clearError('phone'); }}
+            error={errors.phone}
+            keyboardType="phone-pad"
+            autoCapitalize="none"
+            autoCorrect={false}
+          />
+        )}
         <DNInput
           label={t('register.passwordLabel')}
           placeholder={t('register.passwordPlaceholder')}

@@ -71,13 +71,11 @@ function DockTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   const tabIcons: Record<string, (color: string, size: number) => React.ReactNode> = {
     Groups:      (c, s) => <Calendar color={c} size={s} strokeWidth={2} />,
     Suggestions: (c, s) => <Compass  color={c} size={s} strokeWidth={2} />,
-    AfterDark:   ()     => <Text>🌙</Text>,
     Profile:     (c, s) => <User     color={c} size={s} strokeWidth={2} />,
   };
   const tabLabels: Record<string, string> = {
     Groups:      t('nav.plans'),
     Suggestions: t('nav.discover'),
-    AfterDark:   t('nav.afterDark'),
     Profile:     t('nav.profile'),
   };
 
@@ -197,11 +195,6 @@ function TabNavigator() {
     >
       <Tab.Screen name="Groups" component={GroupsScreen} options={{ title: 'Plans' }} />
       <Tab.Screen name="Suggestions" component={SuggestionsScreen} options={{ title: 'Discover' }} />
-      <Tab.Screen
-        name="AfterDark"
-        component={AfterDarkScreen}
-        options={{ title: 'After Dark' }}
-      />
       <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
   );

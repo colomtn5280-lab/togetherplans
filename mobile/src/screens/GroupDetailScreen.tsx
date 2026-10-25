@@ -375,12 +375,6 @@ export default function GroupDetailScreen() {
         rightElement={
           <View style={{ flexDirection: 'row', gap: 8 }}>
             <DNButton
-              label="🌙"
-              onPress={() => navigation.navigate('AfterDark', { groupId })}
-              variant="tonal"
-              size="compact"
-            />
-            <DNButton
               label={t('groups.invite')}
               onPress={handleShare}
               variant="tonal"

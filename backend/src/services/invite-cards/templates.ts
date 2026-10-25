@@ -10,38 +10,44 @@ import path from 'path';
 export interface CardTemplate {
   id: string;
   name: string;
+  mood?: string;
 }
 
 export interface CardData {
   // Proposal fields
-  title: string;         // proposal title e.g. "Date Night · Saturday"
-  group: string;         // group name e.g. "Sam & Alex"
-  activity: string;      // winning option name or "Vote now"
-  address?: string;      // venue address
-  date: string;          // formatted date e.g. "Sat, Oct 10 · 8 PM"
-  note?: string;         // personal message from sender
-  photoUrl?: string;     // user-uploaded photo URL
+  title: string;          // proposal title e.g. "Date Night · Saturday"
+  group: string;          // group name e.g. "Sam & Alex"
+  groupDisplayName?: string; // display name e.g. "Sam & Priya" for couples
+  activity: string;       // winning option name or "Vote now"
+  address?: string;       // venue address
+  date: string;           // formatted date e.g. "Sat, Oct 10 · 8 PM"
+  city?: string;          // city only, no full address
+  photoUrl?: string;      // user-uploaded photo URL
   // Sender info
-  initiatorName: string;   // proposal creator's display name
-  memberCount?: number;    // group member count (2 = couple, 3+ = crew)
+  initiatorName: string;  // proposal creator's display name
+  memberCount?: number;   // group member count (2 = couple, 3+ = crew)
+  memberNames?: string[]; // first names of members (for 4E Library card, max 4)
+  optionCount?: number;   // number of options e.g. 3, for subtitle "3 ideas on the table"
+  votedCount?: number;    // number of members who have voted (for 3C Trading card)
   mode: 'vote' | 'official';
-  kicker: string;        // "Is it a date?" | "It's on."
-  cta: string;           // "Vote now" | "See the plan"
-  ctaShort: string;      // short CTA for small templates
-  result?: string;       // e.g. "2 voting" | "You both said yes"
-  opt1?: string;         // option 1 name
-  opt2?: string;         // option 2 name
-  opt3?: string;         // option 3 name
+  kicker: string;         // "IS IT A DATE?" | "IT'S ON."
+  cta: string;            // "Vote now →" | "" (official has no CTA)
+  ctaShort: string;       // short CTA for small templates
+  result?: string;        // e.g. "3 ideas on the table" | "You both said yes 💛"
+  opt1?: string;          // option 1 name
+  opt2?: string;          // option 2 name
+  opt3?: string;          // option 3 name
 }
 
 // Top 6 templates biased for random selection on skip
-export const TOP_TEMPLATE_IDS = ['1a', '1b', '1c', '1d', '1e', '1f'];
+export const TOP_TEMPLATE_IDS = ['1a', '1b', '1c', '1d', '1e', '1g'];
 
 // All 36 template IDs in order
 export const ALL_TEMPLATE_IDS = [
-  '1a','1b','1c','1d','1e','1f','1g','1h','1i','1j','1k','1l',
-  '2a','2b','2c','2d','2e','2f','2g','2h','2i','2j','2k','2l',
-  '3a','3b','3c','3d','3e','3f','3g','3h','3i','3j','3k','3l',
+  '1a','1b','1c','1d','1e','1g','1h','1i','1j','1k','1l',
+  '2b','2c','2d','2e','2f','2g','2h','2j','2k','2l',
+  '3a','3b','3c','3d','3g','3h','3i','3j','3k','3l',
+  '4a','4b','4c','4d','4e',
 ];
 
 let _templatesCache: { sharedCss: string; cards: Record<string, { vote: string; official: string }> } | null = null;
@@ -96,14 +102,17 @@ export function renderCardHtml(templateId: string, data: CardData): string {
     title: data.title,
     group: data.group,
     groupUpper: data.group.toUpperCase(),
+    groupDisplayName: data.groupDisplayName || data.group,
     activity: data.activity,
     activityUpper: data.activity.toUpperCase(),
     address: data.address || '',
+    city: data.city || '',
     date: data.date,
-    note: data.note || '',
-    noteLong: data.note || '',
-    noteSentence: data.note || '',
-    noteCount: String((data.note || '').length),
+    // note vars removed per spec rule 3 — render empty so templates show nothing
+    note: '',
+    noteLong: '',
+    noteSentence: '',
+    noteCount: '',
     kicker: data.kicker,
     kickerUpper: data.kicker.toUpperCase(),
     cta: data.cta,
@@ -124,11 +133,19 @@ export function renderCardHtml(templateId: string, data: CardData): string {
     opt3Upper: (data.opt3 || '').toUpperCase(),
     photo: data.photoUrl ? `url(${data.photoUrl})` : 'none',
     photoFull: data.photoUrl || '',
+    // New member/count fields
+    optionCount: data.optionCount ? `${data.optionCount} ideas on the table` : '',
+    votedCount: data.votedCount ? String(data.votedCount) : '',
+    memberNames: (data.memberNames || []).join('\n'),
+    member1: (data.memberNames || [])[0] || '',
+    member2: (data.memberNames || [])[1] || '',
+    member3: (data.memberNames || [])[2] || '',
+    member4: (data.memberNames || [])[3] || '',
     // App branding
     appBg: '#0E8C8C',
     appFg: '#ffffff',
-    // Misc
-    admit: 'ADMIT ONE',
+    // Misc — spec rule 5: no invented numbers
+    admit: 'ADMIT TWO',
     marqueeTop: data.activity.toUpperCase(),
     chalkTop: data.activity.toUpperCase(),
     confettiTop: data.kicker,
@@ -141,7 +158,7 @@ export function renderCardHtml(templateId: string, data: CardData): string {
     newsHeadline: data.title,
     newsDeck: data.activity,
     forecastLabel: data.mode === 'vote' ? 'Voting' : 'Confirmed',
-    forecastPct: data.mode === 'vote' ? '50%' : '100%',
+    forecastPct: '', // spec rule 5: no invented stat
     wantedFor: data.activity,
     tarotName: data.group,
     tarotReading: data.mode === 'vote' ? 'The stars say vote now.' : 'It is written.',
@@ -150,8 +167,8 @@ export function renderCardHtml(templateId: string, data: CardData): string {
     q1: data.opt1 || data.activity,
     q2: data.opt2 || '',
     q3: data.opt3 || '',
-    moodCount: '3',
-    cardRarity: 'RARE',
+    moodCount: '', // spec rule 5: no invented number
+    cardRarity: '', // spec rule 5: no invented rarity
     boardTo: data.group,
     board1: data.opt1 || '',
     board2: data.opt2 || '',

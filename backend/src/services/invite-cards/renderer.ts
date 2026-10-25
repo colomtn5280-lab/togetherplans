@@ -52,6 +52,65 @@ async function uploadBuffer(buf: Buffer, gcsPath: string, contentType: string): 
 }
 
 /**
+ * After Dark card data — page-2 card for intimate/adult date ideas.
+ */
+export interface AfterDarkCardData {
+  senderFirstName: string;
+  partnerFirstName: string;
+  ideaName: string;
+  ideaDescription?: string;
+  ideaWhere?: string;      // 'HOME' | 'OUT'
+  ideaDuration?: string;  // '2h', '90m', '1 night'
+  slotDay?: string;       // 'Fri' or 'Friday'
+  slotTime?: string;      // '10:00 PM'
+}
+
+/**
+ * Build the After Dark page-2 card HTML.
+ * Aesthetic: Moonrise — dark background (#0A1018), teal accent, moon emoji.
+ * Rendered at 360×640, deviceScaleFactor 3 → 1080×1920 PNG.
+ */
+export function renderAfterDarkCardHtml(data: AfterDarkCardData): string {
+  const slotParts = [data.slotDay, data.slotTime, data.ideaWhere, data.ideaDuration]
+    .filter(Boolean) as string[];
+  const slotLine = slotParts.join(' · ');
+  const senderName = data.senderFirstName.toUpperCase();
+  const ideaDescription = data.ideaDescription || '';
+
+  return `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;padding:0;width:360px;height:640px;overflow:hidden;background:#0A1018}
+.sc-card{
+  width:360px;height:640px;position:fixed;inset:0;
+  background:#0A1018;color:#fff;
+  font-family:Sora,sans-serif;
+  display:flex;flex-direction:column;
+  justify-content:center;align-items:center;
+  padding:48px;text-align:center;
+}
+</style>
+</head>
+<body>
+<div class="sc-card">
+  <div style="font-size:80px;margin-bottom:24px">🌙</div>
+  <div style="font-size:14px;letter-spacing:3px;color:#0E8C8C;text-transform:uppercase;margin-bottom:16px">After Dark · datemeup</div>
+  <div style="font-size:48px;font-weight:800;line-height:1.1;margin-bottom:24px;max-width:280px">${data.ideaName}</div>
+  ${ideaDescription ? `<div style="font-size:20px;color:rgba(255,255,255,0.7);margin-bottom:32px;max-width:260px">${ideaDescription}</div>` : ''}
+  ${slotLine ? `<div style="font-size:16px;color:#0E8C8C;letter-spacing:1px">${slotLine}</div>` : ''}
+  <div style="position:absolute;bottom:48px;font-size:12px;color:rgba(255,255,255,0.4);letter-spacing:2px">FROM ${senderName}</div>
+</div>
+</body>
+</html>`;
+}
+
+/**
  * Render a card to PNG + PDF and upload to GCS.
  * Returns { pngUrl, pdfUrl }.
  */
@@ -131,4 +190,42 @@ export async function renderAndUploadCard(
   } finally {
     await page.close();
   }
+}
+
+/**
+ * Render the After Dark page-2 card to PNG and upload to GCS.
+ */
+async function renderAfterDarkCard(proposalId: string, afterDarkData: AfterDarkCardData): Promise<string> {
+  const html = renderAfterDarkCardHtml(afterDarkData);
+  const browser = await getBrowser();
+  const page = await browser.newPage();
+  try {
+    await page.setViewport({ width: 360, height: 640, deviceScaleFactor: 3 });
+    await page.setContent(html, { waitUntil: 'load', timeout: 20000 });
+    await new Promise<void>((resolve) => setTimeout(resolve, 800));
+    const cardEl = await page.$('.sc-card');
+    const pngBuf = cardEl
+      ? await cardEl.screenshot({ type: 'png' }) as Buffer
+      : await page.screenshot({ type: 'png', clip: { x: 0, y: 0, width: 360, height: 640 } }) as Buffer;
+    const pngPath = `invite-cards/${proposalId}/after-dark.png`;
+    return await uploadBuffer(pngBuf, pngPath, 'image/png');
+  } finally {
+    await page.close();
+  }
+}
+
+/**
+ * Render main card + optional After Dark page-2 card, upload both, return URLs.
+ */
+export async function renderAfterDarkAndUpload(
+  proposalId: string,
+  templateId: string,
+  data: CardData,
+  afterDarkData?: AfterDarkCardData,
+): Promise<{ pngUrl: string; pdfUrl: string; afterDarkPngUrl?: string }> {
+  const [mainResult, afterDarkPngUrl] = await Promise.all([
+    renderAndUploadCard(proposalId, templateId, data),
+    afterDarkData ? renderAfterDarkCard(proposalId, afterDarkData) : Promise.resolve(undefined),
+  ]);
+  return { ...mainResult, afterDarkPngUrl };
 }

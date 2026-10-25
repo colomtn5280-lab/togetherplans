@@ -1,146 +1,38 @@
 [
-  {
-    "id": "3a",
-    "name": "Luggage tag"
-  },
-  {
-    "id": "3b",
-    "name": "Mixtape"
-  },
-  {
-    "id": "3c",
-    "name": "Trading card"
-  },
-  {
-    "id": "3d",
-    "name": "Formal invitation"
-  },
-  {
-    "id": "3e",
-    "name": "Passport page"
-  },
-  {
-    "id": "3f",
-    "name": "Bento tiles"
-  },
-  {
-    "id": "3g",
-    "name": "Sticky notes"
-  },
-  {
-    "id": "3h",
-    "name": "Bingo card"
-  },
-  {
-    "id": "3i",
-    "name": "8-bit arcade"
-  },
-  {
-    "id": "3j",
-    "name": "Tarot card"
-  },
-  {
-    "id": "3k",
-    "name": "Departures board"
-  },
-  {
-    "id": "3l",
-    "name": "Wanted poster"
-  },
-  {
-    "id": "2a",
-    "name": "Boarding pass"
-  },
-  {
-    "id": "2b",
-    "name": "Swiss grid"
-  },
-  {
-    "id": "2c",
-    "name": "Vinyl sleeve"
-  },
-  {
-    "id": "2d",
-    "name": "Comic panel"
-  },
-  {
-    "id": "2e",
-    "name": "Chalkboard"
-  },
-  {
-    "id": "2f",
-    "name": "Scoreboard"
-  },
-  {
-    "id": "2g",
-    "name": "Newspaper"
-  },
-  {
-    "id": "2h",
-    "name": "Confetti invite"
-  },
-  {
-    "id": "2i",
-    "name": "Forecast"
-  },
-  {
-    "id": "2j",
-    "name": "Terminal"
-  },
-  {
-    "id": "2k",
-    "name": "Badge / seal"
-  },
-  {
-    "id": "2l",
-    "name": "Magazine cover"
-  },
-  {
-    "id": "1a",
-    "name": "Bold type poster"
-  },
-  {
-    "id": "1b",
-    "name": "Ticket stub"
-  },
-  {
-    "id": "1c",
-    "name": "Polaroid"
-  },
-  {
-    "id": "1d",
-    "name": "Retro postcard"
-  },
-  {
-    "id": "1e",
-    "name": "Movie marquee"
-  },
-  {
-    "id": "1f",
-    "name": "Minimal calendar"
-  },
-  {
-    "id": "1g",
-    "name": "Handwritten note"
-  },
-  {
-    "id": "1h",
-    "name": "Collage / sticker"
-  },
-  {
-    "id": "1i",
-    "name": "Map pin"
-  },
-  {
-    "id": "1j",
-    "name": "Neon sign"
-  },
-  {
-    "id": "1k",
-    "name": "Receipt"
-  },
-  {
-    "id": "1l",
-    "name": "Playbill / gig poster"
-  }
+  { "id": "1a", "name": "Bold type poster",    "mood": "playful" },
+  { "id": "1b", "name": "Ticket stub",          "mood": "classic" },
+  { "id": "1c", "name": "Polaroid",             "mood": "playful" },
+  { "id": "1d", "name": "Retro postcard",       "mood": "classic" },
+  { "id": "1e", "name": "Movie marquee",        "mood": "dark"    },
+  { "id": "1g", "name": "Handwritten note",     "mood": "classic" },
+  { "id": "1h", "name": "Collage / sticker",    "mood": "playful" },
+  { "id": "1i", "name": "Map pin",              "mood": "playful" },
+  { "id": "1j", "name": "Neon sign",            "mood": "dark"    },
+  { "id": "1k", "name": "Receipt",              "mood": "playful" },
+  { "id": "1l", "name": "Playbill / gig poster","mood": "classic" },
+  { "id": "2b", "name": "Swiss grid",           "mood": "classic" },
+  { "id": "2c", "name": "Vinyl sleeve",         "mood": "classic" },
+  { "id": "2d", "name": "Comic panel",          "mood": "playful" },
+  { "id": "2e", "name": "Chalkboard",           "mood": "dark"    },
+  { "id": "2f", "name": "Scoreboard",           "mood": "dark"    },
+  { "id": "2g", "name": "Newspaper",            "mood": "dark"    },
+  { "id": "2h", "name": "Confetti invite",      "mood": "playful" },
+  { "id": "2j", "name": "Terminal",             "mood": "dark"    },
+  { "id": "2k", "name": "Badge / seal",         "mood": "classic" },
+  { "id": "2l", "name": "Magazine cover",       "mood": "dark"    },
+  { "id": "3a", "name": "Luggage tag",          "mood": "classic" },
+  { "id": "3b", "name": "Mixtape",              "mood": "playful" },
+  { "id": "3c", "name": "Trading card",         "mood": "playful" },
+  { "id": "3d", "name": "Formal invitation",    "mood": "classic" },
+  { "id": "3g", "name": "Sticky notes",         "mood": "playful" },
+  { "id": "3h", "name": "Bingo card",           "mood": "playful" },
+  { "id": "3i", "name": "8-bit arcade",         "mood": "dark"    },
+  { "id": "3j", "name": "Tarot card",           "mood": "dark"    },
+  { "id": "3k", "name": "Departures board",     "mood": "dark"    },
+  { "id": "3l", "name": "Wanted poster",        "mood": "classic" },
+  { "id": "4a", "name": "Fortune cookie",       "mood": "playful" },
+  { "id": "4b", "name": "Matchbook",            "mood": "dark"    },
+  { "id": "4c", "name": "Crossword",            "mood": "classic" },
+  { "id": "4d", "name": "Recipe card",          "mood": "classic" },
+  { "id": "4e", "name": "Library card",         "mood": "classic" }
 ]

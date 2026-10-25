@@ -36,7 +36,9 @@ export default function LoginScreen({ navigation }: Props) {
   const { promptAsync: facebookPromptAsync, request: facebookRequest, error: facebookError } = useFacebookAuth();
   const insets = useSafeAreaInsets();
 
+  const [authTab, setAuthTab] = useState<'email' | 'phone'>('email');
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -46,13 +48,19 @@ export default function LoginScreen({ navigation }: Props) {
 
   const handleLogin = async () => {
     setError('');
-    if (!email || !password) {
-      setError('Please enter your email and password.');
-      return;
+    if (authTab === 'email') {
+      if (!email || !password) { setError('Please enter your email and password.'); return; }
+    } else {
+      const digits = phone.replace(/\D/g, '');
+      if (!digits || digits.length < 10) { setError('Enter a valid phone number.'); return; }
+      if (!password) { setError('Please enter your password.'); return; }
     }
     setLoading(true);
     try {
-      await login(email.trim().toLowerCase(), password);
+      const authEmail = authTab === 'phone'
+        ? `${phone.replace(/\D/g, '')}@phone.datemeup.app`
+        : email.trim().toLowerCase();
+      await login(authEmail, password);
     } catch (err: unknown) {
       const e = err as { response?: { data?: { error?: string } } };
       setError(e?.response?.data?.error || 'Invalid credentials. Please try again.');
@@ -133,17 +141,53 @@ export default function LoginScreen({ navigation }: Props) {
         </Text>
 
         {/* Form */}
-        <DNInput
-          label={t('auth.email')}
-          placeholder="you@example.com"
-          value={email}
-          onChangeText={(t) => { setEmail(t); setError(''); }}
-          keyboardType="email-address"
-          autoCapitalize="none"
-          autoCorrect={false}
-          textContentType="emailAddress"
-          autoComplete="email"
-        />
+        {/* Email / Phone tab switcher */}
+        <View style={{ flexDirection: 'row', gap: 8, marginBottom: SPACING.md }}>
+          {(['email', 'phone'] as const).map((tab) => (
+            <TouchableOpacity
+              key={tab}
+              onPress={() => { setAuthTab(tab); setError(''); }}
+              style={{
+                flex: 1,
+                height: 44,
+                borderRadius: 16,
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: authTab === tab ? colors.primary : colors.surface,
+                borderWidth: 1.5,
+                borderColor: authTab === tab ? colors.primary : colors.line,
+              }}
+            >
+              <Text style={{ fontFamily: 'Sora_700Bold', fontSize: 14, color: authTab === tab ? '#fff' : colors.ink }}>
+                {tab === 'email' ? '✉️  Email' : '📱  Phone'}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        {authTab === 'email' ? (
+          <DNInput
+            label={t('auth.email')}
+            placeholder="you@example.com"
+            value={email}
+            onChangeText={(t) => { setEmail(t); setError(''); }}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoCorrect={false}
+            textContentType="emailAddress"
+            autoComplete="email"
+          />
+        ) : (
+          <DNInput
+            label="Phone number"
+            placeholder="+1 (555) 000-0000"
+            value={phone}
+            onChangeText={(t) => { setPhone(t); setError(''); }}
+            keyboardType="phone-pad"
+            autoCapitalize="none"
+            autoCorrect={false}
+          />
+        )}
         <DNInput
           label={t('auth.password')}
           placeholder="••••••••"
